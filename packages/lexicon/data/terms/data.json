@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 1,
+  "category": "data",
+  "terms": [
+    {
+      "id": "airflow",
+      "form": "AIRFLOW",
+      "display": "Airflow",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Apache Software Foundation",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Platform to author, schedule and monitor data workflows as code.",
+        "fr": "Plateforme pour écrire, planifier et superviser des workflows de données en code."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "pipeline"
+        }
+      ],
+      "sources": [
+        "https://airflow.apache.org/docs/"
+      ]
+    },
+    {
+      "id": "broker",
+      "form": "BROKER",
+      "display": "Broker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Server storing and serving messages in a messaging system like Kafka.",
+        "fr": "Serveur qui stocke et sert les messages dans un système comme Kafka."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "kafka"
+        }
+      ]
+    },
+    {
+      "id": "consumer",
+      "form": "CONSUMER",
+      "display": "Consumer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Client that reads and processes events from a broker.",
+        "fr": "Client qui lit et traite les événements d'un broker."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "broker"
+        },
+        {
+          "type": "related_to",
+          "target": "producer"
+        }
+      ]
+    },
+    {
+      "id": "database",
+      "form": "DATABASE",
+      "display": "Database",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Organised collection of data stored and accessed electronically.",
+        "fr": "Collection organisée de données stockées et consultées électroniquement."
+      }
+    },
+    {
+      "id": "etl",
+      "form": "ETL",
+      "display": "ETL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Extract, Transform, Load: moving data from sources into a target store.",
+        "fr": "Extract, Transform, Load : déplacer des données des sources vers un stockage cible."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "event",
+      "form": "EVENT",
+      "display": "Event",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Record that something happened at a point in time.",
+        "fr": "Enregistrement indiquant qu'un fait s'est produit à un instant donné."
+      }
+    },
+    {
+      "id": "index",
+      "form": "INDEX",
+      "display": "Index",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data structure speeding up lookups in a database at extra storage cost.",
+        "fr": "Structure de données qui accélère les recherches dans une base au prix d'espace supplémentaire."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "kafka",
+      "form": "KAFKA",
+      "display": "Kafka",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Apache Software Foundation",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Distributed event streaming platform.",
+        "fr": "Plateforme distribuée de streaming d'événements."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "stream"
+        },
+        {
+          "type": "uses",
+          "target": "broker"
+        },
+        {
+          "type": "uses",
+          "target": "topic"
+        }
+      ],
+      "sources": [
+        "https://kafka.apache.org/documentation/"
+      ]
+    },
+    {
+      "id": "partition",
+      "form": "PARTITION",
+      "display": "Partition",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Ordered slice of a topic enabling parallelism and scale.",
+        "fr": "Tranche ordonnée d'un topic qui permet le parallélisme et le passage à l'échelle."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "topic"
+        }
+      ]
+    },
+    {
+      "id": "producer",
+      "form": "PRODUCER",
+      "display": "Producer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Client that publishes events to a broker.",
+        "fr": "Client qui publie des événements vers un broker."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "broker"
+        }
+      ]
+    },
+    {
+      "id": "query",
+      "form": "QUERY",
+      "display": "Query",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Request for data or an action sent to a database.",
+        "fr": "Demande de données ou d'action adressée à une base de données."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "redis",
+      "form": "REDIS",
+      "display": "Redis",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Redis Ltd.",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "In-memory key-value store used for caching, queues and leaderboards.",
+        "fr": "Base clé-valeur en mémoire utilisée pour le cache, les files et les classements."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        }
+      ],
+      "sources": [
+        "https://redis.io/docs/latest/"
+      ]
+    },
+    {
+      "id": "spark",
+      "form": "SPARK",
+      "display": "Spark",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Apache Software Foundation",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Engine for large-scale distributed data processing in memory.",
+        "fr": "Moteur de traitement distribué de données à grande échelle en mémoire."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "cluster"
+        }
+      ],
+      "sources": [
+        "https://spark.apache.org/docs/latest/"
+      ]
+    },
+    {
+      "id": "sql",
+      "form": "SQL",
+      "display": "SQL",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Language for querying and managing data in relational databases.",
+        "fr": "Langage pour interroger et gérer les données des bases relationnelles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "stream",
+      "form": "STREAM",
+      "display": "Stream",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Continuous, unbounded flow of events processed as they arrive.",
+        "fr": "Flux continu et illimité d'événements traités au fil de l'eau."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "event"
+        }
+      ]
+    },
+    {
+      "id": "topic",
+      "form": "TOPIC",
+      "display": "Topic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Named channel in Kafka to which events are written and read.",
+        "fr": "Canal nommé dans Kafka où les événements sont écrits et lus."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "kafka"
+        }
+      ]
+    },
+    {
+      "id": "warehouse",
+      "form": "WAREHOUSE",
+      "display": "Data warehouse",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Central store optimised for analytics over historical data.",
+        "fr": "Entrepôt central optimisé pour l'analyse de données historiques."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        }
+      ]
+    }
+  ]
+}

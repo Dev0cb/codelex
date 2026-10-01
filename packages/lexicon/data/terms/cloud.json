@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "category": "cloud",
+  "terms": [
+    {
+      "id": "aws",
+      "form": "AWS",
+      "display": "AWS",
+      "playable": true,
+      "kind": "product",
+      "owner": "Amazon.com, Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Amazon Web Services, the largest public cloud platform.",
+        "fr": "Amazon Web Services, la plus grande plateforme de cloud public."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/"
+      ]
+    },
+    {
+      "id": "azure",
+      "form": "AZURE",
+      "display": "Azure",
+      "playable": true,
+      "kind": "product",
+      "owner": "Microsoft",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Microsoft's public cloud platform.",
+        "fr": "Plateforme de cloud public de Microsoft."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        },
+        {
+          "type": "alternative_to",
+          "target": "aws"
+        }
+      ],
+      "sources": [
+        "https://learn.microsoft.com/azure/"
+      ]
+    },
+    {
+      "id": "bucket",
+      "form": "BUCKET",
+      "display": "Bucket",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Container for files in cloud object storage.",
+        "fr": "Conteneur de fichiers dans un stockage objet cloud."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "form": "CLOUD",
+      "display": "Cloud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "On-demand computing resources rented over the Internet instead of owned.",
+        "fr": "Ressources informatiques à la demande, louées via Internet plutôt que possédées."
+      }
+    },
+    {
+      "id": "ec2",
+      "display": "EC2",
+      "playable": false,
+      "kind": "product",
+      "owner": "Amazon.com, Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "AWS service providing resizable virtual machines.",
+        "fr": "Service AWS fournissant des machines virtuelles redimensionnables."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "aws"
+        },
+        {
+          "type": "is_a",
+          "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "gcp",
+      "form": "GCP",
+      "display": "GCP",
+      "playable": true,
+      "kind": "product",
+      "owner": "Google LLC",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Google Cloud Platform, Google's public cloud.",
+        "fr": "Google Cloud Platform, le cloud public de Google."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        },
+        {
+          "type": "alternative_to",
+          "target": "aws"
+        }
+      ],
+      "sources": [
+        "https://cloud.google.com/docs"
+      ]
+    },
+    {
+      "id": "region",
+      "form": "REGION",
+      "display": "Region",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Geographic area hosting a cloud provider's independent data centres.",
+        "fr": "Zone géographique regroupant des centres de données indépendants d'un fournisseur cloud."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "serverless",
+      "form": "SERVERLESS",
+      "display": "Serverless",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Model where the cloud runs your code on demand without you managing servers.",
+        "fr": "Modèle où le cloud exécute votre code à la demande sans que vous gériez de serveurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "virtual-machine",
+      "display": "Virtual machine",
+      "playable": false,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software emulation of a computer running its own operating system.",
+        "fr": "Émulation logicielle d'un ordinateur qui exécute son propre système d'exploitation."
+      },
+      "aliases": [
+        "VM"
+      ]
+    },
+    {
+      "id": "vpc",
+      "form": "VPC",
+      "display": "VPC",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Isolated private network you define inside a public cloud.",
+        "fr": "Réseau privé isolé que l'on définit au sein d'un cloud public."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cloud"
+        }
+      ]
+    }
+  ]
+}

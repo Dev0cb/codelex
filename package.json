@@ -1,0 +1,23 @@
+{
+  "name": "codelex",
+  "private": true,
+  "description": "CODELEX — Play the language of technology. Monorepo and agentic framework.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22.12 <23", "pnpm": ">=10" },
+  "type": "module",
+  "scripts": {
+    "validate": "pnpm framework:validate && pnpm lexicon:validate && pnpm test:framework",
+    "framework:validate": "node tools/framework/validate.mjs",
+    "lexicon:validate": "node packages/lexicon/scripts/validate.mjs",
+    "test:framework": "node --test \"tools/framework/*.test.mjs\"",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "affected": "turbo run lint typecheck test --filter=...[origin/main]"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  }
+}

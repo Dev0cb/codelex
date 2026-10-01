@@ -1,0 +1,2 @@
+# Playable forms that must never be accepted (offensive or harmful collisions). Uppercase, one per line.
+# Maintained by lexicon-curator; the full list is sourced from a vetted profanity dataset before launch.

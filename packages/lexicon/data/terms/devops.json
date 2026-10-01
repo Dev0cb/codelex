@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "category": "devops",
+  "terms": [
+    {
+      "id": "ansible",
+      "form": "ANSIBLE",
+      "display": "Ansible",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Red Hat",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Agentless automation tool configuring servers with YAML playbooks.",
+        "fr": "Outil d'automatisation sans agent qui configure les serveurs avec des playbooks YAML."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "terraform"
+        }
+      ],
+      "sources": [
+        "https://docs.ansible.com/"
+      ]
+    },
+    {
+      "id": "cluster",
+      "form": "CLUSTER",
+      "display": "Cluster",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Group of machines working together as a single system.",
+        "fr": "Groupe de machines qui fonctionnent ensemble comme un seul système."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pod"
+        }
+      ]
+    },
+    {
+      "id": "container",
+      "form": "CONTAINER",
+      "display": "Container",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Lightweight isolated package of an app and its dependencies sharing the host kernel.",
+        "fr": "Paquet léger et isolé d'une application et de ses dépendances, partageant le noyau de l'hôte."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "kernel"
+        },
+        {
+          "type": "alternative_to",
+          "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "deploy",
+      "form": "DEPLOY",
+      "display": "Deploy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "To release a new version of software into an environment.",
+        "fr": "Mettre en service une nouvelle version d'un logiciel dans un environnement."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "docker",
+      "form": "DOCKER",
+      "display": "Docker",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Docker, Inc.",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Platform to build, ship and run applications in containers.",
+        "fr": "Plateforme pour construire, distribuer et exécuter des applications en conteneurs."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "container"
+        }
+      ],
+      "sources": [
+        "https://docs.docker.com/"
+      ]
+    },
+    {
+      "id": "helm",
+      "form": "HELM",
+      "display": "Helm",
+      "playable": true,
+      "kind": "tool",
+      "owner": "The Linux Foundation",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Package manager for Kubernetes applications using templated charts.",
+        "fr": "Gestionnaire de paquets pour applications Kubernetes basé sur des charts paramétrables."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "kubernetes"
+        }
+      ],
+      "sources": [
+        "https://helm.sh/docs/"
+      ]
+    },
+    {
+      "id": "kubernetes",
+      "form": "KUBERNETES",
+      "display": "Kubernetes",
+      "playable": true,
+      "kind": "tool",
+      "owner": "The Linux Foundation",
+      "categories": [
+        "devops",
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Open-source system orchestrating containers across a cluster of machines.",
+        "fr": "Système open source qui orchestre des conteneurs sur un cluster de machines."
+      },
+      "aliases": [
+        "K8S"
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "container"
+        },
+        {
+          "type": "related_to",
+          "target": "docker"
+        }
+      ],
+      "sources": [
+        "https://kubernetes.io/docs/home/"
+      ],
+      "tags": [
+        "season:s01-the-cloud"
+      ]
+    },
+    {
+      "id": "pipeline",
+      "form": "PIPELINE",
+      "display": "Pipeline",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Automated sequence of stages, e.g. build, test and deploy.",
+        "fr": "Suite automatisée d'étapes, par exemple compiler, tester et déployer."
+      }
+    },
+    {
+      "id": "pod",
+      "form": "POD",
+      "display": "Pod",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Smallest deployable unit in Kubernetes, grouping one or more containers.",
+        "fr": "Plus petite unité déployable dans Kubernetes, regroupant un ou plusieurs conteneurs."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "kubernetes"
+        },
+        {
+          "type": "uses",
+          "target": "container"
+        }
+      ]
+    },
+    {
+      "id": "terraform",
+      "form": "TERRAFORM",
+      "display": "Terraform",
+      "playable": true,
+      "kind": "tool",
+      "owner": "HashiCorp",
+      "categories": [
+        "devops",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Infrastructure-as-code tool describing cloud resources in declarative files.",
+        "fr": "Outil d'infrastructure as code décrivant les ressources cloud dans des fichiers déclaratifs."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "cloud"
+        }
+      ],
+      "sources": [
+        "https://developer.hashicorp.com/terraform/docs"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+.next/
+.expo/
+*.tsbuildinfo
+*.log
+.DS_Store
+
+# secrets — never commit (enforced by .claude/hooks/guard-files.mjs)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# simulation outputs (summaries are committed explicitly)
+packages/game-engine/sim-results/*.json
+
+# local Claude Code settings
+.claude/settings.local.json

@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "category": "hardware",
+  "terms": [
+    {
+      "id": "cache",
+      "form": "CACHE",
+      "display": "Cache",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Small fast storage keeping copies of frequently used data.",
+        "fr": "Petit stockage rapide qui garde des copies des données souvent utilisées."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "cpu",
+      "form": "CPU",
+      "display": "CPU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Central processing unit executing a computer's instructions.",
+        "fr": "Processeur central qui exécute les instructions d'un ordinateur."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "motherboard"
+        }
+      ]
+    },
+    {
+      "id": "firmware",
+      "form": "FIRMWARE",
+      "display": "Firmware",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Low-level software embedded in a hardware device.",
+        "fr": "Logiciel de bas niveau intégré à un appareil matériel."
+      }
+    },
+    {
+      "id": "gpu",
+      "form": "GPU",
+      "display": "GPU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Processor with thousands of cores for graphics and parallel computing like AI.",
+        "fr": "Processeur à milliers de cœurs pour le graphisme et le calcul parallèle comme l'IA."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "motherboard",
+      "form": "MOTHERBOARD",
+      "display": "Motherboard",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Main circuit board connecting a computer's components.",
+        "fr": "Carte principale qui relie les composants d'un ordinateur."
+      }
+    },
+    {
+      "id": "ram",
+      "form": "RAM",
+      "display": "RAM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Fast volatile memory holding running programs and data.",
+        "fr": "Mémoire vive rapide et volatile qui contient programmes et données en cours."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "register",
+      "form": "REGISTER",
+      "display": "Register",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Tiny ultra-fast storage slot inside the CPU.",
+        "fr": "Minuscule emplacement de stockage ultra-rapide au cœur du processeur."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "ssd",
+      "form": "SSD",
+      "display": "SSD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Solid-state drive storing data on flash chips, with no moving parts.",
+        "fr": "Disque à mémoire flash, sans pièces mobiles."
+      }
+    },
+    {
+      "id": "transistor",
+      "form": "TRANSISTOR",
+      "display": "Transistor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tiny electronic switch; billions form every modern chip.",
+        "fr": "Minuscule interrupteur électronique ; des milliards composent chaque puce moderne."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cpu"
+        }
+      ]
+    }
+  ]
+}

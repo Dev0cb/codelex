@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "category": "networking",
+  "terms": [
+    {
+      "id": "bandwidth",
+      "form": "BANDWIDTH",
+      "display": "Bandwidth",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Maximum amount of data a link can carry per second.",
+        "fr": "Quantité maximale de données qu'un lien peut transporter par seconde."
+      }
+    },
+    {
+      "id": "dns",
+      "form": "DNS",
+      "display": "DNS",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "System translating domain names into IP addresses.",
+        "fr": "Système qui traduit les noms de domaine en adresses IP."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "udp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc1034"
+      ]
+    },
+    {
+      "id": "http",
+      "form": "HTTP",
+      "display": "HTTP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Request-response protocol used by browsers and APIs to exchange web resources.",
+        "fr": "Protocole requête-réponse utilisé par les navigateurs et les API pour échanger des ressources web."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tcp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9110"
+      ]
+    },
+    {
+      "id": "https",
+      "form": "HTTPS",
+      "display": "HTTPS",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "HTTP secured with TLS encryption.",
+        "fr": "HTTP sécurisé par le chiffrement TLS."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "http"
+        },
+        {
+          "type": "uses",
+          "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "ip",
+      "form": "IP",
+      "display": "IP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Protocol addressing and routing packets between networks.",
+        "fr": "Protocole qui adresse et achemine les paquets entre réseaux."
+      },
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc791"
+      ]
+    },
+    {
+      "id": "latency",
+      "form": "LATENCY",
+      "display": "Latency",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Delay between sending a request and receiving its response.",
+        "fr": "Délai entre l'envoi d'une requête et la réception de sa réponse."
+      }
+    },
+    {
+      "id": "packet",
+      "form": "PACKET",
+      "display": "Packet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Small unit of data carried across a network with addressing headers.",
+        "fr": "Petite unité de données transportée sur un réseau avec des en-têtes d'adressage."
+      }
+    },
+    {
+      "id": "router",
+      "form": "ROUTER",
+      "display": "Router",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device forwarding packets between networks toward their destination.",
+        "fr": "Équipement qui transmet les paquets entre réseaux vers leur destination."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "tcp",
+      "form": "TCP",
+      "display": "TCP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Reliable, ordered, connection-oriented transport protocol of the Internet.",
+        "fr": "Protocole de transport fiable, ordonné et orienté connexion d'Internet."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ip"
+        },
+        {
+          "type": "alternative_to",
+          "target": "udp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9293"
+      ]
+    },
+    {
+      "id": "udp",
+      "form": "UDP",
+      "display": "UDP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Lightweight connectionless transport protocol favouring speed over reliability.",
+        "fr": "Protocole de transport léger sans connexion qui privilégie la vitesse à la fiabilité."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ip"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc768"
+      ]
+    },
+    {
+      "id": "vpn",
+      "form": "VPN",
+      "display": "VPN",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Encrypted tunnel extending a private network over the public Internet.",
+        "fr": "Tunnel chiffré qui étend un réseau privé à travers Internet."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "encryption"
+        }
+      ]
+    }
+  ]
+}

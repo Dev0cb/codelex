@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "category": "systems",
+  "terms": [
+    {
+      "id": "deadlock",
+      "form": "DEADLOCK",
+      "display": "Deadlock",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "State where tasks wait on each other forever, so none can proceed.",
+        "fr": "Situation où des tâches s'attendent mutuellement indéfiniment, bloquant tout progrès."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mutex"
+        }
+      ]
+    },
+    {
+      "id": "filesystem",
+      "form": "FILESYSTEM",
+      "display": "File system",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Method an OS uses to organise and store files on a disk.",
+        "fr": "Méthode utilisée par l'OS pour organiser et stocker les fichiers sur un disque."
+      }
+    },
+    {
+      "id": "kernel",
+      "form": "KERNEL",
+      "display": "Kernel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Core of an operating system managing CPU, memory and devices.",
+        "fr": "Cœur d'un système d'exploitation qui gère le processeur, la mémoire et les périphériques."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "operating-system"
+        }
+      ]
+    },
+    {
+      "id": "linux",
+      "form": "LINUX",
+      "display": "Linux",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Linus Torvalds",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Open-source Unix-like kernel powering most servers, Android and the cloud.",
+        "fr": "Noyau libre de type Unix qui fait tourner la plupart des serveurs, Android et le cloud."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "kernel"
+        }
+      ],
+      "sources": [
+        "https://www.kernel.org/doc/html/latest/"
+      ]
+    },
+    {
+      "id": "memory",
+      "form": "MEMORY",
+      "display": "Memory",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Storage a computer uses to hold data and instructions while working.",
+        "fr": "Espace où l'ordinateur conserve données et instructions pendant le travail."
+      }
+    },
+    {
+      "id": "mutex",
+      "form": "MUTEX",
+      "display": "Mutex",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Lock ensuring only one thread at a time accesses a shared resource.",
+        "fr": "Verrou garantissant qu'un seul thread à la fois accède à une ressource partagée."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "thread"
+        }
+      ]
+    },
+    {
+      "id": "operating-system",
+      "display": "Operating system",
+      "playable": false,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Software managing hardware resources and providing services to applications.",
+        "fr": "Logiciel qui gère les ressources matérielles et fournit des services aux applications."
+      },
+      "aliases": [
+        "OS"
+      ]
+    },
+    {
+      "id": "process",
+      "form": "PROCESS",
+      "display": "Process",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Running instance of a program with its own memory space.",
+        "fr": "Instance d'un programme en cours d'exécution avec son propre espace mémoire."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "scheduler",
+      "form": "SCHEDULER",
+      "display": "Scheduler",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "OS component deciding which thread or process runs next on the CPU.",
+        "fr": "Composant de l'OS qui décide quel thread ou processus s'exécute ensuite sur le CPU."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "socket",
+      "form": "SOCKET",
+      "display": "Socket",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Endpoint used by a program to send and receive data over a network.",
+        "fr": "Point de terminaison qu'un programme utilise pour échanger des données sur un réseau."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tcp"
+        }
+      ]
+    },
+    {
+      "id": "thread",
+      "form": "THREAD",
+      "display": "Thread",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Smallest unit of execution scheduled by the OS, sharing memory within a process.",
+        "fr": "Plus petite unité d'exécution planifiée par l'OS, partageant la mémoire d'un processus."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "process"
+        }
+      ]
+    }
+  ]
+}

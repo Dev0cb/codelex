@@ -1,0 +1,8 @@
+# Human owners per area. Agent ownership is defined in CLAUDE.md §4; replace @Dev0cb with team handles as the team grows.
+*                         @Dev0cb
+/.claude/                 @Dev0cb
+/CLAUDE.md                @Dev0cb
+/docs/vision/             @Dev0cb
+/docs/adr/                @Dev0cb
+/packages/lexicon/data/   @Dev0cb
+/infra/                   @Dev0cb

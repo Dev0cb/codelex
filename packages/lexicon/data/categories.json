@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "categories": [
+    { "id": "programming", "name": { "en": "Programming", "fr": "Programmation" }, "icon": "code", "colorToken": "category.programming" },
+    { "id": "systems", "name": { "en": "Systems", "fr": "Systèmes" }, "icon": "cpu-chip", "colorToken": "category.systems" },
+    { "id": "networking", "name": { "en": "Networking", "fr": "Réseaux" }, "icon": "network", "colorToken": "category.networking" },
+    { "id": "cloud", "name": { "en": "Cloud", "fr": "Cloud" }, "icon": "cloud", "colorToken": "category.cloud" },
+    { "id": "devops", "name": { "en": "DevOps", "fr": "DevOps" }, "icon": "infinity", "colorToken": "category.devops" },
+    { "id": "data", "name": { "en": "Data", "fr": "Données" }, "icon": "database", "colorToken": "category.data" },
+    { "id": "ai", "name": { "en": "AI", "fr": "IA" }, "icon": "sparkles", "colorToken": "category.ai" },
+    { "id": "cybersecurity", "name": { "en": "Cybersecurity", "fr": "Cybersécurité" }, "icon": "shield", "colorToken": "category.cybersecurity" },
+    { "id": "hardware", "name": { "en": "Hardware", "fr": "Matériel" }, "icon": "memory", "colorToken": "category.hardware" }
+  ]
+}

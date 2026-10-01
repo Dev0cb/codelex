@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "category": "cybersecurity",
+  "terms": [
+    {
+      "id": "botnet",
+      "form": "BOTNET",
+      "display": "Botnet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Network of compromised machines controlled remotely by an attacker.",
+        "fr": "Réseau de machines compromises contrôlées à distance par un attaquant."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "encryption",
+      "form": "ENCRYPTION",
+      "display": "Encryption",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Transforming data so only holders of the right key can read it.",
+        "fr": "Transformation des données pour que seuls les détenteurs de la bonne clé puissent les lire."
+      }
+    },
+    {
+      "id": "exploit",
+      "form": "EXPLOIT",
+      "display": "Exploit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Code or technique taking advantage of a vulnerability.",
+        "fr": "Code ou technique tirant parti d'une vulnérabilité."
+      }
+    },
+    {
+      "id": "firewall",
+      "form": "FIREWALL",
+      "display": "Firewall",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Barrier filtering network traffic according to security rules.",
+        "fr": "Barrière qui filtre le trafic réseau selon des règles de sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "packet"
+        }
+      ]
+    },
+    {
+      "id": "hash",
+      "form": "HASH",
+      "display": "Hash",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Fixed-size fingerprint computed from data; tiny input changes alter it completely.",
+        "fr": "Empreinte de taille fixe calculée à partir de données ; un infime changement la modifie totalement."
+      }
+    },
+    {
+      "id": "malware",
+      "form": "MALWARE",
+      "display": "Malware",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Software designed to damage, spy on or take control of systems.",
+        "fr": "Logiciel conçu pour endommager, espionner ou prendre le contrôle de systèmes."
+      }
+    },
+    {
+      "id": "password",
+      "form": "PASSWORD",
+      "display": "Password",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Secret string used to prove identity when signing in.",
+        "fr": "Chaîne secrète servant à prouver son identité lors de la connexion."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hash"
+        }
+      ]
+    },
+    {
+      "id": "phishing",
+      "form": "PHISHING",
+      "display": "Phishing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Scam using fake messages to trick people into revealing secrets.",
+        "fr": "Arnaque utilisant de faux messages pour pousser à révéler des secrets."
+      }
+    },
+    {
+      "id": "ransomware",
+      "form": "RANSOMWARE",
+      "display": "Ransomware",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Malware that encrypts victims' files and demands payment.",
+        "fr": "Logiciel malveillant qui chiffre les fichiers des victimes et exige une rançon."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        },
+        {
+          "type": "uses",
+          "target": "encryption"
+        }
+      ]
+    }
+  ]
+}

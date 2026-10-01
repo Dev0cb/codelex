@@ -1,0 +1,17 @@
+name: Lexicon term
+description: Suggest or correct a technology term (handled via /lexicon-add)
+labels: [lexicon]
+body:
+  - type: input
+    id: term
+    attributes: { label: Term, placeholder: "KUBERNETES" }
+    validations: { required: true }
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options: [programming, systems, networking, cloud, devops, data, ai, cybersecurity, hardware, other]
+    validations: { required: true }
+  - type: textarea
+    id: details
+    attributes: { label: Correction / definition idea / related terms / official source URL }

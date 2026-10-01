@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "category": "programming",
+  "terms": [
+    {
+      "id": "array",
+      "form": "ARRAY",
+      "display": "Array",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Ordered collection of elements accessed by numeric index.",
+        "fr": "Collection ordonnée d'éléments accessibles par un indice numérique."
+      }
+    },
+    {
+      "id": "c-language",
+      "display": "C",
+      "playable": false,
+      "kind": "language",
+      "categories": [
+        "programming",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Low-level compiled language behind most operating systems and embedded software.",
+        "fr": "Langage compilé de bas niveau à la base de la plupart des systèmes d'exploitation et logiciels embarqués."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "class",
+      "form": "CLASS",
+      "display": "Class",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Blueprint defining the data and behaviour shared by a family of objects.",
+        "fr": "Modèle définissant les données et le comportement communs à une famille d'objets."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "object"
+        }
+      ]
+    },
+    {
+      "id": "compiler",
+      "form": "COMPILER",
+      "display": "Compiler",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Program translating source code into machine code or bytecode before execution.",
+        "fr": "Programme qui traduit le code source en code machine ou bytecode avant exécution."
+      }
+    },
+    {
+      "id": "decorator",
+      "form": "DECORATOR",
+      "display": "Decorator",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Function wrapping another function to extend its behaviour without changing it.",
+        "fr": "Fonction qui enveloppe une autre fonction pour étendre son comportement sans la modifier."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "python"
+        },
+        {
+          "type": "uses",
+          "target": "function"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "dict",
+      "form": "DICT",
+      "display": "dict",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Python's built-in mapping from unique keys to values.",
+        "fr": "Table d'association native de Python entre des clés uniques et des valeurs."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "python"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "function",
+      "form": "FUNCTION",
+      "display": "Function",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Named, reusable block of code that takes inputs and returns a result.",
+        "fr": "Bloc de code nommé et réutilisable qui reçoit des entrées et renvoie un résultat."
+      }
+    },
+    {
+      "id": "generator",
+      "form": "GENERATOR",
+      "display": "Generator",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Function that lazily produces a sequence of values with yield.",
+        "fr": "Fonction qui produit paresseusement une suite de valeurs avec yield."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "iterator"
+        },
+        {
+          "type": "part_of",
+          "target": "python"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "git",
+      "form": "GIT",
+      "display": "Git",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Software Freedom Conservancy",
+      "categories": [
+        "programming",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Distributed version control system tracking changes to source code.",
+        "fr": "Système de gestion de versions distribué qui suit les modifications du code source."
+      },
+      "sources": [
+        "https://git-scm.com/doc"
+      ]
+    },
+    {
+      "id": "iterator",
+      "form": "ITERATOR",
+      "display": "Iterator",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Object that yields the items of a collection one at a time.",
+        "fr": "Objet qui fournit les éléments d'une collection un par un."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "python"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "java",
+      "form": "JAVA",
+      "display": "Java",
+      "playable": true,
+      "kind": "language",
+      "owner": "Oracle",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Statically typed, object-oriented language that runs on the Java Virtual Machine.",
+        "fr": "Langage orienté objet à typage statique qui s'exécute sur la machine virtuelle Java."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "uses",
+          "target": "compiler"
+        }
+      ],
+      "sources": [
+        "https://dev.java/"
+      ]
+    },
+    {
+      "id": "list",
+      "form": "LIST",
+      "display": "list",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Python's built-in ordered, mutable sequence of items.",
+        "fr": "Séquence ordonnée et modifiable intégrée à Python."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "python"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "object",
+      "form": "OBJECT",
+      "display": "Object",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Instance bundling data and the methods that act on it.",
+        "fr": "Instance regroupant des données et les méthodes qui agissent dessus."
+      }
+    },
+    {
+      "id": "programming-language",
+      "display": "Programming language",
+      "playable": false,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Formal language used to write instructions a computer can execute.",
+        "fr": "Langage formel servant à écrire des instructions exécutables par un ordinateur."
+      }
+    },
+    {
+      "id": "python",
+      "form": "PYTHON",
+      "display": "Python",
+      "playable": true,
+      "kind": "language",
+      "owner": "Python Software Foundation",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "General-purpose language known for readable syntax, used in web, data science, automation and AI.",
+        "fr": "Langage polyvalent réputé pour sa syntaxe lisible, utilisé pour le web, la data, l'automatisation et l'IA."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ],
+      "sources": [
+        "https://docs.python.org/3/"
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "recursion",
+      "form": "RECURSION",
+      "display": "Recursion",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Technique where a function solves a problem by calling itself on smaller inputs.",
+        "fr": "Technique où une fonction résout un problème en s'appelant sur des entrées plus petites."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "function"
+        }
+      ]
+    },
+    {
+      "id": "rust",
+      "form": "RUST",
+      "display": "Rust",
+      "playable": true,
+      "kind": "language",
+      "owner": "Rust Foundation",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Systems language guaranteeing memory safety without a garbage collector.",
+        "fr": "Langage système garantissant la sûreté mémoire sans ramasse-miettes."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "alternative_to",
+          "target": "c-language"
+        }
+      ],
+      "sources": [
+        "https://www.rust-lang.org/learn"
+      ]
+    },
+    {
+      "id": "set",
+      "form": "SET",
+      "display": "set",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unordered collection of unique elements supporting union and intersection.",
+        "fr": "Collection non ordonnée d'éléments uniques supportant union et intersection."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "python"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "tuple",
+      "form": "TUPLE",
+      "display": "tuple",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Python's immutable ordered sequence, often used for fixed groups of values.",
+        "fr": "Séquence ordonnée immuable de Python, souvent utilisée pour des groupes de valeurs fixes."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "python"
+        },
+        {
+          "type": "alternative_to",
+          "target": "list"
+        }
+      ],
+      "tags": [
+        "mission:master-python"
+      ]
+    },
+    {
+      "id": "variable",
+      "form": "VARIABLE",
+      "display": "Variable",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Named storage location holding a value that can change.",
+        "fr": "Emplacement nommé contenant une valeur qui peut changer."
+      }
+    }
+  ]
+}
