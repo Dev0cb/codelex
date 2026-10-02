@@ -25,6 +25,36 @@
       ]
     },
     {
+      "id": "availability-zone",
+      "form": "ZONE",
+      "display": "Availability zone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Availability zone: an isolated group of data centres inside a cloud region, used for resilience.",
+        "fr": "Zone de disponibilité : groupe isolé de centres de données dans une région cloud, pour la résilience."
+      },
+      "inflections": [
+        {
+          "form": "ZONES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "region"
+        }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+      ]
+    },
+    {
       "id": "aws",
       "form": "AWS",
       "display": "AWS",
@@ -72,6 +102,9 @@
           "type": "implements",
           "target": "serverless"
         }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/lambda/"
       ]
     },
     {
@@ -98,6 +131,9 @@
           "type": "uses",
           "target": "bucket"
         }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/s3/"
       ]
     },
     {
@@ -143,7 +179,75 @@
       "definitions": {
         "en": "Copy of data kept to restore it after loss.",
         "fr": "Copie de données conservée pour les restaurer après une perte."
-      }
+      },
+      "inflections": [
+        {
+          "form": "BACKUPS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "bigquery",
+      "form": "BIGQUERY",
+      "display": "BigQuery",
+      "playable": true,
+      "kind": "product",
+      "owner": "Google LLC",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "BigQuery: Google Cloud's serverless data warehouse queried with SQL.",
+        "fr": "BigQuery : entrepôt de données serverless de Google Cloud interrogé en SQL."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gcp"
+        },
+        {
+          "type": "is_a",
+          "target": "warehouse"
+        },
+        {
+          "type": "uses",
+          "target": "sql"
+        }
+      ],
+      "sources": [
+        "https://cloud.google.com/bigquery/docs"
+      ]
+    },
+    {
+      "id": "blob",
+      "form": "BLOB",
+      "display": "Blob",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Binary large object: a chunk of unstructured data, such as an image, kept in object storage.",
+        "fr": "Binary large object : bloc de données non structurées, comme une image, rangé en stockage objet."
+      },
+      "inflections": [
+        {
+          "form": "BLOBS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "bucket"
+        }
+      ]
     },
     {
       "id": "bucket",
@@ -160,6 +264,12 @@
         "en": "Container for files in cloud object storage.",
         "fr": "Conteneur de fichiers dans un stockage objet cloud."
       },
+      "inflections": [
+        {
+          "form": "BUCKETS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -180,7 +290,41 @@
       "definitions": {
         "en": "On-demand computing resources rented over the Internet instead of owned.",
         "fr": "Ressources informatiques à la demande, louées via Internet plutôt que possédées."
-      }
+      },
+      "inflections": [
+        {
+          "form": "CLOUDS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "cloud-native",
+      "form": "CLOUDNATIVE",
+      "display": "Cloud native",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Software designed from the start to run in the cloud, typically as containers and microservices.",
+        "fr": "Logiciel conçu dès le départ pour le cloud, en général sous forme de conteneurs et microservices."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "container"
+        },
+        {
+          "type": "uses",
+          "target": "microservice"
+        }
+      ],
+      "sources": [
+        "https://github.com/cncf/toc/blob/main/DEFINITION.md"
+      ]
     },
     {
       "id": "cloudflare",
@@ -203,6 +347,9 @@
           "type": "implements",
           "target": "cdn"
         }
+      ],
+      "sources": [
+        "https://developers.cloudflare.com/"
       ]
     },
     {
@@ -220,11 +367,149 @@
         "en": "Building housing thousands of servers, storage and network gear.",
         "fr": "Bâtiment abritant des milliers de serveurs, de baies de stockage et d'équipements réseau."
       },
+      "inflections": [
+        {
+          "form": "DATACENTERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "region"
         }
+      ]
+    },
+    {
+      "id": "dc",
+      "form": "DC",
+      "display": "DC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "DC: data centre, the usual shorthand in cloud operations for a building full of servers.",
+        "fr": "DC : data centre (centre de données), abréviation courante pour un bâtiment rempli de serveurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "datacenter"
+        }
+      ],
+      "sources": [
+        "https://aws.amazon.com/what-is/data-center/"
+      ]
+    },
+    {
+      "id": "digitalocean",
+      "form": "DIGITALOCEAN",
+      "display": "DigitalOcean",
+      "playable": true,
+      "kind": "product",
+      "owner": "DigitalOcean, LLC",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "DigitalOcean: cloud provider offering virtual servers, managed databases and storage.",
+        "fr": "DigitalOcean : fournisseur de cloud proposant serveurs virtuels, bases de données gérées et stockage."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "iaas"
+        },
+        {
+          "type": "alternative_to",
+          "target": "aws"
+        }
+      ],
+      "sources": [
+        "https://docs.digitalocean.com/"
+      ]
+    },
+    {
+      "id": "download",
+      "form": "DOWNLOAD",
+      "display": "Download",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Copying a file from a remote server or the internet onto your device.",
+        "fr": "Copie d'un fichier depuis un serveur distant ou Internet vers votre appareil."
+      },
+      "inflections": [
+        {
+          "form": "DOWNLOADS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        }
+      ]
+    },
+    {
+      "id": "downtime",
+      "form": "DOWNTIME",
+      "display": "Downtime",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Period during which a service or website is unavailable.",
+        "fr": "Période pendant laquelle un service ou un site est indisponible."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "outage"
+        }
+      ]
+    },
+    {
+      "id": "dropbox",
+      "form": "DROPBOX",
+      "display": "Dropbox",
+      "playable": true,
+      "kind": "product",
+      "owner": "Dropbox, Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Dropbox: online file storage and sharing service from Dropbox, Inc.",
+        "fr": "Dropbox : service de stockage et de partage de fichiers en ligne de Dropbox, Inc."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "sync"
+        },
+        {
+          "type": "is_a",
+          "target": "saas"
+        }
+      ],
+      "sources": [
+        "https://help.dropbox.com/"
       ]
     },
     {
@@ -250,6 +535,9 @@
           "type": "is_a",
           "target": "virtual-machine"
         }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/ec2/"
       ]
     },
     {
@@ -275,6 +563,62 @@
       ]
     },
     {
+      "id": "egress",
+      "form": "EGRESS",
+      "display": "Egress",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Data leaving a network or cloud, often billed by the provider.",
+        "fr": "Données qui sortent d'un réseau ou d'un cloud, souvent facturées par le fournisseur."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "ingress"
+        },
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ]
+    },
+    {
+      "id": "eks",
+      "form": "EKS",
+      "display": "Amazon EKS",
+      "playable": true,
+      "kind": "product",
+      "owner": "Amazon.com, Inc.",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Amazon EKS: AWS managed service that runs Kubernetes clusters for you.",
+        "fr": "Amazon EKS : service géré d'AWS qui exploite des clusters Kubernetes pour vous."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "aws"
+        },
+        {
+          "type": "uses",
+          "target": "kubernetes"
+        }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/eks/"
+      ]
+    },
+    {
       "id": "elasticity",
       "form": "ELASTICITY",
       "display": "Elasticity",
@@ -292,6 +636,31 @@
         {
           "type": "related_to",
           "target": "autoscaling"
+        }
+      ]
+    },
+    {
+      "id": "faas",
+      "form": "FAAS",
+      "display": "FaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Function as a service: cloud model where you upload small functions and pay per execution.",
+        "fr": "Function as a service : modèle cloud où l'on déploie de petites fonctions facturées à l'exécution."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "serverless"
+        },
+        {
+          "type": "related_to",
+          "target": "paas"
         }
       ]
     },
@@ -315,6 +684,36 @@
           "type": "related_to",
           "target": "region"
         }
+      ]
+    },
+    {
+      "id": "firebase",
+      "form": "FIREBASE",
+      "display": "Firebase",
+      "playable": true,
+      "kind": "product",
+      "owner": "Google LLC",
+      "categories": [
+        "cloud",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Firebase: Google platform of hosted back-end services for mobile and web apps.",
+        "fr": "Firebase : plateforme Google de services back-end hébergés pour applis mobiles et web."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gcp"
+        },
+        {
+          "type": "related_to",
+          "target": "backend"
+        }
+      ],
+      "sources": [
+        "https://firebase.google.com/docs"
       ]
     },
     {
@@ -347,6 +746,40 @@
       ]
     },
     {
+      "id": "gke",
+      "form": "GKE",
+      "display": "Google Kubernetes Engine",
+      "playable": true,
+      "kind": "product",
+      "owner": "Google LLC",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "GKE: Google Kubernetes Engine, Google Cloud's managed Kubernetes service.",
+        "fr": "GKE : Google Kubernetes Engine, le service Kubernetes géré de Google Cloud."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gcp"
+        },
+        {
+          "type": "uses",
+          "target": "kubernetes"
+        },
+        {
+          "type": "alternative_to",
+          "target": "eks"
+        }
+      ],
+      "sources": [
+        "https://cloud.google.com/kubernetes-engine/docs"
+      ]
+    },
+    {
       "id": "heroku",
       "form": "HEROKU",
       "display": "Heroku",
@@ -365,6 +798,90 @@
         {
           "type": "is_a",
           "target": "paas"
+        }
+      ],
+      "sources": [
+        "https://devcenter.heroku.com/"
+      ]
+    },
+    {
+      "id": "hosting",
+      "form": "HOSTING",
+      "display": "Hosting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Renting server space and connectivity so a website or app is reachable online.",
+        "fr": "Location d'espace serveur et de connectivité pour qu'un site ou une appli soit accessible en ligne."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "server"
+        },
+        {
+          "type": "related_to",
+          "target": "website"
+        }
+      ]
+    },
+    {
+      "id": "hybrid-cloud",
+      "form": "HYBRIDCLOUD",
+      "display": "Hybrid cloud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Setup that combines a company's own servers with public cloud services.",
+        "fr": "Organisation qui combine les serveurs propres d'une entreprise et des services de cloud public."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "public-cloud"
+        },
+        {
+          "type": "uses",
+          "target": "private-cloud"
+        }
+      ]
+    },
+    {
+      "id": "hyperscaler",
+      "form": "HYPERSCALER",
+      "display": "Hyperscaler",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Cloud provider operating at global scale with millions of servers across many regions.",
+        "fr": "Fournisseur de cloud opérant à l'échelle mondiale avec des millions de serveurs dans de nombreuses régions."
+      },
+      "inflections": [
+        {
+          "form": "HYPERSCALERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "aws"
+        },
+        {
+          "type": "related_to",
+          "target": "region"
         }
       ]
     },
@@ -412,6 +929,116 @@
       ]
     },
     {
+      "id": "icloud",
+      "form": "ICLOUD",
+      "display": "iCloud",
+      "playable": true,
+      "kind": "product",
+      "owner": "Apple Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "iCloud: Apple's online service that stores and syncs photos, files and backups across devices.",
+        "fr": "iCloud : service en ligne d'Apple qui stocke et synchronise photos, fichiers et sauvegardes."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "sync"
+        },
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ],
+      "sources": [
+        "https://support.apple.com/icloud"
+      ]
+    },
+    {
+      "id": "ingress",
+      "form": "INGRESS",
+      "display": "Ingress",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Traffic entering a network or cluster, or the rule that routes it to the right service.",
+        "fr": "Trafic qui entre dans un réseau ou un cluster, ou la règle qui l'aiguille vers le bon service."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "loadbalancer"
+        },
+        {
+          "type": "related_to",
+          "target": "kubernetes"
+        }
+      ]
+    },
+    {
+      "id": "instance",
+      "form": "INSTANCE",
+      "display": "Instance",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One running virtual server rented from a cloud provider.",
+        "fr": "Serveur virtuel en fonctionnement loué à un fournisseur de cloud."
+      },
+      "inflections": [
+        {
+          "form": "INSTANCES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "migration",
+      "form": "MIGRATION",
+      "display": "Migration",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Moving applications or data from one system or environment to another, for example to the cloud.",
+        "fr": "Déplacement d'applications ou de données d'un système ou environnement vers un autre, par ex. le cloud."
+      },
+      "inflections": [
+        {
+          "form": "MIGRATIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
       "id": "multicloud",
       "form": "MULTICLOUD",
       "display": "Multicloud",
@@ -430,6 +1057,35 @@
           "type": "related_to",
           "target": "cloud"
         }
+      ]
+    },
+    {
+      "id": "onedrive",
+      "form": "ONEDRIVE",
+      "display": "OneDrive",
+      "playable": true,
+      "kind": "product",
+      "owner": "Microsoft",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "OneDrive: Microsoft's cloud storage service for files and photos.",
+        "fr": "OneDrive : service de stockage en ligne de Microsoft pour fichiers et photos."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "dropbox"
+        },
+        {
+          "type": "related_to",
+          "target": "azure"
+        }
+      ],
+      "sources": [
+        "https://support.microsoft.com/onedrive"
       ]
     },
     {
@@ -455,6 +1111,34 @@
       ]
     },
     {
+      "id": "outage",
+      "form": "OUTAGE",
+      "display": "Outage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unplanned failure that makes an online service stop working for its users.",
+        "fr": "Panne imprévue qui rend un service en ligne inutilisable pour ses utilisateurs."
+      },
+      "inflections": [
+        {
+          "form": "OUTAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        }
+      ]
+    },
+    {
       "id": "paas",
       "form": "PAAS",
       "display": "PaaS",
@@ -476,6 +1160,74 @@
       ]
     },
     {
+      "id": "private-cloud",
+      "form": "PRIVATECLOUD",
+      "display": "Private cloud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Cloud infrastructure dedicated to a single organisation, on its premises or hosted.",
+        "fr": "Infrastructure cloud réservée à une seule organisation, dans ses locaux ou hébergée."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        },
+        {
+          "type": "alternative_to",
+          "target": "public-cloud"
+        }
+      ]
+    },
+    {
+      "id": "provisioning",
+      "form": "PROVISIONING",
+      "display": "Provisioning",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Setting up the servers, networks and accounts a system needs, ideally automatically.",
+        "fr": "Mise en place des serveurs, réseaux et comptes nécessaires à un système, idéalement automatisée."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "terraform"
+        }
+      ]
+    },
+    {
+      "id": "public-cloud",
+      "form": "PUBLICCLOUD",
+      "display": "Public cloud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Computing resources shared by many customers and rented on demand from a provider.",
+        "fr": "Ressources informatiques partagées entre de nombreux clients et louées à la demande."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
       "id": "quota",
       "form": "QUOTA",
       "display": "Quota",
@@ -488,7 +1240,43 @@
       "definitions": {
         "en": "Limit on how much of a resource an account may use.",
         "fr": "Limite de ressources qu'un compte peut utiliser."
-      }
+      },
+      "inflections": [
+        {
+          "form": "QUOTAS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "rds",
+      "form": "RDS",
+      "display": "Amazon RDS",
+      "playable": true,
+      "kind": "product",
+      "owner": "Amazon.com, Inc.",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Amazon RDS: AWS managed relational database service (PostgreSQL, MySQL and others).",
+        "fr": "Amazon RDS : service AWS de bases de données relationnelles gérées (PostgreSQL, MySQL, etc.)."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "aws"
+        },
+        {
+          "type": "uses",
+          "target": "postgres"
+        }
+      ],
+      "sources": [
+        "https://docs.aws.amazon.com/rds/"
+      ]
     },
     {
       "id": "region",
@@ -504,6 +1292,12 @@
         "en": "Geographic area hosting a cloud provider's independent data centres.",
         "fr": "Zone géographique regroupant des centres de données indépendants d'un fournisseur cloud."
       },
+      "inflections": [
+        {
+          "form": "REGIONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -533,6 +1327,31 @@
       ]
     },
     {
+      "id": "scalability",
+      "form": "SCALABILITY",
+      "display": "Scalability",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Ability of a system to handle more users or data by adding resources.",
+        "fr": "Capacité d'un système à absorber plus d'utilisateurs ou de données en ajoutant des ressources."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "elasticity"
+        },
+        {
+          "type": "related_to",
+          "target": "autoscaling"
+        }
+      ]
+    },
+    {
       "id": "serverless",
       "form": "SERVERLESS",
       "display": "Serverless",
@@ -554,6 +1373,36 @@
       ]
     },
     {
+      "id": "sla",
+      "form": "SLA",
+      "display": "SLA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Service level agreement: a contract promising a level of service, such as 99.9 % uptime.",
+        "fr": "Service level agreement : contrat qui garantit un niveau de service, par exemple 99,9 % de disponibilité."
+      },
+      "inflections": [
+        {
+          "form": "SLAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "slo"
+        }
+      ],
+      "sources": [
+        "https://sre.google/sre-book/service-level-objectives/"
+      ]
+    },
+    {
       "id": "snapshot",
       "form": "SNAPSHOT",
       "display": "Snapshot",
@@ -568,10 +1417,88 @@
         "en": "Point-in-time copy of a disk or database.",
         "fr": "Copie d'un disque ou d'une base à un instant donné."
       },
+      "inflections": [
+        {
+          "form": "SNAPSHOTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "backup"
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "form": "STORAGE",
+      "display": "Storage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Keeping data on disks or online services so it can be read back later.",
+        "fr": "Conservation de données sur des disques ou des services en ligne pour les relire plus tard."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "disk"
+        },
+        {
+          "type": "related_to",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "streaming",
+      "form": "STREAMING",
+      "display": "Streaming",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Playing video or music while it is delivered over the internet, without a full download first.",
+        "fr": "Lecture de vidéo ou de musique pendant sa diffusion par Internet, sans téléchargement complet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cdn"
+        },
+        {
+          "type": "alternative_to",
+          "target": "download"
+        }
+      ]
+    },
+    {
+      "id": "sync",
+      "form": "SYNC",
+      "display": "Sync",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Synchronisation: keeping the same files or data up to date across several devices.",
+        "fr": "Synchronisation : maintenir les mêmes fichiers ou données à jour sur plusieurs appareils."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "storage"
         }
       ]
     },
@@ -589,6 +1516,12 @@
         "en": "Customer whose data is isolated within shared cloud software.",
         "fr": "Client dont les données sont isolées au sein d'un logiciel cloud partagé."
       },
+      "inflections": [
+        {
+          "form": "TENANTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -597,9 +1530,119 @@
       ]
     },
     {
+      "id": "throttling",
+      "form": "THROTTLING",
+      "display": "Throttling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Deliberately slowing or limiting requests so a service is not overloaded.",
+        "fr": "Ralentissement ou limitation volontaire des requêtes pour éviter de surcharger un service."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "quota"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
+      "id": "upload",
+      "form": "UPLOAD",
+      "display": "Upload",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Sending a file from your device to a remote server or online service.",
+        "fr": "Envoi d'un fichier depuis votre appareil vers un serveur distant ou un service en ligne."
+      },
+      "inflections": [
+        {
+          "form": "UPLOADS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "download"
+        }
+      ]
+    },
+    {
+      "id": "uptime",
+      "form": "UPTIME",
+      "display": "Uptime",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Share of time a service is up and reachable, often stated as a percentage.",
+        "fr": "Part du temps pendant laquelle un service fonctionne et répond, souvent en pourcentage."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "downtime"
+        },
+        {
+          "type": "related_to",
+          "target": "sla"
+        }
+      ]
+    },
+    {
+      "id": "vercel",
+      "form": "VERCEL",
+      "display": "Vercel",
+      "playable": true,
+      "kind": "product",
+      "owner": "Vercel Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Vercel: platform for deploying and hosting front-end and full-stack web apps.",
+        "fr": "Vercel : plateforme de déploiement et d'hébergement d'applications web front-end et full-stack."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "paas"
+        },
+        {
+          "type": "related_to",
+          "target": "hosting"
+        }
+      ],
+      "sources": [
+        "https://vercel.com/docs"
+      ]
+    },
+    {
       "id": "virtual-machine",
+      "form": "VM",
       "display": "Virtual machine",
-      "playable": false,
+      "playable": true,
       "kind": "concept",
       "categories": [
         "cloud",
@@ -607,11 +1650,48 @@
       ],
       "difficulty": "intermediate",
       "definitions": {
-        "en": "Software emulation of a computer running its own operating system.",
-        "fr": "Émulation logicielle d'un ordinateur qui exécute son propre système d'exploitation."
+        "en": "VM: virtual machine, software that emulates a computer running its own operating system.",
+        "fr": "VM : virtual machine (machine virtuelle), logiciel qui émule un ordinateur doté de son propre système."
       },
-      "aliases": [
-        "VM"
+      "inflections": [
+        {
+          "form": "VMS",
+          "kind": "plural"
+        }
+      ],
+      "sources": [
+        "https://www.redhat.com/en/topics/virtualization/what-is-a-virtual-machine"
+      ]
+    },
+    {
+      "id": "volume",
+      "form": "VOLUME",
+      "display": "Volume",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Virtual disk attached to a server or container to store its data persistently.",
+        "fr": "Disque virtuel attaché à un serveur ou un conteneur pour stocker ses données durablement."
+      },
+      "inflections": [
+        {
+          "form": "VOLUMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "storage"
+        },
+        {
+          "type": "related_to",
+          "target": "container"
+        }
       ]
     },
     {
@@ -629,10 +1709,73 @@
         "en": "Isolated private network you define inside a public cloud.",
         "fr": "Réseau privé isolé que l'on définit au sein d'un cloud public."
       },
+      "inflections": [
+        {
+          "form": "VPCS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "vps",
+      "form": "VPS",
+      "display": "VPS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Virtual private server: a rented virtual machine that behaves like your own server.",
+        "fr": "Virtual private server : machine virtuelle louée qui se comporte comme votre propre serveur."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "virtual-machine"
+        },
+        {
+          "type": "related_to",
+          "target": "hosting"
+        }
+      ]
+    },
+    {
+      "id": "webapp",
+      "form": "WEBAPP",
+      "display": "Web app",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Application used through a web browser, with its logic running on remote servers.",
+        "fr": "Application utilisée dans un navigateur web, dont la logique tourne sur des serveurs distants."
+      },
+      "inflections": [
+        {
+          "form": "WEBAPPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "browser"
+        },
+        {
+          "type": "is_a",
+          "target": "app"
         }
       ]
     }

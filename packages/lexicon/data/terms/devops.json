@@ -3,6 +3,30 @@
   "category": "devops",
   "terms": [
     {
+      "id": "agile",
+      "form": "AGILE",
+      "display": "Agile",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Way of building software in short iterations with frequent feedback from users.",
+        "fr": "Façon de développer un logiciel par courtes itérations avec des retours fréquents des utilisateurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "devops"
+        }
+      ],
+      "sources": [
+        "https://agilemanifesto.org/"
+      ]
+    },
+    {
       "id": "ansible",
       "form": "ANSIBLE",
       "display": "Ansible",
@@ -41,6 +65,12 @@
         "en": "File produced by a build, such as a package or container image.",
         "fr": "Fichier produit par un build, comme un paquet ou une image de conteneur."
       },
+      "inflections": [
+        {
+          "form": "ARTIFACTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -63,10 +93,47 @@
         "en": "Independent line of development in version control.",
         "fr": "Ligne de développement indépendante dans un gestionnaire de versions."
       },
+      "inflections": [
+        {
+          "form": "BRANCHES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "form": "BUILD",
+      "display": "Build",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Turning source code into a runnable program or package, or the result of doing so.",
+        "fr": "Transformation du code source en programme ou paquet exécutable, ou le résultat obtenu."
+      },
+      "inflections": [
+        {
+          "form": "BUILDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "compiler"
+        },
+        {
+          "type": "part_of",
+          "target": "pipeline"
         }
       ]
     },
@@ -152,6 +219,12 @@
         "en": "Group of machines working together as a single system.",
         "fr": "Groupe de machines qui fonctionnent ensemble comme un seul système."
       },
+      "inflections": [
+        {
+          "form": "CLUSTERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -174,6 +247,12 @@
         "en": "Saved snapshot of changes in a version-control history.",
         "fr": "Instantané enregistré de modifications dans l'historique de versions."
       },
+      "inflections": [
+        {
+          "form": "COMMITS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -195,6 +274,12 @@
         "en": "Lightweight isolated package of an app and its dependencies sharing the host kernel.",
         "fr": "Paquet léger et isolé d'une application et de ses dépendances, partageant le noyau de l'hôte."
       },
+      "inflections": [
+        {
+          "form": "CONTAINERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "runs_on",
@@ -224,6 +309,31 @@
         {
           "type": "part_of",
           "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "devops",
+      "form": "DEVOPS",
+      "display": "DevOps",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Culture and practices where development and operations teams ship and run software together.",
+        "fr": "Culture et pratiques où équipes de développement et d'exploitation livrent et exploitent ensemble."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ci"
+        },
+        {
+          "type": "uses",
+          "target": "cd"
         }
       ]
     },
@@ -273,6 +383,9 @@
           "type": "uses",
           "target": "git"
         }
+      ],
+      "sources": [
+        "https://docs.github.com/"
       ]
     },
     {
@@ -299,6 +412,9 @@
           "type": "alternative_to",
           "target": "github"
         }
+      ],
+      "sources": [
+        "https://docs.gitlab.com/"
       ]
     },
     {
@@ -374,6 +490,64 @@
       ]
     },
     {
+      "id": "hotfix",
+      "form": "HOTFIX",
+      "display": "Hotfix",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Urgent fix shipped straight to production to repair a serious bug.",
+        "fr": "Correctif urgent livré directement en production pour réparer un bug grave."
+      },
+      "inflections": [
+        {
+          "form": "HOTFIXES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "patch"
+        },
+        {
+          "type": "related_to",
+          "target": "bug"
+        }
+      ]
+    },
+    {
+      "id": "incident",
+      "form": "INCIDENT",
+      "display": "Incident",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Unplanned event that degrades or interrupts a service and needs a response.",
+        "fr": "Événement imprévu qui dégrade ou interrompt un service et demande une intervention."
+      },
+      "inflections": [
+        {
+          "form": "INCIDENTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "monitoring"
+        }
+      ]
+    },
+    {
       "id": "jenkins",
       "form": "JENKINS",
       "display": "Jenkins",
@@ -432,6 +606,33 @@
       ]
     },
     {
+      "id": "log",
+      "form": "LOG",
+      "display": "Log",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Time-stamped record of events written by a program, used for debugging and auditing.",
+        "fr": "Journal horodaté des événements écrit par un programme, utile au débogage et à l'audit."
+      },
+      "inflections": [
+        {
+          "form": "LOGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "logging"
+        }
+      ]
+    },
+    {
       "id": "logging",
       "form": "LOGGING",
       "display": "Logging",
@@ -483,6 +684,12 @@
         "en": "Small independently deployable service owning one business capability.",
         "fr": "Petit service déployable indépendamment, responsable d'une seule capacité métier."
       },
+      "inflections": [
+        {
+          "form": "MICROSERVICES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "alternative_to",
@@ -518,7 +725,13 @@
       "definitions": {
         "en": "Application built and deployed as a single unit.",
         "fr": "Application construite et déployée comme un seul bloc."
-      }
+      },
+      "inflections": [
+        {
+          "form": "MONOLITHS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "nginx",
@@ -569,6 +782,32 @@
       ]
     },
     {
+      "id": "orchestration",
+      "form": "ORCHESTRATION",
+      "display": "Orchestration",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Automated coordination of many containers or services: placing, starting, scaling and healing them.",
+        "fr": "Coordination automatisée de nombreux conteneurs ou services : placement, démarrage, mise à l'échelle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kubernetes"
+        },
+        {
+          "type": "uses",
+          "target": "container"
+        }
+      ]
+    },
+    {
       "id": "pipeline",
       "form": "PIPELINE",
       "display": "Pipeline",
@@ -582,7 +821,13 @@
       "definitions": {
         "en": "Automated sequence of stages, e.g. build, test and deploy.",
         "fr": "Suite automatisée d'étapes, par exemple compiler, tester et déployer."
-      }
+      },
+      "inflections": [
+        {
+          "form": "PIPELINES",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "pod",
@@ -598,6 +843,12 @@
         "en": "Smallest deployable unit in Kubernetes, grouping one or more containers.",
         "fr": "Plus petite unité déployable dans Kubernetes, regroupant un ou plusieurs conteneurs."
       },
+      "inflections": [
+        {
+          "form": "PODS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -607,6 +858,40 @@
           "type": "uses",
           "target": "container"
         }
+      ]
+    },
+    {
+      "id": "pr",
+      "form": "PR",
+      "display": "PR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "PR: pull request, a proposal to merge code changes that teammates review first.",
+        "fr": "PR : pull request, proposition de fusion de modifications de code relue par l'équipe."
+      },
+      "inflections": [
+        {
+          "form": "PRS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "merge"
+        },
+        {
+          "type": "related_to",
+          "target": "branch"
+        }
+      ],
+      "sources": [
+        "https://docs.github.com/en/pull-requests"
       ]
     },
     {
@@ -632,6 +917,30 @@
       ]
     },
     {
+      "id": "qa",
+      "form": "QA",
+      "display": "QA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "QA: quality assurance, the practices and testing that check software works before release.",
+        "fr": "QA : quality assurance (assurance qualité), pratiques et tests qui vérifient un logiciel avant sa sortie."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        }
+      ],
+      "sources": [
+        "https://glossary.istqb.org/"
+      ]
+    },
+    {
       "id": "registry",
       "form": "REGISTRY",
       "display": "Registry",
@@ -653,6 +962,64 @@
       ]
     },
     {
+      "id": "release",
+      "form": "RELEASE",
+      "display": "Release",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Version of software made available to users at a given moment.",
+        "fr": "Version d'un logiciel mise à disposition des utilisateurs à un moment donné."
+      },
+      "inflections": [
+        {
+          "form": "RELEASES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deploy"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "repo",
+      "form": "REPO",
+      "display": "Repository",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Repository: storage place for a project's code and its full change history.",
+        "fr": "Dépôt (repository) : lieu de stockage du code d'un projet et de tout son historique."
+      },
+      "inflections": [
+        {
+          "form": "REPOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "git"
+        }
+      ]
+    },
+    {
       "id": "rollback",
       "form": "ROLLBACK",
       "display": "Rollback",
@@ -666,11 +1033,99 @@
         "en": "Reverting to a previous working version after a bad change.",
         "fr": "Retour à une version précédente fonctionnelle après un mauvais changement."
       },
+      "inflections": [
+        {
+          "form": "ROLLBACKS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "deploy"
         }
+      ]
+    },
+    {
+      "id": "runbook",
+      "form": "RUNBOOK",
+      "display": "Runbook",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Step-by-step guide for operating a system or handling a known kind of incident.",
+        "fr": "Guide pas à pas pour exploiter un système ou traiter un type d'incident connu."
+      },
+      "inflections": [
+        {
+          "form": "RUNBOOKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        }
+      ]
+    },
+    {
+      "id": "scrum",
+      "form": "SCRUM",
+      "display": "Scrum",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Agile framework that organises work in fixed sprints with defined team roles.",
+        "fr": "Cadre agile qui organise le travail en sprints fixes avec des rôles d'équipe définis."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "agile"
+        }
+      ],
+      "sources": [
+        "https://scrumguides.org/"
+      ]
+    },
+    {
+      "id": "slo",
+      "form": "SLO",
+      "display": "SLO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Service level objective: the reliability target a team sets for a service, such as 99.9 %.",
+        "fr": "Service level objective : objectif de fiabilité qu'une équipe fixe à un service, par ex. 99,9 %."
+      },
+      "inflections": [
+        {
+          "form": "SLOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sre"
+        }
+      ],
+      "sources": [
+        "https://sre.google/sre-book/service-level-objectives/"
       ]
     },
     {
@@ -691,6 +1146,31 @@
         {
           "type": "related_to",
           "target": "observability"
+        }
+      ]
+    },
+    {
+      "id": "staging",
+      "form": "STAGING",
+      "display": "Staging",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Environment that mirrors production, where a release is tested before going live.",
+        "fr": "Environnement qui reproduit la production, où l'on teste une version avant sa mise en ligne."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        },
+        {
+          "type": "related_to",
+          "target": "release"
         }
       ]
     },
@@ -718,6 +1198,34 @@
       ],
       "sources": [
         "https://developer.hashicorp.com/terraform/docs"
+      ]
+    },
+    {
+      "id": "version",
+      "form": "VERSION",
+      "display": "Version",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Numbered state of a piece of software, such as 2.1.0, that tells changes apart.",
+        "fr": "État numéroté d'un logiciel, comme 2.1.0, qui permet de distinguer les évolutions."
+      },
+      "inflections": [
+        {
+          "form": "VERSIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "commit"
+        }
       ]
     },
     {

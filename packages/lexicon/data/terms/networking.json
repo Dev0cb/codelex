@@ -3,6 +3,30 @@
   "category": "networking",
   "terms": [
     {
+      "id": "ap",
+      "form": "AP",
+      "display": "AP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "AP: access point, a device that lets Wi-Fi devices join a wired network.",
+        "fr": "AP : access point (point d'accès), appareil qui relie les équipements Wi-Fi à un réseau filaire."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "wifi"
+        }
+      ],
+      "sources": [
+        "https://www.ieee802.org/11/"
+      ]
+    },
+    {
       "id": "api",
       "form": "API",
       "display": "API",
@@ -16,7 +40,37 @@
       "definitions": {
         "en": "Interface letting programs talk to each other.",
         "fr": "Interface permettant à des programmes de communiquer entre eux."
-      }
+      },
+      "inflections": [
+        {
+          "form": "APIS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "as",
+      "form": "AS",
+      "display": "AS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "AS: autonomous system, a network under one routing policy that exchanges routes with others via BGP.",
+        "fr": "AS : autonomous system, réseau sous une même politique de routage qui échange ses routes via BGP."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bgp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc1930"
+      ]
     },
     {
       "id": "bandwidth",
@@ -52,6 +106,66 @@
           "type": "related_to",
           "target": "router"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc4271"
+      ]
+    },
+    {
+      "id": "bluetooth",
+      "form": "BLUETOOTH",
+      "display": "Bluetooth",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Bluetooth: short-range wireless standard linking phones to earbuds, speakers and other devices.",
+        "fr": "Bluetooth : norme sans fil à courte portée qui relie téléphones, écouteurs, enceintes et autres appareils."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "wifi"
+        }
+      ],
+      "sources": [
+        "https://www.bluetooth.com/specifications/"
+      ]
+    },
+    {
+      "id": "browser",
+      "form": "BROWSER",
+      "display": "Browser",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "networking",
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "App used to open and display websites, such as Chrome, Firefox or Safari.",
+        "fr": "Application qui ouvre et affiche les sites web, comme Chrome, Firefox ou Safari."
+      },
+      "inflections": [
+        {
+          "form": "BROWSERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "http"
+        },
+        {
+          "type": "related_to",
+          "target": "web"
+        }
       ]
     },
     {
@@ -69,6 +183,12 @@
         "en": "Content delivery network caching content close to users worldwide.",
         "fr": "Réseau de diffusion qui met en cache le contenu au plus près des utilisateurs."
       },
+      "inflections": [
+        {
+          "form": "CDNS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -95,6 +215,9 @@
           "type": "uses",
           "target": "udp"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc2131"
       ]
     },
     {
@@ -122,6 +245,63 @@
       ]
     },
     {
+      "id": "domain",
+      "form": "DOMAIN",
+      "display": "Domain name",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Human-readable internet name, such as example.com, that DNS turns into an IP address.",
+        "fr": "Nom Internet lisible, comme example.com, que le DNS traduit en adresse IP."
+      },
+      "inflections": [
+        {
+          "form": "DOMAINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "dns"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc1034"
+      ]
+    },
+    {
+      "id": "email",
+      "form": "EMAIL",
+      "display": "Email",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Electronic mail: messages sent between addresses over the internet.",
+        "fr": "Courrier électronique : messages envoyés entre adresses via Internet."
+      },
+      "inflections": [
+        {
+          "form": "EMAILS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "smtp"
+        }
+      ]
+    },
+    {
       "id": "ethernet",
       "form": "ETHERNET",
       "display": "Ethernet",
@@ -144,6 +324,55 @@
           "type": "alternative_to",
           "target": "wifi"
         }
+      ],
+      "sources": [
+        "https://www.ieee802.org/3/"
+      ]
+    },
+    {
+      "id": "fiber",
+      "form": "FIBER",
+      "display": "Fibre optic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Glass cable that carries data as light, giving very fast internet connections.",
+        "fr": "Câble en verre qui transporte les données sous forme de lumière, pour des connexions très rapides."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ]
+    },
+    {
+      "id": "ftp",
+      "form": "FTP",
+      "display": "FTP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "File transfer protocol: a long-standing protocol for moving files between a client and a server.",
+        "fr": "File transfer protocol : protocole historique de transfert de fichiers entre client et serveur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tcp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc959"
       ]
     },
     {
@@ -160,10 +389,70 @@
         "en": "Node connecting two networks that use different protocols.",
         "fr": "Nœud reliant deux réseaux qui utilisent des protocoles différents."
       },
+      "inflections": [
+        {
+          "form": "GATEWAYS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "router"
+        }
+      ]
+    },
+    {
+      "id": "host",
+      "form": "HOST",
+      "display": "Host",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Any computer or device on a network that has an address and can send or receive data.",
+        "fr": "Tout ordinateur ou appareil d'un réseau qui possède une adresse et peut émettre ou recevoir."
+      },
+      "inflections": [
+        {
+          "form": "HOSTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "hotspot",
+      "form": "HOTSPOT",
+      "display": "Hotspot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Place or device that shares an internet connection over Wi-Fi.",
+        "fr": "Lieu ou appareil qui partage une connexion Internet en Wi-Fi."
+      },
+      "inflections": [
+        {
+          "form": "HOTSPOTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "wifi"
         }
       ]
     },
@@ -215,6 +504,34 @@
           "type": "uses",
           "target": "encryption"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9110"
+      ]
+    },
+    {
+      "id": "internet",
+      "form": "INTERNET",
+      "display": "Internet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Worldwide network of networks that exchange data using the IP protocol.",
+        "fr": "Réseau mondial de réseaux qui échangent des données grâce au protocole IP."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ip"
+        },
+        {
+          "type": "uses",
+          "target": "tcp"
+        }
       ]
     },
     {
@@ -253,6 +570,36 @@
           "type": "is_a",
           "target": "ip"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc8200"
+      ]
+    },
+    {
+      "id": "isp",
+      "form": "ISP",
+      "display": "ISP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Internet service provider: the company that connects homes and businesses to the internet.",
+        "fr": "Internet service provider : fournisseur d'accès qui relie foyers et entreprises à Internet."
+      },
+      "inflections": [
+        {
+          "form": "ISPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        }
       ]
     },
     {
@@ -268,7 +615,13 @@
       "definitions": {
         "en": "Local area network connecting devices in one home, office or campus.",
         "fr": "Réseau local reliant les appareils d'une maison, d'un bureau ou d'un campus."
-      }
+      },
+      "inflections": [
+        {
+          "form": "LANS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "latency",
@@ -300,10 +653,48 @@
         "en": "Component spreading traffic across several servers.",
         "fr": "Composant qui répartit le trafic entre plusieurs serveurs."
       },
+      "inflections": [
+        {
+          "form": "LOADBALANCERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "proxy"
+        }
+      ]
+    },
+    {
+      "id": "modem",
+      "form": "MODEM",
+      "display": "Modem",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that converts signals from a phone, cable or fibre line into internet data.",
+        "fr": "Appareil qui convertit les signaux d'une ligne téléphonique, câble ou fibre en données Internet."
+      },
+      "inflections": [
+        {
+          "form": "MODEMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "router"
+        },
+        {
+          "type": "related_to",
+          "target": "isp"
         }
       ]
     },
@@ -341,7 +732,13 @@
       "definitions": {
         "en": "Small unit of data carried across a network with addressing headers.",
         "fr": "Petite unité de données transportée sur un réseau avec des en-têtes d'adressage."
-      }
+      },
+      "inflections": [
+        {
+          "form": "PACKETS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "ping",
@@ -357,6 +754,12 @@
         "en": "Utility measuring whether a host is reachable and how fast it answers.",
         "fr": "Utilitaire qui vérifie si un hôte répond et en combien de temps."
       },
+      "inflections": [
+        {
+          "form": "PINGS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -378,6 +781,12 @@
         "en": "Number identifying a specific service on a networked machine.",
         "fr": "Numéro identifiant un service précis sur une machine en réseau."
       },
+      "inflections": [
+        {
+          "form": "PORTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -398,7 +807,13 @@
       "definitions": {
         "en": "Server that relays requests between a client and other servers.",
         "fr": "Serveur qui relaie les requêtes entre un client et d'autres serveurs."
-      }
+      },
+      "inflections": [
+        {
+          "form": "PROXIES",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "rest",
@@ -437,11 +852,94 @@
         "en": "Device forwarding packets between networks toward their destination.",
         "fr": "Équipement qui transmet les paquets entre réseaux vers leur destination."
       },
+      "inflections": [
+        {
+          "form": "ROUTERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
           "target": "ip"
         }
+      ]
+    },
+    {
+      "id": "sms",
+      "form": "SMS",
+      "display": "SMS",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Short message service: text messages of up to 160 characters sent over mobile networks.",
+        "fr": "Short message service : messages texte de 160 caractères au plus envoyés sur les réseaux mobiles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mfa"
+        }
+      ],
+      "sources": [
+        "https://www.3gpp.org/DynaReport/23040.htm"
+      ]
+    },
+    {
+      "id": "smtp",
+      "form": "SMTP",
+      "display": "SMTP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Simple mail transfer protocol: the protocol servers use to send email to each other.",
+        "fr": "Simple mail transfer protocol : protocole utilisé par les serveurs pour s'envoyer les e-mails."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tcp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc5321"
+      ]
+    },
+    {
+      "id": "ssh",
+      "form": "SSH",
+      "display": "SSH",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Secure shell: encrypted protocol for logging in to and running commands on a remote machine.",
+        "fr": "Secure shell : protocole chiffré pour se connecter à une machine distante et y lancer des commandes."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "encryption"
+        },
+        {
+          "type": "related_to",
+          "target": "shell"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc4251"
       ]
     },
     {
@@ -464,6 +962,9 @@
           "type": "alternative_to",
           "target": "tls"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6101"
       ]
     },
     {
@@ -480,6 +981,12 @@
         "en": "Logical subdivision of an IP network.",
         "fr": "Subdivision logique d'un réseau IP."
       },
+      "inflections": [
+        {
+          "form": "SUBNETS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -502,6 +1009,12 @@
         "en": "Device connecting machines within a local network.",
         "fr": "Équipement qui relie les machines d'un réseau local."
       },
+      "inflections": [
+        {
+          "form": "SWITCHES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -561,6 +1074,9 @@
           "type": "uses",
           "target": "certificate"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc8446"
       ]
     },
     {
@@ -601,11 +1117,51 @@
         "en": "Web address locating a resource on the Internet.",
         "fr": "Adresse web qui localise une ressource sur Internet."
       },
+      "inflections": [
+        {
+          "form": "URLS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "dns"
         }
+      ]
+    },
+    {
+      "id": "vlan",
+      "form": "VLAN",
+      "display": "VLAN",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Virtual LAN: one physical network split into separate logical networks.",
+        "fr": "Virtual LAN : un réseau physique découpé en plusieurs réseaux logiques séparés."
+      },
+      "inflections": [
+        {
+          "form": "VLANS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "lan"
+        },
+        {
+          "type": "related_to",
+          "target": "switch"
+        }
+      ],
+      "sources": [
+        "https://www.ieee802.org/1/pages/802.1Q.html"
       ]
     },
     {
@@ -623,6 +1179,12 @@
         "en": "Encrypted tunnel extending a private network over the public Internet.",
         "fr": "Tunnel chiffré qui étend un réseau privé à travers Internet."
       },
+      "inflections": [
+        {
+          "form": "VPNS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -644,10 +1206,75 @@
         "en": "Wide area network spanning cities or countries.",
         "fr": "Réseau étendu couvrant des villes ou des pays."
       },
+      "inflections": [
+        {
+          "form": "WANS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "alternative_to",
           "target": "lan"
+        }
+      ]
+    },
+    {
+      "id": "web",
+      "form": "WEB",
+      "display": "Web",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "World Wide Web: pages and apps linked by URLs and served over HTTP on the internet.",
+        "fr": "World Wide Web : pages et applis reliées par des URL et servies en HTTP sur Internet."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "internet"
+        },
+        {
+          "type": "uses",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/standards/"
+      ]
+    },
+    {
+      "id": "website",
+      "form": "WEBSITE",
+      "display": "Website",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Set of linked web pages published under one domain name.",
+        "fr": "Ensemble de pages web reliées publiées sous un même nom de domaine."
+      },
+      "inflections": [
+        {
+          "form": "WEBSITES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "web"
+        },
+        {
+          "type": "uses",
+          "target": "domain"
         }
       ]
     },
@@ -665,6 +1292,12 @@
         "en": "Protocol keeping a two-way connection open for real-time data.",
         "fr": "Protocole qui maintient une connexion bidirectionnelle pour le temps réel."
       },
+      "inflections": [
+        {
+          "form": "WEBSOCKETS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -674,6 +1307,9 @@
           "type": "related_to",
           "target": "http"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6455"
       ]
     },
     {
@@ -696,6 +1332,9 @@
           "type": "part_of",
           "target": "lan"
         }
+      ],
+      "sources": [
+        "https://www.wi-fi.org/"
       ]
     }
   ]

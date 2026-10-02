@@ -3,6 +3,30 @@
   "category": "hardware",
   "terms": [
     {
+      "id": "ar",
+      "form": "AR",
+      "display": "AR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "AR: augmented reality, digital images overlaid on a live view of the real world.",
+        "fr": "AR : augmented reality (réalité augmentée), images numériques superposées à la vue du monde réel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vr"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API"
+      ]
+    },
+    {
       "id": "arm",
       "form": "ARM",
       "display": "Arm",
@@ -26,6 +50,9 @@
           "type": "related_to",
           "target": "risc"
         }
+      ],
+      "sources": [
+        "https://developer.arm.com/"
       ]
     },
     {
@@ -42,6 +69,12 @@
         "en": "Chip custom-built for one specific task.",
         "fr": "Puce conçue sur mesure pour une tâche précise."
       },
+      "inflections": [
+        {
+          "form": "ASICS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -66,7 +99,13 @@
       "definitions": {
         "en": "Rechargeable cell powering portable devices.",
         "fr": "Accumulateur rechargeable qui alimente les appareils portables."
-      }
+      },
+      "inflections": [
+        {
+          "form": "BATTERIES",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "bios",
@@ -95,6 +134,37 @@
       ]
     },
     {
+      "id": "bit",
+      "form": "BIT",
+      "display": "Bit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Binary digit: the smallest unit of information, a 0 or a 1.",
+        "fr": "Binary digit : la plus petite unité d'information, un 0 ou un 1."
+      },
+      "inflections": [
+        {
+          "form": "BITS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "byte"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/binary.html"
+      ]
+    },
+    {
       "id": "bus",
       "form": "BUS",
       "display": "Bus",
@@ -108,11 +178,48 @@
         "en": "Shared pathway carrying data between computer components.",
         "fr": "Voie partagée qui transporte les données entre composants."
       },
+      "inflections": [
+        {
+          "form": "BUSES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "motherboard"
         }
+      ]
+    },
+    {
+      "id": "byte",
+      "form": "BYTE",
+      "display": "Byte",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Group of 8 bits, the basic unit for measuring memory and file sizes.",
+        "fr": "Octet : groupe de 8 bits, unité de base pour mesurer mémoire et taille des fichiers."
+      },
+      "inflections": [
+        {
+          "form": "BYTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/binary.html"
       ]
     },
     {
@@ -130,6 +237,12 @@
         "en": "Small fast storage keeping copies of frequently used data.",
         "fr": "Petit stockage rapide qui garde des copies des données souvent utilisées."
       },
+      "inflections": [
+        {
+          "form": "CACHES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -151,6 +264,12 @@
         "en": "Small piece of silicon containing an integrated circuit.",
         "fr": "Petite pièce de silicium contenant un circuit intégré."
       },
+      "inflections": [
+        {
+          "form": "CHIPS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -172,6 +291,12 @@
         "en": "Pace at which a CPU executes cycles, measured in gigahertz.",
         "fr": "Rythme auquel un processeur exécute ses cycles, mesuré en gigahertz."
       },
+      "inflections": [
+        {
+          "form": "CLOCKS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -193,6 +318,12 @@
         "en": "Independent processing unit inside a CPU.",
         "fr": "Unité de calcul indépendante au sein d'un processeur."
       },
+      "inflections": [
+        {
+          "form": "CORES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -214,10 +345,47 @@
         "en": "Central processing unit executing a computer's instructions.",
         "fr": "Processeur central qui exécute les instructions d'un ordinateur."
       },
+      "inflections": [
+        {
+          "form": "CPUS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "motherboard"
+        }
+      ]
+    },
+    {
+      "id": "disk",
+      "form": "DISK",
+      "display": "Disk",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that stores data permanently, such as a hard disk or SSD.",
+        "fr": "Support qui stocke des données de façon permanente, comme un disque dur ou un SSD."
+      },
+      "inflections": [
+        {
+          "form": "DISKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hdd"
+        },
+        {
+          "type": "related_to",
+          "target": "ssd"
         }
       ]
     },
@@ -251,11 +419,41 @@
         "en": "Chip whose logic can be reprogrammed after manufacturing.",
         "fr": "Puce dont la logique peut être reprogrammée après fabrication."
       },
+      "inflections": [
+        {
+          "form": "FPGAS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "chip"
         }
+      ]
+    },
+    {
+      "id": "gb",
+      "form": "GB",
+      "display": "GB",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "GB: gigabyte, a unit of data equal to one billion bytes, common for phone storage and RAM.",
+        "fr": "Go (GB, gigabyte) : giga-octet, un milliard d'octets, unité courante du stockage et de la RAM."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mb"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/binary.html"
       ]
     },
     {
@@ -273,6 +471,12 @@
         "en": "Processor with thousands of cores for graphics and parallel computing like AI.",
         "fr": "Processeur à milliers de cœurs pour le graphisme et le calcul parallèle comme l'IA."
       },
+      "inflections": [
+        {
+          "form": "GPUS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "alternative_to",
@@ -294,6 +498,12 @@
         "en": "Hard disk drive storing data on spinning magnetic platters.",
         "fr": "Disque dur stockant les données sur des plateaux magnétiques en rotation."
       },
+      "inflections": [
+        {
+          "form": "HDDS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "alternative_to",
@@ -320,6 +530,33 @@
           "type": "related_to",
           "target": "monitor"
         }
+      ],
+      "sources": [
+        "https://www.hdmi.org/"
+      ]
+    },
+    {
+      "id": "kb",
+      "form": "KB",
+      "display": "KB",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "KB: kilobyte, a unit of data equal to 1,000 bytes (1,024 in older usage).",
+        "fr": "Ko (KB, kilobyte) : kilo-octet, unité de données valant 1 000 octets (1 024 dans l'usage ancien)."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "byte"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/binary.html"
       ]
     },
     {
@@ -335,7 +572,13 @@
       "definitions": {
         "en": "Input device with keys for typing.",
         "fr": "Périphérique d'entrée à touches pour la saisie."
-      }
+      },
+      "inflections": [
+        {
+          "form": "KEYBOARDS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "laptop",
@@ -350,7 +593,68 @@
       "definitions": {
         "en": "Portable computer with built-in screen and keyboard.",
         "fr": "Ordinateur portable avec écran et clavier intégrés."
-      }
+      },
+      "inflections": [
+        {
+          "form": "LAPTOPS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "led",
+      "form": "LED",
+      "display": "LED",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Light-emitting diode: a small, efficient light used in indicators and screens.",
+        "fr": "Light-emitting diode : petite source de lumière économe utilisée dans les voyants et les écrans."
+      },
+      "inflections": [
+        {
+          "form": "LEDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "semiconductor"
+        },
+        {
+          "type": "part_of",
+          "target": "screen"
+        }
+      ]
+    },
+    {
+      "id": "mb",
+      "form": "MB",
+      "display": "MB",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "MB: megabyte, a unit of data equal to one million bytes.",
+        "fr": "Mo (MB, megabyte) : méga-octet, unité de données valant un million d'octets."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kb"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/binary.html"
+      ]
     },
     {
       "id": "microcontroller",
@@ -390,7 +694,13 @@
       "definitions": {
         "en": "Screen displaying a computer's output.",
         "fr": "Écran qui affiche ce que produit l'ordinateur."
-      }
+      },
+      "inflections": [
+        {
+          "form": "MONITORS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "motherboard",
@@ -405,7 +715,13 @@
       "definitions": {
         "en": "Main circuit board connecting a computer's components.",
         "fr": "Carte principale qui relie les composants d'un ordinateur."
-      }
+      },
+      "inflections": [
+        {
+          "form": "MOTHERBOARDS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "mouse",
@@ -421,6 +737,35 @@
         "en": "Hand-held pointing device for moving a cursor.",
         "fr": "Périphérique de pointage tenu en main pour déplacer un curseur."
       }
+    },
+    {
+      "id": "nas",
+      "form": "NAS",
+      "display": "NAS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Network-attached storage: a box of disks that shares files with every device on a network.",
+        "fr": "Network-attached storage : boîtier de disques qui partage des fichiers avec tous les appareils d'un réseau."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "disk"
+        },
+        {
+          "type": "related_to",
+          "target": "lan"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/network_attached_storage"
+      ]
     },
     {
       "id": "nvme",
@@ -441,6 +786,94 @@
           "type": "related_to",
           "target": "ssd"
         }
+      ],
+      "sources": [
+        "https://nvmexpress.org/specifications/"
+      ]
+    },
+    {
+      "id": "pc",
+      "form": "PC",
+      "display": "PC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "PC: personal computer, a desktop or laptop made for one person at a time.",
+        "fr": "PC : personal computer (ordinateur personnel), poste fixe ou portable destiné à une personne."
+      },
+      "inflections": [
+        {
+          "form": "PCS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "laptop"
+        }
+      ],
+      "sources": [
+        "https://www.computerhistory.org/timeline/computers/"
+      ]
+    },
+    {
+      "id": "pixel",
+      "form": "PIXEL",
+      "display": "Pixel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Smallest dot of colour that makes up a digital image or screen.",
+        "fr": "Plus petit point de couleur qui compose une image numérique ou un écran."
+      },
+      "inflections": [
+        {
+          "form": "PIXELS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "screen"
+        }
+      ]
+    },
+    {
+      "id": "printer",
+      "form": "PRINTER",
+      "display": "Printer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that puts text and images from a computer onto paper.",
+        "fr": "Appareil qui reproduit sur papier les textes et images d'un ordinateur."
+      },
+      "inflections": [
+        {
+          "form": "PRINTERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pc"
+        }
       ]
     },
     {
@@ -456,7 +889,13 @@
       "definitions": {
         "en": "Basic unit of quantum information, able to be 0 and 1 at once.",
         "fr": "Unité de base de l'information quantique, pouvant valoir 0 et 1 à la fois."
-      }
+      },
+      "inflections": [
+        {
+          "form": "QUBITS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "ram",
@@ -493,6 +932,12 @@
         "en": "Tiny ultra-fast storage slot inside the CPU.",
         "fr": "Minuscule emplacement de stockage ultra-rapide au cœur du processeur."
       },
+      "inflections": [
+        {
+          "form": "REGISTERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -535,10 +980,47 @@
         "en": "Read-only memory holding data that survives power-off.",
         "fr": "Mémoire morte qui conserve les données sans alimentation."
       },
+      "inflections": [
+        {
+          "form": "ROMS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "screen",
+      "form": "SCREEN",
+      "display": "Screen",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Display surface of a phone, computer or TV that shows images.",
+        "fr": "Surface d'affichage d'un téléphone, d'un ordinateur ou d'une télé."
+      },
+      "inflections": [
+        {
+          "form": "SCREENS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "monitor"
+        },
+        {
+          "type": "uses",
+          "target": "pixel"
         }
       ]
     },
@@ -555,7 +1037,13 @@
       "definitions": {
         "en": "Material whose conductivity can be controlled, the basis of electronics.",
         "fr": "Matériau dont on peut contrôler la conductivité, base de l'électronique."
-      }
+      },
+      "inflections": [
+        {
+          "form": "SEMICONDUCTORS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "sensor",
@@ -570,7 +1058,13 @@
       "definitions": {
         "en": "Component measuring physical data like light, heat or motion.",
         "fr": "Composant qui mesure des données physiques comme la lumière, la chaleur ou le mouvement."
-      }
+      },
+      "inflections": [
+        {
+          "form": "SENSORS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "server",
@@ -587,6 +1081,12 @@
         "en": "Computer providing services or data to other computers.",
         "fr": "Ordinateur qui fournit des services ou des données à d'autres ordinateurs."
       },
+      "inflections": [
+        {
+          "form": "SERVERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -616,6 +1116,37 @@
       ]
     },
     {
+      "id": "smartphone",
+      "form": "SMARTPHONE",
+      "display": "Smartphone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Mobile phone that runs apps, browses the web and works as a pocket computer.",
+        "fr": "Téléphone mobile qui exécute des applis, navigue sur le web et sert d'ordinateur de poche."
+      },
+      "inflections": [
+        {
+          "form": "SMARTPHONES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "battery"
+        },
+        {
+          "type": "uses",
+          "target": "screen"
+        }
+      ]
+    },
+    {
       "id": "ssd",
       "form": "SSD",
       "display": "SSD",
@@ -628,7 +1159,99 @@
       "definitions": {
         "en": "Solid-state drive storing data on flash chips, with no moving parts.",
         "fr": "Disque à mémoire flash, sans pièces mobiles."
-      }
+      },
+      "inflections": [
+        {
+          "form": "SSDS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "tablet",
+      "form": "TABLET",
+      "display": "Tablet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Flat touchscreen computer, larger than a phone and without a fixed keyboard.",
+        "fr": "Ordinateur plat à écran tactile, plus grand qu'un téléphone et sans clavier fixe."
+      },
+      "inflections": [
+        {
+          "form": "TABLETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
+      ]
+    },
+    {
+      "id": "tb",
+      "form": "TB",
+      "display": "TB",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "TB: terabyte, a unit of data equal to one thousand gigabytes, typical for hard drives.",
+        "fr": "To (TB, terabyte) : téra-octet, mille gigaoctets, unité typique des disques durs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "gb"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/binary.html"
+      ]
+    },
+    {
+      "id": "tpu",
+      "form": "TPU",
+      "display": "TPU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tensor processing unit: a chip designed by Google to accelerate machine-learning workloads.",
+        "fr": "Tensor processing unit : puce conçue par Google pour accélérer les calculs d'apprentissage automatique."
+      },
+      "inflections": [
+        {
+          "form": "TPUS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "asic"
+        },
+        {
+          "type": "related_to",
+          "target": "tensor"
+        }
+      ],
+      "sources": [
+        "https://cloud.google.com/tpu/docs/intro-to-tpu"
+      ]
     },
     {
       "id": "transistor",
@@ -644,6 +1267,12 @@
         "en": "Tiny electronic switch; billions form every modern chip.",
         "fr": "Minuscule interrupteur électronique ; des milliards composent chaque puce moderne."
       },
+      "inflections": [
+        {
+          "form": "TRANSISTORS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -664,7 +1293,61 @@
       "definitions": {
         "en": "Universal standard for connecting and powering peripherals.",
         "fr": "Norme universelle pour connecter et alimenter des périphériques."
-      }
+      },
+      "sources": [
+        "https://www.usb.org/documents"
+      ]
+    },
+    {
+      "id": "vr",
+      "form": "VR",
+      "display": "VR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "VR: virtual reality, a fully computer-generated world seen through a headset.",
+        "fr": "VR : virtual reality (réalité virtuelle), monde entièrement généré par ordinateur vu dans un casque."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ar"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API"
+      ]
+    },
+    {
+      "id": "webcam",
+      "form": "WEBCAM",
+      "display": "Webcam",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Small camera on or attached to a computer, used for video calls.",
+        "fr": "Petite caméra intégrée ou branchée à un ordinateur, utilisée pour les appels vidéo."
+      },
+      "inflections": [
+        {
+          "form": "WEBCAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "laptop"
+        }
+      ]
     }
   ]
 }
