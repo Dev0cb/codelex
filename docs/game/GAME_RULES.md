@@ -1,15 +1,34 @@
 # CODELEX — Game Rules
 
 Owner: `game-designer` · Implementation: `packages/game-engine` · Every rule has a stable ID cited by tests.
-Version: **0.1 (draft, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
+Version: **0.2 (draft, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
+Testable properties and golden cases for every rule ID: `docs/game/RULE_PROPERTIES.md`.
+
+Rule IDs are stable: a rule may be clarified or amended (recorded in the changelog), never renumbered or reused.
+New rules get new IDs. "Seat" = a player position in turn order (seat 0 moves first).
 
 ## 1. Core concepts
 - **R-CORE-001** A match has 2–4 players (1v1, 2v2 teams, free-for-all), a mode, a format, a `lexiconVersion`,
   a `lexiconProfile` (global ranked, season pack, or org-restricted) and a 64-bit seed. All randomness derives
   from the seed.
 - **R-CORE-002** The server is authoritative for state, validity, scoring, timers and power effects.
+  *(v0.2)* Exception: casual matches vs a bot played offline on device (`R-MODE-CLASSIC-002`) run the same
+  engine locally; their results are non-competitive and can never be imported into ranked, rating or
+  competitive history.
 - **R-CORE-003** A playable term is a lexicon entry whose `form` is uppercase A–Z, 2–15 letters, `playable: true`
   and present in the match's lexicon profile.
+- **R-CORE-004** *(new v0.2)* **First player.** Seat order is fixed at match creation. The first seat to move is
+  drawn uniformly at random from the `first-player` RNG stream (`R-CORE-005`): `firstSeat = rng.int(0, nSeats)`;
+  turn order then proceeds by increasing seat index modulo `nSeats` (2v2: seats alternate teams A1, B1, A2, B2).
+  The result is part of the initial state and is announced before the first move. There is no first-move
+  compensation in v0.2: first-player advantage is measured by B-01 and any mitigation (e.g. the R-BOARD-004
+  variant) is decided on simulation evidence.
+- **R-CORE-005** *(new v0.2)* **Determinism and RNG streams.** The engine is a pure function
+  `apply(state, action) → state | Rejection`. Randomness is drawn only from named, independent streams derived
+  from the match seed (`bag`, `first-player`, and one stream per bot seat `bot:<seat>`), so that consuming one
+  stream never shifts another. Replaying `(seed, lexiconVersion, engineVersion, ordered action log)` from the
+  initial state yields a bit-identical final state and state hash. The clock is an input of timed actions, never
+  read by the engine.
 
 ## 2. Board
 - **R-BOARD-001** Classic board 15×15; Blitz 11×11 ⚙; Arena 13×13 ⚙. Centre square is the start square.
@@ -17,6 +36,14 @@ Version: **0.1 (draft, pre-simulation)** — values marked ⚙ are tunable and w
   layout symmetric (D4 symmetry), defined per board in `packages/game-engine/src/board/layouts.ts`.
 - **R-BOARD-003** Tech squares ⚙: a square tagged with a category (e.g. ☁ Cloud). A main word covering it whose
   term belongs to that category gains +50% of its word score (rounded down) — applied after word multipliers.
+  *(v0.2 clarifications)* (a) only a tech square **newly covered** this turn triggers (same as premiums,
+  R-SCORE-001); (b) the term "belongs" to the category if the category is anywhere in its `categories` list
+  (primary or secondary); (c) the bonus applies to the **main word only** (R-TURN-006), at most once per turn even
+  if several matching tech squares are covered; (d) the base is the word score after word multipliers, before
+  term bonus (order in R-SCORE-008). A tech square may also carry a letter/word premium; both apply.
+- **R-BOARD-004** *(new v0.2)* **Start square premium.** The start square of the Classic layout is a DW ⚙. The
+  first PlaceWord of the match must cover it and must place ≥ 2 tiles. Simulation variant to evaluate against B-01:
+  start square without premium (reduces the first mover's guaranteed DW).
 
 ## 3. Tiles and bag
 - **R-BAG-001** Letter distribution and letter values are derived from the letter frequency of the active lexicon
@@ -24,16 +51,46 @@ Version: **0.1 (draft, pre-simulation)** — values marked ⚙ are tunable and w
   F4 G2 H4 I1 J8 K5 L1 M3 N1 O1 P3 Q10 R1 S1 T1 U1 V4 W4 X8 Y4 Z10.
 - **R-BAG-002** 2 blank tiles (value 0) per bag in Classic ⚙.
 - **R-BAG-003** Rack size 7. Racks are refilled at end of turn from the seeded bag. Racks are hidden information.
+  *(v0.2)* If the bag holds fewer tiles than needed, the rack takes all remaining tiles.
 - **R-BAG-004** Tile conservation: tiles on board + in racks + in bag = initial bag, always.
+- **R-BAG-005** *(new v0.2)* **Bag order, draws and exchange.** At creation the bag is shuffled once with the
+  `bag` stream (Fisher–Yates); draws take tiles from the head of the bag in order. Initial racks are dealt
+  7 tiles per seat starting with seat 0, one full rack at a time. Exchange: the player names 1–7 tiles of their
+  rack (multiset); the same number of tiles is drawn first, then the returned tiles are appended to the bag and
+  the bag is reshuffled with the `bag` stream. Exchange scores 0 and ends the turn.
+- **R-BAG-006** *(new v0.2)* **Blank designation.** When a blank is placed, the player designates its letter
+  (A–Z). The designation is part of the PlaceWord action, is permanent for the match, is public, and the blank
+  scores 0 under any letter premium. Word multipliers, term bonus, tech-square and chain bonuses apply normally to
+  words containing it. A blank on the rack has no letter. Exchanged or end-of-match blanks count 0.
 
 ## 4. Turn actions
 - **R-TURN-001** Actions: PlaceWord, Exchange (only if bag ≥ 7), Pass, UsePower (if mode allows), Resign.
+  *(v0.2)* Exchange moves 1–7 tiles (R-BAG-005). PlaceWord, Exchange and Pass end the turn. UsePower does not end
+  the turn (it precedes a turn-ending action in the same turn; R-POW-001). Resign may be sent by any seat at any
+  time, including out of turn (R-END-002). Any other action by a seat that is not on turn is rejected.
 - **R-TURN-002** PlaceWord: all placed tiles on one row or column, contiguous with existing tiles (no gaps), first
   word covers the start square, at least one tile adjacent to an existing tile after the first move.
+  *(v0.2)* Placed tiles must go on empty squares, come from the mover's rack (as a multiset), and number 1–7.
 - **R-TURN-003** Every word formed (main word and each cross-word of ≥ 2 letters) must be a playable term
   (R-CORE-003). Otherwise the action is rejected and the state is unchanged (no penalty in casual; in ranked
-  Blitz, a rejected attempt costs no time beyond time elapsed).
-- **R-TURN-004** Six consecutive scoreless turns (passes/exchanges/rejected) across all players end the match.
+  Blitz, a rejected attempt costs no time beyond time elapsed). *(v0.2)* "Formed" is defined in R-TURN-006. A
+  rejection is returned with a typed reason (`placement`, `not_in_lexicon` with the offending form(s), `rack`,
+  `not_your_turn`) and is governed by R-TURN-005.
+- **R-TURN-004** *(amended v0.2)* The match ends when **3 × nSeats** ⚙ consecutive turns are scoreless (6 in 1v1).
+  A scoreless turn is a turn that ends with Pass, Exchange or a timeout-Pass (R-MODE-BLITZ-001). Any accepted
+  PlaceWord resets the counter, whatever its points. Rejected attempts are not turns and never count (R-TURN-005).
+  UsePower does not affect the counter.
+- **R-TURN-005** *(new v0.2)* **Rejected attempts (rejection policy).** A rejected action returns a rejection and
+  leaves the match state byte-identical (no counter, no clock adjustment inside the engine). In every mode in v0.2,
+  including casual vs bot, rejections are unlimited and free: the player keeps the turn and may retry. In timed
+  formats the clock keeps running (that is the only cost). A per-mode `maxRejectionsPerTurn` (default: unlimited)
+  is reserved for ranked anti-probing and is not active in v0.2; activating it is a rules change.
+- **R-TURN-006** *(new v0.2)* **Formed words and main word.** Words read left→right (row) or top→bottom
+  (column) only. A word is formed by a placement if it is a maximal run of ≥ 2 contiguous occupied squares that
+  includes at least one newly placed tile. The **main word** is the formed word along the placement's line. If
+  exactly one tile is placed, the line is the one that yields the longer formed word; on a tie, the row
+  (horizontal). Every other formed word is a cross-word. A placement must form at least one word. Words already on
+  the board that receive no new tile are not formed and are not scored again.
 
 ## 5. Scoring
 - **R-SCORE-001** Word score = Σ(letter value × letter multiplier of newly covered squares) × Π(word multipliers
@@ -41,17 +98,45 @@ Version: **0.1 (draft, pre-simulation)** — values marked ⚙ are tunable and w
 - **R-SCORE-002** Cross-words are scored with the same rule and added.
 - **R-SCORE-003** **Term bonus**: each scored word adds a difficulty bonus: novice 0, intermediate +4,
   advanced +8, expert +16 ⚙ (same constants as the lexicon game value, `LEXICON_SPEC.md` §4).
-- **R-SCORE-004** **Full Stack bonus**: using all 7 rack tiles in one turn adds +50 ⚙.
+  *(v0.2)* The term bonus is added after word multipliers and is never multiplied (by premiums, tech squares or
+  powers); it applies to the main word and to each cross-word.
+- **R-SCORE-004** **Full Stack bonus**: using all 7 rack tiles in one turn adds +50 ⚙. *(v0.2)* Only when exactly
+  7 tiles are placed; going out with fewer than 7 tiles is not a Full Stack.
 - **R-SCORE-005** **Chain bonus**: if the main word is related (graph distance 1, any typed relation) to the
   previous main word played by the same player, +5 per chain link, chain capped at 5 links ⚙ (feeds the
-  "Word Architect" achievement).
+  "Word Architect" achievement). *(v0.2 clarifications)* (a) relations are treated as **undirected** for
+  distance (POD `part_of` KUBERNETES links both ways); (b) the player's chain length `k` becomes `k+1` (max 5) on
+  a linked main word and the bonus is `5 × k` after the update (so +5, +10, … +25); (c) an accepted unlinked main
+  word resets `k` to 0; Pass, Exchange and powers neither extend nor reset the chain; (d) the same term repeated is
+  not a link (no self-relations); (e) in 2v2 the chain is per player, not per team.
 - **R-SCORE-006** End of match: each player subtracts the value of their remaining rack; if a player went out,
-  they add the sum of all other racks.
+  they add the sum of all other racks. *(v0.2)* Applies to endings by R-END-001 and R-TURN-004 only (on
+  R-TURN-004 nobody went out, so nobody adds). Not applied on Resign/forfeit. In 2v2 the team score is adjusted by
+  both teammates' racks. Final scores may be negative.
 - **R-SCORE-007** All scores are integers; rounding is always down.
+- **R-SCORE-008** *(new v0.2)* **Scoring pipeline (order is normative).** For a PlaceWord:
+  1. for each formed word *w*: `base(w) = Σ letterValue × letterMult(newly covered) × Π wordMult(newly covered)`
+     (blanks are 0, R-BAG-006);
+  2. main word only: `+ ⌊base × 0.5⌋` if a matching tech square was newly covered (R-BOARD-003);
+  3. main word only: × 1.5 rounded down if Compile is active (R-POW-COMPILE), applied to the result of step 2;
+  4. each word: `+ termBonus(w)` (R-SCORE-003);
+  5. turn total = Σ words + Full Stack (R-SCORE-004) + chain (R-SCORE-005).
+  Each step is floored to an integer before the next. The engine returns this breakdown with the score; clients
+  render it verbatim.
+- **R-SCORE-009** *(new v0.2)* **Score preview is UI only.** A client may show a projected score for a tentative
+  placement only if it passes the geometric checks of R-TURN-002 (lexicon not consulted). The preview is computed
+  by the engine's own scoring function with all lexicon-dependent components omitted (term bonus, tech-square
+  bonus, chain bonus), so it never reveals whether a word is valid; it shows letter/word premiums and Full Stack
+  only. The preview is never authoritative: the committed score is the engine's result of `apply` (on the server
+  for competitive modes). Preview availability is a per-mode flag (`match.live_score_preview`).
 
 ## 6. Modes
 - **R-MODE-CLASSIC-001** Untimed per move with a 24 h correspondence clock or 25 min live clock ⚙; 1v1, 2v2
   (teammates alternate, shared score), FFA up to 4.
+- **R-MODE-CLASSIC-002** *(new v0.2)* **Classic vs bot, untimed (casual).** Format `untimed-vs-bot`: 1v1, one
+  human seat and one bot seat, no clock of any kind, Tech Powers disabled, rejection policy free (R-TURN-005),
+  live score preview allowed (R-SCORE-009). Bot "thinking" delay is presentation only and not part of the engine.
+  Never ranked, never rated, never eligible for Daily, tournaments or leaderboards. All other Classic rules apply.
 - **R-MODE-BLITZ-001** Formats 30 s / 60 s / 120 s **per move** ⚙ (alternative: total match clock to be
   decided by playtest); timeout = Pass; 3 consecutive timeouts = forfeit.
 - **R-MODE-ARENA-001** Each player has 100 HP. A valid word deals damage = ⌊points × 0.6⌋ ⚙ capped at 40 HP per
@@ -63,7 +148,21 @@ Version: **0.1 (draft, pre-simulation)** — values marked ⚙ are tunable and w
 - **R-MODE-KNOWLEDGE-001** Knowledge challenges (graph chains, category sprints, definition → term) use the
   Knowledge Graph; scoring rewards accuracy then speed.
 
-## 7. Tech Powers (Arena, casual Classic; disabled in ranked Classic by default ⚙)
+## 7. End of match
+- **R-END-001** *(new v0.2)* **Going out.** When the bag is empty and a player's rack becomes empty after an
+  accepted PlaceWord, the match ends immediately after that turn's scoring; R-SCORE-006 applies (that player went
+  out). In 2v2 a team goes out when either teammate empties their rack.
+- **R-END-002** *(new v0.2)* **Resign and forfeit.** Resign (any time, any seat) or forfeit (R-MODE-BLITZ-001)
+  ends the match for that seat with a loss regardless of score; R-SCORE-006 is not applied. In 1v1 and 2v2 the
+  match ends and the other side wins. In FFA the seat is eliminated, keeps its tiles out of play (they still count
+  for R-BAG-004 as "retired rack"), its turns are skipped, and the match continues while ≥ 2 seats remain.
+- **R-END-003** *(new v0.2)* **Result and ties.** The match ends by exactly one of: R-END-001, R-TURN-004,
+  R-END-002 (or a mode-specific ending, e.g. Arena HP 0). The winner is the highest final score (Arena: HP). Equal
+  final scores are a **draw** in casual and rated play (Glicko-2 supports draws). Only where a single winner is
+  mandatory (tournament elimination) ⚙: (1) higher best single-turn score, (2) then the seat that did **not** move
+  first wins (offsets first-move advantage).
+
+## 8. Tech Powers (Arena, casual Classic; disabled in ranked Classic by default ⚙)
 | ID | Power | Effect | Charge |
 |---|---|---|---|
 | R-POW-COMPILE | 🔥 Compile | Next valid word ×1.5 word score (after multipliers) | earned: play an advanced+ term |
@@ -76,5 +175,20 @@ Version: **0.1 (draft, pre-simulation)** — values marked ⚙ are tunable and w
 - **R-POW-001** Max 1 power per turn; max 2 charges stored; powers are never purchasable.
 - **R-POW-002** Every power has a remote kill switch per mode and season.
 
-## 8. Changelog
+Powers are out of scope for Phase 1 (E-1.5). Their open questions (tile conservation for Debug/Refactor,
+Container targets, Compile timing) are listed in `docs/game/RULE_PROPERTIES.md` and must be resolved before E-3.2.
+
+## 9. Changelog
+- 0.2 (draft) — 2026-10-02 · `game-designer` · Resolves E-1.5 spec requests (Q-3, Q-4, Q-5, rules impact 1–4).
+  - New: R-CORE-004 (seeded first player), R-CORE-005 (determinism, named RNG streams, replay),
+    R-BOARD-004 (start square DW ⚙, first move ≥ 2 tiles), R-BAG-005 (bag order, draws, exchange procedure),
+    R-BAG-006 (blank designation), R-TURN-005 (rejection policy: free and stateless everywhere in v0.2),
+    R-TURN-006 (formed words, main word, single-tile placement), R-SCORE-008 (normative scoring pipeline),
+    R-SCORE-009 (score preview is UI only, lexicon-independent), R-MODE-CLASSIC-002 (untimed casual vs bot),
+    R-END-001 (going out), R-END-002 (resign/forfeit), R-END-003 (result, draws, tournament tie-break ⚙).
+  - Amended: R-TURN-004 (threshold 3 × nSeats; rejected attempts no longer count; any accepted PlaceWord resets;
+    1v1 behaviour unchanged except for rejections).
+  - Clarified (no behaviour change intended): R-CORE-002 (offline casual exception), R-BOARD-003, R-BAG-003,
+    R-TURN-001, R-TURN-002, R-TURN-003, R-SCORE-003, R-SCORE-004, R-SCORE-005, R-SCORE-006.
+  - Sections renumbered for readability (new §7 End of match); no rule ID renumbered.
 - 0.1 — Initial rules draft (framework bootstrap).
