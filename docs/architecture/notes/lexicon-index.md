@@ -273,6 +273,9 @@ Proposal (task T1, its own PR, test-first, `LEXICON_SPEC.md` §6 updated in the 
 OS and line endings. This is also required for `services/knowledge`, which publishes from database rows, not
 files, and must reproduce the same version for the same content. No version has been published or pinned yet, so
 changing the formula now costs nothing; after the first published version it would be a contract change.
+*Decided 2026-10-02 (ADR-0013 §D7):* the canonical document covers the playable content only (everything the
+index or the engine can observe); display-only content (definitions, `display`, `owner`, `sources`, category
+names) is excluded and versioned by the cards artefact's own content hash. Exact field list: task L1.
 
 ### 4.2 Profiles
 - Definitions live in `packages/lexicon/data/profiles/<id>.json` (global, season) or in `services/knowledge`
@@ -290,7 +293,7 @@ and macOS runners and comparing sha256.
 
 ### 4.4 Pinning, replays, blocklist
 - Matches pin `lexiconVersion` + profile at creation (R-CORE-001); the engine rejects a mismatched index (§2.2).
-  Replays carry the same pair plus the engine version (E-1.5 AC-20).
+  Replays carry the same pair plus `engineRulesVersion` (E-1.5 AC-20; log format in ADR-0013).
 - Published artefacts are immutable and retained as long as any replay references them. The decoder keeps
   support for every `formatVersion` ever published; to retire a format, old versions are rebuilt from source
   (deterministic build + registry `lexiconVersion → git commit`) and a test proves semantic equivalence
@@ -407,15 +410,36 @@ fail.
 
 ## 9. Open questions
 
-- **Q-G1 (game-engine-engineer)** Accept injection via `ctx.lexicon` and the `LEXICON_MISMATCH` check in `apply`?
-- **Q-G2 (game-engine-engineer)** Is `lookupCodes(codes, from, to)` the right shape for reading words off the
+Q-G1–Q-G4, Q-A1 and Q-H3 were decided on 2026-10-02 in `docs/adr/0013-determinism-replay-contract.md`
+("Resolved questions"); the original questions are kept below each resolution.
+
+- **Q-G1 — RESOLVED 2026-10-02 (ADR-0013):** accepted. The engine receives the index as `ctx.lexicon`;
+  `createMatch`, `apply` and `replay` compare (`version`, `profile.id`, `profile.definitionHash`) with the match
+  state and return a typed `LEXICON_MISMATCH` engine error (not a player rejection; state unchanged). Original
+  question:
+  **Q-G1 (game-engine-engineer)** Accept injection via `ctx.lexicon` and the `LEXICON_MISMATCH` check in `apply`?
+- **Q-G2 — RESOLVED 2026-10-02 (ADR-0013):** `lookupCodes(codes, from, to)` is the contract; no cursor API unless
+  profiling shows word extraction > 20 % of `apply` time. Original question:
+  **Q-G2 (game-engine-engineer)** Is `lookupCodes(codes, from, to)` the right shape for reading words off the
   board, or do you prefer a reusable cursor?
-- **Q-G3 (game-engine-engineer, game-designer)** R-SCORE-005: confirm relations are **undirected** for the chain
+- **Q-G3 — RESOLVED 2026-10-02 (ADR-0013):** both assumptions confirmed. Relations are undirected (R-SCORE-005 a);
+  adjacency only contains in-profile terms, so nothing links through an out-of-profile term. Chains resolve on
+  canonical terms: an inflection and its canonical term are the same term, hence not a link. The match state
+  stores the previous main word as its form, never a `TermRef`. Original question:
+  **Q-G3 (game-engine-engineer, game-designer)** R-SCORE-005: confirm relations are **undirected** for the chain
   bonus, and that a link through a non-playable or out-of-profile term does not count (this note assumes both).
-- **Q-G4 (game-engine-engineer, game-designer)** BALANCE.md R-BAG-001 weights letter frequency "by term frequency
+- **Q-G4 — RESOLVED 2026-10-02 (ADR-0013, also closes A-01 of RULE_PROPERTIES):** letter values and bag are
+  frozen per `engineRulesVersion` (table for version 1: sprint task D3, `game-designer`). The R-BAG-001 derivation
+  runs offline on raw `letterCounts()` (no "term frequency class" exists; any weighting is a game-designer choice
+  inside that tooling); the index build does **not** embed a bag; lexicon releases never change scoring. Original
+  question:
+  **Q-G4 (game-engine-engineer, game-designer)** BALANCE.md R-BAG-001 weights letter frequency "by term frequency
   class", which does not exist in the schema. Raw `letterCounts` only for now? Is the derived bag frozen by the
   engine version (replays pin it, AC-20) or should the build embed it?
-- **Q-A1 (ai-engineer)** Is node-final GADDAG + `crossCheck` enough, or do you need per-node "letter sets"
+- **Q-A1 — RESOLVED 2026-10-02 (ADR-0013):** node-final GADDAG + `crossCheck` is enough for Phase 1; format v1
+  has no arc-final letter sets or length bounds. Trigger for an optional section (new `formatVersion`): bot
+  compute p95 on the reference device > 50 % of the 2 s budget (E-1.5 AC-8). Original question:
+  **Q-A1 (ai-engineer)** Is node-final GADDAG + `crossCheck` enough, or do you need per-node "letter sets"
   (Gordon's arc-final variant) or a precomputed per-node remaining-length bound for pruning?
 - **Q-A2 (ai-engineer)** On mobile at large scale, is DAWG-only generation acceptable for Strategist within the
   2 s budget if the GADDAG section has to be dropped?
@@ -428,5 +452,9 @@ fail.
   **Q-H2 (human / monetization-liveops / security-engineer)** Emergency removal of an offensive form from live
   matches pinned to an old version: is "new version + flag, live matches finish on the old one" acceptable, or do
   we need a runtime deny-list overlay (which would break strict determinism of replays unless versioned too)?
-- **Q-H3 (lexicon-curator, game-designer)** Profile semantics: does `global-ranked` include season-tagged terms,
+- **Q-H3 — RESOLVED 2026-10-02 (ADR-0013, delegated by the product owner):** `global-ranked` contains every
+  playable term; `season:*` tags are thematic and never remove a term. A season pack is a superset
+  (`global-ranked` ∪ pack terms), never "season tag only". Pack-exclusive terms use a `pack:<id>` tag and are
+  excluded from `global-ranked` by its profile definition; org profiles may be subsets. Original question:
+  **Q-H3 (lexicon-curator, game-designer)** Profile semantics: does `global-ranked` include season-tagged terms,
   and is a season pack "global ∪ season tag" or "season tag only"?
