@@ -1,6 +1,6 @@
 # 0012 — Lint and format toolchain
 
-- Status: Proposed
+- Status: Accepted (2026-10-02, product owner: option A; TypeScript pinned to 6.0.x)
 - Date: 2026-10-02
 - Deciders: product owner (human), solution-architect, devops-sre, security-engineer
 - Reversibility: Two-way door (cheap while the workspace has < 5 packages; cost grows linearly with packages)
