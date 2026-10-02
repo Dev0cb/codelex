@@ -39,6 +39,12 @@ ENGINEERING §2 and the boundary table in the config note allow `packages/game-e
 
 ### 2.2 Engine-facing interface
 
+*Implemented 2026-10-02 (sprint L2):* the normative source is `packages/lexicon/src/index/types.ts`, exported as
+`@codelex/lexicon/index`; the block below mirrors it. Amendments to the first draft of this note: the E-1.7
+`FormRef`/`TermRef` split (`lookup`/`lookupCodes` return a `FormRef`; `termOf` resolves it to the canonical
+`TermRef`; `formMeta` gives the played form and its kind; `size` counts forms, `termCount` terms); member names
+confirmed in §9 Q-L13.
+
 ```ts
 import type { Result } from '@codelex/config/result';
 
@@ -56,9 +62,17 @@ export type LetterMask = number;
 /** Bit k set ⇔ relation type k (order of RelationType above), either direction. 0 = not related. */
 export type RelationMask = number;
 
+export type InflectionKind = 'plural' | 'verb_s' | 'verb_ed' | 'verb_ing';
+export type FormKind = 'canonical' | InflectionKind;
+
 /**
- * Dense ordinal 0..size-1 of a playable form **inside one artefact** (forms sorted by code-unit order).
- * Never persist a TermRef (replays, events, saves): persist the term `id` or `form`.
+ * A playable string (canonical form or declared inflection) **inside one artefact**: dense ordinal
+ * 0..size-1, forms sorted by UTF-16 code-unit order. Never persist a FormRef: persist the form string.
+ */
+export type FormRef = number & { readonly __brand: 'FormRef' };
+/**
+ * A canonical playable term (metadata, relations) **inside one artefact**: dense ordinal 0..termCount-1, terms
+ * sorted by canonical form. Never persist a TermRef (replays, events, saves): persist the term `id` or `form`.
  */
 export type TermRef = number & { readonly __brand: 'TermRef' };
 
@@ -72,36 +86,49 @@ export interface LexiconProfileRef {
 export interface TermMeta {
   readonly ref: TermRef;
   readonly id: string;                         // stable term id (analytics, Knowledge Card)
-  readonly form: string;                       // ^[A-Z]{2,15}$
+  readonly form: string;                       // canonical form ^[A-Z]{2,15}$, never an inflection
   readonly difficulty: Difficulty;             // R-SCORE-003
   readonly categories: readonly CategoryId[];  // first = primary; R-BOARD-003 uses all of them
   readonly gameValue: number;                  // formulas.mjs, or approved override
   readonly knowledgeXp: number;                // formulas.mjs, or approved override
 }
 
+/** A playable form and its canonical term (R-CORE-006; E-1.5 "Played as PODS", chip deduplication). */
+export interface FormMeta {
+  readonly ref: FormRef;
+  readonly form: string;                       // the played string
+  readonly term: TermRef;                      // = termOf(ref)
+  readonly kind: FormKind;
+}
+
 export interface LexiconIndex {
   readonly version: LexiconVersion;
   readonly profile: LexiconProfileRef;
   readonly formatVersion: number;   // binary format version (decoder supports a set of them)
-  readonly size: number;            // number of playable forms in this profile
+  readonly size: number;            // number of playable forms (canonical + inflections) in this profile
+  readonly termCount: number;       // number of canonical playable terms (≤ size)
   readonly maxFormLength: number;   // ≤ 15
 
   // --- R-CORE-003 / R-TURN-003: membership (budget < 5 µs, allocation-free) ---
   /** false for anything that is not ^[A-Z]{2,15}$ (no case folding, no locale logic). */
   has(form: string): boolean;
-  lookup(form: string): TermRef | undefined;
+  lookup(form: string): FormRef | undefined;
   /** Same as lookup over codes[from, to); used by the engine when reading words off the board. */
-  lookupCodes(codes: ArrayLike<LetterCode>, from: number, to: number): TermRef | undefined;
+  lookupCodes(codes: ArrayLike<LetterCode>, from: number, to: number): FormRef | undefined;
+
+  // --- forms → terms (R-CORE-006) ---
+  termOf(form: FormRef): TermRef;                     // PODS → POD, POD → POD
+  formMeta(form: FormRef): FormMeta;                  // memoised, frozen objects
 
   // --- term metadata ---
-  meta(ref: TermRef): TermMeta;                       // memoised, frozen objects
-  difficulty(ref: TermRef): Difficulty;               // hot-path accessor, no allocation
-  inCategory(ref: TermRef, category: CategoryId): boolean;
+  meta(term: TermRef): TermMeta;                      // memoised, frozen objects; .form is canonical
+  difficulty(term: TermRef): Difficulty;              // hot-path accessor, no allocation
+  inCategory(term: TermRef, category: CategoryId): boolean;
   categories(): readonly CategoryId[];                // ids present in this profile, sorted
 
   // --- R-SCORE-005 chain bonus: graph distance 1, any typed relation, undirected ---
-  related(a: TermRef, b: TermRef): RelationMask;      // 0 if not related; O(log degree)
-  neighbours(ref: TermRef): readonly TermRef[];       // sorted ascending; only terms in this profile
+  related(a: TermRef, b: TermRef): RelationMask;      // 0 if not related (and for a === b); O(log degree)
+  neighbours(term: TermRef): readonly TermRef[];      // sorted ascending; only terms in this profile
 
   // --- R-BAG-001 inputs (the distribution formula itself stays in the engine) ---
   /** occurrences of each letter across all forms of the profile; index = LetterCode. */
@@ -122,12 +149,26 @@ export interface LexiconIndexError {
   readonly details?: Readonly<Record<string, string | number>>;
 }
 
+export interface LexiconIndexExpectation {
+  readonly version?: LexiconVersion;
+  readonly profileId?: string;
+}
+
 /** Pure; never throws on bad input; zero-copy views over `bytes` when 4-byte aligned, else one copy. */
-export function decodeLexiconIndex(
+export type DecodeLexiconIndex = (
   bytes: Uint8Array,
-  expect?: { readonly version?: LexiconVersion; readonly profileId?: string },
-): Result<LexiconIndex, LexiconIndexError>;
+  expect?: LexiconIndexExpectation,
+) => Result<LexiconIndex, LexiconIndexError>;
+export const decodeLexiconIndex: DecodeLexiconIndex;
 ```
+
+Runtime values exported next to the types (sprint L2): `DIFFICULTIES`, `RELATION_TYPES` (index k = bit k of a
+`RelationMask`, append-only), `INFLECTION_KINDS`, `FORM_KINDS`, `LETTER_COUNT`, `GADDAG_SEPARATOR`,
+`MAX_FORM_LENGTH` (a unit test keeps the enums equal to `schema/term.schema.json`), `isLexiconVersion`,
+`relationBit` / `hasRelation` / `relationTypesOf`, `CLXI_MAGIC`, `SUPPORTED_FORMAT_VERSIONS`. Until L4 ships
+format 1, `decodeLexiconIndex` reads only the format prefix and answers `TRUNCATED`, `BAD_MAGIC` or
+`UNSUPPORTED_FORMAT` (`SUPPORTED_FORMAT_VERSIONS` is empty): never a partial index. The build API (§3.2) is not
+exported yet (L4).
 
 Design choices:
 
@@ -222,7 +263,7 @@ Little-endian, every section 8-byte aligned, zero padding, no timestamps, no abs
 | TERMS | per `TermRef`: difficulty u8, primary category u8, category bitmask u32 (≤ 32 categories in v1, `LIMIT_EXCEEDED` otherwise), gameValue u16, knowledgeXp u16, id string offset u32, adjacency offset u32 → 18 B, padded to 20 B | sorted by form |
 | ADJ | CSR: sorted neighbour `TermRef` u32 + relation mask u8 per entry, symmetric, deduplicated, both ends in profile | R-SCORE-005 |
 | LETTERS | 26 × u32 | R-BAG-001 input |
-| DAWG | nodes: arc mask + final bit u32, first-edge u32 (8 B); edges: target u32, cumulative rank u32 (8 B) | `lookup` = O(len) walk; rank sum gives `TermRef` (minimal perfect hash) |
+| DAWG | nodes: arc mask + final bit u32, first-edge u32 (8 B); edges: target u32, cumulative rank u32 (8 B) | `lookup` = O(len) walk; rank sum gives `FormRef` (minimal perfect hash); a FORMS→TERMS u32 table gives `termOf` |
 | GADDAG (optional) | nodes: arc mask (27 bits) + final bit u32, first-edge u32 (8 B); edges: target u32 (4 B) | child = edges[first + popcount(mask & ((1 << s) − 1))] |
 
 Popcount is a constant-time bit trick in JS (no `Math` intrinsic needed); every transition is a handful of typed
@@ -331,7 +372,7 @@ Reading the table: lookup cost depends on form length, not lexicon size, so the 
 the server; the binding constraints are **artefact size at 50,000 forms** on mobile (mitigations: omit the GADDAG
 section on mobile and let bots fall back to DAWG-based generation, roughly 2× slower but ≈ 5× smaller, or deliver
 by CDN instead of the bundle) and **Hermes lookup speed** (fallback: back `has`/`lookup` with a `Map<string,
-TermRef>` built at load — ≈ 60–100 B/form heap, estimate — without changing the interface).
+FormRef>` built at load — ≈ 60–100 B/form heap, estimate — without changing the interface).
 
 How it is measured (task T8):
 - `vitest bench` in `packages/lexicon/bench/`: `has`/`lookupCodes` ns/op over all forms (hits) and 10,000
@@ -375,7 +416,7 @@ Strict coverage preset (90 %, config note §2) for `packages/lexicon/src/index` 
 
 | ID | Property / test | Kind |
 |---|---|---|
-| T-COMPLETE | ∀ form in the resolved profile: `has(form)`, and `meta(lookup(form))` equals the source term (id, difficulty, categories, gameValue/knowledgeXp from `formulas.mjs` or override) | property, real data + fixtures |
+| T-COMPLETE | ∀ form in the resolved profile: `has(form)`, and `meta(termOf(lookup(form)))` equals the source (canonical) term (id, difficulty, categories, gameValue/knowledgeXp from `formulas.mjs` or override) | property, real data + fixtures |
 | T-SOUND | ∀ string not in the profile set: `!has(s)` — generators: random A–Z 1..16, edits of real forms (insert, delete, substitute, transpose), every proper prefix/suffix, concatenations of two forms | property |
 | T-INPUT | `has` is false and never throws for `''`, 1 letter, 16+ letters, lowercase, digits, `É`, Turkish `İ`, surrogate pairs | unit |
 | T-GADDAG | the language of the GADDAG (all accepted paths, un-reversed) equals the DAWG language; every (form, split) path exists; `crossCheck(before, after)` equals brute force over the form set | property |
@@ -397,8 +438,8 @@ fail.
 |---|---|---|---|---|---|
 | T0 | Review this note; settle Q-G*, Q-A* | lexicon-engineer | game-engine-engineer, ai-engineer | — | S |
 | T1 | Canonical `lexiconVersion`, `data/profiles/*.json` + schema + validator rules, `.gitattributes` (`eol=lf` for data), `LEXICON_SPEC.md` §6 update | lexicon-engineer | lexicon-curator, game-designer (profile semantics) | T0 | S |
-| T2 | TypeScript in `packages/lexicon` (`src/`, tsconfig, strict Vitest preset, ESLint) keeping `validate.mjs` zero-dependency | lexicon-engineer | devops-sre | sprint S2, S5 | S |
-| T3 | Types: `LexiconIndex`, `Gaddag`, errors (this note §2) | lexicon-engineer | game-engine-engineer, ai-engineer | T2 | S |
+| T2 | TypeScript in `packages/lexicon` (`src/`, tsconfig, strict Vitest preset, ESLint) keeping `validate.mjs` zero-dependency — done (sprint L2) | lexicon-engineer | devops-sre | sprint S2, S5 | S |
+| T3 | Types: `LexiconIndex`, `Gaddag`, errors (this note §2) — done (sprint L2) | lexicon-engineer | game-engine-engineer, ai-engineer | T2 | S |
 | T4 | `Set`/`Map` reference implementation (test oracle; unblocks E-1.1 immediately) | lexicon-engineer | game-engine-engineer | T3 | S |
 | T5 | DAWG build + minimisation + rank, encoder/decoder v1, CRC32 | lexicon-engineer | code-reviewer | T3 | M |
 | T6 | GADDAG build + traversal + `crossCheck` | lexicon-engineer | ai-engineer | T5 | M |
@@ -459,3 +500,13 @@ Q-G1–Q-G4, Q-A1 and Q-H3 were decided on 2026-10-02 in `docs/adr/0013-determin
   excluded from `global-ranked` by its profile definition; org profiles may be subsets. Original question:
   **Q-H3 (lexicon-curator, game-designer)** Profile semantics: does `global-ranked` include season-tagged terms,
   and is a season pack "global ∪ season tag" or "season tag only"?
+- **Q-L13 — RESOLVED 2026-10-02 (sprint L2, lexicon-engineer; game-engine API note §20 question 13):** the
+  names are confirmed as proposed, with no semantic change to the API note §5: `lookup(form)` and
+  `lookupCodes(codes, from, to)` return `FormRef | undefined`; `termOf(form: FormRef): TermRef` resolves a played
+  form (canonical or inflection) to its canonical term; `meta(term: TermRef).form` is always the **canonical** form
+  (`meta(termOf(lookup('PODS'))).form === 'POD'`, `.id === 'pod'`); identity is `version` (the `lexiconVersion`)
+  and `profile` (`id`, `kind`, `definitionHash`). Additions beyond the `EngineLexicon` subset: `formMeta(FormRef)`
+  (`{ ref, form, term, kind }`, for "Played as PODS" and summary chips) and `termCount` (`size` counts forms).
+  Original question: **(game-engine-engineer → lexicon-engineer)** Confirm the member names
+  `termOf(FormRef): TermRef`, `lookup`/`lookupCodes` returning `FormRef`, and that `meta(TermRef).form` is the
+  canonical form.

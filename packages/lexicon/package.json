@@ -2,9 +2,14 @@
   "name": "@codelex/lexicon",
   "version": "0.1.0",
   "private": true,
-  "description": "CODELEX Lexicon: schema, seed data, formulas and validators.",
+  "description": "CODELEX Lexicon: schema, seed data, formulas, validators and the LexiconIndex contract.",
+  "license": "UNLICENSED",
   "type": "module",
   "exports": {
+    "./index": {
+      "types": "./dist/index/index.d.ts",
+      "default": "./dist/index/index.js"
+    },
     "./formulas": "./scripts/formulas.mjs",
     "./validate": "./scripts/validate.mjs",
     "./canonical": "./scripts/canonical.mjs",
@@ -12,8 +17,19 @@
     "./data/*": "./data/*"
   },
   "scripts": {
-    "validate": "node scripts/validate.mjs",
-    "test": "node --test \"test/*.test.mjs\"",
-    "lint": "node scripts/validate.mjs"
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint . && node scripts/validate.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "format:check": "prettier --check .",
+    "test": "node --test \"test/*.test.mjs\" && vitest run --coverage",
+    "validate": "node scripts/validate.mjs"
+  },
+  "dependencies": {
+    "@codelex/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "@vitest/coverage-v8": "5.0.2",
+    "vitest": "5.0.2"
   }
 }

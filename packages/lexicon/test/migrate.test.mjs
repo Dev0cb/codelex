@@ -42,12 +42,23 @@ test('migration bumps schemaVersion only, preserving formatting byte for byte el
 test('migration is idempotent and refuses unknown versions', () => {
   const once = migrateTermFileText(v1Text);
   assert.equal(migrateTermFileText(once), once);
-  assert.throws(() => migrateTermFileText(v1Text.replace('"schemaVersion": 1', '"schemaVersion": 3')), /schemaVersion/);
+  assert.throws(
+    () => migrateTermFileText(v1Text.replace('"schemaVersion": 1', '"schemaVersion": 3')),
+    /schemaVersion/,
+  );
 });
 
 test('migrated data is valid v2 with the same playable form set and the same lexiconVersion', () => {
-  const v1 = { categories, blocklist: new Set(), files: [{ path: 'terms/devops.json', data: JSON.parse(v1Text) }] };
-  const v2 = { categories, blocklist: new Set(), files: [{ path: 'terms/devops.json', data: JSON.parse(migrateTermFileText(v1Text)) }] };
+  const v1 = {
+    categories,
+    blocklist: new Set(),
+    files: [{ path: 'terms/devops.json', data: JSON.parse(v1Text) }],
+  };
+  const v2 = {
+    categories,
+    blocklist: new Set(),
+    files: [{ path: 'terms/devops.json', data: JSON.parse(migrateTermFileText(v1Text)) }],
+  };
   assert.ok(validateLexicon(v1).errors.some((e) => e.includes('schemaVersion must be 2')));
   assert.deepEqual(validateLexicon(v2).errors, []);
   assert.deepEqual(playableForms(v2), playableForms(v1));

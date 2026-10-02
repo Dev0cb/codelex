@@ -1,0 +1,8 @@
+# Lexicon data and the JSON Schema keep their hand-curated compact layout (one term per block, enums
+# inline) so curator diffs stay reviewable. Their formatting carries no meaning: lexiconVersion and
+# cardsVersion are computed over RFC 8785 canonical JSON (LEXICON_SPEC §7), and both are checked by
+# scripts/validate.mjs, which runs in CI before any install.
+data/
+schema/
+dist
+coverage

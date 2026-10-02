@@ -33,7 +33,8 @@ It is where `docs/standards/ENGINEERING.md` §1–§3 become executable.
   `performance.now`; aliasing (`const M = Math`, `const { random } = Math`), computed access on those objects, and
   `globalThis` / `global` / `self` / `window` are errors.
 - Purity in `packages/game-engine`: an import allow-list (`codelex/pure-imports`): relative imports,
-  `@codelex/lexicon` and `@codelex/config/result` only. Test files and tooling configs (`*.config.*`) are exempt
+  `@codelex/lexicon` and its subpaths (the engine uses `@codelex/lexicon/index`), and `@codelex/config/result`
+  only. Test files and tooling configs (`*.config.*`) are exempt
   from the purity rules (they import Vitest, fast-check and `@codelex/config`) but not from determinism. It covers static imports, re-exports, `import()`,
   `require()` and `import x = require()`; non-literal specifiers are rejected. IO and environment globals
   (`fetch`, `process`, timers, `XMLHttpRequest`, `WebSocket`, `Buffer`, ...) are banned.
