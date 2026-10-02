@@ -37,6 +37,7 @@ Goal: prove the fun.
 | E-1.4 | Design system v1 + board renderer (Skia) + game feel [V-02, V-03] | ux-ui-designer, mobile-engineer |
 | E-1.5 | Mobile app: home, play vs bot, end-of-match, Knowledge Card (local data) [V-13] | mobile-engineer |
 | E-1.6 | Balance baseline: tile distribution & scoring calibrated by simulation | game-designer |
+| E-1.7 | Playtest lexicon: ≥ 2,000 playable forms (≥ 30 two-letter), inflected forms (plurals) supported [V-04] | lexicon-curator, lexicon-engineer |
 
 Exit: internal playtest (≥ 30 players) — median session ≥ 8 min, "would play again" ≥ 70%, first-player win
 rate ≤ 52% in simulation, crash-free ≥ 99.5%.

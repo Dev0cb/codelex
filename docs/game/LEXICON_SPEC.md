@@ -51,5 +51,15 @@ No dangling relation targets · no self-relations · no duplicate (type, target)
 unique `id` and unique `form` · every category exists · `product` has `owner` · playable forms not in blocklist ·
 definitions ≤ 160 chars in EN and FR.
 
-## 6. Versioning
+## 6. Size targets & inflection policy (product owner decision, 2026-10-02)
+- **Playtest target (E-1.5 stage 1):** ≥ 2,000 playable forms, of which ~20–25 % have 2–4 letters (≥ 350 with 3–4
+  letters) and ≥ 30 are genuine two-letter tech forms (favour forms with vowels). Tracked as roadmap epic E-1.7.
+- **Inflections accepted:** regular plurals and common inflected forms of a term (e.g. PODS, APIS) are playable.
+  They are not separate terms: they resolve to the canonical term for metadata, Knowledge Cards and XP. The schema
+  change (how inflected forms are declared and validated, incl. blocklist and uniqueness checks) is owned by
+  `lexicon-engineer`; content by `lexicon-curator`.
+- **Offensive-form removal from live play:** publish a new `lexiconVersion` behind a flag; matches already running
+  finish on the version they pinned, so replays stay reproducible. No runtime deny-list.
+
+## 7. Versioning
 `lexiconVersion` = content hash of all data files. Published versions are immutable; matches pin a version.
