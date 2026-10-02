@@ -44,6 +44,8 @@ export const SENSITIVE_KEY_FRAGMENTS: readonly string[] = [
   'csrf',
   'xsrf',
   'signature',
+  'birthdate',
+  'dateofbirth',
   'connectionstring',
   'databaseurl',
   // French
@@ -93,7 +95,25 @@ export const SENSITIVE_EXACT_KEYS: readonly string[] = [
   'mfa',
   'dsn',
   'ip',
+  'dob',
 ];
+
+/**
+ * Keys ending in `key` or `code` are sensitive (licenseKey, authCode, resetCode) unless they are one of these
+ * well-known non-secret names (compared normalised).
+ */
+export const NON_SENSITIVE_SUFFIX_KEYS: readonly string[] = [
+  'idempotencykey',
+  'cachekey',
+  'sortkey',
+  'errorcode',
+  'statuscode',
+  'countrycode',
+  'languagecode',
+];
+
+/** Error codes kept verbatim (ECONNRESET, ERR_X); anything else may be an opaque credential. */
+const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_]{1,47}$/;
 
 /** Keys that this package owns; user data may not overwrite them. */
 export const RESERVED_KEYS: readonly string[] = ['level', 'time', 'msg', 'service', 'component'];
@@ -181,14 +201,16 @@ const BEARER_BASIC = /\b(?:[Bb]earer|BEARER|Basic|BASIC)[ \t]{1,4}[A-Za-z0-9._~+
 const DIGEST = /\b(?:Digest|DIGEST)[ \t]{1,4}[^\r\n]{1,1024}/g;
 const TOKEN_SCHEME = /\b(?:Token|ApiKey|Api-Key)[ \t]{1,4}[A-Za-z0-9._~+/=-]{16,2048}/g;
 const HEADER_LINE =
-  /(\b(?:proxy[-_ ]?authorization|authorization|set[-_ ]?cookie|cookie))(["']?[ \t]{0,3}[:=][ \t]{0,3})[^\r\n]{1,2048}/gi;
+  /(\b(?:proxy[-_ ]?authorization|authorization|set[-_ ]?cookie|cookie))(["']?[ \t]{0,3}[:=][ \t]{0,3})[^\r\n]{1,8704}/gi;
 const VENDOR =
   /\b(?:sk_(?:live|test)_|rk_live_|pk_live_|sk-ant-|gh[opsur]_|github_pat_|glpat-|xox[abprs]-|AIza|A[KS]IA)[A-Za-z0-9_-]{8,256}/g;
 const PEM =
   /-----BEGIN [A-Z ]{0,30}PRIVATE KEY-----[\s\S]{0,8192}?(?:-----END [A-Z ]{0,30}PRIVATE KEY-----|$)/g;
 const PLAY_TOKEN_PATH = /(\/tokens\/)[A-Za-z0-9._~-]{8,512}/g;
-const QUERY_PARAM = /([?&;](?:key|code|sig|session|sid)=)[^&\s#"']{1,512}/gi;
-const QUOTED_OR_BARE = `"[^"\\r\\n]{0,512}"|'[^'\\r\\n]{0,512}'|[^\\s"',;]{1,512}`;
+const QUERY_PARAM =
+  /([?&;](?:key|code|sig|session|sid|pwd|pw|pin|otp|mfa|\w{0,20}code)=)[^&\s#"']{1,512}/gi;
+// Each alternative masks to the end of the token or line (no length gap that would leak a long value's tail).
+const QUOTED_OR_BARE = `"[^"\\r\\n]{0,512}(?:"|[^"\\r\\n]*)|'[^'\\r\\n]{0,512}(?:'|[^'\\r\\n]*)|[^\\s"',;]{1,512}[^\\s"',;]*`;
 
 /** Cheap pre-check: strings without any of these cannot match a built-in value pattern. */
 const NEEDS_SCAN =
@@ -283,7 +305,8 @@ export function createRedactor(config: RedactionConfig = {}): Redactor {
   const classify = (key: string): boolean => {
     if (key.length > 1024) return true; // pathological key: treat as sensitive
     const n = normalizeKey(key);
-    return exact.has(n) || fragments.some((f) => n.includes(f));
+    if (exact.has(n) || fragments.some((f) => n.includes(f))) return true;
+    return (n.endsWith('key') || n.endsWith('code')) && !NON_SENSITIVE_SUFFIX_KEYS.includes(n);
   };
   const isSensitiveKey = (key: string): boolean => {
     const hit = cache.get(key);
@@ -381,7 +404,7 @@ export function createRedactor(config: RedactionConfig = {}): Redactor {
         const code = readProp(err, key);
         // Error codes (ENOENT, ECONNRESET) are diagnostics, not OAuth codes.
         out[target] =
-          typeof code === 'string' || typeof code === 'number'
+          typeof code === 'number' || (typeof code === 'string' && SAFE_ERROR_CODE.test(code))
             ? text(code, depth + 1, ctx, anc)
             : REDACTED;
         continue;
@@ -394,6 +417,9 @@ export function createRedactor(config: RedactionConfig = {}): Redactor {
     return out;
   }
 
+  const isSensitiveName = (item: unknown): boolean =>
+    typeof item === 'string' && item.length <= 64 && isSensitiveKey(item);
+
   function walkArray(
     items: readonly unknown[],
     depth: number,
@@ -405,10 +431,13 @@ export function createRedactor(config: RedactionConfig = {}): Redactor {
     for (let i = 0; i < limit; i += 1) {
       const item = items[i];
       out.push(walk(item, depth + 1, ctx, anc));
-      // rawHeaders-style [name, value, name, value]: the value after a sensitive name is redacted.
-      if (typeof item === 'string' && item.length <= 64 && isSensitiveKey(item) && i + 1 < limit) {
+      // rawHeaders-style [name, value, name, value]: the value after a sensitive name is redacted. A masked
+      // value that is itself a sensitive name (misaligned pairs) also masks the element after it.
+      let name: unknown = item;
+      while (isSensitiveName(name) && i + 1 < limit) {
         out.push(REDACTED);
         i += 1;
+        name = items[i];
       }
     }
     if (items.length > limit) out.push(`[+${String(items.length - limit)} more]`);

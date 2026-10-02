@@ -73,6 +73,16 @@ describe('B1/L4/H1: object-prototype keys and forged keys', () => {
     expect(m.records()[0]).not.toHaveProperty('forged');
   });
 
+  it('child bindings cannot spoof the envelope (level, service, time, msg, component)', () => {
+    const m = make();
+    m.log.child({ level: 'fatal', service: 'x', time: 'T', msg: 'M' }).info('real');
+    const [rec] = m.records();
+    expect(rec).toMatchObject({ level: 'info', service: 'test', msg: 'real' });
+    expect(rec?.['time']).not.toBe('T');
+    expect(rec).toMatchObject({ _level: 'fatal', _service: 'x' });
+    expect(m.lines).toHaveLength(1);
+  });
+
   it('call-site keys with quotes and newlines stay inside one record', () => {
     const out = once({ ['a"b\nc']: 1 });
     expect(out.trim().split('\n')).toHaveLength(1);
@@ -167,6 +177,14 @@ describe('H3: more keys and URL userinfo', () => {
     'access key',
     'sessionToken',
     'userSession',
+    'licenseKey',
+    'privateKey',
+    'authCode',
+    'verificationCode',
+    'resetCode',
+    'birthDate',
+    'date_of_birth',
+    'dob',
   ];
   it.each(keys)('redacts key %s', (key) => {
     const out = once({ [key]: 'VALUEXYZ' });
@@ -179,6 +197,33 @@ describe('H3: more keys and URL userinfo', () => {
   });
 
   it.each([
+    'idempotencyKey',
+    'cacheKey',
+    'sortKey',
+    'errorCode',
+    'statusCode',
+    'countryCode',
+    'languageCode',
+  ])('allowlisted key %s stays visible', (key) => {
+    const out = once({ [key]: 'VISIBLEVAL' });
+    expect(JSON.parse(out)).toHaveProperty([key], 'VISIBLEVAL');
+  });
+
+  it.each([
+    'https://x.io/a?pwd=QSECRET1',
+    'https://x.io/a?pin=1234567',
+    'https://x.io/a?otp=7654321',
+    'https://x.io/a?mfa=QSECRET2',
+    'https://x.io/a?auth_code=QSECRET3',
+    'https://x.io/a?verification_code=QSECRET4&x=1',
+    'https://x.io/a?pw=QSECRET5',
+  ])('query string secret in %s', (url) => {
+    const out = once({ u: url }, url);
+    expect(out).not.toMatch(/QSECRET\d|1234567|7654321/);
+    expect(out).toContain(REDACTED);
+  });
+
+  it.each([
     ['postgres://user:', 'p4ssw0rd', '@db.example.net:5432/x'],
     ['redis://:', 'redispw', '@redis-master:6379'],
     ['https://', 'onlytoken', '@host/path'],
@@ -186,6 +231,74 @@ describe('H3: more keys and URL userinfo', () => {
     const out = once({ u: a + secret + b }, a + secret + b);
     expect(out).not.toContain(secret);
     expect(out).toContain('@');
+  });
+});
+
+describe('M-A: long receipt values are masked to the end of the token', () => {
+  it.each([
+    ['long double-quoted', `receipt="${'A'.repeat(600)}"`],
+    ['long single-quoted', `receipt='${'A'.repeat(600)}'`],
+    ['unterminated quoted', `receipt="${'A'.repeat(600)}`],
+    ['long bare', `receipt=${'A'.repeat(600)}`],
+    ['JSON 6 KB base64', `{"receipt-data":"${'A'.repeat(6144)}"}`],
+  ])('%s', (_name, value) => {
+    expect(createRedactor().scrubString(value)).not.toContain('AAAA');
+    const out = once({ t: value }, value);
+    expect(out).not.toContain('AAAA');
+    expect(out).toContain(REDACTED);
+  });
+
+  it('a short quoted value does not swallow the rest of the text', () => {
+    expect(createRedactor().scrubString('password="abc" then ok')).toBe(
+      `password=${REDACTED} then ok`,
+    );
+  });
+});
+
+describe('M-B: rawHeaders misalignment', () => {
+  it('masks the value after a sensitive header name that is itself a value', () => {
+    const out = once({ rawHeaders: ['Vary', 'Cookie', 'Set-Cookie', 'connect.sid=s%3Aabc123'] });
+    expect(out).not.toContain('abc123');
+    expect(out).not.toContain('connect.sid=');
+  });
+});
+
+describe('M-C: long Cookie header lines', () => {
+  it('masks a ~3 KB Cookie header with the session cookie last', () => {
+    const filler = Array.from({ length: 200 }, (_, i) => `c${String(i)}=value${String(i)}`).join(
+      '; ',
+    );
+    const header = `Cookie: ${filler}; connect.sid=s%3Asecretvalue`;
+    expect(header.length).toBeGreaterThan(2500);
+    expect(createRedactor().scrubString(header)).not.toContain('secretvalue');
+    expect(once({ h: header })).not.toContain('secretvalue');
+  });
+});
+
+describe('L-A: Error.code', () => {
+  const codeOf = (code: unknown): unknown =>
+    (
+      JSON.parse(once({ err: Object.assign(new Error('x'), { code }) })) as {
+        err: { code: unknown };
+      }
+    ).err.code;
+
+  it('opaque string codes are redacted', () => {
+    const out = once({ err: Object.assign(new Error('x'), { code: 'abc123opaque' }) });
+    expect(out).not.toContain('abc123opaque');
+    expect(codeOf('abc123opaque')).toBe(REDACTED);
+  });
+
+  it.each(['ECONNRESET', 'ENOENT', 'ERR_X'])('keeps code %s', (code) => {
+    expect(codeOf(code)).toBe(code);
+  });
+
+  it('keeps numeric codes', () => {
+    expect(codeOf(42)).toBe('42');
+  });
+
+  it.each(['E', 'econnreset', 'A'.repeat(49), 'E-1'])('redacts non-matching code %s', (code) => {
+    expect(codeOf(code)).toBe(REDACTED);
   });
 });
 
@@ -207,6 +320,14 @@ describe('H4/M3: CPU bounds', () => {
     ['at', (n) => 'a@'.repeat(n)],
     ['equals', (n) => 'password='.repeat(n)],
     ['scheme', (n) => 'ab://'.repeat(n)],
+    ['unterminated quote', (n) => 'receipt="'.repeat(n)],
+    ['long quoted value', (n) => `receipt="${'A'.repeat(n * 8)}`],
+    ['long bare value', (n) => `receipt=${'A'.repeat(n * 8)}`],
+    ['cookie header', (n) => `Cookie: ${'a=b; '.repeat(n)}`],
+    ['cookie headers', (n) => 'cookie: x\n'.repeat(n)],
+    ['many code', (n) => '?code'.repeat(n)],
+    ['code word run', (n) => `?${'code'.repeat(n)}=`],
+    ['query ampersands', (n) => '&pin=1'.repeat(n)],
   ];
 
   it.each(hostile)('hostile %s: bounded and linear', (_name, gen) => {
