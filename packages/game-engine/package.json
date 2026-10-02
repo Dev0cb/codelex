@@ -13,6 +13,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./rng": {
+      "types": "./dist/rng/index.d.ts",
+      "default": "./dist/rng/index.js"
     }
   },
   "scripts": {
