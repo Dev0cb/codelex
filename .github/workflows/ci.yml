@@ -25,7 +25,7 @@ jobs:
       # Zero-dependency validators: they must pass even before `pnpm install`.
       - run: node tools/framework/validate.mjs
       - run: node packages/lexicon/scripts/validate.mjs
-      - run: node --test "tools/framework/*.test.mjs"
+      - run: node --test "tools/framework/*.test.mjs" "tools/scaffold/*.test.mjs"
 
   workspace:
     name: Lint, typecheck & test (affected)
@@ -51,6 +51,44 @@ jobs:
           else
             pnpm turbo run lint typecheck format:check test
           fi
+
+  golden-path:
+    # Phase 0 exit criterion: a package scaffolded with /scaffold is green in < 10 min. The probe package and
+    # service are throwaway (never committed); the job fails if scaffold → green exceeds the budget.
+    name: Scaffold golden path (timed)
+    runs-on: ubuntu-latest
+    # Above the budget so an overrun is reported by the budget check, not by a job kill.
+    timeout-minutes: 15
+    env:
+      BUDGET_SECONDS: 600
+    steps:
+      - name: Start clock
+        run: echo "START=$(date +%s)" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Scaffold throwaway targets
+        run: |
+          node tools/scaffold/scaffold.mjs packages/golden-path-probe --owner devops-sre --unlisted
+          node tools/scaffold/scaffold.mjs services/golden-path-svc --owner backend-engineer --unlisted --preset strict
+          filters="--filter=@codelex/golden-path-probe --filter=@codelex/golden-path-svc"
+          # Until the real package exists, also prove a scaffolded game-engine passes the purity/determinism lint.
+          if [ ! -d packages/game-engine ]; then
+            node tools/scaffold/scaffold.mjs packages/game-engine
+            filters="$filters --filter=@codelex/game-engine"
+          fi
+          echo "FILTERS=$filters" >> "$GITHUB_ENV"
+      # The probes are new workspace members, so the lockfile must change; it is never committed from CI.
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm turbo run lint typecheck format:check test $FILTERS
+      - name: Check time budget
+        run: |
+          elapsed=$(( $(date +%s) - START ))
+          echo "Scaffold golden path: ${elapsed}s (budget ${BUDGET_SECONDS}s)" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$elapsed" -gt "$BUDGET_SECONDS" ]; then echo "::error::golden path over budget"; exit 1; fi
 
   dependencies:
     name: Dependency audit

@@ -302,14 +302,46 @@ describe('L-A: Error.code', () => {
   });
 });
 
-describe('H4/M3: CPU bounds', () => {
+// Each bound samples workloads for ~0.5 s in total (more when a measurement is retried) under coverage
+// on a loaded CI runner: the default 5 s test timeout is too tight.
+describe('H4/M3: CPU bounds', { timeout: 30_000 }, () => {
   const r = createRedactor();
-  const time = (f: () => void): number => {
-    let best = Infinity;
-    for (let i = 0; i < 5; i += 1) {
-      const t = performance.now();
+  // Bounds are ratios between input sizes, never absolute milliseconds (those measure the machine).
+  // CI runs other packages' tests on the same cores, so a thread is preempted for whole scheduler
+  // quanta. Short windows bias the ratio: a window holding one long call is preempted more often than
+  // a window of many short calls, so a minimum over short windows penalises the big input. Hence:
+  // windows of the same 20 ms for both inputs (preemption then inflates both alike and cancels out in
+  // the ratio), sampled in alternation after a warm-up (regexp/JIT tier-up), median of the ratios.
+  // Sizes are chosen so the expected complexity and the one to reject differ by >= 8x.
+  const WINDOW_MS = 20;
+  const perCall = (f: () => void): number => {
+    let calls = 0;
+    let elapsed = 0;
+    const start = performance.now();
+    do {
       f();
-      best = Math.min(best, performance.now() - t);
+      calls += 1;
+      elapsed = performance.now() - start;
+    } while (elapsed < WINDOW_MS);
+    return elapsed / calls;
+  };
+  const median = (xs: number[]): number => {
+    const sorted = [...xs].sort((x, y) => x - y);
+    return sorted[Math.floor(sorted.length / 2)] ?? Infinity;
+  };
+  // Cost of `b` relative to `a`. A contention episode can last a whole measurement, so up to 3 spaced
+  // measurements are taken and the lowest kept: a real complexity regression exceeds the bound every time.
+  const compare = (a: () => void, b: () => void, bound: number): number => {
+    let best = Infinity;
+    for (let attempt = 0; attempt < 3 && best >= bound; attempt += 1) {
+      perCall(a);
+      perCall(b);
+      const ratios: number[] = [];
+      for (let i = 0; i < 5; i += 1) {
+        const costA = perCall(a);
+        ratios.push(perCall(b) / costA);
+      }
+      best = Math.min(best, median(ratios));
     }
     return best;
   };
@@ -331,12 +363,26 @@ describe('H4/M3: CPU bounds', () => {
   ];
 
   it.each(hostile)('hostile %s: bounded and linear', (_name, gen) => {
-    const small = gen(250); // below the cap
+    const small = gen(125);
     const large = gen(1000);
-    const a = time(() => r.scrubString(small));
-    const b = time(() => r.scrubString(large));
-    expect(b / Math.max(a, 0.05)).toBeLessThan(12); // quadratic would be ~16x for 4x input
-    expect(time(() => r.scrubString(gen(16_000)))).toBeLessThan(50);
+    // 8x input: linear is ~8x, quadratic ~64x
+    expect(
+      compare(
+        () => r.scrubString(small),
+        () => r.scrubString(large),
+        24,
+      ),
+    ).toBeLessThan(24);
+    // Both above MAX_STRING_LENGTH, 10x apart: truncation keeps the cost flat (~1x); linear would be 10x
+    const huge = gen(16_000);
+    const huger = gen(160_000);
+    expect(
+      compare(
+        () => r.scrubString(huge),
+        () => r.scrubString(huger),
+        4,
+      ),
+    ).toBeLessThan(4);
   });
 
   it('truncates every string: msg, error parts, keys, map keys', () => {
@@ -357,10 +403,22 @@ describe('H4/M3: CPU bounds', () => {
     };
     expect(Object.keys(out.wide).length).toBeLessThanOrEqual(201);
     expect(out.list.length).toBeLessThanOrEqual(201);
-    // exponential fan-out must not explode
-    let tree: unknown = 1;
-    for (let i = 0; i < 8; i += 1) tree = Array.from({ length: 150 }, () => tree);
-    expect(time(() => r.sanitize(tree))).toBeLessThan(200);
+    // exponential fan-out must not explode: depth 3 (150^3 leaves) already hits MAX_NODES, so depth 8
+    // (150^8 leaves, 150^5 times more) must cost about the same
+    const tree = (depth: number): unknown => {
+      let t: unknown = 1;
+      for (let i = 0; i < depth; i += 1) t = Array.from({ length: 150 }, () => t);
+      return t;
+    };
+    const shallow = tree(3);
+    const deep = tree(8);
+    expect(
+      compare(
+        () => r.sanitize(shallow),
+        () => r.sanitize(deep),
+        4,
+      ),
+    ).toBeLessThan(4);
   });
 
   it('caps total line size', () => {

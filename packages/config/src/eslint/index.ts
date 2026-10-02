@@ -39,6 +39,9 @@ const TEST_FILES = ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'];
 const TOOLING_FILES = ['**/*.config.{js,mjs,cjs,ts,mts}'];
 const DETERMINISTIC_FILES = ['packages/game-engine/**', 'packages/bots/**'];
 const PURE_FILES = ['packages/game-engine/**'];
+// Purity guards shipped code: tests and tooling configs may import test libraries and @codelex/config.
+// Determinism still applies to them (seeded tests only).
+const PURE_EXEMPT_FILES = [...TEST_FILES, ...TOOLING_FILES];
 
 /** Generic TypeScript package rules: typescript-eslint strictTypeChecked + import hygiene. */
 export function genericPreset(options: CodelexEslintOptions): Linter.Config[] {
@@ -291,6 +294,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
     {
       basePath,
       files: PURE_FILES,
+      ignores: PURE_EXEMPT_FILES,
       plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
       rules: {
         'codelex/pure-imports': ['error', { allow: GAME_ENGINE_ALLOWED_IMPORTS }],
