@@ -1,6 +1,6 @@
 # Classic match vs bot (offline, guest)
 
-- Epic: E-1.5 (depends on E-1.1, E-1.2, E-1.3, E-1.4; feeds E-1.6) · Vision refs: V-01, V-02, V-03, V-07, V-13, V-15 · Status: Draft
+- Epic: E-1.5 (depends on E-1.1, E-1.2, E-1.3, E-1.4; feeds E-1.6) · Vision refs: V-01, V-02, V-03, V-07, V-13, V-15 · Status: Ready for design
 - Owner: product-strategist · Last update: 2026-10-02
 - Next reviews: `game-designer` (rules, bot feel), `ux-ui-designer` (flows, FTUE, copy), then `data-analyst`,
   `privacy-compliance`, `mobile-engineer`, `solution-architect` (see end of document).
@@ -18,7 +18,7 @@ are:
 | Median session length | ≥ 8 min | Yes (client analytics) |
 | "Would play again" | ≥ 70% | Yes (in-app one-tap survey + debrief) |
 | First-player win rate (Classic 1v1, equal bots) | ≤ 52% in simulation | No, gated by E-1.3 simulator / E-1.6 balance; this feature only consumes the calibrated config |
-| Crash-free sessions | ≥ 99.5% | Yes (Sentry) |
+| Crash-free sessions | ≥ 99.5% | Yes (TestFlight / Play Console crash stats + local unclean-exit flag) |
 
 Evidence today: none (no build exists). This spec is the vehicle that produces the first evidence.
 
@@ -146,11 +146,14 @@ all rules are applied by the engine, never re-implemented in the app (CLAUDE.md 
   row 8 column 8, empty"), every animation has a reduced-motion alternative, category colours are always paired
   with an icon, and the summary and card remain usable at 200% system text size.
 - **AC-17 Analytics: consent, local buffer, no PII.** Given analytics consent is on, When events defined in
-  "Analytics & KPIs" occur, Then they are written to a persistent on-device queue (survives kill/reboot), uploaded
-  in batches only when a network is available, and deleted after a confirmed upload; the queue is capped
-  (ASSUMPTION: 5,000 events or 7 days, oldest dropped first, drop count reported); no event contains PII, free
-  text or device identifiers beyond the install-scoped pseudonymous id. Given consent is off, no event is recorded
-  or uploaded and any buffered events are deleted.
+  "Analytics & KPIs" occur, Then they are written to a persistent on-device queue (survives kill/reboot) and leave the
+  device only through a user-initiated "Send playtest data" share (OS share sheet; no automatic upload, no backend,
+  no third-party SDK — Q-1). The export screen summarises what the file contains; the end-of-session prompt to send
+  is dismissible and shown at most once per session. Events carry an `event_id` (dedupe on import). The queue is
+  kept until the tester confirms "Sent" or for 30 days, capped at 5,000 events (oldest dropped first, drop count
+  reported). No event contains PII, free text or device identifiers beyond the install-scoped pseudonymous id,
+  which Settings displays so a tester can request deletion of data already sent. Given consent is off, no event is
+  recorded or exported and the queue is purged.
 - **AC-18 "Would play again" survey (flagged).** Given `playtest.survey.enabled` is on, When the player reaches the
   summary of their 1st and 3rd completed match, Then a one-tap question "Would you play CODELEX again?"
   (Yes / Maybe / No) appears inline below the result, is dismissible, is shown at most twice per install, and
@@ -272,7 +275,7 @@ through the engine. Requests to `game-designer` (to be resolved in GAME_RULES.md
 | "Would play again" = Yes | **Primary** (phase exit) | ≥ 70% of testers who answered (last answer per install) | `playtest_survey_answered` + debrief interviews |
 | Median session length | Exit | ≥ 8 min | `app_opened` + session envelope. ASSUMPTION: session ends after 30 min in background; length = foreground time |
 | Active playtesters | Exit | ≥ 30 installs with ≥ 1 completed match | `bot_match_finished` |
-| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | Sentry |
+| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | TestFlight / Play Console crash stats; `app_start` after unclean exit |
 | First-player win rate (simulation) | Exit (dependency) | ≤ 52% (B-01) | E-1.3 simulator / E-1.6 report, not this app |
 | Time-to-first-match | Secondary | p50 ≤ 60 s, p90 ≤ 120 s | `onboarding_step_completed` (`first_launch` → `first_move`) |
 | Match completion rate | Secondary | ≥ 65% of started matches finished (not abandoned) ⚙ | `bot_match_started` / `bot_match_finished` |
@@ -326,7 +329,7 @@ equivalents are proposed below with a distinct `bot_` prefix.
 | `bot_match_abandoned` | In-progress match discarded | `local_match_id`, `reason` (replaced_by_new/version_mismatch/state_corrupt), `turns`, `active_duration_ms` | pseudonymous | mobile-engineer | 1 |
 | `bot_match_resumed` | Match restored after background or cold start | `local_match_id`, `resume_source` (background/cold_start), `away_ms`, `restore_ms` | pseudonymous | mobile-engineer | 1 |
 | `bot_word_played` | Valid word applied locally (player or bot) | `local_match_id`, `actor` (player/bot), `term_id`, `category`, `difficulty`, `points`, `bonus_flags` (term/full_stack/chain/tech_square), `think_ms`, `turn` | pseudonymous | mobile-engineer | 1 |
-| `word_rejected` | Player's PLAY rejected by engine | `local_match_id`, `reason` (not_in_lexicon/placement/cross_word), `word_length`, `think_ms`, `turn` (attempted form excluded pending Q-8) | pseudonymous | mobile-engineer | 1 |
+| `word_rejected` | Player's PLAY rejected by engine | `local_match_id`, `reason` (not_in_lexicon/placement/cross_word), `word_length`, `think_ms`, `turn` (attempted form excluded — Q-8) | pseudonymous | mobile-engineer | 1 |
 | `match_summary_action` | Action tapped on summary | `local_match_id`, `action` (play_again/change_opponent/home/discover), `ms_on_summary` | pseudonymous | mobile-engineer | 1 |
 | `knowledge_card_closed` | Card dismissed | `term_id`, `source`, `dwell_ms`, `related_taps` | pseudonymous | mobile-engineer | 1 |
 | `playtest_survey_answered` | One-tap survey answered or dismissed | `survey_id`, `question_id` (would_play_again), `answer` (yes/maybe/no/dismissed), `matches_completed` | pseudonymous | mobile-engineer | 1 |
@@ -385,12 +388,24 @@ TestFlight/Play and notify testers.
 
 - **Guest only, no PII.** No account, email, name, phone, contacts, location or advertising ID. The only
   identifier is an install-scoped random UUID (pseudonymous), reset on reinstall. Match data stays on device;
-  only analytics events (if consented) and Sentry crash reports leave it.
-- **Consent.** ASSUMPTION: testers consent via the playtest agreement at enrollment; the app shows a one-time,
-  non-blocking notice and a Settings toggle (default per `privacy-compliance` decision); off = nothing recorded or
-  uploaded (AC-17). Sentry: no PII, scrub breadcrumbs, no user-entered text. `privacy-compliance` to add the
-  install id and playtest analytics to `docs/compliance/DATA_MAP.md` (marked `LEGAL_REVIEW_REQUIRED`).
-- **Minors.** Playtest cohort restricted to adults (ASSUMPTION); no age gate in this build. Any public release
+  only playtest analytics leave it, through a user-initiated share (AC-17). No Sentry or other crash SDK in the
+  playtest build (Q-1/Q-7 decision): crash-free rate comes from TestFlight / Play Console crash statistics and a
+  local unclean-exit flag.
+- **Consent (Q-7, decided).** Written enrollment consent first (only enrolled testers receive the build), then a
+  one-time non-blocking in-app notice and a Settings toggle, default on; off = nothing recorded or exported, queue
+  purged (AC-17). The consent form covers on-device storage (ePrivacy Art. 5(3)), the export, and the
+  Senegal → EU transfer. Employees may decline with no consequence.
+- **Playtest data handling (Q-1, decided).** Exports go to a dedicated EU-hosted mailbox alias (MFA, named access
+  list of ≤ 3 analysts, no auto-forwarding). The sender's email links to the install id, so exports are personal
+  data: attachments move to restricted EU storage within 7 days and the emails are deleted; raw pseudonymous files
+  are deleted 6 months after the playtest ends (aggregates kept). The enrollment roster (name, email, 18+
+  confirmation, country, consent) is stored separately from event data, kept until playtest end + 12 months.
+  Privacy notice: controller and contact, purpose, data list, email visible to the controller, retention,
+  processors, withdrawal, access/erasure via install id, EU transfer, right to complain to CNIL or Senegal's CDP.
+  See `docs/compliance/DATA_MAP.md` (`LEGAL_REVIEW_REQUIRED`).
+- **Minors.** Playtest cohort restricted to adults (18+, confirmed at enrollment — Q-2, decided); no age gate in
+  this build. Distribution: TestFlight (external testers need Beta App Review and a privacy policy URL) and the Play
+  **internal** testing track only (a closed track would trigger the Data safety form). Any public release
   requires E-2.1 age gate first.
 - **Security / integrity.** Results are local and non-competitive, so client-side computation is acceptable here
   and does not contradict principle 1 (server authority applies to ranked, tournament, Arena and Daily results).
@@ -411,8 +426,8 @@ TestFlight/Play and notify testers.
 | E-1.4 design system + Skia board | All UI ACs | Tokens, board renderer, tile drag/tap, category icons/colours, reduced motion |
 | E-1.6 balance baseline | Exit criterion B-01 | Frozen distribution/values for the bundled `lexiconVersion` |
 | E-0.6 lexicon seed (≥ 300 terms) | Playability | ASSUMPTION: ≥ 300 terms is too thin for a fun 15×15 game; see R-1 |
-| Analytics collector (no epic yet; E-2.8 is Phase 2) | AC-17 | Minimal HTTPS ingestion endpoint or vetted vendor (Q-1) |
-| `packages/i18n`, `packages/observability` (Sentry) | AC-15, crash-free KPI | Catalog loading, crash reporting |
+| Playtest data export (no backend; E-2.8 is Phase 2) | AC-17 | User-initiated share of the on-device queue (Q-1) |
+| `packages/i18n` | AC-15 | Catalog loading |
 
 ### Risks
 
@@ -428,34 +443,33 @@ TestFlight/Play and notify testers.
 | R-8 | Lexicon update in a new build breaks resume of in-progress matches | Low | Low | Graceful `version_mismatch` handling (states table); acceptable in playtest |
 | R-9 | Trademark/product terms displayed in cards | Low | Medium | Lexicon `owner` field already required for `product` kind; curator review |
 
-## Open questions
+## Decisions (formerly open questions)
 
-- **Q-1 (human)** Where do playtest analytics go before E-2.8 exists: a minimal first-party ingestion endpoint
-  (needs `devops-sre`, `security-engineer`) or a vetted third-party product-analytics SDK (needs DPA,
-  `privacy-compliance`)? ASSUMPTION: minimal first-party endpoint storing raw batches in object storage, region EU.
-- **Q-2 (human)** Playtest cohort: adults only, and how many outside the company? ASSUMPTION: adults only, ≥ 30
-  players, ≥ 1/3 non-engineers, ≥ 30% low-end Android, EN and FR speakers.
-- **Q-3 (game-designer)** Do rejected attempts count toward R-TURN-004 in casual vs bot? ASSUMPTION: no; they do
-  not end the turn.
-- **Q-4 (game-designer)** First player rule and untimed vs-bot format (Rules impact items 2 and 4). ASSUMPTION:
-  seeded coin flip; untimed.
-- **Q-5 (game-designer)** Live score preview before commit (AC-5)? ASSUMPTION: score preview on legal geometry
-  only; validity on commit.
-- **Q-6 (game-designer, ux-ui-designer)** Knowledge Card during a match (tap a played word in the move log)?
-  ASSUMPTION: not in this build; related terms would act as hints.
-- **Q-7 (privacy-compliance)** Is enrollment consent plus an in-app notice and toggle sufficient for the playtest,
-  or is an explicit in-app opt-in screen required (would cost FTUE seconds)? ASSUMPTION: enrollment consent +
-  notice + toggle, default on.
-- **Q-8 (privacy-compliance, lexicon-curator)** May `word_rejected` carry the attempted form (A–Z, ≤ 15 letters)?
-  It is the best signal for lexicon gaps (e.g. KUBECTL) but could in theory spell a name. ASSUMPTION: excluded
-  for now; reconsider with a blocklist + hashing scheme.
-- **Q-9 (lexicon-curator, game-designer)** Lexicon size needed for a fun 15×15 game (R-1)? ASSUMPTION: ≥ 2,000
-  playable forms for the playtest, validated by E-1.6 simulation (bot rejection/pass rates).
-- **Q-10 (human)** Should local "terms discovered" migrate to the player's account once E-2.1 ships? ASSUMPTION:
-  no migration of results or ratings ever; terms-discovered migration to be decided in E-2.1.
-- **Q-11 (ux-ui-designer)** Show other modes as "Coming soon" or hide them? ASSUMPTION: hide.
-- **Q-12 (data-analyst)** Session definition (30 min background timeout, foreground time). ASSUMPTION as stated
-  in KPIs.
+Decided 2026-10-02 by the orchestrator under delegation from the product owner ("take the best decisions for
+me"), reviewed by `privacy-compliance`; each is reversible. Items marked `LEGAL_REVIEW_REQUIRED` need counsel before
+the playtest starts.
+
+- **Q-1 Analytics transport.** No backend and no third-party SDK in Phase 1. Events are zod-validated into a
+  transport-agnostic on-device queue and leave the device only via a user-initiated "Send playtest data" share
+  (AC-17); debrief interviews are the second source. If export completeness is < 80% after week 1, propose a
+  minimal first-party EU endpoint (needs `devops-sre`, `security-engineer`, threat model). No Sentry in the
+  playtest build.
+- **Q-2 Cohort.** Adults only (18+ confirmed at enrollment), ≥ 30 players, ≥ 1/3 non-engineers, ≥ 30% low-end
+  Android, EN and FR speakers including testers in Senegal and France, written consent form.
+- **Q-3** Rejected attempts do not count toward R-TURN-004 and do not end the turn (GAME_RULES v0.2).
+- **Q-4** Seeded coin flip for the first player; untimed vs-bot format (GAME_RULES v0.2).
+- **Q-5** Score preview on legal geometry only; validity on commit (GAME_RULES v0.2).
+- **Q-6** No Knowledge Card during a match in this build (flag reserved, off).
+- **Q-7 Consent.** Enrollment consent + in-app notice + Settings toggle, default on (acceptable because consent
+  precedes install); details in "Privacy, security, monetisation notes".
+- **Q-8** `word_rejected` excludes the attempted form. Lexicon gaps come from the debrief form and from
+  bot/simulation rejection analysis; reconsider (blocklist + opt-in) only for a public build.
+- **Q-9** ≥ 2,000 playable forms for the playtest (E-1.7), validated by E-1.6 simulation.
+- **Q-10** No migration of local results or ratings, ever; terms-discovered migration decided in E-2.1.
+- **Q-11** Hide modes that are not playable (no "Coming soon").
+- **Q-12** Session = foreground time, closed after 30 min in background (as in KPIs).
+- `LEGAL_REVIEW_REQUIRED`: Senegal Law 2008-12 (prior declaration to the CDP? legal ground for the Senegal → EU
+  transfer), validity of employee consent, retention periods above.
 
 ## Test traceability
 
