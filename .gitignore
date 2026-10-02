@@ -34,3 +34,6 @@ packages/game-engine/sim-results/*.json
 
 # local Claude Code settings
 .claude/settings.local.json
+
+# agent worktrees (temporary, created by isolated subagents)
+.claude/worktrees/
