@@ -34,15 +34,18 @@ export function canonicalize(value) {
       if (Array.isArray(value)) {
         const items = [];
         for (let i = 0; i < value.length; i++) {
-          if (!Object.hasOwn(value, i)) throw new TypeError(`JCS: sparse array (hole at index ${i})`);
+          if (!Object.hasOwn(value, i))
+            throw new TypeError(`JCS: sparse array (hole at index ${i})`);
           items.push(canonicalize(value[i]));
         }
         return `[${items.join(',')}]`;
       }
       const proto = Object.getPrototypeOf(value);
-      if (proto !== Object.prototype && proto !== null) throw new TypeError('JCS: only plain objects are allowed');
+      if (proto !== Object.prototype && proto !== null)
+        throw new TypeError('JCS: only plain objects are allowed');
       const keys = Object.keys(value).sort(byCodeUnit);
-      for (const k of keys) if (!k.isWellFormed()) throw new TypeError('JCS: lone surrogate in object key');
+      for (const k of keys)
+        if (!k.isWellFormed()) throw new TypeError('JCS: lone surrogate in object key');
       return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalize(value[k])}`).join(',')}}`;
     }
     default:
@@ -55,7 +58,8 @@ export function sha256Hex16(text) {
   return createHash('sha256').update(text, 'utf8').digest('hex').slice(0, 16);
 }
 
-const allTerms = (lex) => lex.files.flatMap((f) => (Array.isArray(f.data?.terms) ? f.data.terms : []));
+const allTerms = (lex) =>
+  lex.files.flatMap((f) => (Array.isArray(f.data?.terms) ? f.data.terms : []));
 const sortedUnique = (xs) => [...new Set(xs)].sort(byCodeUnit);
 const sortById = (a, b) => byCodeUnit(a.id, b.id);
 
@@ -84,7 +88,12 @@ export function lexiconContentDocument(lex) {
       tags: sortedUnique(Array.isArray(t.tags) ? t.tags : []),
     };
     if (t.form !== undefined) d.form = t.form;
-    if (d.playable && typeof t.form === 'string' && FORM_RE.test(t.form) && DIFFICULTIES.has(t.difficulty)) {
+    if (
+      d.playable &&
+      typeof t.form === 'string' &&
+      FORM_RE.test(t.form) &&
+      DIFFICULTIES.has(t.difficulty)
+    ) {
       // Effective values the index encodes: an approved override wins over the formula.
       d.gameValue = t.override?.gameValue ?? gameValue(t.form, t.difficulty);
       d.knowledgeXp = t.override?.knowledgeXp ?? knowledgeXp(t.form, t.difficulty);
@@ -104,14 +113,16 @@ export function lexiconContentDocument(lex) {
  * excluded from lexiconVersion. A definition fix changes cardsVersion, never lexiconVersion.
  */
 export function cardsContentDocument(lex) {
-  const terms = allTerms(lex).map((t) => stripUndefined({
-    id: t.id,
-    display: t.display,
-    definitions: t.definitions,
-    owner: t.owner,
-    aliases: sortedUnique(Array.isArray(t.aliases) ? t.aliases : []),
-    sources: sortedUnique(Array.isArray(t.sources) ? t.sources : []),
-  }));
+  const terms = allTerms(lex).map((t) =>
+    stripUndefined({
+      id: t.id,
+      display: t.display,
+      definitions: t.definitions,
+      owner: t.owner,
+      aliases: sortedUnique(Array.isArray(t.aliases) ? t.aliases : []),
+      sources: sortedUnique(Array.isArray(t.sources) ? t.sources : []),
+    }),
+  );
   return {
     contentFormat: CONTENT_FORMAT,
     categories: lex.categories.map((c) => stripUndefined({ ...c })).sort(sortById),

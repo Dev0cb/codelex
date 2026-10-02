@@ -47,7 +47,10 @@ beforeAll(() => {
   // Simulate pnpm workspace linking: node_modules/@codelex/<name> -> <dir>
   const links: Record<string, { dir: string; exports: Record<string, string> }> = {
     'svc-b': { dir: 'services/svc-b', exports: { '.': './src/index.ts' } },
-    lexicon: { dir: 'packages/lexicon', exports: { '.': './src/index.ts' } },
+    lexicon: {
+      dir: 'packages/lexicon',
+      exports: { '.': './src/index.ts', './index': './src/index.ts' },
+    },
     config: {
       dir: 'packages/config',
       exports: { './result': './src/result/index.ts', './eslint': './src/eslint/index.ts' },
@@ -136,6 +139,7 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       'packages/lexicon/src/index.ts',
       'packages/game-engine/src/clean.ts',
       'packages/game-engine/src/clean-lexicon-and-result.ts',
+      'packages/game-engine/src/clean-lexicon-index-subpath.ts',
       'packages/game-engine/src/clean-date-with-argument.ts',
       'packages/game-engine/src/clean-integer-separators.ts',
       'packages/game-engine/src/clean-tooling.config.ts',

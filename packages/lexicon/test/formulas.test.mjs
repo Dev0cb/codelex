@@ -15,7 +15,10 @@ test('letter table covers exactly A-Z with values 1..10', () => {
 test('short words get no length bonus and difficulty bonus is monotonic', () => {
   assert.equal(gameValue('TCP', 'novice'), letterSum('TCP'));
   const order = ['novice', 'intermediate', 'advanced', 'expert'].map((d) => gameValue('KAFKA', d));
-  assert.deepEqual([...order].sort((a, b) => a - b), order);
+  assert.deepEqual(
+    [...order].sort((a, b) => a - b),
+    order,
+  );
 });
 
 test('knowledge XP length component is capped at 10', () => {

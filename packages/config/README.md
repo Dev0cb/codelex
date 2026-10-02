@@ -35,7 +35,8 @@ It is where `docs/standards/ENGINEERING.md` §1–§3 become executable.
 - ADR-0013 §D4 bans (all in the determinism block, so engine and bots, tests and tooling configs included unless
   stated; see the decision table below).
 - Purity in `packages/game-engine`: an import allow-list (`codelex/pure-imports`): relative imports,
-  `@codelex/lexicon` and `@codelex/config/result` only. Test files and tooling configs (`*.config.*`) are exempt
+  `@codelex/lexicon` and its subpaths (the engine uses `@codelex/lexicon/index`), and `@codelex/config/result`
+  only. Test files and tooling configs (`*.config.*`) are exempt
   from the purity rules (they import Vitest, fast-check and `@codelex/config`) but not from determinism. It covers static imports, re-exports, `import()`,
   `require()` and `import x = require()`; non-literal specifiers are rejected. IO and environment globals
   (`fetch`, `process`, timers, `XMLHttpRequest`, `WebSocket`, `Buffer`, ...) are banned.

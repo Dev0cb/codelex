@@ -947,3 +947,9 @@ For **ai-engineer**:
 
 For **lexicon-engineer** (L2, FYI): 13. Confirm the member names `termOf(FormRef): TermRef`, `lookup`/`lookupCodes`
 returning `FormRef`, and that `meta(TermRef).form` is the canonical form (§5).
+**Answered 2026-10-02 (sprint L2):** confirmed as written, no change to §5. `@codelex/lexicon/index` exports
+`lookup`/`lookupCodes` → `FormRef | undefined`, `termOf(form: FormRef): TermRef`, and `meta(term).form` is always
+the canonical form (`meta(termOf(lookup('PODS'))).form === 'POD'`). The full `LexiconIndex` also has
+`formMeta(FormRef)` (`{ ref, form, term, kind }`) and `termCount` (`size` counts forms); neither is in
+`EngineLexicon`. Recorded as Q-L13 in the lexicon-index note §9; normative source
+`packages/lexicon/src/index/types.ts`.
