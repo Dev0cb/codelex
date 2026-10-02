@@ -3,7 +3,7 @@
 **Goal:** close Phase 0 with a monorepo where any agent can scaffold, test and merge a pure TypeScript package
 safely in under 10 minutes.
 
-**Status:** Approved by the product owner on 2026-10-02 (lean scope). In progress.
+**Status:** Approved by the product owner on 2026-10-02 (lean scope). Done — Phase 0 closed on 2026-10-02 (S7).
 
 ## Scope decision (approved)
 Phase 1 ("Playable core") runs offline: one player vs bots on device. It needs no Postgres, Redis, Kafka, MinIO
@@ -30,7 +30,7 @@ Phase 0 exit criteria are unchanged (none depends on the deferred items).
 | S4 | CI hardening: gitleaks (full history on main, diff on PR) + CodeQL JS/TS, coverage enforced via presets | devops-sre, security-engineer | — | Scans added as steps of existing required jobs or as non-required jobs (changing required checks = human admin action); a planted fake secret fails CI on a test branch | S | done |
 | S5 | Update `/scaffold` to wire `@codelex/config` + `@codelex/observability`; golden-path CI job scaffolds a throwaway package | devops-sre | S2, S3 | Timed CI job: scaffold + lint + typecheck + test green in < 10 min; skill text matches reality (`pnpm framework:validate` green) | M | done |
 | S6 | Roadmap update: move E-0.3 and deferred E-0.5 parts to Phase 2, mark E-0.2/E-0.4/E-0.5 status | solution-architect | human approval ✔ | `docs/roadmap/ROADMAP.md` reflects the approved scope; framework validator green | S | done |
-| S7 | Phase 0 exit check | qa-engineer | S1–S6 | main green; `pnpm validate` passes; scaffold timing recorded in this file; Phase 0 marked done | S | todo |
+| S7 | Phase 0 exit check | qa-engineer | S1–S6 | main green; `pnpm validate` passes; scaffold timing recorded in this file; Phase 0 marked done | S | done |
 
 ### Phase 1 preparation (parallel, does not block engineers)
 
@@ -52,6 +52,20 @@ Phase 0 exit criteria are unchanged (none depends on the deferred items).
   game-engine code (tests and tooling configs exempt, determinism still applies). Local measurement: scaffold → install → lint/typecheck/format/test green in
   14 s; CI timing (PR #10, run 37006775807): checkout → scaffold (probe package, strict service, game-engine) →
   install → lint/typecheck/format/test green in **39 s** (budget 600 s). S5 done.
+
+## Phase 0 exit check (S7, 2026-10-02)
+
+| Criterion | Evidence | Result |
+|---|---|---|
+| CI green on main | CI, Secret scan and CodeQL green on `main` after #10 (merge `1bcaa1d`) | ✔ |
+| `pnpm validate` passes | Framework (20 agents, 14 skills), lexicon, 18/18 node tests on `main` | ✔ |
+| `/scaffold` → green in < 10 min | Golden-path CI job, 2 trial targets (probe package + strict service, plus `game-engine` while absent): 39 s in CI (PR #10), 17 s locally; budget 600 s | ✔ |
+| Lexicon seed validated | 319 terms (310 playable), 9 categories, 302 relations | ✔ |
+| CI p50 affected-only < 5 min | CI workflow on PRs #1–#10: 20 s to 1 min 30 | ✔ |
+| Coverage floors enforced | `packages/config/test/coverage.test.ts`: an under-covered package fails with base and strict presets (real Vitest run) | ✔ |
+
+Main was red on no push during the sprint; three PR #10 runs failed on timing-sensitive tests and were fixed in
+the PR (CPU-bound redaction tests made load-independent; explicit timeouts for ESLint integration tests).
 
 ## Deferred (recorded)
 Local stack (E-0.3), `packages/protocol` + ADR-0011, OTel exporters/collector, bundle budgets, event registry,

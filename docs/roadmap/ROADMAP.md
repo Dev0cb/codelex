@@ -8,15 +8,16 @@ Legend: ☐ not started · ◐ in progress · ☑ done
 
 ---
 
-## Phase 0 — Foundations (engineering platform)
-Goal: a monorepo where agents can ship safely.
+## Phase 0 — Foundations (engineering platform) ☑
+Goal: a monorepo where agents can ship safely. Closed 2026-10-02 (exit check: sprint
+`docs/sprints/2026-10-02-phase0-close.md`, S7).
 
 | ID | Epic | Owner | Status |
 |---|---|---|---|
 | E-0.1 | Agentic framework (agents, skills, hooks, validators, CI) | solution-architect | ☑ |
-| E-0.2 | Monorepo tooling: pnpm, Turborepo, `packages/config` (tsconfig/eslint/prettier, Vitest presets, `Result`) | devops-sre | ◐ |
-| E-0.4 | CI pipeline (validators, lint, typecheck, test affected, coverage floors, secret scan, SAST) | devops-sre | ◐ |
-| E-0.5 | Minimal `packages/observability` (logger + PII redaction) | devops-sre | ☐ |
+| E-0.2 | Monorepo tooling: pnpm, Turborepo, `packages/config` (tsconfig/eslint/prettier, Vitest presets, `Result`) | devops-sre | ☑ |
+| E-0.4 | CI pipeline (validators, lint, typecheck, test affected, coverage floors, secret scan, SAST) | devops-sre | ☑ |
+| E-0.5 | Minimal `packages/observability` (logger + PII redaction) | devops-sre | ☑ |
 | E-0.6 | Lexicon schema v1 + validator + seed (≥ 300 terms, 9 categories) [V-04, V-05] | lexicon-engineer, lexicon-curator | ☑ |
 
 Exit criteria: CI green on main; `pnpm validate` passes; a new package can be scaffolded with `/scaffold` and is
