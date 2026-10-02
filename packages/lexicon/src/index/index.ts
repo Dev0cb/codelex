@@ -19,3 +19,9 @@ export {
   decodeLexiconIndex,
   type DecodeLexiconIndex,
 } from './decode.js';
+export {
+  REFERENCE_FORMAT_VERSION,
+  createReferenceIndex,
+  type ReferenceIndexInput,
+  type ReferenceTermInput,
+} from './reference.js';
