@@ -204,6 +204,7 @@ const IO_GLOBALS = [
   'sessionStorage',
   'indexedDB',
   'Buffer',
+  'queueMicrotask',
 ].map((name) => ({
   name,
   message: 'game-engine must be pure: no IO, timers or environment access (ENGINEERING §2, §3).',
@@ -212,22 +213,72 @@ const IO_GLOBALS = [
 /** Allow-list of module specifiers (besides relative imports) for game-engine. */
 const GAME_ENGINE_ALLOWED_IMPORTS = ['^@codelex/lexicon(/.*)?$', '^@codelex/config/result$'];
 
-/** ADR-0013 §D4.2: banned globals in every deterministic file (shipped code and tests). */
+/**
+ * ADR-0013 §D4.2/§D4.6: banned globals in every deterministic file (shipped code and tests). Date, crypto and
+ * performance are banned outright (not only `now`/`random`): `new Date(0).getHours()`, `Date.parse`, `Date.UTC`,
+ * `performance.timeOrigin`, `crypto.subtle` all depend on the host (time zone, clock, platform). Timers, `process`
+ * and microtasks are included so that `packages/bots` (no import allow-list) cannot read clocks or schedule work.
+ */
 const DETERMINISM_GLOBALS = [
+  ['Date', 'Date depends on the time zone and the wall clock (ADR-0013 §D4.2): inject a Clock.'],
+  ['crypto', 'crypto is non-deterministic (ADR-0013 §D4.2): use the seeded Rng.'],
+  ['performance', 'performance reads a clock (ADR-0013 §D4.2, §D4.6): bots use budgets, not time.'],
   ['Intl', 'Intl is locale- and ICU-dependent (ADR-0013 §D4.2): compare by code unit.'],
   [
     'TextEncoder',
     'TextEncoder is not available on every runtime (Hermes): encode ASCII by hand (ADR-0013 §D3, §D4.2).',
   ],
   ['TextDecoder', 'TextDecoder is not available on every runtime (Hermes): ADR-0013 §D3, §D4.2.'],
-  ['Promise', 'Async code is banned in the engine and bots (ADR-0013 §D4.2): stay synchronous.'],
+  ['parseFloat', 'Floats are banned (ADR-0013 §D4.1): parse integers explicitly.'],
+  [
+    'Reflect',
+    'Reflect hides banned calls (Reflect.apply(Array.prototype.sort, ...)): ADR-0013 §D4.2.',
+  ],
+  ['WeakRef', 'WeakRef exposes garbage-collection timing (ADR-0013 §D4.4): not deterministic.'],
+  [
+    'FinalizationRegistry',
+    'FinalizationRegistry exposes garbage-collection timing (ADR-0013 §D4.4): not deterministic.',
+  ],
+  ['process', 'process reads the environment and clocks (hrtime): ADR-0013 §D4.2, §D4.6.'],
+  ['setTimeout', 'Timers read time (ADR-0013 §D4.6): bots stop on node/candidate budgets.'],
+  ['setInterval', 'Timers read time (ADR-0013 §D4.6): bots stop on node/candidate budgets.'],
+  ['setImmediate', 'Scheduling is async (ADR-0013 §D4.2): stay synchronous.'],
+  ['queueMicrotask', 'Scheduling is async (ADR-0013 §D4.2): stay synchronous.'],
 ].map(([name, message]) => ({ name: name ?? '', message }));
 
-/** ADR-0013 §D4.2: `BigInt` is banned "outside tests"; these apply to shipped code only. */
-const BIGINT_GLOBALS = ['BigInt', 'BigInt64Array', 'BigUint64Array'].map((name) => ({
-  name,
-  message: 'BigInt is banned outside tests (ADR-0013 §D4.2): use safe integers (< 2^53).',
-}));
+/**
+ * Shipped code only (tests may use `fc.asyncProperty`, `expect().resolves`, BigInt oracles). ADR-0013 §D4.2:
+ * `BigInt` is banned "outside tests" and async code is banned. Value positions only for `Promise`: the
+ * `async`/`await` selectors cover the syntax, `no-restricted-globals` also catches `Promise<T>` type references.
+ */
+const SHIPPED_GLOBALS = [
+  ...['BigInt', 'BigInt64Array', 'BigUint64Array'].map((name) => ({
+    name,
+    message: 'BigInt is banned outside tests (ADR-0013 §D4.2): use safe integers (< 2^53).',
+  })),
+  {
+    name: 'Promise',
+    message: 'Async code is banned in the engine and bots (ADR-0013 §D4.2): stay synchronous.',
+  },
+];
+
+/** Module specifiers (bare and `node:`) that give access to clocks, entropy, timers or threads. */
+const BANNED_MODULES = [
+  'crypto',
+  'perf_hooks',
+  'timers',
+  'timers/promises',
+  'worker_threads',
+  'async_hooks',
+].flatMap((name) => [name, `node:${name}`]);
+
+/** Shipped code only: tests may import `node:crypto` as a hash oracle (the engine itself never does). */
+const SHIPPED_RESTRICTED_IMPORTS = {
+  paths: BANNED_MODULES.map((name) => ({
+    name,
+    message: `${name} gives access to entropy, clocks, timers or threads (ADR-0013 §D4.2, §D4.6).`,
+  })),
+};
 
 /** Transcendental / float-producing Math members (ADR-0013 §D4.1-2); `Math.floor`, `imul`, ... stay allowed. */
 const BANNED_MATH_FUNCTIONS = [
@@ -328,30 +379,55 @@ const DETERMINISM_SELECTORS = [
 const LOCALE_MESSAGE =
   'Locale-dependent (ADR-0013 §D4.2): compare strings by code unit (a < b ? -1 : a > b ? 1 : 0).';
 
+/**
+ * Attribute selectors matching a member whose name matches `re`, written as `.name`, `['name']` or
+ * `[`name`]`. `prefix` is the path to the MemberExpression ('' for the node itself, 'callee.' for a call).
+ */
+function namedMember(prefix: string, re: string): string[] {
+  return [
+    `[${prefix}computed=false][${prefix}property.name=${re}]`,
+    `[${prefix}computed=true][${prefix}property.value=${re}]`,
+    `[${prefix}computed=true][${prefix}property.type='TemplateLiteral'][${prefix}property.quasis.0.value.cooked=${re}]`,
+  ];
+}
+
+const LOCALE_RE = '/^(localeCompare|toLocale.*)$/';
+const SORT_RE = '/^(sort|toSorted)$/';
+const BANNED_METHOD_RE = '/^(sort|toSorted|localeCompare|normalize|toLocale.*)$/';
+const SORT_MESSAGE =
+  'sort() without a comparator orders by UTF-16 string conversion (ADR-0013 §D4.2-3): pass a total-order comparator.';
+
 /** ADR-0013 §D4.1-3: selectors that apply to every deterministic file (shipped code and tests). */
 const ADR_D4_SELECTORS = [
-  {
-    selector: 'MemberExpression[computed=false][property.name=/^(localeCompare|toLocale.*)$/]',
+  ...namedMember('', LOCALE_RE).map((attrs) => ({
+    selector: `MemberExpression${attrs}`,
     message: LOCALE_MESSAGE,
-  },
-  {
-    selector: 'MemberExpression[computed=true][property.value=/^(localeCompare|toLocale.*)$/]',
-    message: LOCALE_MESSAGE,
-  },
-  {
-    selector: "CallExpression[callee.property.name='normalize']",
+  })),
+  ...namedMember('callee.', '/^normalize$/').map((attrs) => ({
+    selector: `CallExpression${attrs}`,
     message:
       'String.prototype.normalize depends on Unicode tables (ADR-0013 §D4.2): engine data is ASCII.',
-  },
+  })),
+  ...namedMember('callee.', SORT_RE).flatMap((attrs) => [
+    { selector: `CallExpression${attrs}[arguments.length=0]`, message: SORT_MESSAGE },
+    {
+      selector: `CallExpression${attrs}[arguments.0.type='SpreadElement']`,
+      message: 'sort(...args) may be sort() (ADR-0013 §D4.2-3): pass a total-order comparator.',
+    },
+    {
+      selector: `CallExpression${attrs}[arguments.0.type='Identifier'][arguments.0.name='undefined']`,
+      message: 'sort(undefined) is sort() (ADR-0013 §D4.2-3): pass a total-order comparator.',
+    },
+    {
+      selector: `CallExpression${attrs}[arguments.0.type='UnaryExpression'][arguments.0.operator='void']`,
+      message: 'sort(void 0) is sort() (ADR-0013 §D4.2-3): pass a total-order comparator.',
+    },
+  ]),
   {
-    selector: 'CallExpression[callee.property.name=/^(sort|toSorted)$/][arguments.length=0]',
+    // `[].sort.call(xs)`, `localeCompare.apply(...)`, `normalize.bind(s)`: indirect calls skip the checks above.
+    selector: `MemberExpression[property.name=/^(call|apply|bind)$/] > MemberExpression.object${namedMember('', BANNED_METHOD_RE)[0] ?? ''}`,
     message:
-      'sort() without a comparator orders by UTF-16 string conversion (ADR-0013 §D4.2-3): pass a total-order comparator.',
-  },
-  {
-    selector:
-      "CallExpression[callee.property.name=/^(sort|toSorted)$/][arguments.0.type='Identifier'][arguments.0.name='undefined']",
-    message: 'sort(undefined) is sort() (ADR-0013 §D4.2-3): pass a total-order comparator.',
+      'Indirect call (.call/.apply/.bind) of sort/localeCompare/normalize hides the comparator checks (ADR-0013 §D4.2).',
   },
   {
     selector: "BinaryExpression[operator='**']:not([left.type='Literal'][right.type='Literal'])",
@@ -361,6 +437,27 @@ const ADR_D4_SELECTORS = [
   {
     selector: "AssignmentExpression[operator='**=']",
     message: '`**=` is banned (ADR-0013 §D4.2): use integer multiplication.',
+  },
+];
+
+/**
+ * Shipped code only: tests probe invalid inputs (fractional values), cross-check with BigInt oracles and may use
+ * async helpers (`fc.asyncProperty`, `expect().resolves`).
+ */
+const SHIPPED_SELECTORS = [
+  {
+    selector: 'Literal[bigint]',
+    message: 'BigInt literals are banned outside tests (ADR-0013 §D4.2): use safe integers.',
+  },
+  {
+    selector: 'TSBigIntKeyword',
+    message: 'bigint is banned outside tests (ADR-0013 §D4.2): use safe integers.',
+  },
+  {
+    // `[\d_]*` accepts numeric separators: `1_000.5`, `1_0e-3`. Hex/octal/binary and `1e3` are integers.
+    selector: 'Literal[raw=/^(?!0[xXbBoO])[\\d_]*(\\.|[eE]-)/]',
+    message:
+      'Fractional numeric literals are banned in engine source (ADR-0013 §D4.1): use rationals, floorDiv(a * num, den).',
   },
   {
     selector:
@@ -374,23 +471,6 @@ const ADR_D4_SELECTORS = [
   {
     selector: 'ImportExpression',
     message: 'Dynamic import() is async (ADR-0013 §D4.2): use static imports.',
-  },
-];
-
-/** Shipped code only: tests probe invalid inputs (fractional values) and cross-check with BigInt oracles. */
-const SHIPPED_SELECTORS = [
-  {
-    selector: 'Literal[bigint]',
-    message: 'BigInt literals are banned outside tests (ADR-0013 §D4.2): use safe integers.',
-  },
-  {
-    selector: 'TSBigIntKeyword',
-    message: 'bigint is banned outside tests (ADR-0013 §D4.2): use safe integers.',
-  },
-  {
-    selector: 'Literal[raw=/^(?!0[xXbBoO])(\\d*\\.|\\d+[eE]-)/]',
-    message:
-      'Fractional numeric literals are banned in engine source (ADR-0013 §D4.1): use rationals, floorDiv(a * num, den).',
   },
 ];
 
@@ -421,6 +501,12 @@ const DETERMINISM_PROPERTIES = [
     message: 'Non-deterministic: inject a Clock (ENGINEERING §3).',
   },
 ];
+
+/** First entry wins, so the determinism message is the one reported for names present in several lists. */
+function uniqueByName<T extends { name: string }>(entries: readonly T[]): T[] {
+  const seen = new Set<string>();
+  return entries.filter((entry) => !seen.has(entry.name) && !!seen.add(entry.name));
+}
 
 /**
  * Determinism bans (ENGINEERING §3) for game-engine and bots; purity (import allow-list, IO globals)
@@ -462,8 +548,9 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
           'error',
           ...GLOBAL_OBJECTS,
           ...DETERMINISM_GLOBALS,
-          ...BIGINT_GLOBALS,
+          ...SHIPPED_GLOBALS,
         ],
+        'no-restricted-imports': ['error', SHIPPED_RESTRICTED_IMPORTS],
       },
     },
     {
@@ -475,10 +562,12 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
         'codelex/pure-imports': ['error', { allow: GAME_ENGINE_ALLOWED_IMPORTS }],
         'no-restricted-globals': [
           'error',
-          ...GLOBAL_OBJECTS,
-          ...DETERMINISM_GLOBALS,
-          ...BIGINT_GLOBALS,
-          ...IO_GLOBALS,
+          ...uniqueByName([
+            ...GLOBAL_OBJECTS,
+            ...DETERMINISM_GLOBALS,
+            ...SHIPPED_GLOBALS,
+            ...IO_GLOBALS,
+          ]),
         ],
       },
     },
