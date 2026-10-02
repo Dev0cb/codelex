@@ -1,0 +1,81 @@
+{
+  "name": "@codelex/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CODELEX shared lint, format and test configuration plus the zero-dependency Result type.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./eslint": {
+      "types": "./dist/eslint/index.d.ts",
+      "default": "./dist/eslint/index.js"
+    },
+    "./prettier": {
+      "types": "./dist/prettier/index.d.ts",
+      "default": "./dist/prettier/index.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest/index.d.ts",
+      "default": "./dist/vitest/index.js"
+    },
+    "./result": {
+      "types": "./dist/result/index.d.ts",
+      "default": "./dist/result/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "format:check": "prettier --check .",
+    "test": "vitest run --coverage"
+  },
+  "peerDependencies": {
+    "@vitest/coverage-v8": "^5.0.3",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-boundaries": "^7.2.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "prettier": "^3.9.9",
+    "typescript": ">=6.0.3 <6.1.0",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3"
+  },
+  "peerDependenciesMeta": {
+    "@vitest/coverage-v8": {
+      "optional": true
+    },
+    "eslint": {
+      "optional": true
+    },
+    "eslint-config-prettier": {
+      "optional": true
+    },
+    "eslint-import-resolver-typescript": {
+      "optional": true
+    },
+    "eslint-plugin-boundaries": {
+      "optional": true
+    },
+    "eslint-plugin-import-x": {
+      "optional": true
+    },
+    "prettier": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    },
+    "typescript-eslint": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
+  }
+}
