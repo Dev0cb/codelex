@@ -21,7 +21,8 @@ Q-G4). The derivation is an **offline** tool run by `game-designer`; its output 
 
 1. **Corpus.** All playable forms of the global ranked profile, each form counted **once** (unweighted: the schema
    has no term-frequency class, so v0.2's "weighted by term frequency class" is dropped). Curated inflected forms
-   (E-1.7) are forms and count once each.
+   (E-1.7) are forms and count once each, exactly like canonical forms (E-1.7 D-17, confirmed C-GD-4): they are
+   what players and bots actually place, and plurals will raise S. The `letters-v1` corpus had no inflections.
 2. **Frequency.** `f(l)` = occurrences of letter `l` / total letters in the corpus.
 3. **Counts.** `n(l) = max(1, ⌊98 · f(l)⌋)`, then distribute the remaining tiles up to 98 by **largest remainder**
    of `98 · f(l)` (ties: alphabetical); letters with `98 · f(l) < 1` keep the single tile of the `max(1, ·)` floor and take no remainder. 2 blanks → 100.
@@ -94,6 +95,7 @@ below are design targets: a miss triggers a layout/table review, not an automati
 | C-06 | Plays with a word multiplier ≥ ×4 | ≤ 1 per 10 matches | layout spans (§2.1) |
 | C-07 | Stuck letters: per letter, share of matches ending with it in a rack, ÷ mean over letters | ≤ 2.0 for every letter | that letter's count/value |
 | C-08 | First-mover mean score lead (B-01 companion), start DW vs plain start (R-BOARD-004 variant) | ≤ 8 points | start-square premium |
+| C-09 | **Hook re-scoring tripwire** (E-1.7 R-3, C-GD-2): term-bonus points earned by cross-words formed by adding exactly one tile to an existing word whose canonical term is unchanged (e.g. POD → PODS), ÷ all term-bonus points. Measured from E-1.7 batch 1 in the simulator, then in the playtest | ≤ 10 % | pre-decided fallback in R-SCORE-003 (no term bonus when a word is extended into an inflection of the same term), new `engineRulesVersion` |
 
 ## Simulation protocol
 - ≥ 10,000 games per variant, identical seed sets for baseline and variant, seats swapped half the time.
@@ -110,6 +112,7 @@ It is never used for ranked play.
 - 0.3 — 2026-10-02 — `game-designer` (sprint D3, product-owner delegation): derivation procedure made
   explicit (unweighted corpus, largest remainder, exponent 0.75, listed playability adjustments, frozen per
   `engineRulesVersion`, re-derived at ≥ 2,000 forms); derivation record and evidence for `letters-v1`;
-  calibration targets C-01..C-08 for E-1.6. Invariants B-01..B-07 unchanged.
+  calibration targets C-01..C-08 for E-1.6; C-09 hook re-scoring tripwire and inflections counted in the next
+  derivation (E-1.7 C-GD-2, C-GD-4). Invariants B-01..B-07 unchanged.
 - 0.2 — 2026-10-02 — Added the measured 11×11 fallback rule (product owner decision). Invariants unchanged.
 - 0.1 — Initial targets.

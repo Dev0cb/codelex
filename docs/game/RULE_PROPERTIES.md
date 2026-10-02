@@ -21,7 +21,7 @@ the property ID (e.g. `it('P-SCORE-001-b R-SCORE-001 premiums apply once', …)`
 | ID | Property | Kind | Generators |
 |---|---|---|---|
 | P-GLOBAL-01 | **Purity**: `apply(s, a)` does not mutate `s`; calling it twice with equal inputs returns deep-equal outputs. | PBT | G-STATE, G-ACTION-ANY |
-| P-GLOBAL-02 | **Replay determinism**: replaying `(seed, lexiconVersion, engineVersion, actionLog)` yields the same final state hash, on Node and on the RN Hermes runtime (CI matrix). | PBT | G-SEED, G-ACTIONLOG |
+| P-GLOBAL-02 | **Replay determinism**: replaying `(seed, engineRulesVersion, lexiconVersion, profile, actionLog)` yields the same final state hash, on Node and on the RN Hermes runtime (CI matrix). | PBT | G-SEED, G-ACTIONLOG |
 | P-GLOBAL-03 | **Illegal action leaves state unchanged**: if `apply` returns a Rejection, the state (incl. hash, RNG cursors, counters, clocks inside state) is byte-identical to the input. | PBT | G-STATE, G-ACTION-ANY |
 | P-GLOBAL-04 | **Serialisation round-trip**: `deserialize(serialize(s))` deep-equals `s` and has the same hash. | PBT | G-STATE |
 | P-GLOBAL-05 | **Tile conservation** (R-BAG-004) holds after every accepted action. | PBT | G-STATE, G-ACTION-ANY |
@@ -36,9 +36,10 @@ the property ID (e.g. `it('P-SCORE-001-b R-SCORE-001 premiums apply once', …)`
 |---|---|---|---|---|
 | R-CORE-001 | (a) `createMatch` accepts 2–4 seats with valid team structure (1v1, 2v2, FFA ≤ 4) and rejects others with a typed error; (b) the state stores mode, format, `lexiconVersion`, `lexiconProfile`, seed; (c) two matches with the same config and seed have identical initial states; different seeds give different bag orders with overwhelming probability (no collision in 10⁵ seeds). | PBT | G-SEED, G-CONFIG | GC-DET-01 |
 | R-CORE-002 | (a) No client-supplied field (score, validity, timer, power effect) is ever read by `apply`; the action schema has no such field (zod schema test). (b) Offline vs-bot results carry `competitive: false` and the progression/rating ingestion rejects them. | CONTRACT | — | — |
-| R-CORE-003 | (a) A form is playable iff it matches `^[A-Z]{2,15}$`, `playable: true`, and is in the profile; (b) lowercase, digits, 1-letter and 16-letter strings are never playable; (c) a term outside the match profile is rejected even if in the global lexicon. | PBT | G-LEX, G-STRING | GC-LEX-01 |
+| R-CORE-003 | (a) A form is playable iff it matches `^[A-Z]{2,15}$`, is the `form` of a `playable: true` term or one of its declared inflections, and is in the profile; (a') an undeclared inflection (e.g. KUBERNETESES) is rejected even if its canonical term is playable; (b) lowercase, digits, 1-letter and 16-letter strings are never playable; (c) a term outside the match profile is rejected even if in the global lexicon. | PBT | G-LEX, G-STRING | GC-LEX-01 |
 | R-CORE-004 | (a) `firstSeat` ∈ [0, nSeats) and is a pure function of seed; (b) over 10⁴ seeds, each seat starts with frequency 1/nSeats ± 2% (99% CI); (c) changing the `bag` stream (e.g. distribution change) does not change `firstSeat` for the same seed; (d) turn order is `firstSeat, firstSeat+1, …` mod nSeats, skipping eliminated FFA seats. | PBT | G-SEED | GC-DET-01 |
-| R-CORE-005 | (a) = P-GLOBAL-02; (b) stream independence: drawing extra values from `bot:<seat>` never changes the bag order or first seat; (c) the engine source contains no `Date.now`, `Math.random`, I/O (lint rule + grep test); (d) timed actions carry the timestamp as input. | PBT + lint | G-SEED, G-ACTIONLOG | GC-DET-01 |
+| R-CORE-005 | (a) = P-GLOBAL-02; (b) stream independence: drawing extra values from any `bot:<seat>:<n>` stream never changes the bag order or first seat; (c) the engine source contains no `Date.now`, `Math.random`, I/O (lint rule + grep test); (d) timed actions carry the timestamp as input; (e) the bot stream for a decision depends only on (seed, seat, n = actions logged before it), so a resumed match reproduces bot choices; bots never receive the seed. | PBT + lint | G-SEED, G-ACTIONLOG | GC-DET-01 |
+| R-CORE-006 | (a) For every playable form *f* of term *t*: score, term bonus, tech-square match, Compile charge and chain behave exactly as if the canonical term *t* had been played with *f*'s letters (oracle: same move scored with the canonical term's metadata); (b) the inflection kind never changes any score component; (c) the stored previous main word is a form and resolves through the pinned index; (d) a form never resolves to two terms (index contract). | PBT + GOLD | G-LEX, G-LEX-SMALL, G-ACTION-LEGAL | GC-INF-01..03 |
 
 ### 2.2 Board
 | Rule | Properties | Kind | Generators | Golden |
@@ -73,9 +74,9 @@ the property ID (e.g. `it('P-SCORE-001-b R-SCORE-001 premiums apply once', …)`
 |---|---|---|---|---|
 | R-SCORE-001 | (a) Word base equals the formula on a reference implementation (oracle test, independent code path); (b) **premiums applied once**: replaying the board with the premium square already covered yields no multiplier; (c) monotonic: replacing a plain square by a premium under a new tile never lowers the score. | PBT + GOLD | G-ACTION-LEGAL, G-LAYOUT | GC-SCORE-01 A, B, C, GC-CL-01..15 |
 | R-SCORE-002 | (a) Turn score = Σ over formed words; (b) a new tile on DL/TL/DW/TW counts in both the main word and its cross-word. | PBT + GOLD | G-ACTION-LEGAL | GC-SCORE-02, GC-CL-07, GC-CL-12 |
-| R-SCORE-003 | (a) Each formed word adds exactly bonus[difficulty(term)]; (b) bonus never multiplied (score with DW = 2 × base + bonus). | PBT + GOLD | G-LEX, G-ACTION-LEGAL | GC-SCORE-01, GC-SCORE-02, GC-CL-* |
+| R-SCORE-003 | (a) Each formed word adds exactly bonus[difficulty(term)]; (b) bonus never multiplied (score with DW = 2 × base + bonus); (c) an inflected form gets exactly its canonical term's bonus, also as a hooked cross-word. | PBT + GOLD | G-LEX, G-ACTION-LEGAL | GC-SCORE-01, GC-SCORE-02, GC-CL-*, GC-INF-01, GC-INF-02 |
 | R-SCORE-004 | (a) +50 iff exactly 7 tiles placed; (b) going out with < 7 tiles: no bonus. | PBT + GOLD | G-ACTION-LEGAL | GC-SCORE-01, GC-END-01, GC-CL-03, GC-CL-13a/b |
-| R-SCORE-005 | (a) Bonus = 5 × k with k ∈ [0,5]; (b) k increments only if the main word is at undirected distance 1 of the same player's previous main word; (c) an unlinked accepted main word resets k; Pass/Exchange do not; (d) repeating the same term is not a link; (e) chains are per player (2v2 included). | PBT + GOLD | G-LEX-GRAPH, G-ACTIONLOG | GC-SCORE-01 E, GC-SCORE-03, GC-CL-09a/b |
+| R-SCORE-005 | (a) Bonus = 5 × k with k ∈ [0,5]; (b) k increments only if the main word is at undirected distance 1 of the same player's previous main word; (c) an unlinked accepted main word resets k; Pass/Exchange do not; (d) repeating the same term is not a link; (e) chains are per player (2v2 included); (f) terms are compared after form resolution: an inflection of the previous main term is not a link, an inflection of a related term is. | PBT + GOLD | G-LEX-GRAPH, G-ACTIONLOG | GC-SCORE-01 E, GC-SCORE-03, GC-CL-09a/b, GC-INF-03a/b |
 | R-SCORE-006 | (a) On R-END-001: goer adds Σ other racks, each other seat subtracts its rack; (b) on R-TURN-004: each subtracts own rack, nobody adds; (c) on Resign/forfeit: no adjustment; (d) zero-sum on R-END-001 in 1v1 (adjustments sum to 0). | PBT + GOLD | G-TERMINAL | GC-END-01..03, GC-CL-E1..E5 |
 | R-SCORE-007 | (a) All score values are `Number.isSafeInteger`; (b) every fractional step uses floor (check against a rational oracle). | PBT | G-ACTION-LEGAL | GC-SCORE-01 G, GC-ARENA-01 |
 | R-SCORE-008 | (a) Breakdown components sum to the turn score; (b) order: base → tech → Compile → term → Full Stack/chain (permuting the order in the oracle changes results on generated cases, proving the order is exercised); (c) each step floored. | PBT + GOLD | G-ACTION-LEGAL | GC-SCORE-01 D, G |
@@ -522,6 +523,85 @@ Readable summary (same numbers):
 | GC-CL-13b | as 13a, K blank (plain square) | KUBERNETES 18×1 + 16 | +50 | — | **84** |
 | GC-CL-14 | G (6,7) above O of CLOUD | GO 4×1 + 4 | — | — | **8** |
 | GC-CL-15 | blank-A (7,7) + I (7,8), first move | AI 1×2 + 0 | — | — | **2** |
+
+### 3.2 Inflected forms (R-CORE-003, R-CORE-006; E-1.7) — hypothetical until lexicon batch 1
+
+Same conventions and layout as §3.1 (`classic-v1`, `letters-v1`, `engineRulesVersion` 1). **PODS is hypothetical**:
+no plural is in the lexicon yet. Tests use this stub until batch 1 declares it (then they switch to the real
+index without changing the numbers): `POD` (advanced, `part_of` KUBERNETES) declares `inflections: [{form: "PODS",
+kind: "plural"}]`; `SQL` intermediate, `CLOUD` novice, `KUBERNETES` expert (all real).
+
+```json
+{
+  "engineRulesVersion": 1,
+  "layout": "classic-v1",
+  "letters": "letters-v1",
+  "lexiconStub": [
+    { "form": "POD", "difficulty": "advanced", "relations": [{ "type": "part_of", "target": "KUBERNETES" }],
+      "inflections": [{ "form": "PODS", "kind": "plural", "hypothetical": true }] },
+    { "form": "SQL", "difficulty": "intermediate" },
+    { "form": "CLOUD", "difficulty": "novice" },
+    { "form": "KUBERNETES", "difficulty": "expert" }
+  ],
+  "scoringCases": [
+    {
+      "id": "GC-INF-01", "title": "Plural as main word (first move): canonical POD bonus +8, letters as placed",
+      "rules": ["R-CORE-003","R-CORE-006","R-SCORE-003"], "firstMove": true,
+      "board": [],
+      "place": [{"r":7,"c":7,"letter":"P"},{"r":7,"c":8,"letter":"O"},{"r":7,"c":9,"letter":"D"},{"r":7,"c":10,"letter":"S"}],
+      "expected": {
+        "words": [
+          {"form":"PODS","main":true,"letterSum":7,"wordMult":2,"base":14,"termBonus":8}
+        ],
+        "fullStack": 0, "chain": 0, "total": 22
+      }
+    },
+    {
+      "id": "GC-INF-02", "title": "Hook: S added to POD re-scores PODS as a cross-word with its full bonus (C-GD-2)",
+      "rules": ["R-SCORE-002","R-SCORE-003","R-CORE-006"], "firstMove": false,
+      "board": [{"r":7,"c":6,"letter":"P"},{"r":7,"c":7,"letter":"O"},{"r":7,"c":8,"letter":"D"}],
+      "place": [{"r":7,"c":9,"letter":"S"},{"r":8,"c":9,"letter":"Q"},{"r":9,"c":9,"letter":"L"}],
+      "expected": {
+        "words": [
+          {"form":"SQL","main":true,"letterSum":11,"wordMult":1,"base":11,"termBonus":4},
+          {"form":"PODS","main":false,"letterSum":7,"wordMult":1,"base":7,"termBonus":8}
+        ],
+        "fullStack": 0, "chain": 0, "total": 30
+      }
+    },
+    {
+      "id": "GC-INF-03a", "title": "POD then PODS: same canonical term, not a chain link; k resets",
+      "rules": ["R-SCORE-005","R-CORE-006"], "firstMove": false,
+      "board": [{"r":7,"c":5,"letter":"C"},{"r":7,"c":6,"letter":"L"},{"r":7,"c":7,"letter":"O"},{"r":7,"c":8,"letter":"U"},{"r":7,"c":9,"letter":"D"}],
+      "place": [{"r":6,"c":7,"letter":"P"},{"r":8,"c":7,"letter":"D"},{"r":9,"c":7,"letter":"S"}],
+      "context": {"prevMainTerm":"POD","chainK":1},
+      "expected": {
+        "words": [
+          {"form":"PODS","main":true,"letterSum":7,"wordMult":1,"base":7,"termBonus":8}
+        ],
+        "fullStack": 0, "chain": 0, "chainKAfter": 0, "total": 15
+      }
+    },
+    {
+      "id": "GC-INF-03b", "title": "KUBERNETES then PODS: PODS resolves to POD, part_of KUBERNETES, so it links",
+      "rules": ["R-SCORE-005","R-CORE-006"], "firstMove": false,
+      "board": [{"r":7,"c":5,"letter":"C"},{"r":7,"c":6,"letter":"L"},{"r":7,"c":7,"letter":"O"},{"r":7,"c":8,"letter":"U"},{"r":7,"c":9,"letter":"D"}],
+      "place": [{"r":6,"c":7,"letter":"P"},{"r":8,"c":7,"letter":"D"},{"r":9,"c":7,"letter":"S"}],
+      "context": {"prevMainTerm":"KUBERNETES","chainK":0},
+      "expected": {
+        "words": [
+          {"form":"PODS","main":true,"letterSum":7,"wordMult":1,"base":7,"termBonus":8}
+        ],
+        "fullStack": 0, "chain": 5, "chainKAfter": 1, "total": 20
+      }
+    }
+  ]
+}
+```
+
+In GC-INF-02 the hook earns 8 of the turn's 12 term-bonus points: this is what tripwire C-09 (BALANCE.md) measures.
+GC-INF-03 places P, D, S around the existing O of CLOUD (the start DW is already covered). Undeclared
+inflections (e.g. KUBERNETESES, MALWARES) are rejected `not_in_lexicon` (P-CORE-003-a').
 
 ## 4. Generators (fast-check arbitraries, owned by `game-engine-engineer`)
 
