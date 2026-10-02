@@ -1,0 +1,215 @@
+{
+  "format": 1,
+  "algorithm": "jcs-subset-1",
+  "subset": "ADR-0013 §D3: objects (plain), arrays (dense), strings of printable ASCII 0x20-0x7E, safe integers (no -0). No booleans, no null, no fractions.",
+  "source": "adr-0013-a3 is ADR-0013 Appendix A.3 (normative); the other cases were computed with recursively key-sorted JSON.stringify and node:crypto, and cross-checked against the lexicon RFC 8785 canonicalize (PR #19).",
+  "hash16": "first 16 lowercase hex of sha256",
+  "note": "`input` is JSON text (parsed with JSON.parse) so key order, whitespace, -0 and escapes survive any JSON loader.",
+  "cases": [
+    {
+      "name": "adr-0013-a3",
+      "input": "{\"z\":{\"k\":-7},\"b\":0,\"a\":[3,\"?AE\"]}",
+      "jcs": "{\"a\":[3,\"?AE\"],\"b\":0,\"z\":{\"k\":-7}}",
+      "sha256": "29cb9747b6a7224168208f209044e3d24573275df767bf9d09003cf5ef3ef7cb",
+      "hash16": "29cb9747b6a72241"
+    },
+    {
+      "name": "empty-object",
+      "input": "{}",
+      "jcs": "{}",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "hash16": "44136fa355b3678a"
+    },
+    {
+      "name": "empty-array",
+      "input": "[]",
+      "jcs": "[]",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "hash16": "4f53cda18c2baa0c"
+    },
+    {
+      "name": "empty-string",
+      "input": "\"\"",
+      "jcs": "\"\"",
+      "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "hash16": "12ae32cb1ec02d01"
+    },
+    {
+      "name": "zero",
+      "input": "0",
+      "jcs": "0",
+      "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+      "hash16": "5feceb66ffc86f38"
+    },
+    {
+      "name": "max-safe-integer",
+      "input": "9007199254740991",
+      "jcs": "9007199254740991",
+      "sha256": "f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+      "hash16": "f40b423c2dd95ff2"
+    },
+    {
+      "name": "min-safe-integer",
+      "input": "-9007199254740991",
+      "jcs": "-9007199254740991",
+      "sha256": "4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815",
+      "hash16": "4c933a456bb8f2e9"
+    },
+    {
+      "name": "integer-written-with-exponent",
+      "input": "1E2",
+      "jcs": "100",
+      "sha256": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+      "hash16": "ad57366865126e55"
+    },
+    {
+      "name": "escapes-only-quote-and-backslash",
+      "input": "\"say \\\"hi\\\" \\\\ / ~ ' `\"",
+      "jcs": "\"say \\\"hi\\\" \\\\ / ~ ' `\"",
+      "sha256": "0429a267bb551c9c61e61042e1c5708ad678947e5d34e6b2c985c115c842ce87",
+      "hash16": "0429a267bb551c9c"
+    },
+    {
+      "name": "printable-ascii-range",
+      "input": "\" !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"",
+      "jcs": "\" !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"",
+      "sha256": "35a3c3265b699ae6723a5d862a3f478168f9582861286e72ee38386c4c560717",
+      "hash16": "35a3c3265b699ae6"
+    },
+    {
+      "name": "keys-by-code-unit-not-integer-order",
+      "input": "{\"2\":0,\"10\":1,\"1\":2,\"a\":3,\"B\":4,\"_\":5,\"~\":6,\" \":7,\"\":8}",
+      "jcs": "{\"\":8,\" \":7,\"1\":2,\"10\":1,\"2\":0,\"B\":4,\"_\":5,\"a\":3,\"~\":6}",
+      "sha256": "de575698d671cfcf8bc3ed229a6de9ee89ebd409583ec107e41817d5f07b5582",
+      "hash16": "de575698d671cfcf"
+    },
+    {
+      "name": "whitespace-is-dropped",
+      "input": " {\n  \"b\" : [ 1 , 2 ] ,\n\t\"a\" : { \"y\" : \"\" , \"x\" : [ ] }\n}\r\n",
+      "jcs": "{\"a\":{\"x\":[],\"y\":\"\"},\"b\":[1,2]}",
+      "sha256": "97b9c92b16fec7ba816e6e3f3cc2f60c9a0c702c266f16e8a68a41a82c606793",
+      "hash16": "97b9c92b16fec7ba"
+    },
+    {
+      "name": "nested-arrays-keep-order-objects-sorted",
+      "input": "[[3,2,1],[{\"b\":1,\"a\":2},{\"d\":[],\"c\":{}}],-1]",
+      "jcs": "[[3,2,1],[{\"a\":2,\"b\":1},{\"c\":{},\"d\":[]}],-1]",
+      "sha256": "025a130f09966a72f12dae5a7b076dc16a2d65386af89d62ce4a322e21b97045",
+      "hash16": "025a130f09966a72"
+    },
+    {
+      "name": "state-like-document",
+      "input": "{\"seats\":[{\"score\":42,\"chain\":1,\"prev\":\"API\",\"best\":30,\"status\":\"active\"},{\"score\":-5,\"chain\":0,\"prev\":\"\",\"best\":0,\"status\":\"resigned\"}],\"rng\":{\"bag\":[1397353060,410318920,20514157,3512332132]},\"racks\":[\"?AEINST\",\"DEHLORU\"],\"bag\":\"EEAIOU?\",\"board\":[\"...............\",\"......API......\"],\"turn\":7,\"seed\":\"00c0de1e00000001\",\"engineRulesVersion\":1}",
+      "jcs": "{\"bag\":\"EEAIOU?\",\"board\":[\"...............\",\"......API......\"],\"engineRulesVersion\":1,\"racks\":[\"?AEINST\",\"DEHLORU\"],\"rng\":{\"bag\":[1397353060,410318920,20514157,3512332132]},\"seats\":[{\"best\":30,\"chain\":1,\"prev\":\"API\",\"score\":42,\"status\":\"active\"},{\"best\":0,\"chain\":0,\"prev\":\"\",\"score\":-5,\"status\":\"resigned\"}],\"seed\":\"00c0de1e00000001\",\"turn\":7}",
+      "sha256": "0ba2d00ccaf3425dcc3b0951ae3f39c69eba13f75b298626c3db5e86073e8c94",
+      "hash16": "0ba2d00ccaf3425d"
+    }
+  ],
+  "rejections": [
+    {
+      "name": "boolean-true",
+      "input": "true",
+      "error": "TypeError"
+    },
+    {
+      "name": "boolean-false",
+      "input": "false",
+      "error": "TypeError"
+    },
+    {
+      "name": "null",
+      "input": "null",
+      "error": "TypeError"
+    },
+    {
+      "name": "null-member",
+      "input": "{\"a\":null}",
+      "error": "TypeError"
+    },
+    {
+      "name": "boolean-in-array",
+      "input": "[1,true]",
+      "error": "TypeError"
+    },
+    {
+      "name": "fraction",
+      "input": "1.5",
+      "error": "RangeError"
+    },
+    {
+      "name": "fraction-member",
+      "input": "{\"a\":[0.5]}",
+      "error": "RangeError"
+    },
+    {
+      "name": "negative-zero",
+      "input": "-0",
+      "error": "RangeError"
+    },
+    {
+      "name": "above-max-safe-integer",
+      "input": "9007199254740992",
+      "error": "RangeError"
+    },
+    {
+      "name": "below-min-safe-integer",
+      "input": "-9007199254740992",
+      "error": "RangeError"
+    },
+    {
+      "name": "huge-number",
+      "input": "1e300",
+      "error": "RangeError"
+    },
+    {
+      "name": "non-ascii-string",
+      "input": "\"caf\\u00e9\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "non-bmp-string",
+      "input": "\"\\ud83d\\ude00\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "lone-high-surrogate",
+      "input": "\"\\ud800\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "lone-low-surrogate",
+      "input": "\"\\udc00\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "control-nul",
+      "input": "\"\\u0000\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "control-tab",
+      "input": "\"a\\tb\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "control-newline",
+      "input": "\"a\\nb\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "delete-0x7f",
+      "input": "\"\\u007f\"",
+      "error": "RangeError"
+    },
+    {
+      "name": "non-ascii-key",
+      "input": "{\"k\\u00e9\":1}",
+      "error": "RangeError"
+    },
+    {
+      "name": "control-key",
+      "input": "{\"\\n\":1}",
+      "error": "RangeError"
+    }
+  ]
+}
