@@ -19,8 +19,10 @@ jobs:
     name: CodeQL (javascript-typescript)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # The repository is private without GitHub Advanced Security, so SARIF upload to code scanning is
+    # unavailable. Results stay on the runner and any finding fails the job. When the repository becomes public
+    # or gets Advanced Security: set `upload: always` and grant `security-events: write`.
     permissions:
-      security-events: write
       contents: read
       actions: read
     steps:
@@ -34,3 +36,14 @@ jobs:
       - uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
           category: "/language:javascript-typescript"
+          upload: never
+          output: ${{ runner.temp }}/codeql-results
+      - name: Fail on findings
+        env:
+          RESULTS_DIR: ${{ runner.temp }}/codeql-results
+        run: |
+          set -euo pipefail
+          jq -r '.runs[].results[]? | "\(.ruleId): \(.message.text) (\(.locations[0].physicalLocation.artifactLocation.uri):\(.locations[0].physicalLocation.region.startLine))"' "${RESULTS_DIR}"/*.sarif
+          count=$(jq -s '[.[].runs[].results[]?] | length' "${RESULTS_DIR}"/*.sarif)
+          echo "CodeQL findings: ${count}"
+          test "${count}" -eq 0
