@@ -1,7 +1,7 @@
 # CODELEX — Game Rules
 
 Owner: `game-designer` · Implementation: `packages/game-engine` · Every rule has a stable ID cited by tests.
-Version: **0.2 (draft, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
+Version: **0.2 (accepted by the product owner on 2026-10-02, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
 Testable properties and golden cases for every rule ID: `docs/game/RULE_PROPERTIES.md`.
 
 Rule IDs are stable: a rule may be clarified or amended (recorded in the changelog), never renumbered or reused.
@@ -179,7 +179,8 @@ Powers are out of scope for Phase 1 (E-1.5). Their open questions (tile conserva
 Container targets, Compile timing) are listed in `docs/game/RULE_PROPERTIES.md` and must be resolved before E-3.2.
 
 ## 9. Changelog
-- 0.2 (draft) — 2026-10-02 · `game-designer` · Resolves E-1.5 spec requests (Q-3, Q-4, Q-5, rules impact 1–4).
+- 0.2 (accepted 2026-10-02 by the product owner, incl. R-TURN-004 amendment; tech squares (R-BOARD-003) are
+  disabled for the E-1.5 playtest until a board layout and category set are defined) — 2026-10-02 · `game-designer` · Resolves E-1.5 spec requests (Q-3, Q-4, Q-5, rules impact 1–4).
   - New: R-CORE-004 (seeded first player), R-CORE-005 (determinism, named RNG streams, replay),
     R-BOARD-004 (start square DW ⚙, first move ≥ 2 tiles), R-BAG-005 (bag order, draws, exchange procedure),
     R-BAG-006 (blank designation), R-TURN-005 (rejection policy: free and stateless everywhere in v0.2),
