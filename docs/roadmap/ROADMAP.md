@@ -14,14 +14,17 @@ Goal: a monorepo where agents can ship safely.
 | ID | Epic | Owner | Status |
 |---|---|---|---|
 | E-0.1 | Agentic framework (agents, skills, hooks, validators, CI) | solution-architect | ☑ |
-| E-0.2 | Monorepo tooling: pnpm, Turborepo, `packages/config` (tsconfig/eslint/prettier), Vitest | devops-sre | ☐ |
-| E-0.3 | Local stack: docker compose (Postgres, Redis, Redpanda, MinIO, OTel collector) | devops-sre | ☐ |
-| E-0.4 | CI pipeline (lint, typecheck, test affected, security scans, validators) | devops-sre | ◐ |
-| E-0.5 | `packages/observability`, `packages/protocol` skeleton with versioning rules | devops-sre, realtime-engineer | ☐ |
+| E-0.2 | Monorepo tooling: pnpm, Turborepo, `packages/config` (tsconfig/eslint/prettier, Vitest presets, `Result`) | devops-sre | ◐ |
+| E-0.4 | CI pipeline (validators, lint, typecheck, test affected, coverage floors, secret scan, SAST) | devops-sre | ◐ |
+| E-0.5 | Minimal `packages/observability` (logger + PII redaction) | devops-sre | ☐ |
 | E-0.6 | Lexicon schema v1 + validator + seed (≥ 300 terms, 9 categories) [V-04, V-05] | lexicon-engineer, lexicon-curator | ☑ |
 
 Exit criteria: CI green on main; `pnpm validate` passes; a new package can be scaffolded with `/scaffold` and is
 green in < 10 min; lexicon seed validated.
+
+Re-scoped 2026-10-02 (sprint `docs/sprints/2026-10-02-phase0-close.md`, approved by the product owner): Phase 1
+runs offline, so the local stack, `packages/protocol` (+ ADR on protocol/event versioning) and OpenTelemetry
+exporters moved to Phase 2 (E-2.0, E-2.3, E-2.9). Bundle budgets arrive with the first app in Phase 1.
 
 ## Phase 1 — Playable core (single player vs bots, offline-capable)
 Goal: prove the fun.
@@ -41,15 +44,16 @@ rate ≤ 52% in simulation, crash-free ≥ 99.5%.
 ## Phase 2 — Online & competitive MVP (soft launch)
 | ID | Epic | Owner |
 |---|---|---|
+| E-2.0 | Local stack: docker compose (Postgres, Redis, Redpanda, MinIO, OTel collector), images pinned by digest | devops-sre |
 | E-2.1 | Identity: guest → account, Sign in with Apple/Google, deletion, age gate | backend-engineer |
 | E-2.2 | `services/game` server authority + event-sourced match log | game-engine-engineer |
-| E-2.3 | `services/realtime` WebSocket edge + `packages/protocol` v1 | realtime-engineer |
+| E-2.3 | `services/realtime` WebSocket edge + `packages/protocol` v1 (ADR on protocol/event versioning first) | realtime-engineer |
 | E-2.4 | Matchmaking 1v1 + Glicko-2 ranked (Classic, Blitz 60 s) [V-07] | realtime-engineer |
 | E-2.5 | Progression v1: XP, level, technology profile [V-06] | backend-engineer |
 | E-2.6 | Daily CODELEX + global daily leaderboard [V-16] | backend-engineer, game-designer |
 | E-2.7 | Integrity v1: server validation, timing anomalies, multi-account signals [V-25] | security-engineer |
 | E-2.8 | Analytics pipeline + core dashboards | data-analyst |
-| E-2.9 | Production infra single region + SLOs + runbooks | devops-sre |
+| E-2.9 | Production infra single region + SLOs + runbooks + OpenTelemetry exporters/collector | devops-sre |
 | E-2.10 | Store compliance & soft launch in 2–3 countries (incl. Senegal, France) | privacy-compliance, mobile-engineer |
 
 Exit: D1 ≥ 40%, D7 ≥ 15%, ranked queue p95 < 30 s at soft-launch population, SLOs met 4 weeks, no S1 open.

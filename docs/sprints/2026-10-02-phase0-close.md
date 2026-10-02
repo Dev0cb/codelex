@@ -3,9 +3,9 @@
 **Goal:** close Phase 0 with a monorepo where any agent can scaffold, test and merge a pure TypeScript package
 safely in under 10 minutes.
 
-**Status:** Proposed — awaiting human approval of the goal and of the scope change below.
+**Status:** Approved by the product owner on 2026-10-02 (lean scope). In progress.
 
-## Scope decision (needs approval)
+## Scope decision (approved)
 Phase 1 ("Playable core") runs offline: one player vs bots on device. It needs no Postgres, Redis, Kafka, MinIO
 or wire protocol. Proposed:
 - **Defer E-0.3** (docker compose local stack) to Phase 2 (with E-2.2 / E-2.9).
@@ -29,7 +29,7 @@ Phase 0 exit criteria are unchanged (none depends on the deferred items).
 | S3 | Minimal `packages/observability`: pino logger with redaction (tokens, emails, receipts), no OTel exporter yet | devops-sre | S2 | Test proves redaction of token/email/receipt fields; strict preset coverage ≥ 80 %; README with owner and API | S | todo |
 | S4 | CI hardening: gitleaks (full history on main, diff on PR) + CodeQL JS/TS, coverage enforced via presets | devops-sre, security-engineer | — | Scans added as steps of existing required jobs or as non-required jobs (changing required checks = human admin action); a planted fake secret fails CI on a test branch | S | todo |
 | S5 | Update `/scaffold` to wire `@codelex/config` + `@codelex/observability`; golden-path CI job scaffolds a throwaway package | devops-sre | S2, S3 | Timed CI job: scaffold + lint + typecheck + test green in < 10 min; skill text matches reality (`pnpm framework:validate` green) | M | todo |
-| S6 | Roadmap update: move E-0.3 and deferred E-0.5 parts to Phase 2, mark E-0.2/E-0.4/E-0.5 status | solution-architect | human approval | `docs/roadmap/ROADMAP.md` reflects the approved scope; framework validator green | S | todo |
+| S6 | Roadmap update: move E-0.3 and deferred E-0.5 parts to Phase 2, mark E-0.2/E-0.4/E-0.5 status | solution-architect | human approval ✔ | `docs/roadmap/ROADMAP.md` reflects the approved scope; framework validator green | S | done |
 | S7 | Phase 0 exit check | qa-engineer | S1–S6 | main green; `pnpm validate` passes; scaffold timing recorded in this file; Phase 0 marked done | S | todo |
 
 ### Phase 1 preparation (parallel, does not block engineers)
