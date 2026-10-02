@@ -140,7 +140,7 @@ Routing table — **who owns what**:
 - Feature flags for every user-visible change; kill switch for every power, mode and store item.
 - Conventional Commits (`feat(game-engine): …`). One logical change per commit. Branches: `feat/…`, `fix/…`, `chore/…`.
 - Tests: unit next to code (`*.test.ts`), property tests for rules/scoring, contract tests for protocol, E2E for flows.
-  Coverage floor: 90% lines for `packages/game-engine` and `packages/protocol`, 80% elsewhere.
+  Coverage floor (lines, statements, functions, branches): 90% for `packages/game-engine` and `packages/protocol`, 80% elsewhere.
 
 ## 6. Commands
 
