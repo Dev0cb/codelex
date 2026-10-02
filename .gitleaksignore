@@ -1,0 +1,10 @@
+# gitleaks findings reviewed and accepted as false positives.
+# Format: <commit>:<file>:<rule-id>:<line> (fingerprint printed by gitleaks).
+# Only add synthetic test fixtures here, each with a reason. Never add a real secret: rotate it instead.
+
+# Synthetic JWT used to prove the logger redacts JWTs (packages/observability redaction tests).
+7205e937bc697115ffe499ebd79e884fcfaec08c:packages/observability/src/redact.test.ts:jwt:122
+# Synthetic "Authorization: Token ..." value used to prove header redaction.
+db7b8c73d65b8bc7b2416a0c84de44e9c6abaf3a:packages/observability/src/review.test.ts:generic-api-key:97
+# Synthetic "Token ..." scheme value used to prove scheme redaction.
+db7b8c73d65b8bc7b2416a0c84de44e9c6abaf3a:packages/observability/src/review.test.ts:generic-api-key:125

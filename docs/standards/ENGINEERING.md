@@ -41,7 +41,7 @@ Applies to all code. Enforced by lint, CI and the `code-reviewer` agent.
   ISC, MPL-2.0, BlueOak-1.0.0 (approved 2026-10-02); anything else needs approval).
 
 ## 7. Observability
-- Logger from `@codelex/observability` (pino JSON). Levels: `error` (actionable), `warn`, `info` (business
+- Logger from `@codelex/observability` (JSON lines, pino-compatible shape, zero runtime deps, mandatory redaction). Levels: `error` (actionable), `warn`, `info` (business
   events, sparse), `debug` (off in prod).
 - One span per use-case and per external call; RED metrics per endpoint; business metrics named
   `codelex_<domain>_<metric>_<unit>`.
