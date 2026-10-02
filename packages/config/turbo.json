@@ -3,6 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "lint": { "dependsOn": ["^build", "build"] },
-    "format:check": { "dependsOn": ["^build", "build"] }
+    "format:check": { "dependsOn": ["^build", "build"] },
+    "test": { "dependsOn": ["^build", "build"], "outputs": [] }
   }
 }

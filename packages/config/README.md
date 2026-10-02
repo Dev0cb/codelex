@@ -23,20 +23,36 @@ It is where `docs/standards/ENGINEERING.md` §1–§3 become executable.
   `no-non-null-assertion` except in tests, `switch-exhaustiveness-check`, ...), `consistent-type-imports`,
   `import-x/no-cycle`, `import-x/no-default-export` (off for `*.config.*`), `eslint-config-prettier` last.
 - Boundaries (ENGINEERING §2, `boundaries/dependencies`, default disallow): `apps/*` and `services/*` import
-  `packages/*` only (a service may import itself, never another service); `packages/*` never import apps or
-  services; `packages/game-engine` imports only `packages/lexicon`, `packages/config` and itself.
-  Workspace imports (`@codelex/x`) are resolved through `eslint-import-resolver-typescript`, so they are
-  classified like relative imports.
+  `packages/*` (including `packages/game-engine`) only; a service may import itself, never another service;
+  `packages/*` never import apps or services; `packages/game-engine` imports only `packages/lexicon`,
+  `packages/config` and itself. Workspace imports (`@codelex/x`) are resolved through
+  `eslint-import-resolver-typescript`, so they are classified like relative imports, and an unresolvable
+  `@codelex/*` import fails (`import-x/no-unresolved`) instead of silently bypassing the rule.
 - Determinism (ENGINEERING §3) in `packages/game-engine` and `packages/bots`: `Date.now`, `new Date()`,
-  `Date()`, `Math.random`, `crypto.randomUUID`, `crypto.getRandomValues`, `performance.now` are errors.
-- Purity in `packages/game-engine`: Node built-ins (`fs`, `node:*`, ...), IO libraries and UI frameworks cannot
-  be imported.
+  `new Date(...spread)`, `Date()`, `Math.random`, `crypto.randomUUID`, `crypto.getRandomValues`,
+  `performance.now`; aliasing (`const M = Math`, `const { random } = Math`), computed access on those objects, and
+  `globalThis` / `global` / `self` / `window` are errors.
+- Purity in `packages/game-engine`: an import allow-list (`codelex/pure-imports`): relative imports,
+  `@codelex/lexicon` and `@codelex/config/result` only. It covers static imports, re-exports, `import()`,
+  `require()` and `import x = require()`; non-literal specifiers are rejected. IO and environment globals
+  (`fetch`, `process`, timers, `XMLHttpRequest`, `WebSocket`, `Buffer`, ...) are banned.
+- The determinism/purity configs are anchored with `basePath: repoRoot`, so they apply whatever the cwd or the
+  location of `eslint.config.js` (per-package config run by turbo, or a single root config).
+- Not yet available: the `react: 'expo' | 'next'` option of the design note. It is deferred until the first app is
+  scaffolded (S5+), when `eslint-config-expo` / `@next/eslint-plugin-next` are added.
 
 ### Coverage rules
 
 Thresholds apply to lines, statements, functions and branches. `defineCodelexVitest` accepts overrides that
-raise a threshold and throws when an override would lower it. Strict is mandatory for `packages/game-engine`,
+raise a threshold and throws when an override would lower it, disable coverage (`coverage.enabled`), override
+`coverage.include`, exclude anything but test-only patterns, or add unknown threshold keys (`perFile` and `100: true` are
+allowed). Strict is mandatory for `packages/game-engine`,
 `packages/protocol` and this package.
+
+## Result conventions
+
+`ok()` returns `Ok<void>`: use `Result<void, E>` for operations that succeed without a value. Narrow with
+`if (r.ok)`; `E` is always a typed domain error (`code`, `message`, `details`), never a bare string in domain code.
 
 ## How packages consume it
 
@@ -65,8 +81,10 @@ pnpm turbo run build lint typecheck format:check test --filter=@codelex/config
 
 1. `./result` stays dependency-free and deterministic.
 2. A forbidden import or a determinism violation must fail lint: this is asserted by `test/eslint.test.ts`,
-   which runs the real ESLint API on the fixtures in `test/fixtures/repo` (copied to a scratch repo root so that
-   `apps/*`, `services/*`, `packages/*` paths are real). Never delete a `bad-*` fixture to make a build pass.
+   which runs the real ESLint API on the fixtures in `test/fixtures/repo` (copied to a scratch repo under
+   `os.tmpdir()`), both in the consumer layout (per-package `eslint.config.js` from the built `dist`, cwd = package
+   dir) and with the source preset from the repo root. `test/coverage.test.ts` runs a real `vitest --coverage` on
+   fixtures and asserts the threshold failure. Never delete a `bad-*` fixture to make a build pass.
 3. Coverage thresholds can only be raised by consumers.
 4. `tsconfig.base.json` stays at the repository root (design note §4).
 5. No default exports, except tooling config files.

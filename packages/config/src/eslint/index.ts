@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { builtinModules } from 'node:module';
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import boundaries from 'eslint-plugin-boundaries';
 import prettierConfig from 'eslint-config-prettier';
@@ -7,6 +7,7 @@ import { importX } from 'eslint-plugin-import-x';
 import { defineConfig } from 'eslint/config';
 import type { ESLint, Linter } from 'eslint';
 import tseslint from 'typescript-eslint';
+import { pureImportsRule } from './pure-imports.js';
 
 export interface CodelexEslintOptions {
   /** Directory holding the package tsconfig.json (pass `import.meta.dirname`). */
@@ -29,6 +30,8 @@ export function findRepoRoot(from: string): string {
     dir = parent;
   }
 }
+
+const require = createRequire(import.meta.url);
 
 const TS_FILES = ['**/*.{ts,tsx,mts,cts}'];
 const JS_FILES = ['**/*.{js,mjs,cjs}'];
@@ -58,6 +61,8 @@ export function genericPreset(options: CodelexEslintOptions): Linter.Config[] {
         '@typescript-eslint/consistent-type-imports': 'error',
         'import-x/no-cycle': 'error',
         'import-x/no-default-export': 'error',
+        // A missing/unbuilt workspace package must fail loudly, not bypass the boundaries rule.
+        'import-x/no-unresolved': ['error', { ignore: ['^(?!@codelex/)'] }],
       },
     },
     {
@@ -90,8 +95,8 @@ export function boundariesPreset(options: CodelexEslintOptions): Linter.Config[]
     settings: {
       'boundaries/root-path': options.repoRoot ?? findRepoRoot(options.tsconfigRootDir),
       'import/resolver': {
-        typescript: { alwaysTryTypes: true },
-        node: true,
+        // Absolute path: the resolver must be found even when the linted repo has no node_modules.
+        [require.resolve('eslint-import-resolver-typescript')]: { alwaysTryTypes: true },
       },
       'boundaries/elements': [
         {
@@ -119,7 +124,7 @@ export function boundariesPreset(options: CodelexEslintOptions): Linter.Config[]
           policies: [
             {
               from: { element: { type: 'app' } },
-              allow: { to: { element: { type: 'package' } } },
+              allow: { to: { element: { type: ['package', 'game-engine'] } } },
             },
             {
               from: { element: { type: 'app' } },
@@ -173,89 +178,123 @@ export function boundariesPreset(options: CodelexEslintOptions): Linter.Config[]
   });
 }
 
-const BANNED_IO_MODULES = [
-  ...builtinModules.filter((m) => !m.startsWith('_')),
-  ...builtinModules.filter((m) => !m.startsWith('_')).map((m) => `node:${m}`),
+const GLOBAL_OBJECTS = ['globalThis', 'global', 'self', 'window'].map((name) => ({
+  name,
+  message:
+    'Reaching globals indirectly hides non-determinism and IO: import what you need (ENGINEERING §3).',
+}));
+
+const IO_GLOBALS = [
+  'fetch',
+  'process',
+  'setTimeout',
+  'setInterval',
+  'setImmediate',
+  'clearTimeout',
+  'clearInterval',
+  'clearImmediate',
+  'XMLHttpRequest',
+  'WebSocket',
+  'EventSource',
+  'Worker',
+  'localStorage',
+  'sessionStorage',
+  'indexedDB',
+  'Buffer',
+].map((name) => ({
+  name,
+  message: 'game-engine must be pure: no IO, timers or environment access (ENGINEERING §2, §3).',
+}));
+
+/** Allow-list of module specifiers (besides relative imports) for game-engine. */
+const GAME_ENGINE_ALLOWED_IMPORTS = ['^@codelex/lexicon(/.*)?$', '^@codelex/config/result$'];
+
+const NON_DETERMINISTIC_OBJECTS = '(Math|crypto|performance)';
+
+const DETERMINISM_SELECTORS = [
+  {
+    selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+    message: 'new Date() reads the wall clock: inject a Clock (ENGINEERING §3).',
+  },
+  {
+    selector: "NewExpression[callee.name='Date'] > SpreadElement",
+    message: 'new Date(...args) may read the wall clock: pass explicit arguments (ENGINEERING §3).',
+  },
+  {
+    selector: "CallExpression[callee.name='Date']",
+    message: 'Date() reads the wall clock: inject a Clock (ENGINEERING §3).',
+  },
+  {
+    // `const D = Date; D.now()`, `f(Date)`, ... Only `new Date(x)`, `Date.<member>` and `instanceof Date`.
+    selector:
+      "Identifier[name='Date']:not(NewExpression > Identifier.callee):not(MemberExpression > Identifier.object):not(BinaryExpression > Identifier.right):not(MemberExpression > Identifier.property):not(Property > Identifier.key):not(TSTypeReference > Identifier.typeName)",
+    message: 'Do not alias Date: it hides wall-clock access (ENGINEERING §3).',
+  },
+  {
+    // `const M = Math; M.random()`, `const { random } = Math`, `Reflect.get(Math, 'random')`, ...
+    selector: `Identifier[name=/^${NON_DETERMINISTIC_OBJECTS}$/]:not(MemberExpression > Identifier.object):not(MemberExpression > Identifier.property):not(Property > Identifier.key):not(TSTypeReference > Identifier.typeName)`,
+    message:
+      'Do not alias Math/crypto/performance: use them only via direct member access (ENGINEERING §3).',
+  },
+  {
+    selector: `MemberExpression[computed=true][object.name=/^(Date|${NON_DETERMINISTIC_OBJECTS.slice(1)}$/][property.type!='Literal']`,
+    message:
+      'Computed access on Date/Math/crypto/performance hides banned members (ENGINEERING §3).',
+  },
 ];
 
-/** Determinism bans (ENGINEERING §3) for game-engine and bots; IO import bans for game-engine only. */
-export function gameEnginePreset(): Linter.Config[] {
+const DETERMINISM_PROPERTIES = [
+  {
+    object: 'Date',
+    property: 'now',
+    message: 'Non-deterministic: inject a Clock (ENGINEERING §3).',
+  },
+  {
+    object: 'Math',
+    property: 'random',
+    message: 'Non-deterministic: use the injected seeded Rng (ENGINEERING §3).',
+  },
+  {
+    object: 'crypto',
+    property: 'randomUUID',
+    message: 'Non-deterministic: derive ids from the seeded Rng (ENGINEERING §3).',
+  },
+  {
+    object: 'crypto',
+    property: 'getRandomValues',
+    message: 'Non-deterministic: use the injected seeded Rng (ENGINEERING §3).',
+  },
+  {
+    object: 'performance',
+    property: 'now',
+    message: 'Non-deterministic: inject a Clock (ENGINEERING §3).',
+  },
+];
+
+/**
+ * Determinism bans (ENGINEERING §3) for game-engine and bots; purity (import allow-list, IO globals)
+ * for game-engine only. `basePath` anchors the globs at the repository root, so the bans apply
+ * whatever the cwd / config location (per-package eslint.config.js, as under `turbo run lint`).
+ */
+export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[] {
+  const basePath = options.repoRoot ?? findRepoRoot(options.tsconfigRootDir);
   return defineConfig(
     {
+      basePath,
       files: DETERMINISTIC_FILES,
       rules: {
-        'no-restricted-properties': [
-          'error',
-          {
-            object: 'Date',
-            property: 'now',
-            message: 'Non-deterministic: inject a Clock (ENGINEERING §3).',
-          },
-          {
-            object: 'Math',
-            property: 'random',
-            message: 'Non-deterministic: use the injected seeded Rng (ENGINEERING §3).',
-          },
-          {
-            object: 'crypto',
-            property: 'randomUUID',
-            message: 'Non-deterministic: derive ids from the seeded Rng (ENGINEERING §3).',
-          },
-          {
-            object: 'crypto',
-            property: 'getRandomValues',
-            message: 'Non-deterministic: use the injected seeded Rng (ENGINEERING §3).',
-          },
-          {
-            object: 'performance',
-            property: 'now',
-            message: 'Non-deterministic: inject a Clock (ENGINEERING §3).',
-          },
-        ],
-        'no-restricted-syntax': [
-          'error',
-          {
-            selector: "NewExpression[callee.name='Date'][arguments.length=0]",
-            message: 'new Date() reads the wall clock: inject a Clock (ENGINEERING §3).',
-          },
-          {
-            selector: "CallExpression[callee.name='Date']",
-            message: 'Date() reads the wall clock: inject a Clock (ENGINEERING §3).',
-          },
-        ],
+        'no-restricted-properties': ['error', ...DETERMINISM_PROPERTIES],
+        'no-restricted-syntax': ['error', ...DETERMINISM_SELECTORS],
+        'no-restricted-globals': ['error', ...GLOBAL_OBJECTS],
       },
     },
     {
+      basePath,
       files: PURE_FILES,
+      plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
       rules: {
-        'no-restricted-imports': [
-          'error',
-          {
-            paths: BANNED_IO_MODULES.map((name) => ({
-              name,
-              message: 'game-engine must be pure: no Node built-ins or IO (ENGINEERING §2).',
-            })),
-            patterns: [
-              {
-                group: ['pg', 'redis', 'ioredis', 'kafkajs', 'fastify', 'axios', 'undici', 'ws'],
-                message: 'game-engine must be pure: no IO or framework libraries (ENGINEERING §2).',
-              },
-              {
-                group: [
-                  'react',
-                  'react-*',
-                  'react/*',
-                  'next',
-                  'next/*',
-                  'expo',
-                  'expo-*',
-                  'react-native',
-                ],
-                message: 'game-engine must not depend on UI frameworks (ENGINEERING §2).',
-              },
-            ],
-          },
-        ],
+        'codelex/pure-imports': ['error', { allow: GAME_ENGINE_ALLOWED_IMPORTS }],
+        'no-restricted-globals': ['error', ...GLOBAL_OBJECTS, ...IO_GLOBALS],
       },
     },
   );
@@ -266,7 +305,7 @@ export function codelex(options: CodelexEslintOptions): Linter.Config[] {
   return defineConfig(
     genericPreset(options),
     boundariesPreset(options),
-    gameEnginePreset(),
+    gameEnginePreset(options),
     prettierConfig,
   );
 }

@@ -37,7 +37,7 @@ Non-goals: no runtime utilities beyond `Result`; no tsconfig presets (see §4); 
 
 | Subpath | Export (named, no default) | Content |
 |---|---|---|
-| `./eslint` | `codelex(options)` → flat config array | typescript-eslint `strictTypeChecked` with `projectService`; `eslint-plugin-boundaries` element types and edges (ENGINEERING §2); `no-restricted-imports` for IO/Node built-ins and `no-restricted-properties`/`no-restricted-syntax` for `Date.now`, `new Date()`, `Math.random`, `crypto.randomUUID` in `packages/game-engine` and `packages/bots` (§3); `no-non-null-assertion` relaxed only in `*.test.ts`; `eslint-config-prettier` last. Options: `{ tsconfigRootDir: string; react?: 'expo' \| 'next' }`. |
+| `./eslint` | `codelex(options)` → flat config array | typescript-eslint `strictTypeChecked` with `projectService`; `eslint-plugin-boundaries` element types and edges (ENGINEERING §2); an import allow-list rule (`codelex/pure-imports`) and `no-restricted-globals` for IO in game-engine, plus `no-restricted-properties`/`no-restricted-syntax` for `Date.now`, `new Date()`, `Math.random`, `crypto.randomUUID` in `packages/game-engine` and `packages/bots` (§3); `no-non-null-assertion` relaxed only in `*.test.ts`; `eslint-config-prettier` last. Options: `{ tsconfigRootDir: string; repoRoot?: string }`; the `react?: 'expo' \| 'next'` option is deferred until the first app is scaffolded (S5+) because the Expo/Next plugins are not installed yet. |
 | `./prettier` | `prettierConfig` | Single Prettier config object (consumers re-export it). |
 | `./vitest` | `basePreset`, `strictPreset`, `defineCodelexVitest(preset, overrides?)` | Coverage provider v8, reporters `text-summary` + `lcov`; thresholds on **lines, statements, functions and branches** (product owner decision, 2026-10-02): base 80 %, strict 90 % (ADR-0010). Strict is mandatory for `packages/game-engine` and `packages/protocol`; `packages/config` itself uses strict. Overrides may raise thresholds, never lower them (the helper throws). |
 | `./result` | `Result`, `Ok`, `Err`, `ok`, `err` | See §3. The only runtime export; zero dependencies. |
@@ -110,7 +110,8 @@ is updated in S5 to emit exactly this layout.
 |---|---|---|
 | typescript-eslint does not support the pinned TS version | lint crashes or warns | TS pinned to 6.0.x (ADR-0012); Dependabot group for TS + typescript-eslint (`.github/dependabot.yml`) |
 | Boundary rule misconfigured (false negative) | forbidden import passes CI | Fixture packages that **must fail** lint, asserted in `@codelex/config` tests (S2) |
-| Consumer lowers coverage threshold | silent quality drop | `defineCodelexVitest` rejects lower thresholds; reviewed by code-reviewer |
+| Consumer lowers coverage threshold | silent quality drop | `defineCodelexVitest` rejects lower thresholds, `coverage.include`, non-test `coverage.exclude`, disabling coverage; reviewed by code-reviewer |
+| Package uses `basePreset` where `strictPreset` is mandatory (`packages/game-engine`, `packages/protocol`) | 80 % floor instead of 90 % | **Known gap**: nothing in `@codelex/config` knows which package is which. To be enforced by the S5 golden-path job / framework validator (assert the vitest config of those packages uses `strictPreset`) |
 | `dist/` stale in local dev | rules differ from CI | `^build` dependency in `turbo.json`; `pnpm turbo run lint` always builds config first |
 
 ## 8. Rollout
