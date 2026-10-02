@@ -2,3 +2,13 @@ packages:
   - "apps/*"
   - "services/*"
   - "packages/*"
+
+# Supply-chain hardening: refuse versions published less than 3 days ago (value is in minutes).
+minimumReleaseAge: 4320
+
+# unrs-resolver gets its native binding from optionalDependencies (locked, integrity-checked);
+# its postinstall would download artifacts outside lockfile integrity, so it must not run.
+ignoredBuiltDependencies:
+  - unrs-resolver
+# Fail the install when any other dependency wants to run a build script that is not reviewed.
+strictDepBuilds: true
