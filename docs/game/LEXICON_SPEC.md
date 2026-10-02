@@ -1,12 +1,14 @@
 # Lexicon Specification
 
 Owners: `lexicon-engineer` (schema, validator) · `lexicon-curator` (content).
-Schema: `packages/lexicon/schema/term.schema.json` · Data: `packages/lexicon/data/` · Validate: `pnpm lexicon:validate`.
+Schema: `packages/lexicon/schema/term.schema.json` (term-file **schema v2**) · Data: `packages/lexicon/data/` ·
+Validate: `pnpm lexicon:validate [-- --report <path.json>]`.
 
 ## 1. Files
 - `data/categories.json` — category registry (id, names EN/FR, colour token, icon).
-- `data/terms/<category>.json` — `{ "schemaVersion": 1, "category": "<id>", "terms": [Term, …] }`. A term lives in
-  the file of its **primary** category and may list secondary categories.
+- `data/terms/<category>.json` — `{ "schemaVersion": 2, "category": "<id>", "terms": [Term, …] }`. A term lives in
+  the file of its **primary** category and may list secondary categories. Every term file must be at the current
+  schema version (no mixed v1/v2 lexicon). `categories.json` has its own format version (still 1, unchanged).
 - `data/blocklist/` — forms that must never be playable (offensive collisions), one per line, uppercase.
 
 ## 2. Term model
@@ -24,11 +26,23 @@ Schema: `packages/lexicon/schema/term.schema.json` · Data: `packages/lexicon/da
 | `aliases` | string[] | other ids or display strings (e.g. `K8S`) |
 | `relations` | `{type, target}`[] | typed edges; target = existing term id |
 | `sources` | url[] | official docs used to verify (not copied) |
+| `inflections` | `{form, kind}`[]? | v2: curated playable inflected forms of this term (§2.1) |
 | `tags` | string[]? | free tags (season packs, missions) |
 | `gameValue`, `knowledgeXp` | int? | **computed**; if present must equal the formula unless `override` is set |
 | `override` | `{gameValue?, knowledgeXp?, approvedBy}`? | requires `game-designer` approval |
 
 Relation types: `is_a`, `part_of`, `uses`, `related_to`, `alternative_to`, `runs_on`, `implements`.
+
+### 2.1 Inflections (schema v2, spec E-1.7)
+`"inflections": [{ "form": "PODS", "kind": "plural" }]` on the canonical term. An inflection is a **playable
+form** that resolves to its canonical term: it has no definition, display, difficulty, gameValue or knowledgeXp of
+its own (all come from the term; spec E-1.7 D-2, D-3). Kinds: `plural | verb_s | verb_ed | verb_ing` — batch 1
+authors `plural` only, verb kinds come from batch 2 on the curator's closed verb list (D-1). A string that is both a
+plural and a verb form (COMMITS) is declared once, as `plural`. The kind is a label (stats, card line, analytics),
+never a scoring input. Rules (validator, §5): matches `^[A-Z]{2,15}$` but is never two letters (two-letter
+forms are canonical terms only), ≠ the term's own form, ≤ 4 per term, array sorted by form in code-unit order without duplicates, only on
+`playable` terms with a `form`, never on `product` or `language` terms (D-6), not blocklisted, unique in the global
+form namespace.
 
 ## 3. Difficulty rubric
 - **novice** — known by most smartphone users / general public (CLOUD, EMAIL, PASSWORD, CPU).
@@ -46,10 +60,39 @@ knowledgeXp = xpBase[difficulty] + min(len(form), 10)
 ```
 Check: KUBERNETES (expert) → 17 + 10 + 16 = **43** game value, 75 + 10 = **85** Knowledge XP (vision V-05).
 
-## 5. Graph invariants (validator-enforced)
-No dangling relation targets · no self-relations · no duplicate (type, target) per term · no cycle in `is_a` ·
-unique `id` and unique `form` · every category exists · `product` has `owner` · playable forms not in blocklist ·
-definitions ≤ 160 chars in EN and FR.
+## 5. Validator rules
+**Errors (fail CI):**
+- Files: `schemaVersion` equals the current schema version (2); the file `category` is registered; unknown fields
+  rejected; required fields present.
+- Graph: no dangling relation targets · no self-relations · no duplicate (type, target) per term · no cycle in `is_a`
+  · unique `id` · every category exists and the first one equals the file category · `product` has `owner` ·
+  definitions 10..160 chars in EN and FR · `gameValue`/`knowledgeXp` equal the formula unless an approved
+  `override` exists.
+- Schema types of every hashed or exported field, checked against `term.schema.json` by a zero-dependency checker:
+  `playable` boolean; `override` an object with exactly `gameValue?`, `knowledgeXp?` (integers ≥ 0) and a non-empty
+  `approvedBy`; `gameValue`/`knowledgeXp` integers ≥ 0; `tags`/`aliases` arrays of unique strings; `relations` an
+  array of `{type (enum), target (string)}`; `sources` an array of `https://` strings.
+- **One global form namespace:** canonical forms of playable terms and all inflection forms share one namespace
+  across every file and category. A duplicate fails with one error naming the form and both term ids. When an
+  inflection equals a canonical form (IDS, OSS, VMS), the **standalone term owns the string** and the inflection is
+  the one reported, whatever the file order (D-5).
+- Forms (canonical and inflections) match `^[A-Z]{2,15}$` and are not in any `data/blocklist/*.txt`. Blocklist
+  lines are trimmed, `#` starts a comment, entries are folded (NFD, combining marks removed, uppercased: `écu` →
+  `ECU`), and a line that does not match `^[A-Z]{2,15}$` after folding fails the load with its file and line.
+- Inflections: entries are exactly `{form, kind}`; `kind` in the enum; form ≠ the term's form; no two-letter
+  inflection (AC-15); ≤ 4 per term; sorted by form (code-unit order), no duplicates; owner term is `playable` with a
+  `form`; owner kind is not `product` nor `language`. Inflections of an invalid owner are reported once and do not
+  enter the namespace or the stats.
+
+**Warnings (`NEEDS_REVIEW`, non-blocking, printed and in the report):**
+- an inflection that does not start with the term's form (INDICES, MATRICES, PROXIES);
+- a `plural`/`verb_s` not ending in S, `verb_ed` not ending in ED, `verb_ing` not ending in ING;
+- a `product`, `protocol` or `standard` term without `sources` (D-11; becomes an error once the seed has 0 warnings).
+
+**Report (spec E-1.7 AC-7):** every run prints, and `--report <path>` writes as JSON: `lexiconVersion`,
+`cardsVersion`, errors, warnings, form counts (canonical / inflections / total), counts by form length (2, 3, 4, 5–7,
+8–10, 11–15; all forms), by primary category and by difficulty (canonical playable terms), by inflection kind, and
+the list of two-letter forms.
 
 ## 6. Size targets & inflection policy (product owner decision, 2026-10-02)
 - **Playtest target (E-1.5 stage 1):** ≥ 2,000 playable forms, of which ~20–25 % have 2–4 letters (≥ 350 with 3–4
@@ -62,4 +105,46 @@ definitions ≤ 160 chars in EN and FR.
   finish on the version they pinned, so replays stay reproducible. No runtime deny-list.
 
 ## 7. Versioning
-`lexiconVersion` = content hash of all data files. Published versions are immutable; matches pin a version.
+Published versions are immutable; matches pin a version (ADR-0013 §D7). Both versions below are computed by
+`packages/lexicon/scripts/canonical.mjs` and printed by the validator.
+
+**`lexiconVersion`** `= hex(SHA-256(UTF-8(JCS(D))))[0..16)`, JCS = RFC 8785 (full, non-ASCII allowed). `D` is:
+
+```
+{
+  "contentFormat": 1,                       // version of this field list; bump = every lexiconVersion changes
+  "categories": [<category id>…],           // registry ids, sorted, unique
+  "blocklist": [<FORM>…],                   // union of data/blocklist/*.txt, uppercased, sorted, unique
+  "terms": [                                // every term (playable or not), sorted by id
+    { "id", "playable", "kind", "difficulty",
+      "categories": [<primary>, <secondary…sorted>],
+      "form"?,                              // when present in the data
+      "inflections": [{ "form", "kind" }…], // sorted by form; [] when absent
+      "relations": [{ "type", "target" }…], // sorted by (type, target); [] when absent
+      "tags": [<tag>…],                     // sorted, unique; [] when absent
+      "gameValue"?, "knowledgeXp"?          // playable terms only: effective value (override, else formula)
+    }…
+  ]
+}
+```
+
+Sorting is by UTF-16 code units (never locale). Consequences: the version is independent of file names and
+layout, of how terms are split across files, of key order, whitespace, CRLF/LF, and of the order of tags,
+relations, secondary categories and blocklist lines; an absent optional array equals `[]`; writing the computed
+`gameValue`/`knowledgeXp` explicitly equals omitting them. **Excluded** (display-only, never changes the version):
+`definitions`, `display`, `owner`, `sources`, `aliases`, `override.approvedBy`, category names, icons and colour
+tokens, and `schemaVersion` (a pure format migration such as v1 → v2 keeps the version).
+
+**`cardsVersion`** — same construction over the display-only document
+`{ contentFormat, categories: [registry entries…] sorted by id, terms: [{ id, display, definitions, owner?, aliases (sorted),
+sources (sorted) }] sorted by id }`; it identifies the Knowledge Cards artefact, so a definition fix changes
+`cardsVersion` only and never invalidates replays or pins.
+
+Property tests (`packages/lexicon/test/canonical.test.mjs`) check invariance to all the layout changes above and
+that every playable field changes the version while every display field does not.
+
+## 8. Schema versions and migrations
+| Term-file `schemaVersion` | Change | Migration |
+|---|---|---|
+| 1 | initial | — |
+| 2 (2026-10-02, sprint L1) | optional `inflections` (§2.1); validator rules of §5; canonical `lexiconVersion` (§7) | `node packages/lexicon/scripts/migrate-v1-to-v2.mjs` — bumps `schemaVersion` only (idempotent); playable set and `lexiconVersion` unchanged |
