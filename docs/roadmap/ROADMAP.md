@@ -29,6 +29,7 @@ exporters moved to Phase 2 (E-2.0, E-2.3, E-2.9). Bundle budgets arrive with the
 
 ## Phase 1 — Playable core (single player vs bots, offline-capable)
 Goal: prove the fun.
+In progress since 2026-10-02 — current sprint `docs/sprints/2026-10-02-phase1-engine-core.md`.
 
 | ID | Epic | Owner |
 |---|---|---|
