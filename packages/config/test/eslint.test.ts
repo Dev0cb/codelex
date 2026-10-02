@@ -116,7 +116,9 @@ async function ruleIdsIn(mode: Mode, file: string): Promise<string[]> {
   return result.messages.map((m) => m.ruleId ?? 'parse-error');
 }
 
-describe.each(MODES)('%s', (mode) => {
+// The first lint of each ESLint instance builds a TypeScript program (~4 s on CI, more when turbo runs
+// other packages' tests on the same cores): the default 5 s test timeout is too tight for it.
+describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
   const ruleIds = (file: string): Promise<string[]> => ruleIdsIn(mode, file);
 
   describe('clean code passes (consumer layout)', () => {
