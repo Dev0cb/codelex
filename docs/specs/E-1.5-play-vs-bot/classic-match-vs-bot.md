@@ -481,3 +481,83 @@ TestFlight/Play and notify testers.
 | AC-18 | Component test survey shown at 1st and 3rd completion only, dismissible, non-blocking; flag off test |
 | AC-19 | Unit tests flag resolution order (cached → bundled), background fetch non-blocking; Maestro `play_vs_bot.enabled` off with and without in-progress match |
 | AC-20 | Engine replay test: stored action log → identical state hash (property test across seeds); manual export check for absence of PII |
+
+## Review — game-designer (2026-10-02)
+
+Scope: rules, scoring feel, bot feel, R-1. Rules changes are drafted in `docs/game/GAME_RULES.md` **v0.2 (draft)**;
+testable properties and golden cases in `docs/game/RULE_PROPERTIES.md`. The spec text above is left unchanged;
+the owner (`product-strategist`) folds these findings in.
+
+### Answers to open questions
+
+- **Q-3 → R-TURN-005, R-TURN-004 (amended).** Rejected attempts are not turns: they leave the state byte-identical
+  and never count toward R-TURN-004, in **every** mode in v0.2 (not only casual). This removes the conflict between
+  R-TURN-003 and R-TURN-004 and keeps the engine property "illegal action leaves state unchanged" absolute. Ranked
+  anti-probing (`maxRejectionsPerTurn`) is reserved and inactive; to decide before E-2.4. AC-6 assumption confirmed.
+- **Q-4 → R-CORE-004, R-CORE-005, R-MODE-CLASSIC-002.** First seat = uniform draw from a dedicated `first-player`
+  RNG stream derived from the match seed (independent of the bag stream), announced before the first move. New
+  format `untimed-vs-bot`: 1v1, no clock, powers off, free rejections, preview allowed, never ranked or rated; bot
+  think delay is presentation only (outside the engine, so replays are delay-free). AC-3 assumption confirmed.
+- **Q-5 → R-SCORE-009.** Preview confirmed as UI only and never authoritative, **with one correction**: the
+  preview must omit every lexicon-dependent component (term bonus, tech-square bonus, chain bonus), not only skip
+  the validity indicator. Otherwise a +16 expert bonus appearing in the preview tells the player the word is
+  valid (and its difficulty) before commit. Preview = letter/word premiums + Full Stack, computed by the engine's
+  scoring function with no lexicon access; the committed score adds the rest.
+- **Q-6** Agree: in-match Knowledge Card off (related terms are hints).
+- **Q-9** See R-1 below.
+- Rules impact item 1 → **R-END-001** (going out); also **R-END-002** (resign/forfeit) and **R-END-003** (result,
+  draws, tournament-only tie-break) so AC-10 can cite them. `bot_match_finished.end_reason` maps 1:1:
+  `out` = R-END-001, `scoreless_turns` = R-TURN-004, `resign` = R-END-002.
+
+### Findings
+
+| # | Severity | Finding | Proposed fix |
+|---|---|---|---|
+| F-1 | **Blocking** | AC-5 as written lets the preview leak validity through lexicon-dependent bonuses. | Reword AC-5 to cite R-SCORE-009 (preview excludes term, tech-square and chain bonuses); component test: preview never calls the lexicon. |
+| F-2 | **Blocking** | AC-3 says tech squares "as shipped by E-1.1", but no layout and no tech-square set exist (RULE_PROPERTIES A-02). An unsimulated tech-square layout in the first playtest confounds the fun signal. | Playtest build: Classic layout with standard premiums, **tech squares off** (flag `board.tech_squares.enabled`, default off) until E-1.6 simulates a layout. Needs the human's OK. |
+| F-3 | **Blocking for playtest Stage 1 (not for design)** | R-1: the current seed is 310 playable forms with only 6 two-letter forms; see recommendation below. | Gate Stage 1 on E-1.6 diagnostics run on the bundled lexicon (thresholds below). |
+| F-4 | Non-blocking | AC-4 breakdown order must follow R-SCORE-008 (base → tech → Compile → term → Full Stack/chain), each step floored; render the engine breakdown verbatim. | Cite R-SCORE-008 in AC-4. |
+| F-5 | Non-blocking | AC-6 reason copy shows one `{word}`; a placement can form several invalid words. | Engine returns the list of offending forms (R-TURN-003); copy pluralises via ICU. |
+| F-6 | Non-blocking | AC-7: Exchange must let the player pick 1–7 tiles (R-BAG-005); blank designation is permanent and visible to the opponent (R-BAG-006); first move needs ≥ 2 tiles on the start square (R-BOARD-004). | Add to AC-7 / coach mark copy. |
+| F-7 | Non-blocking | AC-11 "bot recomputes the same move" requires the bot to draw only from its own `bot:<seat>` stream (R-CORE-005) and to be time-boxed by node count, not wall-clock, otherwise low-end devices will choose different moves. | Add to the E-1.3 contract. |
+| F-8 | Non-blocking | Bot feel (AC-8/AC-9): personalities must differ by **behaviour**, not only strength. Beginner: picks among the top-N moves weighted toward short, novice/intermediate terms, never exchanges before turn 5, ignores leave quality, misses Full Stacks on purpose ~50%. Strategist: maximises score + rack-leave value, blocks open TW lanes when leading, exchanges when leave is poor, favours chain-extending terms. Both draw think time from a per-personality distribution (Beginner slower and more variable) so the pace reads as "human". | `ai-engineer` encodes as config; B-07 checks Beginner < Strategist ≥ 60%. |
+| F-9 | Non-blocking | Human win-rate guardrails (vs Beginner ≥ 55%, vs Strategist 20–50%) are sensible; also track **average score margin** — a 30-point loss feels very different from a 200-point loss and drives "would play again". | Add `score_margin` (derivable from `bot_match_finished`) to the readout. |
+| F-10 | Non-blocking | AC-10 "Draw (equal scores)" matches R-END-003; no tie-break in casual. | Cite R-END-003. |
+
+### R-1 — minimum playable lexicon for a fun 15×15 Classic game (recommendation, not a decision)
+
+Evidence (crude estimate, not the E-1.6 simulator; ignores board geometry): with the current 310 forms and a bag
+derived from their letter frequency (33 vowels / 98 letters), a random 7-tile rack can form at least one term from
+its own tiles 77% of the time (61% with half the lexicon, 29% with a fifth); with one letter borrowed from 5 random
+board letters, 95%. So **letter feasibility is not the binding constraint; geometry and repetition are**:
+
+1. **Two-letter forms drive board play.** Every cross-word of ≥ 2 letters must be a term (R-TURN-003). With only
+   6 two-letter forms (AI, ML, CD, CI, IP, GO) parallel plays and hooks are nearly impossible, the board becomes a
+   sparse crossword, premiums go unreachable and the bot often has no legal move late in the game. Target
+   **≥ 30 two-letter forms** (OS, UI, UX, IO, IT, QA, PR, VM, DB, JS, PC, VR, AR, ID…, each a genuine tech term)
+   and prefer vowel-bearing short forms.
+2. **Share of short forms.** Target **≈ 20–25% of forms at 2–4 letters** (≥ 350 forms at 3–4 letters) for a
+   lexicon of **≥ 1,500 playable forms minimum, 2,000+ preferred** for the 14-day playtest; below ~1,000 the same
+   40–50 acronyms will dominate every game (repetition kills "would play again").
+3. **Inflections are the cheapest multiplier.** Allowing plural/verb forms of countable terms (APIS, PODS, BUGS,
+   DEPLOYS) as derived playable forms roughly doubles hook opportunities without new definitions. This is a
+   lexicon-policy decision (Knowledge Card mapping, "term" purity) for the human with `lexicon-curator`.
+4. **Letter distribution.** Keep deriving it from the lexicon (R-BAG-001): tech vocabulary is consonant-heavy and
+   acronyms make consonant racks playable, so forcing English word-game vowel ratios (≈ 43%) would mismatch the
+   vocabulary. Re-derive and re-simulate whenever the lexicon grows by > 20%. Blank count (2 ⚙) is a sim variant
+   (3 blanks) only if diagnostics fail, not a default change.
+5. **Smaller board for casual vs bot.** Prepare an **11×11 board with a ~60-tile bag** ("Quick Classic") as an
+   E-1.6 **simulation variant**, not a shipped mode. Decision rule proposed for Stage 1: if on the bundled lexicon
+   the 15×15 baseline shows R-TURN-004 endings > 10%, turns with no legal PlaceWord > 15%, or top-20 terms > 40% of
+   words played, ship the 11×11 variant behind a flag for the playtest; otherwise keep full Classic as the spec
+   decided. 11×11 also shortens matches (R-2) but reduces premium/strategy depth, so it should not become ranked
+   Classic.
+
+### Decisions for the human
+
+- Accept GAME_RULES v0.2 draft (in particular the R-TURN-004 amendment: threshold 3 × nSeats, rejections excluded).
+- Tech squares off for the E-1.5 playtest (F-2).
+- Lexicon target for Stage 1 (≥ 1,500 / 2,000 forms, ≥ 30 two-letter forms) and inflection policy (R-1 §2–3).
+- Whether the 11×11 Quick Classic fallback may ship for the playtest under the decision rule above (R-1 §5).
+- Letter values for the bundled lexicon: fixed default table vs derived (RULE_PROPERTIES A-01); any BALANCE.md change.
+- Start square DW vs plain (R-BOARD-004) once B-01 simulation is available.
