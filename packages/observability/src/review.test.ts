@@ -304,12 +304,18 @@ describe('L-A: Error.code', () => {
 
 describe('H4/M3: CPU bounds', () => {
   const r = createRedactor();
+  // CPU time of this thread in ms, not wall time: the bounds must hold when CI runs other packages'
+  // tests in parallel on the same cores (wall-clock budgets failed under that contention).
+  const cpuMs = (): number => {
+    const u = process.threadCpuUsage();
+    return (u.user + u.system) / 1000;
+  };
   const time = (f: () => void): number => {
     let best = Infinity;
     for (let i = 0; i < 5; i += 1) {
-      const t = performance.now();
+      const t = cpuMs();
       f();
-      best = Math.min(best, performance.now() - t);
+      best = Math.min(best, cpuMs() - t);
     }
     return best;
   };
