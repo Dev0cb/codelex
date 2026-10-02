@@ -545,8 +545,8 @@
       ],
       "difficulty": "novice",
       "definitions": {
-        "en": "Protocol addressing and routing packets between networks.",
-        "fr": "Protocole qui adresse et achemine les paquets entre réseaux."
+        "en": "IP: Internet Protocol, which addresses and routes packets between networks.",
+        "fr": "IP : Internet Protocol, le protocole qui adresse et achemine les paquets entre réseaux."
       },
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc791"
