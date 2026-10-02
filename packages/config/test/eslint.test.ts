@@ -128,6 +128,8 @@ describe.each(MODES)('%s', (mode) => {
       'packages/game-engine/src/clean.ts',
       'packages/game-engine/src/clean-lexicon-and-result.ts',
       'packages/game-engine/src/clean-date-with-argument.ts',
+      'packages/game-engine/src/clean-tooling.config.ts',
+      'packages/game-engine/src/clean-tooling-import.test.ts',
       'services/svc-a/src/clean.ts',
       'services/svc-a/src/helper.ts',
       'services/svc-a/src/clean-game-engine.ts',
@@ -197,6 +199,11 @@ describe.each(MODES)('%s', (mode) => {
         'no-restricted-syntax',
       ],
       ['new Date(...[])', 'packages/game-engine/src/bad-spread-date.ts', 'no-restricted-syntax'],
+      [
+        'Math.random in a game-engine test',
+        'packages/game-engine/src/bad-math-random-in-test.test.ts',
+        'no-restricted-properties',
+      ],
       ['Math.random in bots', 'packages/bots/src/bad-math-random.ts', 'no-restricted-properties'],
     ])('%s FAILS', async (_name, file, rule) => {
       expect(await ruleIds(file)).toContain(rule);
