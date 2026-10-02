@@ -11,11 +11,19 @@ import {
   MAX_FORM_LENGTH,
   RELATION_TYPES,
   hasRelation,
+  isDefinitionHash,
   isLexiconVersion,
   relationBit,
   relationTypesOf,
 } from './constants.js';
-import type { Difficulty, InflectionKind, LexiconVersion, RelationType } from './types.js';
+import type {
+  DefinitionHash,
+  Difficulty,
+  FormKind,
+  InflectionKind,
+  LexiconVersion,
+  RelationType,
+} from './types.js';
 
 interface EnumNode {
   readonly enum?: readonly string[];
@@ -66,6 +74,7 @@ describe('constants mirror schema/term.schema.json (no drift)', () => {
     expectTypeOf<(typeof DIFFICULTIES)[number]>().toEqualTypeOf<Difficulty>();
     expectTypeOf<(typeof RELATION_TYPES)[number]>().toEqualTypeOf<RelationType>();
     expectTypeOf<(typeof INFLECTION_KINDS)[number]>().toEqualTypeOf<InflectionKind>();
+    expectTypeOf<(typeof FORM_KINDS)[number]>().toEqualTypeOf<FormKind>();
     expect(new Set(RELATION_TYPES).size).toBe(RELATION_TYPES.length);
   });
 });
@@ -88,6 +97,31 @@ describe('isLexiconVersion', () => {
   });
 });
 
+describe('constant arrays keep their tuple types (satisfies, not widening)', () => {
+  it('exposes literal positions and lengths', () => {
+    expectTypeOf(DIFFICULTIES).toEqualTypeOf<
+      readonly ['novice', 'intermediate', 'advanced', 'expert']
+    >();
+    expectTypeOf(RELATION_TYPES[0]).toEqualTypeOf<'is_a'>();
+    expectTypeOf(RELATION_TYPES.length).toEqualTypeOf<7>();
+    expectTypeOf(INFLECTION_KINDS.length).toEqualTypeOf<4>();
+    expectTypeOf(FORM_KINDS[0]).toEqualTypeOf<'canonical'>();
+    expectTypeOf(FORM_KINDS.length).toEqualTypeOf<5>();
+  });
+});
+
+describe('isDefinitionHash', () => {
+  it('accepts 16 lowercase hex chars and narrows to the brand', () => {
+    const value: string = '0123456789abcdef';
+    expect(isDefinitionHash(value)).toBe(true);
+    if (isDefinitionHash(value)) expectTypeOf(value).toEqualTypeOf<DefinitionHash>();
+  });
+
+  it.each(['', '0123456789abcde', '0123456789ABCDEF', 'global-ranked'])('rejects %j', (value) => {
+    expect(isDefinitionHash(value)).toBe(false);
+  });
+});
+
 describe('relation masks', () => {
   it('bit k is RELATION_TYPES[k]', () => {
     RELATION_TYPES.forEach((type, k) => {
@@ -106,5 +140,18 @@ describe('relation masks', () => {
     expect(relationTypesOf(0)).toEqual([]);
     expect(relationTypesOf(1 << 20)).toEqual([]);
     expect(relationTypesOf(0x7f)).toEqual(RELATION_TYPES);
+  });
+
+  it('relationBit throws a RangeError for a type outside RELATION_TYPES (never the sign bit)', () => {
+    const unknown = 'depends_on' as RelationType;
+    expect(() => relationBit(unknown)).toThrow(RangeError);
+    expect(() => relationBit(unknown)).toThrow(/depends_on/);
+  });
+
+  it('hasRelation is false for an unknown type, even on a mask with every bit set', () => {
+    const unknown = 'depends_on' as RelationType;
+    expect(hasRelation(-1, unknown)).toBe(false);
+    expect(hasRelation(0x7f, unknown)).toBe(false);
+    expect(hasRelation(1 << 31, unknown)).toBe(false);
   });
 });

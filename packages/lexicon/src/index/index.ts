@@ -8,6 +8,7 @@ export {
   MAX_FORM_LENGTH,
   RELATION_TYPES,
   hasRelation,
+  isDefinitionHash,
   isLexiconVersion,
   relationBit,
   relationTypesOf,

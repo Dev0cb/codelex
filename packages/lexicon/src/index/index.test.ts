@@ -16,6 +16,7 @@ describe('@codelex/lexicon/index public API', () => {
       'SUPPORTED_FORMAT_VERSIONS',
       'decodeLexiconIndex',
       'hasRelation',
+      'isDefinitionHash',
       'isLexiconVersion',
       'relationBit',
       'relationTypesOf',

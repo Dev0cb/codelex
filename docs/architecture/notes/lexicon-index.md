@@ -61,6 +61,10 @@ export type LetterCode = number;
 export type LetterMask = number;
 /** Bit k set ⇔ relation type k (order of RelationType above), either direction. 0 = not related. */
 export type RelationMask = number;
+/** Read-only per-letter counts (index = LetterCode): a fresh copy per call or a frozen array (L2 review). */
+export type LetterCounts = ArrayLike<number> & Iterable<number>;
+/** 16 hex; hash of the canonical profile definition (§4.2). Distinct brand from LexiconVersion. */
+export type DefinitionHash = string & { readonly __brand: 'DefinitionHash' };
 
 export type InflectionKind = 'plural' | 'verb_s' | 'verb_ed' | 'verb_ing';
 export type FormKind = 'canonical' | InflectionKind;
@@ -80,7 +84,7 @@ export type LexiconProfileKind = 'global' | 'season' | 'org';
 export interface LexiconProfileRef {
   readonly id: string;              // e.g. 'global-ranked', 'season-s01-the-cloud', 'org-<orgId>'
   readonly kind: LexiconProfileKind;
-  readonly definitionHash: string;  // 16 hex; hash of the canonical profile definition (§4.2)
+  readonly definitionHash: DefinitionHash;
 }
 
 export interface TermMeta {
@@ -131,8 +135,9 @@ export interface LexiconIndex {
   neighbours(term: TermRef): readonly TermRef[];      // sorted ascending; only terms in this profile
 
   // --- R-BAG-001 inputs (the distribution formula itself stays in the engine) ---
-  /** occurrences of each letter across all forms of the profile; index = LetterCode. */
-  letterCounts(): Readonly<Uint32Array>;
+  /** occurrences of each letter across all forms of the profile; index = LetterCode. No mutators in the type;
+   *  implementations return a fresh copy or a frozen array, so callers can never alter the index. */
+  letterCounts(): LetterCounts;
 
   // --- move generation (packages/bots) ---
   readonly gaddag: Gaddag | undefined;                // undefined if the artefact omits the section
@@ -164,8 +169,10 @@ export const decodeLexiconIndex: DecodeLexiconIndex;
 
 Runtime values exported next to the types (sprint L2): `DIFFICULTIES`, `RELATION_TYPES` (index k = bit k of a
 `RelationMask`, append-only), `INFLECTION_KINDS`, `FORM_KINDS`, `LETTER_COUNT`, `GADDAG_SEPARATOR`,
-`MAX_FORM_LENGTH` (a unit test keeps the enums equal to `schema/term.schema.json`), `isLexiconVersion`,
-`relationBit` / `hasRelation` / `relationTypesOf`, `CLXI_MAGIC`, `SUPPORTED_FORMAT_VERSIONS`. Until L4 ships
+`MAX_FORM_LENGTH` (a unit test keeps the enums equal to `schema/term.schema.json`; tuple types via `satisfies`),
+`isLexiconVersion`, `isDefinitionHash`,
+`relationBit` (throws `RangeError` on a type outside `RELATION_TYPES`, so the L4 build fails loudly instead of
+producing the sign bit) / `hasRelation` (false for an unknown type) / `relationTypesOf`, `CLXI_MAGIC`, `SUPPORTED_FORMAT_VERSIONS`. Until L4 ships
 format 1, `decodeLexiconIndex` reads only the format prefix and answers `TRUNCATED`, `BAD_MAGIC` or
 `UNSUPPORTED_FORMAT` (`SUPPORTED_FORMAT_VERSIONS` is empty): never a partial index. The build API (§3.2) is not
 exported yet (L4).
@@ -426,8 +433,8 @@ Strict coverage preset (90 %, config note §2) for `packages/lexicon/src/index` 
 | T-BLOCKLIST | fixture with a blocklisted playable form ⇒ `Err(BLOCKLISTED_FORM)`; no artefact section contains a blocklisted form | unit |
 | T-PROFILE | resolved set equals the set expression evaluated by the reference implementation on fixture tags/categories/ids; empty profile ⇒ `Err(EMPTY_PROFILE)` | property |
 | T-CORRUPT | truncation, bit flips, wrong magic, unknown format ⇒ typed `Err`, never a throw, never a wrong answer | fuzz |
-| T-VERSION | header version equals `loadLexicon().version`; mismatched `expect` ⇒ `Err(VERSION_MISMATCH / PROFILE_MISMATCH)` | unit |
-| T-ORACLE | for every query in the above suites, binary index and `Set`-backed reference give identical answers | differential |
+| T-VERSION | header version equals `loadLexicon().version`; mismatched `expect` ⇒ `Err(VERSION_MISMATCH / PROFILE_MISMATCH)`. **Gate:** L4 must make this pass before adding format 1 to `SUPPORTED_FORMAT_VERSIONS` (TODO in `decode.ts`), otherwise `expect` is silently ignored | unit |
+| T-ORACLE | for every query in the above suites, binary index and `Set`-backed reference give identical answers; for both implementations (L3 first), mutating the array returned by `letterCounts()` (after a cast, or a frozen-array write attempt) leaves the next `letterCounts()` unchanged | differential |
 
 Per the role rules, each validator invariant touched by T1 (canonical hash, profile files) gets fixtures that must
 fail.

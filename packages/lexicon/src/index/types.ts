@@ -10,6 +10,12 @@
 /** 16 lowercase hex chars: the value printed by `pnpm lexicon:validate` (LEXICON_SPEC §7, ADR-0013 §D7). */
 export type LexiconVersion = string & { readonly __brand: 'LexiconVersion' };
 
+/**
+ * 16 lowercase hex chars: hash of the canonical profile definition (lexicon-index note §4.2). A distinct brand
+ * from `LexiconVersion` so the two halves of an artefact identity cannot be swapped.
+ */
+export type DefinitionHash = string & { readonly __brand: 'DefinitionHash' };
+
 /** Term difficulty (R-SCORE-003). Order = `DIFFICULTIES`. */
 export type Difficulty = 'novice' | 'intermediate' | 'advanced' | 'expert';
 
@@ -36,6 +42,14 @@ export type LetterMask = number;
 export type RelationMask = number;
 
 /**
+ * Per-letter counts, index = `LetterCode`, length `LETTER_COUNT`. Read-only by type: no index assignment and no
+ * mutating method (`set`, `fill`, `copyWithin`, `reverse`, `sort`). Implementations return either a fresh copy
+ * per call (e.g. a new `Uint32Array`) or a frozen array, so a caller can never alter the index's own state
+ * (L3's T-ORACLE asserts it).
+ */
+export type LetterCounts = ArrayLike<number> & Iterable<number>;
+
+/**
  * A playable string of one artefact: a canonical form (POD) or a declared inflection (PODS).
  * Dense ordinal 0..size-1, forms sorted by UTF-16 code-unit order. Valid only for the index that returned
  * it. Never persist a FormRef (replays, events, saves): persist the form string.
@@ -56,8 +70,7 @@ export interface LexiconProfileRef {
   /** e.g. `global-ranked`, `season-s01-the-cloud`, `org-<orgId>`. */
   readonly id: string;
   readonly kind: LexiconProfileKind;
-  /** 16 lowercase hex: hash of the canonical profile definition (lexicon-index note §4.2). */
-  readonly definitionHash: string;
+  readonly definitionHash: DefinitionHash;
 }
 
 /** Metadata of a canonical term. Frozen, memoised by the implementation. */
@@ -158,8 +171,11 @@ export interface LexiconIndex {
   neighbours(term: TermRef): readonly TermRef[];
 
   // --- R-BAG-001 inputs (the derivation runs offline, ADR-0013 Q-G4) ---
-  /** Occurrences of each letter across all playable forms of the profile; index = LetterCode. */
-  letterCounts(): Readonly<Uint32Array>;
+  /**
+   * Occurrences of each letter across all playable forms of the profile; index = LetterCode. A fresh copy or a
+   * frozen array: mutating the result (if a cast allows it) never changes the index.
+   */
+  letterCounts(): LetterCounts;
 
   // --- move generation (packages/bots) ---
   /** Undefined if the artefact omits the section. */

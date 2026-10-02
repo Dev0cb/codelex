@@ -1,4 +1,5 @@
 import type {
+  DefinitionHash,
   Difficulty,
   FormKind,
   InflectionKind,
@@ -8,18 +9,18 @@ import type {
 } from './types.js';
 
 /** Schema enum order (easiest first). A test keeps it equal to `schema/term.schema.json`. */
-export const DIFFICULTIES: readonly Difficulty[] = Object.freeze([
+export const DIFFICULTIES = Object.freeze([
   'novice',
   'intermediate',
   'advanced',
   'expert',
-] as const);
+] as const satisfies readonly Difficulty[]);
 
 /**
  * Schema enum order; index k is bit k of a `RelationMask`. Append-only: reordering would change the meaning of
  * masks inside published artefacts (needs a new `formatVersion`).
  */
-export const RELATION_TYPES: readonly RelationType[] = Object.freeze([
+export const RELATION_TYPES = Object.freeze([
   'is_a',
   'part_of',
   'uses',
@@ -27,18 +28,21 @@ export const RELATION_TYPES: readonly RelationType[] = Object.freeze([
   'alternative_to',
   'runs_on',
   'implements',
-] as const);
+] as const satisfies readonly RelationType[]);
 
 /** Schema v2 enum order. */
-export const INFLECTION_KINDS: readonly InflectionKind[] = Object.freeze([
+export const INFLECTION_KINDS = Object.freeze([
   'plural',
   'verb_s',
   'verb_ed',
   'verb_ing',
-] as const);
+] as const satisfies readonly InflectionKind[]);
 
 /** `'canonical'` followed by the inflection kinds. */
-export const FORM_KINDS: readonly FormKind[] = Object.freeze(['canonical', ...INFLECTION_KINDS]);
+export const FORM_KINDS = Object.freeze([
+  'canonical',
+  ...INFLECTION_KINDS,
+] as const satisfies readonly FormKind[]);
 
 /** Number of letter codes (A..Z). */
 export const LETTER_COUNT = 26;
@@ -49,21 +53,33 @@ export const GADDAG_SEPARATOR = 26;
 /** Longest playable form (schema `^[A-Z]{2,15}$`). */
 export const MAX_FORM_LENGTH = 15;
 
-const LEXICON_VERSION = /^[0-9a-f]{16}$/;
+const HEX16 = /^[0-9a-f]{16}$/;
 
 /** True for 16 lowercase hex chars (the `lexiconVersion` format). Use at trust boundaries (manifests, logs). */
 export function isLexiconVersion(value: string): value is LexiconVersion {
-  return LEXICON_VERSION.test(value);
+  return HEX16.test(value);
 }
 
-/** The single-bit mask of a relation type. */
+/** True for 16 lowercase hex chars (the profile `definitionHash` format). Use at trust boundaries. */
+export function isDefinitionHash(value: string): value is DefinitionHash {
+  return HEX16.test(value);
+}
+
+/**
+ * The single-bit mask of a relation type. Throws `RangeError` for a value outside `RELATION_TYPES` (only
+ * reachable through a cast or unparsed input): the index build (L4) maps data through this function, so an
+ * unknown relation type fails the build loudly instead of silently producing the sign bit (`1 << -1`).
+ */
 export function relationBit(type: RelationType): RelationMask {
-  return 1 << RELATION_TYPES.indexOf(type);
+  const bit = RELATION_TYPES.indexOf(type);
+  if (bit === -1) throw new RangeError(`unknown relation type: ${type}`);
+  return 1 << bit;
 }
 
-/** True when `mask` contains `type`. */
+/** True when `mask` contains `type`. A query, so an unknown type is simply absent (false), never a throw. */
 export function hasRelation(mask: RelationMask, type: RelationType): boolean {
-  return (mask & relationBit(type)) !== 0;
+  const bit = RELATION_TYPES.indexOf(type);
+  return bit !== -1 && (mask & (1 << bit)) !== 0;
 }
 
 /** Relation types in `mask`, in `RELATION_TYPES` order (deterministic). Unknown bits are ignored. */

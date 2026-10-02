@@ -5,6 +5,7 @@
   "description": "CODELEX Lexicon: schema, seed data, formulas, validators and the LexiconIndex contract.",
   "license": "UNLICENSED",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     "./index": {
       "types": "./dist/index/index.d.ts",

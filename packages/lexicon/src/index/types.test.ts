@@ -4,12 +4,14 @@ import { describe, expectTypeOf, it } from 'vitest';
 import type {
   CategoryId,
   DecodeLexiconIndex,
+  DefinitionHash,
   Difficulty,
   FormKind,
   FormMeta,
   FormRef,
   Gaddag,
   GaddagNode,
+  LetterCounts,
   LetterMask,
   LexiconIndex,
   LexiconIndexError,
@@ -106,7 +108,7 @@ describe('LexiconIndex (lexicon-index note §2.2, E-1.7 split)', () => {
       (term: TermRef) => readonly TermRef[]
     >();
     expectTypeOf<LexiconIndex['categories']>().toEqualTypeOf<() => readonly CategoryId[]>();
-    expectTypeOf<LexiconIndex['letterCounts']>().toEqualTypeOf<() => Readonly<Uint32Array>>();
+    expectTypeOf<LexiconIndex['letterCounts']>().toEqualTypeOf<() => LetterCounts>();
     expectTypeOf<LexiconIndex['crossCheck']>().toEqualTypeOf<
       (before: ArrayLike<number>, after: ArrayLike<number>) => LetterMask
     >();
@@ -130,8 +132,12 @@ describe('LexiconIndex (lexicon-index note §2.2, E-1.7 split)', () => {
     expectTypeOf<LexiconProfileRef>().toEqualTypeOf<{
       readonly id: string;
       readonly kind: 'global' | 'season' | 'org';
-      readonly definitionHash: string;
+      readonly definitionHash: DefinitionHash;
     }>();
+    expectTypeOf<DefinitionHash>().toExtend<string>();
+    expectTypeOf<string>().not.toExtend<DefinitionHash>();
+    expectTypeOf<DefinitionHash>().not.toExtend<LexiconVersion>();
+    expectTypeOf<LexiconVersion>().not.toExtend<DefinitionHash>();
     expectTypeOf<LexiconIndex['size']>().toBeNumber();
     expectTypeOf<LexiconIndex['termCount']>().toBeNumber();
     expectTypeOf<LexiconIndex['formatVersion']>().toBeNumber();
@@ -159,6 +165,24 @@ describe('LexiconIndex (lexicon-index note §2.2, E-1.7 split)', () => {
       index.version = index.version;
       // @ts-expect-error meta objects are readonly
       index.meta(index.termOf(index.lookup('POD') as FormRef)).form = 'PODS';
+    };
+    expectTypeOf(typeOnly).toBeFunction();
+  });
+});
+
+describe('letterCounts (read-only contract)', () => {
+  it('exposes no mutators, and a Uint32Array copy or a frozen number array satisfies it', () => {
+    expectTypeOf<LetterCounts>().toEqualTypeOf<ArrayLike<number> & Iterable<number>>();
+    expectTypeOf<Uint32Array>().toExtend<LetterCounts>();
+    expectTypeOf<readonly number[]>().toExtend<LetterCounts>();
+    expectTypeOf<LetterCounts>().not.toHaveProperty('set');
+    expectTypeOf<LetterCounts>().not.toHaveProperty('fill');
+    expectTypeOf<LetterCounts>().not.toHaveProperty('copyWithin');
+    expectTypeOf<LetterCounts>().not.toHaveProperty('reverse');
+    expectTypeOf<LetterCounts>().not.toHaveProperty('sort');
+    const typeOnly = (counts: LetterCounts): void => {
+      // @ts-expect-error elements are read-only (ArrayLike index signature)
+      counts[0] = 1;
     };
     expectTypeOf(typeOnly).toBeFunction();
   });

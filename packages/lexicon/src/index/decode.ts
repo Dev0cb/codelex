@@ -41,6 +41,11 @@ function indexError(
  * Sprint L2 scope: the signature is the contract; only the format prefix is read (magic, `formatVersion`).
  * The section decoder (DAWG, TERMS, ADJ, LETTERS, GADDAG, CRC32) and the `expect` checks arrive with format 1
  * in sprint L4. Until then engine tests use the reference index (sprint L3).
+ *
+ * TODO(L4): before adding 1 to SUPPORTED_FORMAT_VERSIONS, implement and test the `expect` checks: a header
+ * `lexiconVersion` different from `expect.version` must return `VERSION_MISMATCH`, a profile id different from
+ * `expect.profileId` must return `PROFILE_MISMATCH` (lexicon-index note §7 T-VERSION). Supporting format 1
+ * without them would make `expect` silently ignored.
  */
 export const decodeLexiconIndex: DecodeLexiconIndex = (bytes) => {
   if (bytes.length < FORMAT_PREFIX_LENGTH) {
