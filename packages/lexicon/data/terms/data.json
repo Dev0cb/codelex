@@ -58,6 +58,59 @@
       }
     },
     {
+      "id": "bi",
+      "form": "BI",
+      "display": "BI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "BI: business intelligence, turning company data into reports and dashboards for decisions.",
+        "fr": "BI : business intelligence (informatique décisionnelle), données d'entreprise transformées en rapports."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "dashboard"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ],
+      "sources": [
+        "https://learn.microsoft.com/en-us/power-bi/fundamentals/"
+      ]
+    },
+    {
+      "id": "big-data",
+      "form": "BIGDATA",
+      "display": "Big data",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data sets too large or fast-moving for traditional tools, and the methods used to handle them.",
+        "fr": "Ensembles de données trop volumineux ou rapides pour les outils classiques, et méthodes pour les traiter."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "hadoop"
+        },
+        {
+          "type": "uses",
+          "target": "spark"
+        }
+      ]
+    },
+    {
       "id": "broker",
       "form": "BROKER",
       "display": "Broker",
@@ -71,6 +124,12 @@
         "en": "Server storing and serving messages in a messaging system like Kafka.",
         "fr": "Serveur qui stocke et sert les messages dans un système comme Kafka."
       },
+      "inflections": [
+        {
+          "form": "BROKERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -114,6 +173,12 @@
         "en": "Named field shared by all rows of a table.",
         "fr": "Champ nommé partagé par toutes les lignes d'une table."
       },
+      "inflections": [
+        {
+          "form": "COLUMNS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -135,6 +200,12 @@
         "en": "Client that reads and processes events from a broker.",
         "fr": "Client qui lit et traite les événements d'un broker."
       },
+      "inflections": [
+        {
+          "form": "CONSUMERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -143,6 +214,32 @@
         {
           "type": "related_to",
           "target": "producer"
+        }
+      ]
+    },
+    {
+      "id": "crud",
+      "form": "CRUD",
+      "display": "CRUD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Create, read, update, delete: the four basic operations on stored data.",
+        "fr": "Create, read, update, delete : les quatre opérations de base sur des données stockées."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "database"
+        },
+        {
+          "type": "related_to",
+          "target": "rest"
         }
       ]
     },
@@ -159,7 +256,10 @@
       "definitions": {
         "en": "Plain-text table format with comma-separated values.",
         "fr": "Format de tableau en texte brut, valeurs séparées par des virgules."
-      }
+      },
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc4180"
+      ]
     },
     {
       "id": "dashboard",
@@ -175,10 +275,37 @@
         "en": "Screen showing key metrics at a glance.",
         "fr": "Écran affichant les indicateurs clés en un coup d'œil."
       },
+      "inflections": [
+        {
+          "form": "DASHBOARDS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "analytics"
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "form": "DATA",
+      "display": "Data",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Facts, numbers, text or media recorded in a form a computer can store and process.",
+        "fr": "Faits, nombres, textes ou médias enregistrés sous une forme qu'un ordinateur peut stocker et traiter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "database"
         }
       ]
     },
@@ -195,7 +322,69 @@
       "definitions": {
         "en": "Organised collection of data stored and accessed electronically.",
         "fr": "Collection organisée de données stockées et consultées électroniquement."
-      }
+      },
+      "inflections": [
+        {
+          "form": "DATABASES",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "datalake",
+      "form": "DATALAKE",
+      "display": "Data lake",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Central store that keeps large volumes of raw data in its original format.",
+        "fr": "Stockage central qui conserve de grands volumes de données brutes dans leur format d'origine."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "warehouse"
+        },
+        {
+          "type": "related_to",
+          "target": "lakehouse"
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "form": "DB",
+      "display": "DB",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "DB: the usual abbreviation of database, an organised store of data.",
+        "fr": "DB : abréviation courante de database, une base de données."
+      },
+      "inflections": [
+        {
+          "form": "DBS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "database"
+        }
+      ],
+      "sources": [
+        "https://www.postgresql.org/docs/current/"
+      ]
     },
     {
       "id": "elasticsearch",
@@ -253,7 +442,38 @@
       "definitions": {
         "en": "Record that something happened at a point in time.",
         "fr": "Enregistrement indiquant qu'un fait s'est produit à un instant donné."
-      }
+      },
+      "inflections": [
+        {
+          "form": "EVENTS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "excel",
+      "form": "EXCEL",
+      "display": "Microsoft Excel",
+      "playable": true,
+      "kind": "product",
+      "owner": "Microsoft",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Microsoft Excel: spreadsheet application from Microsoft.",
+        "fr": "Microsoft Excel : tableur de Microsoft."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "spreadsheet"
+        }
+      ],
+      "sources": [
+        "https://support.microsoft.com/excel"
+      ]
     },
     {
       "id": "graphql",
@@ -309,6 +529,30 @@
       ]
     },
     {
+      "id": "id",
+      "form": "ID",
+      "display": "ID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "ID: identifier, a value such as a number or code that names one record, user or object uniquely.",
+        "fr": "ID : identifiant, valeur (numéro, code) qui désigne de façon unique un enregistrement ou un objet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "record"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Glossary/Identifier"
+      ]
+    },
+    {
       "id": "index",
       "form": "INDEX",
       "display": "Index",
@@ -322,6 +566,16 @@
         "en": "Data structure speeding up lookups in a database at extra storage cost.",
         "fr": "Structure de données qui accélère les recherches dans une base au prix d'espace supplémentaire."
       },
+      "inflections": [
+        {
+          "form": "INDEXES",
+          "kind": "plural"
+        },
+        {
+          "form": "INDICES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -343,6 +597,12 @@
         "en": "SQL operation combining rows from two tables on a shared key.",
         "fr": "Opération SQL combinant les lignes de deux tables selon une clé commune."
       },
+      "inflections": [
+        {
+          "form": "JOINS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -370,6 +630,9 @@
           "type": "related_to",
           "target": "api"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc8259"
       ]
     },
     {
@@ -419,10 +682,37 @@
         "en": "Architecture combining a data lake's flexibility with warehouse features.",
         "fr": "Architecture combinant la souplesse d'un data lake et les atouts d'un entrepôt."
       },
+      "inflections": [
+        {
+          "form": "LAKEHOUSES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "metadata",
+      "form": "METADATA",
+      "display": "Metadata",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data that describes other data, such as a photo's date, place and camera model.",
+        "fr": "Données qui décrivent d'autres données, comme la date, le lieu et l'appareil d'une photo."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "schema"
         }
       ]
     },
@@ -525,6 +815,32 @@
       ]
     },
     {
+      "id": "orm",
+      "form": "ORM",
+      "display": "ORM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Object-relational mapping: library that maps database tables to objects in code.",
+        "fr": "Object-relational mapping : bibliothèque qui fait correspondre tables de base et objets du code."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "object"
+        },
+        {
+          "type": "related_to",
+          "target": "sql"
+        }
+      ]
+    },
+    {
       "id": "parquet",
       "form": "PARQUET",
       "display": "Parquet",
@@ -564,6 +880,12 @@
         "en": "Ordered slice of a topic enabling parallelism and scale.",
         "fr": "Tranche ordonnée d'un topic qui permet le parallélisme et le passage à l'échelle."
       },
+      "inflections": [
+        {
+          "form": "PARTITIONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -614,6 +936,12 @@
         "en": "Client that publishes events to a broker.",
         "fr": "Client qui publie des événements vers un broker."
       },
+      "inflections": [
+        {
+          "form": "PRODUCERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -635,10 +963,43 @@
         "en": "Request for data or an action sent to a database.",
         "fr": "Demande de données ou d'action adressée à une base de données."
       },
+      "inflections": [
+        {
+          "form": "QUERIES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "record",
+      "form": "RECORD",
+      "display": "Record",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One entry in a database or file, made of several fields about the same thing.",
+        "fr": "Une entrée d'une base ou d'un fichier, composée de plusieurs champs sur un même objet."
+      },
+      "inflections": [
+        {
+          "form": "RECORDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "row"
         }
       ]
     },
@@ -665,6 +1026,34 @@
       ],
       "sources": [
         "https://redis.io/docs/latest/"
+      ]
+    },
+    {
+      "id": "replica",
+      "form": "REPLICA",
+      "display": "Replica",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Copy of a database kept in sync with the original, for safety or faster reads.",
+        "fr": "Copie d'une base de données synchronisée avec l'originale, pour la sécurité ou des lectures rapides."
+      },
+      "inflections": [
+        {
+          "form": "REPLICAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "replication"
+        }
       ]
     },
     {
@@ -702,6 +1091,12 @@
         "en": "Single record in a database table.",
         "fr": "Enregistrement unique dans une table de base de données."
       },
+      "inflections": [
+        {
+          "form": "ROWS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -723,6 +1118,12 @@
         "en": "Formal description of how data is structured.",
         "fr": "Description formelle de la structure des données."
       },
+      "inflections": [
+        {
+          "form": "SCHEMAS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -774,6 +1175,37 @@
       ],
       "sources": [
         "https://spark.apache.org/docs/latest/"
+      ]
+    },
+    {
+      "id": "spreadsheet",
+      "form": "SPREADSHEET",
+      "display": "Spreadsheet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Grid of rows and columns where cells hold numbers, text or formulas.",
+        "fr": "Grille de lignes et de colonnes dont les cellules contiennent nombres, textes ou formules."
+      },
+      "inflections": [
+        {
+          "form": "SPREADSHEETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "row"
+        },
+        {
+          "type": "uses",
+          "target": "column"
+        }
       ]
     },
     {
@@ -836,6 +1268,12 @@
         "en": "Continuous, unbounded flow of events processed as they arrive.",
         "fr": "Flux continu et illimité d'événements traités au fil de l'eau."
       },
+      "inflections": [
+        {
+          "form": "STREAMS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -857,6 +1295,12 @@
         "en": "Grid of rows and columns storing records in a relational database.",
         "fr": "Grille de lignes et de colonnes stockant des enregistrements dans une base relationnelle."
       },
+      "inflections": [
+        {
+          "form": "TABLES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -878,6 +1322,12 @@
         "en": "Named channel in Kafka to which events are written and read.",
         "fr": "Canal nommé dans Kafka où les événements sont écrits et lus."
       },
+      "inflections": [
+        {
+          "form": "TOPICS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -899,6 +1349,12 @@
         "en": "Group of operations that succeed or fail together.",
         "fr": "Groupe d'opérations qui réussissent ou échouent ensemble."
       },
+      "inflections": [
+        {
+          "form": "TRANSACTIONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -920,11 +1376,41 @@
         "en": "Central store optimised for analytics over historical data.",
         "fr": "Entrepôt central optimisé pour l'analyse de données historiques."
       },
+      "inflections": [
+        {
+          "form": "WAREHOUSES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "database"
         }
+      ]
+    },
+    {
+      "id": "xml",
+      "form": "XML",
+      "display": "XML",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Extensible markup language: text format that structures data with nested tags.",
+        "fr": "Extensible markup language : format texte qui structure les données par balises imbriquées."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "json"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/xml/"
       ]
     }
   ]

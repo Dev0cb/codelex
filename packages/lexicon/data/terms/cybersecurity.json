@@ -3,6 +3,30 @@
   "category": "cybersecurity",
   "terms": [
     {
+      "id": "aes",
+      "form": "AES",
+      "display": "AES",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Advanced Encryption Standard: the symmetric cipher most widely used to protect data.",
+        "fr": "Advanced Encryption Standard : le chiffrement symétrique le plus utilisé pour protéger les données."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cipher"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/pubs/fips/197/final"
+      ]
+    },
+    {
       "id": "antivirus",
       "form": "ANTIVIRUS",
       "display": "Antivirus",
@@ -83,6 +107,12 @@
         "en": "Hidden way to bypass normal authentication.",
         "fr": "Accès caché permettant de contourner l'authentification normale."
       },
+      "inflections": [
+        {
+          "form": "BACKDOORS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -104,10 +134,43 @@
         "en": "Network of compromised machines controlled remotely by an attacker.",
         "fr": "Réseau de machines compromises contrôlées à distance par un attaquant."
       },
+      "inflections": [
+        {
+          "form": "BOTNETS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "captcha",
+      "form": "CAPTCHA",
+      "display": "CAPTCHA",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Test such as picking images or typing distorted letters, meant to tell humans from bots.",
+        "fr": "Test, comme choisir des images ou recopier des lettres déformées, pour distinguer humains et robots."
+      },
+      "inflections": [
+        {
+          "form": "CAPTCHAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "botnet"
         }
       ]
     },
@@ -125,6 +188,12 @@
         "en": "Signed file proving a server's or person's identity.",
         "fr": "Fichier signé qui prouve l'identité d'un serveur ou d'une personne."
       },
+      "inflections": [
+        {
+          "form": "CERTIFICATES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -146,11 +215,52 @@
         "en": "Algorithm used to encrypt and decrypt data.",
         "fr": "Algorithme utilisé pour chiffrer et déchiffrer des données."
       },
+      "inflections": [
+        {
+          "form": "CIPHERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "encryption"
         }
+      ]
+    },
+    {
+      "id": "cookie",
+      "form": "COOKIE",
+      "display": "Cookie",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Small piece of data a website stores in your browser to remember you between visits.",
+        "fr": "Petite donnée qu'un site enregistre dans votre navigateur pour vous reconnaître d'une visite à l'autre."
+      },
+      "inflections": [
+        {
+          "form": "COOKIES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "http"
+        },
+        {
+          "type": "related_to",
+          "target": "browser"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies"
       ]
     },
     {
@@ -218,7 +328,13 @@
       "definitions": {
         "en": "Code or technique taking advantage of a vulnerability.",
         "fr": "Code ou technique tirant parti d'une vulnérabilité."
-      }
+      },
+      "inflections": [
+        {
+          "form": "EXPLOITS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "firewall",
@@ -235,10 +351,43 @@
         "en": "Barrier filtering network traffic according to security rules.",
         "fr": "Barrière qui filtre le trafic réseau selon des règles de sécurité."
       },
+      "inflections": [
+        {
+          "form": "FIREWALLS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "packet"
+        }
+      ]
+    },
+    {
+      "id": "hacker",
+      "form": "HACKER",
+      "display": "Hacker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Person skilled at exploring systems; in the media, often someone who breaks into them.",
+        "fr": "Personne habile à explorer les systèmes ; dans les médias, souvent quelqu'un qui s'y introduit."
+      },
+      "inflections": [
+        {
+          "form": "HACKERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "exploit"
         }
       ]
     },
@@ -255,7 +404,64 @@
       "definitions": {
         "en": "Fixed-size fingerprint computed from data; tiny input changes alter it completely.",
         "fr": "Empreinte de taille fixe calculée à partir de données ; un infime changement la modifie totalement."
-      }
+      },
+      "inflections": [
+        {
+          "form": "HASHES",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "honeypot",
+      "form": "HONEYPOT",
+      "display": "Honeypot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Decoy system set up to attract attackers and study their methods.",
+        "fr": "Système leurre installé pour attirer les attaquants et étudier leurs méthodes."
+      },
+      "inflections": [
+        {
+          "form": "HONEYPOTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ids"
+        }
+      ]
+    },
+    {
+      "id": "ids",
+      "form": "IDS",
+      "display": "IDS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Intrusion detection system: a tool that watches network or host activity for signs of attack.",
+        "fr": "Intrusion detection system : outil qui surveille l'activité réseau ou d'un hôte à la recherche d'attaques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "firewall"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/intrusion_detection_system"
+      ]
     },
     {
       "id": "injection",
@@ -271,10 +477,47 @@
         "en": "Attack inserting malicious input that a system then executes.",
         "fr": "Attaque insérant une entrée malveillante qu'un système exécute ensuite."
       },
+      "inflections": [
+        {
+          "form": "INJECTIONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "exploit"
+        }
+      ]
+    },
+    {
+      "id": "key",
+      "form": "KEY",
+      "display": "Key",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Secret or public value that a cipher uses to encrypt, decrypt or sign data.",
+        "fr": "Valeur secrète ou publique qu'un chiffrement utilise pour chiffrer, déchiffrer ou signer."
+      },
+      "inflections": [
+        {
+          "form": "KEYS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "encryption"
+        },
+        {
+          "type": "uses",
+          "target": "cipher"
         }
       ]
     },
@@ -292,10 +535,47 @@
         "en": "Tool recording every key a user types.",
         "fr": "Outil qui enregistre chaque touche frappée par l'utilisateur."
       },
+      "inflections": [
+        {
+          "form": "KEYLOGGERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "spyware"
+        }
+      ]
+    },
+    {
+      "id": "login",
+      "form": "LOGIN",
+      "display": "Login",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Signing in to a system by proving who you are, usually with a username and password.",
+        "fr": "Connexion à un système en prouvant son identité, souvent par identifiant et mot de passe."
+      },
+      "inflections": [
+        {
+          "form": "LOGINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "password"
+        },
+        {
+          "type": "related_to",
+          "target": "authentication"
         }
       ]
     },
@@ -357,6 +637,67 @@
           "type": "related_to",
           "target": "authorization"
         }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6749"
+      ]
+    },
+    {
+      "id": "ot",
+      "form": "OT",
+      "display": "OT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "OT: operational technology, the systems that control physical equipment in factories and utilities.",
+        "fr": "OT : operational technology, systèmes qui pilotent les équipements physiques des usines et réseaux."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "it"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/operational_technology"
+      ]
+    },
+    {
+      "id": "passkey",
+      "form": "PASSKEY",
+      "display": "Passkey",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Passwordless sign-in credential stored on your device and unlocked by fingerprint, face or PIN.",
+        "fr": "Identifiant de connexion sans mot de passe, stocké sur l'appareil et déverrouillé par empreinte, visage ou PIN."
+      },
+      "inflections": [
+        {
+          "form": "PASSKEYS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "password"
+        },
+        {
+          "type": "uses",
+          "target": "key"
+        }
+      ],
+      "sources": [
+        "https://fidoalliance.org/passkeys/"
       ]
     },
     {
@@ -373,6 +714,12 @@
         "en": "Secret string used to prove identity when signing in.",
         "fr": "Chaîne secrète servant à prouver son identité lors de la connexion."
       },
+      "inflections": [
+        {
+          "form": "PASSWORDS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -395,6 +742,12 @@
         "en": "Update fixing a bug or security flaw.",
         "fr": "Mise à jour qui corrige un bug ou une faille de sécurité."
       },
+      "inflections": [
+        {
+          "form": "PATCHES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -416,6 +769,12 @@
         "en": "Authorised simulated attack to find security weaknesses.",
         "fr": "Attaque simulée et autorisée pour trouver des failles de sécurité."
       },
+      "inflections": [
+        {
+          "form": "PENTESTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -437,6 +796,36 @@
         "en": "Scam using fake messages to trick people into revealing secrets.",
         "fr": "Arnaque utilisant de faux messages pour pousser à révéler des secrets."
       }
+    },
+    {
+      "id": "pin",
+      "form": "PIN",
+      "display": "PIN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Personal identification number: a short numeric code used to unlock a phone or card.",
+        "fr": "Personal identification number : code numérique court qui déverrouille un téléphone ou une carte."
+      },
+      "inflections": [
+        {
+          "form": "PINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "password"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/personal_identification_number"
+      ]
     },
     {
       "id": "ransomware",
@@ -477,6 +866,12 @@
         "en": "Malware hiding deep in a system to keep privileged access.",
         "fr": "Logiciel malveillant caché au cœur d'un système pour garder un accès privilégié."
       },
+      "inflections": [
+        {
+          "form": "ROOTKITS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -502,6 +897,12 @@
         "en": "Random value added to a password before hashing it.",
         "fr": "Valeur aléatoire ajoutée à un mot de passe avant son hachage."
       },
+      "inflections": [
+        {
+          "form": "SALTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -526,7 +927,98 @@
       "definitions": {
         "en": "Isolated environment where untrusted code runs safely.",
         "fr": "Environnement isolé où exécuter du code non fiable en sécurité."
-      }
+      },
+      "inflections": [
+        {
+          "form": "SANDBOXES",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "secret",
+      "form": "SECRET",
+      "display": "Secret",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Sensitive credential, such as an API key or token, kept out of code and stored securely.",
+        "fr": "Donnée sensible, comme une clé d'API ou un jeton, tenue hors du code et stockée de façon sûre."
+      },
+      "inflections": [
+        {
+          "form": "SECRETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "key"
+        },
+        {
+          "type": "related_to",
+          "target": "token"
+        }
+      ]
+    },
+    {
+      "id": "siem",
+      "form": "SIEM",
+      "display": "SIEM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Security information and event management: collects security logs and raises alerts on threats.",
+        "fr": "Security information and event management : centralise les journaux de sécurité et alerte sur les menaces."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "log"
+        },
+        {
+          "type": "related_to",
+          "target": "ids"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/security_information_and_event_management"
+      ]
+    },
+    {
+      "id": "spam",
+      "form": "SPAM",
+      "display": "Spam",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unwanted messages sent in bulk, often ads or scams.",
+        "fr": "Messages non sollicités envoyés en masse, souvent publicitaires ou frauduleux."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "email"
+        },
+        {
+          "type": "related_to",
+          "target": "phishing"
+        }
+      ]
     },
     {
       "id": "spoofing",
@@ -571,6 +1063,34 @@
       ]
     },
     {
+      "id": "sso",
+      "form": "SSO",
+      "display": "SSO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Single sign-on: logging in once to reach many applications with the same identity.",
+        "fr": "Single sign-on : authentification unique donnant accès à de nombreuses applications."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "authentication"
+        },
+        {
+          "type": "uses",
+          "target": "oauth"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/single_sign_on"
+      ]
+    },
+    {
       "id": "trojan",
       "form": "TROJAN",
       "display": "Trojan",
@@ -584,6 +1104,12 @@
         "en": "Malware disguised as legitimate software.",
         "fr": "Logiciel malveillant déguisé en programme légitime."
       },
+      "inflections": [
+        {
+          "form": "TROJANS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -605,6 +1131,12 @@
         "en": "Malware that attaches to files and spreads when they run.",
         "fr": "Logiciel malveillant qui s'attache aux fichiers et se propage à leur exécution."
       },
+      "inflections": [
+        {
+          "form": "VIRUSES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -626,6 +1158,12 @@
         "en": "Weakness that an attacker could exploit.",
         "fr": "Faiblesse qu'un attaquant pourrait exploiter."
       },
+      "inflections": [
+        {
+          "form": "VULNERABILITIES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -647,6 +1185,12 @@
         "en": "Malware that copies itself across networks without user action.",
         "fr": "Logiciel malveillant qui se propage seul sur les réseaux."
       },
+      "inflections": [
+        {
+          "form": "WORMS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -689,6 +1233,12 @@
         "en": "Vulnerability exploited before its vendor knows about it.",
         "fr": "Faille exploitée avant que l'éditeur n'en ait connaissance."
       },
+      "inflections": [
+        {
+          "form": "ZERODAYS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",

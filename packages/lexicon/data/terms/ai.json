@@ -16,10 +16,37 @@
         "en": "AI system that plans and uses tools to complete goals autonomously.",
         "fr": "Système d'IA qui planifie et utilise des outils pour atteindre des objectifs en autonomie."
       },
+      "inflections": [
+        {
+          "form": "AGENTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
           "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "agi",
+      "form": "AGI",
+      "display": "AGI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Artificial general intelligence: hypothetical AI able to match humans across most tasks.",
+        "fr": "Artificial general intelligence : IA hypothétique capable d'égaler l'humain dans la plupart des tâches."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ai"
         }
       ]
     },
@@ -69,6 +96,32 @@
       ]
     },
     {
+      "id": "automation",
+      "form": "AUTOMATION",
+      "display": "Automation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Using software or machines to carry out tasks without human intervention.",
+        "fr": "Recours à des logiciels ou machines pour réaliser des tâches sans intervention humaine."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "robot"
+        },
+        {
+          "type": "related_to",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
       "id": "backpropagation",
       "form": "BACKPROPAGATION",
       "display": "Backpropagation",
@@ -107,6 +160,12 @@
         "en": "Systematic skew in data or a model leading to unfair results.",
         "fr": "Distorsion systématique des données ou d'un modèle menant à des résultats injustes."
       },
+      "inflections": [
+        {
+          "form": "BIASES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -128,11 +187,46 @@
         "en": "Program that converses with people in natural language.",
         "fr": "Programme qui converse avec les gens en langage naturel."
       },
+      "inflections": [
+        {
+          "form": "CHATBOTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
           "target": "llm"
         }
+      ]
+    },
+    {
+      "id": "chatgpt",
+      "form": "CHATGPT",
+      "display": "ChatGPT",
+      "playable": true,
+      "kind": "product",
+      "owner": "OpenAI",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "ChatGPT: OpenAI's conversational assistant built on large language models.",
+        "fr": "ChatGPT : assistant conversationnel d'OpenAI fondé sur de grands modèles de langage."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chatbot"
+        },
+        {
+          "type": "uses",
+          "target": "llm"
+        }
+      ],
+      "sources": [
+        "https://help.openai.com/"
       ]
     },
     {
@@ -149,6 +243,12 @@
         "en": "Model that assigns inputs to categories.",
         "fr": "Modèle qui range des entrées dans des catégories."
       },
+      "inflections": [
+        {
+          "form": "CLASSIFIERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -173,6 +273,30 @@
       }
     },
     {
+      "id": "cnn",
+      "form": "CNN",
+      "display": "CNN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Convolutional neural network: a network that scans images with small filters to find patterns.",
+        "fr": "Convolutional neural network : réseau qui parcourt les images avec de petits filtres pour repérer des motifs."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "neural-network"
+        }
+      ],
+      "sources": [
+        "https://www.deeplearningbook.org/contents/convnets.html"
+      ]
+    },
+    {
       "id": "dataset",
       "form": "DATASET",
       "display": "Dataset",
@@ -186,7 +310,45 @@
       "definitions": {
         "en": "Collection of examples used to train or evaluate a model.",
         "fr": "Collection d'exemples servant à entraîner ou évaluer un modèle."
-      }
+      },
+      "inflections": [
+        {
+          "form": "DATASETS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "deepfake",
+      "form": "DEEPFAKE",
+      "display": "Deepfake",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Synthetic image, video or voice generated by AI to imitate a real person.",
+        "fr": "Image, vidéo ou voix synthétique générée par IA pour imiter une personne réelle."
+      },
+      "inflections": [
+        {
+          "form": "DEEPFAKES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "gan"
+        },
+        {
+          "type": "related_to",
+          "target": "diffusion"
+        }
+      ]
     },
     {
       "id": "diffusion",
@@ -210,6 +372,34 @@
       ]
     },
     {
+      "id": "dl",
+      "form": "DL",
+      "display": "DL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "DL: deep learning, machine learning with many-layered neural networks.",
+        "fr": "DL : deep learning (apprentissage profond), apprentissage automatique par réseaux de neurones à plusieurs couches."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ml"
+        },
+        {
+          "type": "uses",
+          "target": "neural-network"
+        }
+      ],
+      "sources": [
+        "https://www.deeplearningbook.org/"
+      ]
+    },
+    {
       "id": "embedding",
       "form": "EMBEDDING",
       "display": "Embedding",
@@ -223,6 +413,12 @@
         "en": "Vector capturing the meaning of text or images so similar items are close.",
         "fr": "Vecteur qui capture le sens d'un texte ou d'une image pour rapprocher les éléments similaires."
       },
+      "inflections": [
+        {
+          "form": "EMBEDDINGS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -244,6 +440,12 @@
         "en": "One full pass over the training dataset.",
         "fr": "Un passage complet sur le jeu de données d'entraînement."
       },
+      "inflections": [
+        {
+          "form": "EPOCHS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -286,11 +488,45 @@
         "en": "Generative adversarial network: two models competing to create realistic data.",
         "fr": "Réseau antagoniste génératif : deux modèles en compétition pour créer des données réalistes."
       },
+      "inflections": [
+        {
+          "form": "GANS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "neural-network"
         }
+      ]
+    },
+    {
+      "id": "gpt",
+      "form": "GPT",
+      "display": "GPT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Generative pre-trained transformer: a family of language models that predict the next token.",
+        "fr": "Generative pre-trained transformer : famille de modèles de langage qui prédisent le token suivant."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "llm"
+        },
+        {
+          "type": "uses",
+          "target": "transformer"
+        }
+      ],
+      "sources": [
+        "https://arxiv.org/abs/2005.14165"
       ]
     },
     {
@@ -306,7 +542,13 @@
       "definitions": {
         "en": "Direction of steepest change used to adjust model weights during training.",
         "fr": "Direction de plus forte variation utilisée pour ajuster les poids d'un modèle à l'entraînement."
-      }
+      },
+      "inflections": [
+        {
+          "form": "GRADIENTS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "hallucination",
@@ -322,6 +564,12 @@
         "en": "Confident but false output produced by an AI model.",
         "fr": "Réponse affirmée mais fausse produite par un modèle d'IA."
       },
+      "inflections": [
+        {
+          "form": "HALLUCINATIONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -365,6 +613,12 @@
         "en": "Known answer attached to a training example.",
         "fr": "Réponse connue associée à un exemple d'entraînement."
       },
+      "inflections": [
+        {
+          "form": "LABELS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -386,6 +640,12 @@
         "en": "Large language model trained on vast text to understand and generate language.",
         "fr": "Grand modèle de langage entraîné sur de vastes textes pour comprendre et générer du langage."
       },
+      "inflections": [
+        {
+          "form": "LLMS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -431,7 +691,13 @@
       "definitions": {
         "en": "Mathematical function learned from data to make predictions.",
         "fr": "Fonction mathématique apprise à partir de données pour faire des prédictions."
-      }
+      },
+      "inflections": [
+        {
+          "form": "MODELS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "neural-network",
@@ -447,6 +713,12 @@
         "en": "Model made of layers of connected artificial neurons.",
         "fr": "Modèle composé de couches de neurones artificiels connectés."
       },
+      "inflections": [
+        {
+          "form": "NEURALNETWORKS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -472,6 +744,51 @@
         {
           "type": "related_to",
           "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "nn",
+      "form": "NN",
+      "display": "NN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "NN: the usual abbreviation of neural network in machine-learning papers and code.",
+        "fr": "NN : abréviation courante de neural network (réseau de neurones) dans les articles et le code."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "neural-network"
+        }
+      ],
+      "sources": [
+        "https://www.deeplearningbook.org/"
+      ]
+    },
+    {
+      "id": "ocr",
+      "form": "OCR",
+      "display": "OCR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Optical character recognition: turning text in images or scans into editable text.",
+        "fr": "Optical character recognition : conversion du texte d'images ou de scans en texte modifiable."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ml"
         }
       ]
     },
@@ -510,6 +827,12 @@
         "en": "Simplest artificial neuron, an ancestor of deep learning.",
         "fr": "Neurone artificiel le plus simple, ancêtre de l'apprentissage profond."
       },
+      "inflections": [
+        {
+          "form": "PERCEPTRONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -531,6 +854,12 @@
         "en": "Instruction or input text given to an AI model.",
         "fr": "Instruction ou texte d'entrée fourni à un modèle d'IA."
       },
+      "inflections": [
+        {
+          "form": "PROMPTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -633,6 +962,90 @@
       ]
     },
     {
+      "id": "rl",
+      "form": "RL",
+      "display": "RL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "RL: reinforcement learning, where an agent learns by trial and error from rewards.",
+        "fr": "RL : reinforcement learning (apprentissage par renforcement), un agent apprend par essais et récompenses."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "reinforcement"
+        },
+        {
+          "type": "is_a",
+          "target": "ml"
+        }
+      ],
+      "sources": [
+        "https://gymnasium.farama.org/"
+      ]
+    },
+    {
+      "id": "rlhf",
+      "form": "RLHF",
+      "display": "RLHF",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Reinforcement learning from human feedback: tuning a model with rewards based on human ratings.",
+        "fr": "Reinforcement learning from human feedback : ajustement d'un modèle par récompenses tirées d'avis humains."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "rl"
+        },
+        {
+          "type": "related_to",
+          "target": "finetuning"
+        }
+      ],
+      "sources": [
+        "https://arxiv.org/abs/2203.02155"
+      ]
+    },
+    {
+      "id": "robot",
+      "form": "ROBOT",
+      "display": "Robot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Machine that senses its surroundings and carries out tasks automatically.",
+        "fr": "Machine qui perçoit son environnement et accomplit des tâches de façon automatique."
+      },
+      "inflections": [
+        {
+          "form": "ROBOTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "sensor"
+        }
+      ]
+    },
+    {
       "id": "tensor",
       "form": "TENSOR",
       "display": "Tensor",
@@ -646,6 +1059,12 @@
         "en": "Multi-dimensional array of numbers used in machine learning.",
         "fr": "Tableau de nombres multidimensionnel utilisé en apprentissage automatique."
       },
+      "inflections": [
+        {
+          "form": "TENSORS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -693,6 +1112,12 @@
         "en": "Piece of text, like a word fragment, that a language model reads or writes.",
         "fr": "Fragment de texte, comme un morceau de mot, qu'un modèle de langage lit ou produit."
       },
+      "inflections": [
+        {
+          "form": "TOKENS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -735,6 +1160,12 @@
         "en": "Neural network architecture based on attention, behind modern language models.",
         "fr": "Architecture de réseau de neurones fondée sur l'attention, base des modèles de langage modernes."
       },
+      "inflections": [
+        {
+          "form": "TRANSFORMERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -756,7 +1187,13 @@
       "definitions": {
         "en": "Ordered list of numbers representing a point or direction in space.",
         "fr": "Liste ordonnée de nombres représentant un point ou une direction dans l'espace."
-      }
+      },
+      "inflections": [
+        {
+          "form": "VECTORS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "weight",
@@ -772,6 +1209,12 @@
         "en": "Learned number scaling a connection inside a neural network.",
         "fr": "Nombre appris qui module une connexion dans un réseau de neurones."
       },
+      "inflections": [
+        {
+          "form": "WEIGHTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",

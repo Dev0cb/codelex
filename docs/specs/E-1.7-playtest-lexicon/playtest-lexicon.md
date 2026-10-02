@@ -381,6 +381,60 @@ decision is reversible (data and schema minor changes), except where noted.
   - C-LC-4 Blocklist source choice and its licence.
   - C-LC-5 Policy for mass nouns (no plural) and for D-5 conflicts in the existing seed.
 
+### Curator answers (C-LC-1..5)
+
+Decided 2026-10-02 by `lexicon-curator` under the product owner's delegation, with content sub-batch **1a**
+(`feat/lexicon-batch-1a`). All reversible by a new `lexiconVersion`.
+
+- **C-LC-1 Two-letter list: 37 forms (gate ≥ 30, target 35+).** AI, ML, CD, CI, IP, GO (seed) + AP, AR, AS, BI,
+  CS, DB, DC, DL, ES, GB, ID, IF, IO, IT, JS, KB, MB, NN, OR, OS, OT, PC, PR, QA, RL, TB, TS, UI, UX, VM, VR.
+  Every one is a canonical term with its expansion in the EN and FR definitions and ≥ 1 source (AC-15). VM and OS are
+  the existing `virtual-machine` and `operating-system` terms made playable (no duplicate concept); DB, JS, TS, NN,
+  RL and DC are abbreviation terms `related_to` their long-form term. GAME_RULES C-GD-5 checks: vowel-bearing
+  19 / 37 (AI, AP, AR, AS, BI, CI, ES, GO, ID, IF, IO, IP, IT, OR, OS, OT, QA, UI, UX) ≥ half; forms with a letter
+  worth ≥ 5 = 6 (JS, KB, QA, UX, VM, VR) ≤ 6; OR and IF as logic concepts, KB/MB/GB/TB as data units; no form admitted
+  only as a function word (IT = information technology, AS = autonomous system, IF = conditional statement).
+  Not taken: AV, AZ, PK, FK, CV (would exceed the high-value-letter cap); LB (weak usage, ambiguous with the pound);
+  pool B: HZ, XR, RX, TX (cap), PB (consonant-only, low usage; candidate later), AD (product, ambiguous). Added
+  outside the pool: BI (business intelligence) and ES (ECMAScript), both vowel-bearing.
+- **C-LC-2 Batch sizes and category plan: feasible, with batch 1 split into category-mixed PRs of ≤ 200 terms.**
+  1a (this PR): 172 new canonical terms (29 two-letter, Cloud first: Cloud 25 → 65 playable terms), 2 terms made
+  playable, 233 curated plurals, sources on all 25 previously unsourced product/protocol/standard terms. Result: 717
+  forms = 484 canonical + 233 inflections. 1b (next PR, ~100–120 terms, canonical-heavy) closes the ≥ 800 forms /
+  ≥ 550 canonical gate. Steering for 1b and later: the advanced share sits at the D-9 ceiling (30.0 %) and the
+  inflection share at 32.5 % (cap 35 %), so new content skews novice/intermediate and canonical; every category is
+  kept at 8–16 % per PR (today 10.1–13.4 %). Batches 2–3 (≈ +800 canonical over two sprints) need 4–5 PRs of
+  ≤ 200 terms in parallel by category: feasible, R-1 stays the main schedule risk.
+- **C-LC-3 Closed verb list for batch 2 (60 verbs; a verb form is authored only on an existing canonical term with
+  that verb reading, regular -S/-ED/-ING only unless confirmed as NEEDS_REVIEW, noun reading wins on collisions per
+  D-1, and a standalone term owns its string per D-5, e.g. LOGGING, STREAMING):** DEPLOY, COMMIT, MERGE, PUSH, PULL,
+  FORK, CLONE, REBASE, FETCH, BRANCH, TAG, BUILD, COMPILE, DEBUG, TEST, LINT, MOCK, REFACTOR, PARSE, RELEASE, PATCH,
+  INSTALL, UPDATE, UPGRADE, DOWNLOAD, UPLOAD, SYNC, STREAM, CACHE, HASH, ENCRYPT, DECRYPT, LOG, PING, ROUTE, BOOT,
+  REBOOT, CRASH, SCALE, MIGRATE, PROVISION, THROTTLE, QUERY, INDEX, SORT, FILTER, JOIN, SHARD, REPLICATE, RESTORE,
+  TRAIN, TOKENIZE, PROMPT, EMBED, LABEL, HACK, SPOOF, STAGE, FORMAT, ENCODE. Irregular pasts (BUILT) are not
+  authored.
+- **C-LC-4 Blocklist source: original curator-written lists, no third-party dataset.** `en.txt` (135 entries) and
+  `fr.txt` (82 entries) were written from editorial knowledge: ethnic/racial/religious slurs, slurs about sexual
+  orientation, gender identity and disability, hate/extremist terms, sexual terms and sexual violence, profanity and
+  insults, offensive abbreviations (WTF, KYS, FDP, NTM, PD…). No list was copied, so no licence applies and H-1 is
+  not needed (widely used public word lists are CC-BY or unlicensed, i.e. not allowlisted). Principles: exact forms
+  only (ANALYTICS stays playable), never block identity words that are not slurs (GAY, QUEER, TRANS), and do not
+  block strings whose tech meaning is primary (QUEUE, CHAT, CRACKER, KNOB, CP, POS); such cases are listed in the
+  file headers. Manual review of all 213 forms of 2–4 letters (canonical + inflections) in EN and FR: no offensive
+  reading found; ROM/ROMS kept (in French "Roms" is a neutral ethnonym, the tech reading is primary). Before any
+  public release: a second native-speaker review of both lists (FR incl. Senegal usage), tracked as NEEDS_REVIEW.
+- **C-LC-5 Mass nouns and D-5 conflicts.** No plural for: uncountable nouns (MALWARE, SOFTWARE, DATA, STORAGE,
+  FIRMWARE, BANDWIDTH, SPAM, CODE, RAM, MEMORY), gerunds (PHISHING, LOGGING, STREAMING, TRAINING), abstract
+  -ITY/-TION/-ISM nouns (SCALABILITY, ENCRYPTION, REPLICATION, POLYMORPHISM), service models (SAAS, IAAS, PAAS,
+  FAAS), protocols, formats and standards named as one system (HTTP, TCP, JSON, USB, HTML, XML), data units
+  (KB, MB, GB, TB), product and language terms (validator, D-6), and trademarked tools (DOCKER, KAFKA, TERRAFORM).
+  Two-letter terms get a plural only with real usage and no conflict (DBS, PCS, PRS, VMS). Irregular plurals
+  confirmed by the curator (their `NEEDS_REVIEW` warnings are accepted, not open): INDICES, QUERIES, LIBRARIES,
+  BATTERIES, PROXIES, VULNERABILITIES. D-5 audit of the seed: no declared plural equals a canonical form; IDS is the
+  standalone intrusion detection system, so ID declares no plural; IPS (intrusion prevention system), NATS (NATS
+  messaging) and CIS are reserved for possible standalone terms, so IP, NAT and CI declare none; IOS is Apple's iOS;
+  MICE/MOUSES are not declared (ambiguous).
+
 ## LEGAL_REVIEW_REQUIRED
 
 - Use of product names and trademarks as playable forms and in definitions (nominative use) before any **public**

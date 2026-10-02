@@ -1,2 +1,97 @@
 # Playable forms that must never be accepted (offensive or harmful collisions). Uppercase, one per line.
-# Maintained by lexicon-curator; the full list is sourced from a vetted profanity dataset before launch.
+# Maintained by lexicon-curator. Source: written by lexicon-curator from editorial knowledge (original list,
+# no third-party dataset copied; spec E-1.7 C-LC-4). Accents are folded by the loader (PÉDÉ -> PEDE), so entries
+# are written without diacritics. Exact forms only (no substring matching).
+# Intentionally NOT listed (legitimate tech meaning is primary): QUEUE, CHAT, BYTE, DOUCHE (also "shower").
+
+# --- Insultes racistes et ethniques
+BAMBOULA
+BICOT
+BICOTS
+BOUGNOUL
+BOUGNOULE
+BOUGNOULES
+BRIDE
+CHINETOQUE
+CHINTOK
+NEGRE
+NEGRES
+NEGRESSE
+NIAKOUE
+RATON
+RATONS
+YOUPIN
+YOUPINE
+YOUPINS
+YOUTRE
+
+# --- Insultes homophobes, transphobes ou validistes
+FIOTTE
+GOGOL
+GOUINE
+GOUINES
+MONGOL
+MONGOLE
+PD
+PEDALE
+PEDE
+PEDES
+TANTOUZE
+TAPETTE
+TARLOUZE
+TRAVELO
+TRISO
+
+# --- Termes sexuels
+BAISE
+BAISER
+BITE
+BITES
+CHATTE
+CHIBRE
+COUILLE
+COUILLES
+ENCULE
+ENCULEE
+ENCULER
+ENCULES
+NICHONS
+NIQUE
+NIQUER
+PINE
+SODOMIE
+TEUB
+ZOB
+
+# --- Grossieretes et insultes
+BATARD
+CHIER
+CON
+CONNARD
+CONNARDS
+CONNASSE
+CONNE
+CUL
+ENFOIRE
+FOUTRE
+MERDE
+MERDES
+MERDIQUE
+PETASSE
+POUFFIASSE
+PUTAIN
+PUTE
+PUTES
+SALAUD
+SALOPARD
+SALOPE
+SALOPES
+TROUDUC
+
+# --- Abreviations injurieuses
+FDP
+FILSDEPUTE
+NTM
+PTN
+TG
+VTFF

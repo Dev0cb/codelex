@@ -3,6 +3,67 @@
   "category": "systems",
   "terms": [
     {
+      "id": "account",
+      "form": "ACCOUNT",
+      "display": "Account",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A user's identity on a system or service, with a login and personal settings.",
+        "fr": "Identité d'un utilisateur sur un système ou un service, avec identifiants et réglages personnels."
+      },
+      "inflections": [
+        {
+          "form": "ACCOUNTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "login"
+        },
+        {
+          "type": "uses",
+          "target": "password"
+        }
+      ]
+    },
+    {
+      "id": "android",
+      "form": "ANDROID",
+      "display": "Android",
+      "playable": true,
+      "kind": "product",
+      "owner": "Google LLC",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Android: Google's mobile operating system, based on the Linux kernel.",
+        "fr": "Android : système d'exploitation mobile de Google, basé sur le noyau Linux."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "operating-system"
+        },
+        {
+          "type": "uses",
+          "target": "linux"
+        }
+      ],
+      "sources": [
+        "https://developer.android.com/"
+      ]
+    },
+    {
       "id": "bash",
       "form": "BASH",
       "display": "Bash",
@@ -96,6 +157,12 @@
         "en": "Background process that runs continuously as a service.",
         "fr": "Processus d'arrière-plan qui tourne en continu comme un service."
       },
+      "inflections": [
+        {
+          "form": "DAEMONS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -118,10 +185,65 @@
         "en": "State where tasks wait on each other forever, so none can proceed.",
         "fr": "Situation où des tâches s'attendent mutuellement indéfiniment, bloquant tout progrès."
       },
+      "inflections": [
+        {
+          "form": "DEADLOCKS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "mutex"
+        }
+      ]
+    },
+    {
+      "id": "desktop",
+      "form": "DESKTOP",
+      "display": "Desktop",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The main screen of a computer with icons and windows, or a computer that stays on a desk.",
+        "fr": "Écran principal d'un ordinateur avec icônes et fenêtres, ou ordinateur qui reste sur un bureau."
+      },
+      "inflections": [
+        {
+          "form": "DESKTOPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pc"
+        }
+      ]
+    },
+    {
+      "id": "directory",
+      "form": "DIRECTORY",
+      "display": "Directory",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Entry in a file system that lists other files and directories; a folder seen from the system.",
+        "fr": "Entrée d'un système de fichiers qui liste d'autres fichiers et répertoires ; un dossier vu du système."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "filesystem"
         }
       ]
     },
@@ -140,10 +262,43 @@
         "en": "Software letting the operating system talk to a hardware device.",
         "fr": "Logiciel permettant au système d'exploitation de communiquer avec un périphérique."
       },
+      "inflections": [
+        {
+          "form": "DRIVERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "file",
+      "form": "FILE",
+      "display": "File",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Named unit of stored data, such as a document, photo or program.",
+        "fr": "Unité nommée de données stockées, comme un document, une photo ou un programme."
+      },
+      "inflections": [
+        {
+          "form": "FILES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "filesystem"
         }
       ]
     },
@@ -160,7 +315,104 @@
       "definitions": {
         "en": "Method an OS uses to organise and store files on a disk.",
         "fr": "Méthode utilisée par l'OS pour organiser et stocker les fichiers sur un disque."
-      }
+      },
+      "inflections": [
+        {
+          "form": "FILESYSTEMS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "folder",
+      "form": "FOLDER",
+      "display": "Folder",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Container that groups files and other folders; also called a directory.",
+        "fr": "Conteneur qui regroupe des fichiers et d'autres dossiers ; aussi appelé répertoire."
+      },
+      "inflections": [
+        {
+          "form": "FOLDERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "directory"
+        },
+        {
+          "type": "related_to",
+          "target": "file"
+        }
+      ]
+    },
+    {
+      "id": "fork",
+      "form": "FORK",
+      "display": "Fork",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A copy that then evolves on its own: a duplicated process, or a project copied from a repository.",
+        "fr": "Copie qui évolue ensuite seule : un processus dupliqué, ou un projet copié depuis un dépôt."
+      },
+      "inflections": [
+        {
+          "form": "FORKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "process"
+        },
+        {
+          "type": "related_to",
+          "target": "repo"
+        }
+      ]
+    },
+    {
+      "id": "grep",
+      "form": "GREP",
+      "display": "grep",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Unix command that searches text for lines matching a pattern.",
+        "fr": "Commande Unix qui recherche dans un texte les lignes correspondant à un motif."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "regex"
+        },
+        {
+          "type": "runs_on",
+          "target": "unix"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/software/grep/manual/"
+      ]
     },
     {
       "id": "hypervisor",
@@ -199,11 +451,94 @@
         "en": "Signal telling the CPU to pause and handle an urgent event.",
         "fr": "Signal demandant au processeur de s'interrompre pour traiter un événement urgent."
       },
+      "inflections": [
+        {
+          "form": "INTERRUPTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "kernel"
         }
+      ]
+    },
+    {
+      "id": "io",
+      "form": "IO",
+      "display": "I/O",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "I/O: input/output, any data moving between a computer and its disks, network or devices.",
+        "fr": "E/S (I/O, input/output) : données échangées entre un ordinateur et ses disques, son réseau ou ses périphériques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "disk"
+        }
+      ],
+      "sources": [
+        "https://docs.kernel.org/block/index.html"
+      ]
+    },
+    {
+      "id": "ios",
+      "form": "IOS",
+      "display": "iOS",
+      "playable": true,
+      "kind": "product",
+      "owner": "Apple Inc.",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "iOS: Apple's operating system for the iPhone.",
+        "fr": "iOS : le système d'exploitation d'Apple pour l'iPhone."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "operating-system"
+        },
+        {
+          "type": "alternative_to",
+          "target": "android"
+        }
+      ],
+      "sources": [
+        "https://developer.apple.com/ios/"
+      ]
+    },
+    {
+      "id": "it",
+      "form": "IT",
+      "display": "IT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "IT: information technology, the use of computers, networks and software to run an organisation.",
+        "fr": "IT : information technology, l'informatique utilisée pour faire fonctionner une organisation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "software"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/information_technology"
       ]
     },
     {
@@ -220,6 +555,12 @@
         "en": "Core of an operating system managing CPU, memory and devices.",
         "fr": "Cœur d'un système d'exploitation qui gère le processeur, la mémoire et les périphériques."
       },
+      "inflections": [
+        {
+          "form": "KERNELS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -276,6 +617,9 @@
           "type": "related_to",
           "target": "unix"
         }
+      ],
+      "sources": [
+        "https://support.apple.com/macos"
       ]
     },
     {
@@ -309,6 +653,12 @@
         "en": "Lock ensuring only one thread at a time accesses a shared resource.",
         "fr": "Verrou garantissant qu'un seul thread à la fois accède à une ressource partagée."
       },
+      "inflections": [
+        {
+          "form": "MUTEXES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -318,19 +668,20 @@
     },
     {
       "id": "operating-system",
+      "form": "OS",
       "display": "Operating system",
-      "playable": false,
+      "playable": true,
       "kind": "concept",
       "categories": [
         "systems"
       ],
       "difficulty": "novice",
       "definitions": {
-        "en": "Software managing hardware resources and providing services to applications.",
-        "fr": "Logiciel qui gère les ressources matérielles et fournit des services aux applications."
+        "en": "OS: operating system, the core software that manages hardware and runs applications.",
+        "fr": "OS : operating system (système d'exploitation), logiciel central qui gère le matériel et lance les applis."
       },
-      "aliases": [
-        "OS"
+      "sources": [
+        "https://docs.kernel.org/"
       ]
     },
     {
@@ -355,6 +706,37 @@
       ]
     },
     {
+      "id": "path",
+      "form": "PATH",
+      "display": "Path",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Text address of a file or folder, such as /home/user/notes.txt.",
+        "fr": "Adresse textuelle d'un fichier ou dossier, comme /home/user/notes.txt."
+      },
+      "inflections": [
+        {
+          "form": "PATHS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "directory"
+        },
+        {
+          "type": "related_to",
+          "target": "file"
+        }
+      ]
+    },
+    {
       "id": "permission",
       "form": "PERMISSION",
       "display": "Permission",
@@ -368,7 +750,43 @@
       "definitions": {
         "en": "Right granted to a user or program to read, write or execute.",
         "fr": "Droit accordé à un utilisateur ou programme pour lire, écrire ou exécuter."
-      }
+      },
+      "inflections": [
+        {
+          "form": "PERMISSIONS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "pid",
+      "form": "PID",
+      "display": "PID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Process identifier: the number an operating system gives each running process.",
+        "fr": "Process identifier : numéro attribué par le système d'exploitation à chaque processus actif."
+      },
+      "inflections": [
+        {
+          "form": "PIDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "process"
+        }
+      ],
+      "sources": [
+        "https://man7.org/linux/man-pages/man2/getpid.2.html"
+      ]
     },
     {
       "id": "process",
@@ -384,6 +802,12 @@
         "en": "Running instance of a program with its own memory space.",
         "fr": "Instance d'un programme en cours d'exécution avec son propre espace mémoire."
       },
+      "inflections": [
+        {
+          "form": "PROCESSES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "runs_on",
@@ -427,10 +851,47 @@
         "en": "OS component deciding which thread or process runs next on the CPU.",
         "fr": "Composant de l'OS qui décide quel thread ou processus s'exécute ensuite sur le CPU."
       },
+      "inflections": [
+        {
+          "form": "SCHEDULERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "segfault",
+      "form": "SEGFAULT",
+      "display": "Segfault",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Segmentation fault: crash caused by a program touching memory it is not allowed to access.",
+        "fr": "Segmentation fault : plantage d'un programme qui accède à une zone mémoire interdite."
+      },
+      "inflections": [
+        {
+          "form": "SEGFAULTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        },
+        {
+          "type": "related_to",
+          "target": "pointer"
         }
       ]
     },
@@ -447,7 +908,13 @@
       "definitions": {
         "en": "Command-line interpreter that runs commands typed by the user.",
         "fr": "Interpréteur en ligne de commande qui exécute les commandes saisies."
-      }
+      },
+      "inflections": [
+        {
+          "form": "SHELLS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "socket",
@@ -464,11 +931,66 @@
         "en": "Endpoint used by a program to send and receive data over a network.",
         "fr": "Point de terminaison qu'un programme utilise pour échanger des données sur un réseau."
       },
+      "inflections": [
+        {
+          "form": "SOCKETS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
           "target": "tcp"
         }
+      ]
+    },
+    {
+      "id": "software",
+      "form": "SOFTWARE",
+      "display": "Software",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Programs and data that tell a computer what to do, as opposed to the physical machine.",
+        "fr": "Programmes et données qui disent à un ordinateur quoi faire, par opposition à la machine physique."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "operating-system"
+        }
+      ]
+    },
+    {
+      "id": "sudo",
+      "form": "SUDO",
+      "display": "sudo",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Unix command that runs another command with administrator (root) privileges.",
+        "fr": "Commande Unix qui exécute une autre commande avec les droits administrateur (root)."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "root"
+        },
+        {
+          "type": "related_to",
+          "target": "permission"
+        }
+      ],
+      "sources": [
+        "https://www.sudo.ws/docs/man/sudo.man/"
       ]
     },
     {
@@ -506,6 +1028,12 @@
         "en": "Request from a program asking the kernel to perform a privileged action.",
         "fr": "Demande d'un programme au noyau pour effectuer une action privilégiée."
       },
+      "inflections": [
+        {
+          "form": "SYSCALLS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -527,6 +1055,12 @@
         "en": "Text window where you type commands for the computer.",
         "fr": "Fenêtre texte où l'on tape des commandes pour l'ordinateur."
       },
+      "inflections": [
+        {
+          "form": "TERMINALS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "uses",
@@ -549,11 +1083,46 @@
         "en": "Smallest unit of execution scheduled by the OS, sharing memory within a process.",
         "fr": "Plus petite unité d'exécution planifiée par l'OS, partageant la mémoire d'un processus."
       },
+      "inflections": [
+        {
+          "form": "THREADS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
           "target": "process"
         }
+      ]
+    },
+    {
+      "id": "ubuntu",
+      "form": "UBUNTU",
+      "display": "Ubuntu",
+      "playable": true,
+      "kind": "product",
+      "owner": "Canonical Ltd.",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Ubuntu: popular Linux distribution published by Canonical for desktops and servers.",
+        "fr": "Ubuntu : distribution Linux populaire publiée par Canonical pour postes et serveurs."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "linux"
+        },
+        {
+          "type": "is_a",
+          "target": "operating-system"
+        }
+      ],
+      "sources": [
+        "https://ubuntu.com/server/docs"
       ]
     },
     {
@@ -576,6 +1145,61 @@
           "type": "is_a",
           "target": "operating-system"
         }
+      ]
+    },
+    {
+      "id": "update",
+      "form": "UPDATE",
+      "display": "Update",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "New version of software that fixes problems or adds features to what is installed.",
+        "fr": "Nouvelle version d'un logiciel qui corrige des problèmes ou ajoute des fonctions."
+      },
+      "inflections": [
+        {
+          "form": "UPDATES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "patch"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "vim",
+      "form": "VIM",
+      "display": "Vim",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Keyboard-driven text editor for the terminal, descended from vi.",
+        "fr": "Éditeur de texte piloté au clavier pour le terminal, descendant de vi."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "terminal"
+        }
+      ],
+      "sources": [
+        "https://www.vim.org/docs.php"
       ]
     },
     {
@@ -620,6 +1244,9 @@
           "type": "is_a",
           "target": "operating-system"
         }
+      ],
+      "sources": [
+        "https://learn.microsoft.com/en-us/windows/"
       ]
     }
   ]

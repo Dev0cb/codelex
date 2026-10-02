@@ -15,7 +15,40 @@
       "definitions": {
         "en": "Finite sequence of steps that solves a problem.",
         "fr": "Suite finie d'étapes qui résout un problème."
-      }
+      },
+      "inflections": [
+        {
+          "form": "ALGORITHMS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "app",
+      "form": "APP",
+      "display": "App",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Application: a program designed for users, especially on phones and computers.",
+        "fr": "Application : programme destiné aux utilisateurs, notamment sur téléphone et ordinateur."
+      },
+      "inflections": [
+        {
+          "form": "APPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "software"
+        }
+      ]
     },
     {
       "id": "array",
@@ -30,7 +63,38 @@
       "definitions": {
         "en": "Ordered collection of elements accessed by numeric index.",
         "fr": "Collection ordonnée d'éléments accessibles par un indice numérique."
-      }
+      },
+      "inflections": [
+        {
+          "form": "ARRAYS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "backend",
+      "form": "BACKEND",
+      "display": "Back end",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Server side of an application: business logic, databases and APIs the user never sees.",
+        "fr": "Partie serveur d'une application : logique métier, bases de données et API invisibles pour l'utilisateur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "database"
+        },
+        {
+          "type": "uses",
+          "target": "api"
+        }
+      ]
     },
     {
       "id": "boolean",
@@ -45,7 +109,13 @@
       "definitions": {
         "en": "Data type with only two values: true or false.",
         "fr": "Type de donnée à deux valeurs seulement : vrai ou faux."
-      }
+      },
+      "inflections": [
+        {
+          "form": "BOOLEANS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "bug",
@@ -60,7 +130,13 @@
       "definitions": {
         "en": "Error in software that makes it behave unexpectedly.",
         "fr": "Erreur dans un logiciel qui le fait se comporter de façon inattendue."
-      }
+      },
+      "inflections": [
+        {
+          "form": "BUGS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "c-language",
@@ -97,6 +173,12 @@
         "en": "Blueprint defining the data and behaviour shared by a family of objects.",
         "fr": "Modèle définissant les données et le comportement communs à une famille d'objets."
       },
+      "inflections": [
+        {
+          "form": "CLASSES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -118,10 +200,37 @@
         "en": "Function that remembers variables from the scope where it was created.",
         "fr": "Fonction qui garde en mémoire les variables de la portée où elle a été créée."
       },
+      "inflections": [
+        {
+          "form": "CLOSURES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
           "target": "function"
+        }
+      ]
+    },
+    {
+      "id": "code",
+      "form": "CODE",
+      "display": "Code",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Instructions written in a programming language that make up a program.",
+        "fr": "Instructions écrites dans un langage de programmation qui composent un programme."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "programming-language"
         }
       ]
     },
@@ -138,7 +247,37 @@
       "definitions": {
         "en": "Program translating source code into machine code or bytecode before execution.",
         "fr": "Programme qui traduit le code source en code machine ou bytecode avant exécution."
-      }
+      },
+      "inflections": [
+        {
+          "form": "COMPILERS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "cs",
+      "form": "CS",
+      "display": "CS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "CS: computer science, the study of computation, algorithms, data and the design of software.",
+        "fr": "CS : computer science, l'informatique en tant que science du calcul, des algorithmes et des données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "algorithm"
+        }
+      ],
+      "sources": [
+        "https://www.acm.org/education/curricula-recommendations"
+      ]
     },
     {
       "id": "csharp",
@@ -162,6 +301,30 @@
       ]
     },
     {
+      "id": "css",
+      "form": "CSS",
+      "display": "CSS",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Cascading style sheets: the language that sets colours, fonts and layout of web pages.",
+        "fr": "Cascading style sheets : langage qui définit couleurs, polices et mise en page des pages web."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "html"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/Style/CSS/"
+      ]
+    },
+    {
       "id": "debugger",
       "form": "DEBUGGER",
       "display": "Debugger",
@@ -175,6 +338,12 @@
         "en": "Tool to pause a program and inspect its state step by step.",
         "fr": "Outil pour mettre un programme en pause et inspecter son état pas à pas."
       },
+      "inflections": [
+        {
+          "form": "DEBUGGERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -196,6 +365,12 @@
         "en": "Function wrapping another function to extend its behaviour without changing it.",
         "fr": "Fonction qui enveloppe une autre fonction pour étendre son comportement sans la modifier."
       },
+      "inflections": [
+        {
+          "form": "DECORATORS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -224,6 +399,12 @@
         "en": "Python's built-in mapping from unique keys to values.",
         "fr": "Table d'association native de Python entre des clés uniques et des valeurs."
       },
+      "inflections": [
+        {
+          "form": "DICTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -232,6 +413,30 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "es",
+      "form": "ES",
+      "display": "ES",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "ES: ECMAScript, the standard that defines the JavaScript language, versioned by year (ES2015…).",
+        "fr": "ES : ECMAScript, la norme qui définit le langage JavaScript, versionnée par année (ES2015…)."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "javascript"
+        }
+      ],
+      "sources": [
+        "https://tc39.es/ecma262/"
       ]
     },
     {
@@ -247,7 +452,13 @@
       "definitions": {
         "en": "Signal that an error occurred, interrupting normal program flow.",
         "fr": "Signal indiquant qu'une erreur est survenue, interrompant le déroulement normal du programme."
-      }
+      },
+      "inflections": [
+        {
+          "form": "EXCEPTIONS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "framework",
@@ -263,10 +474,45 @@
         "en": "Structure of reusable code that dictates how an application is built.",
         "fr": "Structure de code réutilisable qui impose la façon de construire une application."
       },
+      "inflections": [
+        {
+          "form": "FRAMEWORKS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
           "target": "library"
+        }
+      ]
+    },
+    {
+      "id": "frontend",
+      "form": "FRONTEND",
+      "display": "Front end",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Part of an application users see and interact with, usually in a browser or app.",
+        "fr": "Partie d'une application que l'utilisateur voit et manipule, en général dans un navigateur ou une appli."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "html"
+        },
+        {
+          "type": "uses",
+          "target": "css"
+        },
+        {
+          "type": "related_to",
+          "target": "backend"
         }
       ]
     },
@@ -283,7 +529,13 @@
       "definitions": {
         "en": "Named, reusable block of code that takes inputs and returns a result.",
         "fr": "Bloc de code nommé et réutilisable qui reçoit des entrées et renvoie un résultat."
-      }
+      },
+      "inflections": [
+        {
+          "form": "FUNCTIONS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "generator",
@@ -299,6 +551,12 @@
         "en": "Function that lazily produces a sequence of values with yield.",
         "fr": "Fonction qui produit paresseusement une suite de valeurs avec yield."
       },
+      "inflections": [
+        {
+          "form": "GENERATORS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -380,6 +638,86 @@
       ]
     },
     {
+      "id": "html",
+      "form": "HTML",
+      "display": "HTML",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "programming",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hypertext markup language: the tag-based language that structures web pages.",
+        "fr": "Hypertext markup language : langage à balises qui structure les pages web."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "web"
+        }
+      ],
+      "sources": [
+        "https://html.spec.whatwg.org/"
+      ]
+    },
+    {
+      "id": "ide",
+      "form": "IDE",
+      "display": "IDE",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Integrated development environment: an editor bundling code tools, a debugger and a build system.",
+        "fr": "Integrated development environment : éditeur réunissant outils de code, débogueur et compilation."
+      },
+      "inflections": [
+        {
+          "form": "IDES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "debugger"
+        },
+        {
+          "type": "uses",
+          "target": "compiler"
+        }
+      ]
+    },
+    {
+      "id": "if",
+      "form": "IF",
+      "display": "if",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "If statement: a conditional that runs a block of code only when a given condition is true.",
+        "fr": "Instruction if (« si ») : condition qui n'exécute un bloc de code que lorsqu'un test est vrai."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "boolean"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else"
+      ]
+    },
+    {
       "id": "inheritance",
       "form": "INHERITANCE",
       "display": "Inheritance",
@@ -413,7 +751,13 @@
       "definitions": {
         "en": "Whole number data type, without a fractional part.",
         "fr": "Type de donnée représentant un nombre entier, sans partie décimale."
-      }
+      },
+      "inflections": [
+        {
+          "form": "INTEGERS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "interface",
@@ -429,6 +773,12 @@
         "en": "Contract listing methods a type must provide, without implementing them.",
         "fr": "Contrat listant les méthodes qu'un type doit fournir, sans les implémenter."
       },
+      "inflections": [
+        {
+          "form": "INTERFACES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -450,6 +800,12 @@
         "en": "Object that yields the items of a collection one at a time.",
         "fr": "Objet qui fournit les éléments d'une collection un par un."
       },
+      "inflections": [
+        {
+          "form": "ITERATORS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -515,6 +871,30 @@
       ]
     },
     {
+      "id": "js",
+      "form": "JS",
+      "display": "JS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "JS: the usual abbreviation of JavaScript, the scripting language of web browsers.",
+        "fr": "JS : abréviation courante de JavaScript, le langage de script des navigateurs web."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "javascript"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+      ]
+    },
+    {
       "id": "kotlin",
       "form": "KOTLIN",
       "display": "Kotlin",
@@ -554,6 +934,12 @@
         "en": "Anonymous function defined inline, often passed as an argument.",
         "fr": "Fonction anonyme définie en ligne, souvent passée en argument."
       },
+      "inflections": [
+        {
+          "form": "LAMBDAS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "is_a",
@@ -574,7 +960,13 @@
       "definitions": {
         "en": "Reusable collection of code that programs can call.",
         "fr": "Collection de code réutilisable que les programmes peuvent appeler."
-      }
+      },
+      "inflections": [
+        {
+          "form": "LIBRARIES",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "list",
@@ -590,6 +982,12 @@
         "en": "Python's built-in ordered, mutable sequence of items.",
         "fr": "Séquence ordonnée et modifiable intégrée à Python."
       },
+      "inflections": [
+        {
+          "form": "LISTS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -598,6 +996,55 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "loop",
+      "form": "LOOP",
+      "display": "Loop",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Code structure that repeats a block of instructions while a condition holds.",
+        "fr": "Structure de code qui répète un bloc d'instructions tant qu'une condition est vraie."
+      },
+      "inflections": [
+        {
+          "form": "LOOPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "iterator"
+        }
+      ]
+    },
+    {
+      "id": "null",
+      "form": "NULL",
+      "display": "null",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Special value meaning \"no value\" or \"points to nothing\" in many languages and databases.",
+        "fr": "Valeur spéciale signifiant « aucune valeur » ou « ne pointe vers rien » dans de nombreux langages."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pointer"
+        }
       ]
     },
     {
@@ -613,7 +1060,37 @@
       "definitions": {
         "en": "Instance bundling data and the methods that act on it.",
         "fr": "Instance regroupant des données et les méthodes qui agissent dessus."
-      }
+      },
+      "inflections": [
+        {
+          "form": "OBJECTS",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "or",
+      "form": "OR",
+      "display": "OR",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "OR: logical operator that yields true when at least one of its operands is true.",
+        "fr": "OU logique (OR) : opérateur qui donne vrai dès qu'au moins une de ses opérandes est vraie."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "boolean"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR"
+      ]
     },
     {
       "id": "php",
@@ -651,6 +1128,12 @@
         "en": "Variable that stores the memory address of another value.",
         "fr": "Variable qui stocke l'adresse mémoire d'une autre valeur."
       },
+      "inflections": [
+        {
+          "form": "POINTERS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -777,6 +1260,12 @@
       },
       "aliases": [
         "REGEXP"
+      ],
+      "inflections": [
+        {
+          "form": "REGEXES",
+          "kind": "plural"
+        }
       ]
     },
     {
@@ -830,6 +1319,37 @@
       ]
     },
     {
+      "id": "sdk",
+      "form": "SDK",
+      "display": "SDK",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Software development kit: libraries, tools and docs for building on a given platform.",
+        "fr": "Software development kit : bibliothèques, outils et documentation pour développer sur une plateforme."
+      },
+      "inflections": [
+        {
+          "form": "SDKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "library"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
       "id": "set",
       "form": "SET",
       "display": "set",
@@ -843,6 +1363,12 @@
         "en": "Unordered collection of unique elements supporting union and intersection.",
         "fr": "Collection non ordonnée d'éléments uniques supportant union et intersection."
       },
+      "inflections": [
+        {
+          "form": "SETS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -851,6 +1377,37 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "stack",
+      "form": "STACK",
+      "display": "Stack",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Last-in, first-out data structure; also the set of technologies an app is built with.",
+        "fr": "Structure de données « dernier entré, premier sorti » ; aussi l'ensemble des technos d'une appli."
+      },
+      "inflections": [
+        {
+          "form": "STACKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        },
+        {
+          "type": "related_to",
+          "target": "list"
+        }
       ]
     },
     {
@@ -866,7 +1423,13 @@
       "definitions": {
         "en": "Sequence of characters, such as a word or sentence, in a program.",
         "fr": "Suite de caractères, comme un mot ou une phrase, dans un programme."
-      }
+      },
+      "inflections": [
+        {
+          "form": "STRINGS",
+          "kind": "plural"
+        }
+      ]
     },
     {
       "id": "swift",
@@ -912,6 +1475,34 @@
       ]
     },
     {
+      "id": "ts",
+      "form": "TS",
+      "display": "TS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "TS: the usual abbreviation of TypeScript, JavaScript extended with static types.",
+        "fr": "TS : abréviation courante de TypeScript, JavaScript enrichi de types statiques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "typescript"
+        },
+        {
+          "type": "related_to",
+          "target": "js"
+        }
+      ],
+      "sources": [
+        "https://www.typescriptlang.org/docs/"
+      ]
+    },
+    {
       "id": "tuple",
       "form": "TUPLE",
       "display": "tuple",
@@ -925,6 +1516,12 @@
         "en": "Python's immutable ordered sequence, often used for fixed groups of values.",
         "fr": "Séquence ordonnée immuable de Python, souvent utilisée pour des groupes de valeurs fixes."
       },
+      "inflections": [
+        {
+          "form": "TUPLES",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "part_of",
@@ -969,6 +1566,58 @@
       ]
     },
     {
+      "id": "ui",
+      "form": "UI",
+      "display": "UI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "User interface (UI): the screens, buttons and controls through which a person operates software.",
+        "fr": "Interface utilisateur (UI) : écrans, boutons et commandes par lesquels on utilise un logiciel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ux"
+        },
+        {
+          "type": "related_to",
+          "target": "frontend"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Glossary/UI"
+      ]
+    },
+    {
+      "id": "ux",
+      "form": "UX",
+      "display": "UX",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "User experience (UX): how easy, useful and pleasant a product feels to the people who use it.",
+        "fr": "Expérience utilisateur (UX) : la facilité, l'utilité et l'agrément d'un produit pour ceux qui l'utilisent."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ui"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Glossary/UX"
+      ]
+    },
+    {
       "id": "variable",
       "form": "VARIABLE",
       "display": "Variable",
@@ -981,7 +1630,13 @@
       "definitions": {
         "en": "Named storage location holding a value that can change.",
         "fr": "Emplacement nommé contenant une valeur qui peut changer."
-      }
+      },
+      "inflections": [
+        {
+          "form": "VARIABLES",
+          "kind": "plural"
+        }
+      ]
     }
   ]
 }
