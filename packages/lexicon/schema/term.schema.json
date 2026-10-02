@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://codelex.app/schemas/lexicon/term-file.v1.json",
+  "$id": "https://codelex.app/schemas/lexicon/term-file.v2.json",
   "title": "CODELEX lexicon term file",
   "type": "object",
   "required": ["schemaVersion", "category", "terms"],
   "additionalProperties": false,
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "schemaVersion": { "const": 2 },
     "category": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
     "terms": { "type": "array", "items": { "$ref": "#/$defs/term" } }
   },
@@ -31,6 +31,21 @@
           "properties": {
             "en": { "type": "string", "minLength": 10, "maxLength": 160 },
             "fr": { "type": "string", "minLength": 10, "maxLength": 160 }
+          }
+        },
+        "inflections": {
+          "description": "Curated playable inflected forms resolving to this term (E-1.7). Sorted by form (code-unit order), unique across the whole lexicon, never on product/language terms, never two letters.",
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": ["form", "kind"],
+            "additionalProperties": false,
+            "properties": {
+              "form": { "type": "string", "pattern": "^[A-Z]{2,15}$" },
+              "kind": { "enum": ["plural", "verb_s", "verb_ed", "verb_ing"] }
+            }
           }
         },
         "aliases": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
