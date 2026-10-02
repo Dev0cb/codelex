@@ -54,9 +54,9 @@ decision below is reversible unless an ADR says otherwise.
 
 | ID | Task | Owner agent | Depends on | Acceptance criteria | Size | Status |
 |---|---|---|---|---|---|---|
-| D1 | ADR-0013 Determinism and replay contract | solution-architect, game-engine-engineer | — | ADR accepted with RNG algorithm, stream derivation, action-log schema, state hash, `engineRulesVersion` policy; golden-vector format defined; open questions Q-G1–G4, Q-A1, Q-H3 of the lexicon-index note closed | S | todo |
-| D2 | `/feature-spec` E-1.7 playtest lexicon and inflections | product-strategist, lexicon-curator, game-designer | — | Spec Ready for design: inflection kinds, authoring rules, scoring of inflected forms, ≥ 2,000 forms / ≥ 30 two-letter target, content plan by batch, validator rules (global uniqueness, blocklist, regex) | M | todo |
-| D3 | Classic premium layout (A-02) and frozen default letter table | game-designer | — | `GAME_RULES.md` / `BALANCE.md` give the 15×15 premium layout and the frozen letter values/bag for `engineRulesVersion` 1; scoring golden cases written | S | todo |
+| D1 | ADR-0013 Determinism and replay contract | solution-architect, game-engine-engineer | — | ADR accepted with RNG algorithm, stream derivation, action-log schema, state hash, `engineRulesVersion` policy; golden-vector format defined; open questions Q-G1–G4, Q-A1, Q-H3 of the lexicon-index note closed | S | done |
+| D2 | `/feature-spec` E-1.7 playtest lexicon and inflections | product-strategist, lexicon-curator, game-designer | — | Spec Ready for design: inflection kinds, authoring rules, scoring of inflected forms, ≥ 2,000 forms / ≥ 30 two-letter target, content plan by batch, validator rules (global uniqueness, blocklist, regex) | M | done |
+| D3 | Classic premium layout (A-02) and frozen default letter table | game-designer | — | `GAME_RULES.md` / `BALANCE.md` give the 15×15 premium layout and the frozen letter values/bag for `engineRulesVersion` 1; scoring golden cases written | S | done |
 | D4 | Game-engine API note | game-engine-engineer | D1 | `docs/architecture/notes/game-engine-api.md`: `MatchConfig`, `MatchState`, `Action`, `Rejection`, `MatchEvent`, `Observation`, `ScoreBreakdown`, function signatures; reviewed by solution-architect and ai-engineer | S | todo |
 | L1 | Canonical `lexiconVersion` (RFC 8785) and schema v2 with `inflections` | lexicon-engineer | D2 | Schema v2 + validator (uniqueness across forms and inflections, blocklist, regex); `lexiconVersion` stable across key order/whitespace (property test); LEXICON_SPEC updated; existing seed migrated | M | todo |
 | L2 | Lexicon package to TypeScript and `@codelex/lexicon/index` types (`FormRef`/`TermRef`) | lexicon-engineer | D4 | Package builds with `@codelex/config` presets; `LexiconIndex`, `Gaddag`, errors and `decodeLexiconIndex` signatures exported; `pnpm lexicon:validate` unchanged | M | todo |
@@ -82,4 +82,9 @@ decision below is reversible unless an ADR says otherwise.
 - `FormRef`/`TermRef` split touches every lexicon consumer: fixed in L2, not later.
 
 ## Decisions log
+- 2026-10-02 — D1: ADR-0013 accepted (xoshiro128**, SHA-256 stream derivation, action log v1, state hash,
+  `engineRulesVersion`); lexicon-index note Q-G1–G4, Q-A1, Q-H3 resolved.
+- 2026-10-02 — D2: E-1.7 spec Ready for design (curated inflections, canonical-term resolution, 3 content batches).
+- 2026-10-02 — D3: GAME_RULES v0.3 = `engineRulesVersion` 1 — original `classic-v1` layout, `letters-v1` table (also
+  used for lexicon game values), 18 Classic + 4 inflection golden cases, E-1.7 confirmations C-GD-1..5, R-CORE-006.
 - 2026-10-02 — E-1.5 open questions decided under delegation (see the spec's "Decisions" section).
