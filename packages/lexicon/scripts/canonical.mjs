@@ -31,10 +31,18 @@ export function canonicalize(value) {
       if (!value.isWellFormed()) throw new TypeError('JCS: lone surrogate in string');
       return JSON.stringify(value);
     case 'object': {
-      if (Array.isArray(value)) return `[${value.map(canonicalize).join(',')}]`;
+      if (Array.isArray(value)) {
+        const items = [];
+        for (let i = 0; i < value.length; i++) {
+          if (!Object.hasOwn(value, i)) throw new TypeError(`JCS: sparse array (hole at index ${i})`);
+          items.push(canonicalize(value[i]));
+        }
+        return `[${items.join(',')}]`;
+      }
       const proto = Object.getPrototypeOf(value);
       if (proto !== Object.prototype && proto !== null) throw new TypeError('JCS: only plain objects are allowed');
       const keys = Object.keys(value).sort(byCodeUnit);
+      for (const k of keys) if (!k.isWellFormed()) throw new TypeError('JCS: lone surrogate in object key');
       return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalize(value[k])}`).join(',')}}`;
     }
     default:

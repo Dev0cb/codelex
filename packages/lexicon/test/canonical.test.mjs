@@ -48,6 +48,9 @@ test('JCS: rejects values outside JSON (undefined, NaN, Infinity, lone surrogate
     assert.throws(() => canonicalize(bad), TypeError);
   }
   assert.equal(canonicalize(-0), '0');
+  assert.throws(() => canonicalize({ '\ud800': 1 }), TypeError, 'lone surrogate in a key');
+  assert.throws(() => canonicalize([1, , 3]), TypeError, 'sparse array hole'); // eslint-disable-line no-sparse-arrays
+  assert.throws(() => canonicalize(new Array(2)), TypeError, 'sparse array');
 });
 
 // ---------- lexiconVersion properties ----------
@@ -206,6 +209,15 @@ test('property: lexiconVersion changes when playable content changes', () => {
       assert.notEqual(computeLexiconVersion(mutateOne(r, lex, m)), v, `seed ${seed}: ${name} must change the version`);
     }
   }
+});
+
+test('changing only the kind of an existing inflection changes lexiconVersion', () => {
+  const lex = randomLexicon(prng(3));
+  const t = lex.files[0].data.terms.find((x) => x.playable);
+  t.inflections = [{ form: `${t.form}XQZ`, kind: 'plural' }];
+  const before = computeLexiconVersion(lex);
+  t.inflections[0].kind = 'verb_s';
+  assert.notEqual(computeLexiconVersion(lex), before);
 });
 
 test('property: lexiconVersion ignores display-only content; cardsVersion tracks it', () => {

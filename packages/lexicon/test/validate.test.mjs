@@ -1,5 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { buildReport, loadLexicon, playableForms, validateLexicon } from '../scripts/validate.mjs';
 
 const categories = [
@@ -167,14 +170,20 @@ test('AC-4: inflection entries allow only { form, kind }', () => {
   assert.ok(has(run([pod({ inflections: 'PODS' })]).errors, 'inflections must be an array'));
 });
 
-test('AC-4: owning term must be playable and have a form', () => {
-  assert.ok(has(run([pod({ playable: false })]).errors, 'playable'));
-  assert.ok(has(run([pod({ playable: false, form: undefined })]).errors, 'playable'));
+test('AC-4: owning term must be playable and have a form; its inflections stay out of the namespace', () => {
+  for (const over of [{ playable: false }, { playable: false, form: undefined }]) {
+    const { errors, stats } = run([pod(over)]);
+    assert.ok(has(errors, 'pod', 'inflections require a playable term with a form'), JSON.stringify(over));
+    assert.equal(stats.forms.inflections, 0);
+  }
 });
 
-test('AC-4 / D-6: no inflections on product or language terms', () => {
-  assert.ok(has(run([pod({ kind: 'product', owner: 'Acme' })]).errors, 'product'));
-  assert.ok(has(run([pod({ kind: 'language' })]).errors, 'language'));
+test('AC-4 / D-6: no inflections on product or language terms; they stay out of the namespace', () => {
+  for (const [kind, over] of [['product', { kind: 'product', owner: 'Acme' }], ['language', { kind: 'language' }]]) {
+    const { errors, stats } = run([pod(over)]);
+    assert.ok(has(errors, 'pod', `no inflections on ${kind} terms (D-6)`), kind);
+    assert.equal(stats.forms.inflections, 0, kind);
+  }
 });
 
 test('AC-4: inflection array without duplicates', () => {
@@ -257,4 +266,90 @@ test('AC-7: report snapshot on the fixture lexicon', () => {
   assert.match(report.cardsVersion, /^[0-9a-f]{16}$/);
   // Golden: pins the canonical document definition (LEXICON_SPEC §7). Update only with a contentFormat bump.
   assert.equal(report.lexiconVersion, '21a7a70536633cbb');
+});
+
+test('AC-6: verb_ed and verb_ing with the wrong suffix warn NEEDS_REVIEW', () => {
+  const run1 = (inflections) => run([term({ id: 'deploy', form: 'DEPLOY', kind: 'concept', owner: undefined, inflections })]);
+  const ed = run1([{ form: 'DEPLOYD', kind: 'verb_ed' }]);
+  assert.deepEqual(ed.errors, []);
+  assert.ok(has(ed.warnings, 'NEEDS_REVIEW', 'verb_ed "DEPLOYD" does not end in ED'));
+  const ing = run1([{ form: 'DEPLOYIN', kind: 'verb_ing' }]);
+  assert.ok(has(ing.warnings, 'NEEDS_REVIEW', 'verb_ing "DEPLOYIN" does not end in ING'));
+  assert.deepEqual(run1([{ form: 'DEPLOYED', kind: 'verb_ed' }, { form: 'DEPLOYING', kind: 'verb_ing' }]).warnings, []);
+});
+
+// ---------- schema types of every hashed field (review L1, MAJOR 1) ----------
+
+test('schema types: playable must be a boolean', () => {
+  assert.ok(has(run([term({ playable: 'yes' })]).errors, 'docker', '"playable"', 'boolean'));
+  assert.ok(has(run([term({ playable: 1 })]).errors, '"playable"', 'boolean'));
+});
+
+test('schema types: override needs approvedBy and integer values >= 0', () => {
+  assert.ok(has(run([term({ override: { gameValue: 99 } })]).errors, '"override"', 'approvedBy'));
+  assert.ok(has(run([term({ override: { gameValue: '99', approvedBy: 'game-designer' } })]).errors, '"override.gameValue"', 'integer'));
+  assert.ok(has(run([term({ override: { gameValue: 1.5, approvedBy: 'game-designer' } })]).errors, '"override.gameValue"', 'integer'));
+  assert.ok(has(run([term({ override: { knowledgeXp: -1, approvedBy: 'game-designer' } })]).errors, '"override.knowledgeXp"', '>= 0'));
+  assert.ok(has(run([term({ override: { approvedBy: 'game-designer', note: 'x' } })]).errors, '"override.note"', 'not allowed'));
+  assert.ok(has(run([term({ override: 'game-designer' })]).errors, '"override"', 'object'));
+  assert.ok(has(run([term({ override: { gameValue: 99, approvedBy: '' } })]).errors, '"override.approvedBy"', '>= 1'));
+});
+
+test('schema types: gameValue and knowledgeXp are integers >= 0', () => {
+  assert.ok(has(run([term({ gameValue: '17' })]).errors, '"gameValue"', 'integer'));
+  assert.ok(has(run([term({ knowledgeXp: 30.5 })]).errors, '"knowledgeXp"', 'integer'));
+});
+
+test('schema types: tags and aliases are arrays of unique strings', () => {
+  assert.ok(has(run([term({ tags: [1, { a: 1 }] })]).errors, '"tags[0]"', 'string'));
+  assert.ok(has(run([term({ tags: 'core' })]).errors, '"tags"', 'array'));
+  assert.ok(has(run([term({ tags: ['core', 'core'] })]).errors, '"tags"', 'unique'));
+  assert.ok(has(run([term({ aliases: [7] })]).errors, '"aliases[0]"', 'string'));
+  assert.ok(has(run([term({ aliases: ['K8S', 'K8S'] })]).errors, '"aliases"', 'unique'));
+  assert.deepEqual(run([term({ tags: ['core', 'season:s01'], aliases: ['K8S'] })]).errors, []);
+});
+
+test('schema types: relations and sources are arrays of the declared shapes', () => {
+  const r1 = run([term({ relations: 'abc' })]).errors;
+  assert.ok(has(r1, '"relations"', 'array'));
+  assert.ok(!has(r1, 'dangling'), 'a string must not be iterated per character');
+  assert.ok(has(run([term({ relations: [{ type: 'uses', target: 'pod', weight: 2 }] }), pod()]).errors, '"relations[0].weight"', 'not allowed'));
+  assert.ok(has(run([term({ relations: [{ type: 'uses' }] })]).errors, '"relations[0]"', 'target'));
+  assert.ok(has(run([term({ relations: [{ type: 'uses', target: 5 }] })]).errors, '"relations[0].target"', 'string'));
+  const s1 = run([term({ sources: 'https://docs.docker.com/' })]).errors;
+  assert.ok(has(s1, '"sources"', 'array'));
+  assert.ok(!has(s1, 'source must be https: h'), 'a string must not be iterated per character');
+  assert.ok(has(run([term({ sources: [42] })]).errors, '"sources[0]"', 'string'));
+});
+
+// ---------- blocklist loading (review L1, MINOR 2) ----------
+
+function withDataDir(blocklistText, fn) {
+  const root = mkdtempSync(join(tmpdir(), 'clx-bl-'));
+  try {
+    mkdirSync(join(root, 'terms'));
+    mkdirSync(join(root, 'blocklist'));
+    writeFileSync(join(root, 'categories.json'), JSON.stringify({ schemaVersion: 1, categories }));
+    writeFileSync(join(root, 'terms', 'devops.json'), JSON.stringify({ schemaVersion: 2, category: 'devops', terms: [term()] }));
+    writeFileSync(join(root, 'blocklist', 'fr.txt'), blocklistText);
+    return fn(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+test('blocklist: diacritics are folded so non-ASCII entries match A-Z forms', () => {
+  withDataDir('# comment\nécu\nÇA\r\n  Dóçker  \n', (dir) => {
+    const lex = loadLexicon(dir);
+    assert.deepEqual([...lex.blocklist].sort(), ['CA', 'DOCKER', 'ECU']);
+    assert.ok(has(validateLexicon(lex).errors, 'form "DOCKER" is blocklisted'));
+  });
+});
+
+test('blocklist: lines that are not ^[A-Z]{2,15}$ after folding are rejected with file and line', () => {
+  for (const bad of ['F*CK', 'A', 'TWO WORDS', 'L33T', 'X'.repeat(16)]) {
+    withDataDir(`OK\n${bad}\n`, (dir) => {
+      assert.throws(() => loadLexicon(dir), (err) => err.message.includes('fr.txt:2') && err.message.includes(JSON.stringify(bad)), bad);
+    });
+  }
 });

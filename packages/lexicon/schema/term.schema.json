@@ -72,7 +72,7 @@
           "properties": {
             "gameValue": { "type": "integer", "minimum": 0 },
             "knowledgeXp": { "type": "integer", "minimum": 0 },
-            "approvedBy": { "type": "string" }
+            "approvedBy": { "type": "string", "minLength": 1 }
           }
         }
       }

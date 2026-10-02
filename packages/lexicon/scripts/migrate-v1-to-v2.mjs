@@ -16,7 +16,7 @@ export function migrateTermFileText(text) {
   const data = JSON.parse(text);
   if (data?.schemaVersion === 2) return text;
   if (data?.schemaVersion !== 1) throw new Error(`cannot migrate schemaVersion ${JSON.stringify(data?.schemaVersion)}`);
-  const out = text.replace(SCHEMA_VERSION_RE, '$12');
+  const out = text.replace(SCHEMA_VERSION_RE, (_match, prefix) => `${prefix}2`);
   const check = JSON.parse(out);
   if (check.schemaVersion !== 2) throw new Error('schemaVersion rewrite did not hit the top-level field');
   return out;

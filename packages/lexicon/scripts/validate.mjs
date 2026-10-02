@@ -33,6 +33,56 @@ const MIN_DEF = P.definitions.properties.en.minLength;
 const ALLOWED_KEYS = new Set(Object.keys(P));
 const LENGTH_BUCKETS = [['2', 2, 2], ['3', 3, 3], ['4', 4, 4], ['5-7', 5, 7], ['8-10', 8, 10], ['11-15', 11, 15]];
 
+/** Term fields checked generically against their schema declaration (the others have dedicated rules above). */
+const SHAPE_CHECKED_FIELDS = ['playable', 'override', 'gameValue', 'knowledgeXp', 'tags', 'aliases', 'relations', 'sources'];
+
+/** Blocklist entries are compared with A-Z forms: strip diacritics (NFD + remove marks) and uppercase. */
+export const foldBlocklistEntry = (s) => s.normalize('NFD').replace(/\p{M}/gu, '').toUpperCase();
+
+const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+const TYPE_CHECKS = {
+  boolean: (v) => typeof v === 'boolean',
+  string: (v) => typeof v === 'string',
+  integer: (v) => Number.isInteger(v),
+  number: (v) => typeof v === 'number' && Number.isFinite(v),
+  array: Array.isArray,
+  object: isPlainObject,
+};
+
+/**
+ * Minimal JSON Schema subset used by term.schema.json (type, enum, const, pattern, min/maxLength, minimum,
+ * min/maxItems, uniqueItems, items, required, properties, additionalProperties: false). Zero dependencies on
+ * purpose: CI and hooks run the validator before `pnpm install`.
+ */
+function checkShape(s, v, path, err) {
+  if (s.enum && !s.enum.includes(v)) { err(`field "${path}" must be one of ${s.enum.join(' | ')}`); return; }
+  if (s.const !== undefined && v !== s.const) { err(`field "${path}" must be ${JSON.stringify(s.const)}`); return; }
+  if (s.type && !TYPE_CHECKS[s.type](v)) { err(`field "${path}" must be ${s.type === 'integer' ? 'an integer' : `${s.type === 'array' || s.type === 'object' ? 'an' : 'a'} ${s.type}`}`); return; }
+  if (typeof v === 'string') {
+    if (s.pattern && !new RegExp(s.pattern, 'u').test(v)) err(`field "${path}" must match ${s.pattern}`);
+    if (s.minLength !== undefined && v.length < s.minLength) err(`field "${path}" must have >= ${s.minLength} chars`);
+    if (s.maxLength !== undefined && v.length > s.maxLength) err(`field "${path}" must have <= ${s.maxLength} chars`);
+  }
+  if (typeof v === 'number' && s.minimum !== undefined && v < s.minimum) err(`field "${path}" must be >= ${s.minimum}`);
+  if (Array.isArray(v)) {
+    if (s.minItems !== undefined && v.length < s.minItems) err(`field "${path}" needs >= ${s.minItems} items`);
+    if (s.maxItems !== undefined && v.length > s.maxItems) err(`field "${path}" allows <= ${s.maxItems} items`);
+    if (s.uniqueItems) {
+      const keys = v.map((x) => JSON.stringify(x));
+      if (new Set(keys).size !== keys.length) err(`field "${path}" items must be unique`);
+    }
+    if (s.items) v.forEach((x, i) => checkShape(s.items, x, `${path}[${i}]`, err));
+  }
+  if (isPlainObject(v)) {
+    for (const k of s.required ?? []) if (v[k] === undefined) err(`field "${path}" missing required "${k}"`);
+    for (const [k, x] of Object.entries(v)) {
+      const sub = s.properties?.[k];
+      if (sub) { if (x !== undefined) checkShape(sub, x, `${path}.${k}`, err); }
+      else if (s.additionalProperties === false) err(`field "${path}.${k}" is not allowed`);
+    }
+  }
+}
+
 const lengthBucket = (n) => LENGTH_BUCKETS.find(([, lo, hi]) => n >= lo && n <= hi)?.[0];
 
 /**
@@ -71,7 +121,7 @@ export function validateLexicon({ categories, files, blocklist }) {
       if (terms.has(t.id)) e(w, `duplicate id (also in ${terms.get(t.id).path})`);
       terms.set(t.id, { ...t, path });
 
-      if (t.playable) {
+      if (t.playable === true) {
         if (typeof t.form !== 'string' || !FORM_RE.test(t.form)) e(w, `playable term needs form matching ${P.form.pattern}`);
         else {
           const prev = forms.get(t.form);
@@ -97,9 +147,10 @@ export function validateLexicon({ categories, files, blocklist }) {
         const d = t.definitions?.[lang];
         if (typeof d !== 'string' || d.length < MIN_DEF || d.length > MAX_DEF) e(w, `definitions.${lang} must be ${MIN_DEF}..${MAX_DEF} chars`);
       }
-      for (const s of t.sources ?? []) if (!/^https:\/\//.test(s)) e(w, `source must be https: ${s}`);
+      // Schema types of every remaining hashed/exported field (canonical.mjs assumes validated data).
+      for (const k of SHAPE_CHECKED_FIELDS) if (t[k] !== undefined) checkShape(P[k], t[k], k, (msg) => e(w, msg));
 
-      if (t.playable && FORM_RE.test(t.form ?? '') && DIFFICULTIES.has(t.difficulty)) {
+      if (t.playable === true && FORM_RE.test(t.form ?? '') && DIFFICULTIES.has(t.difficulty)) {
         const gv = t.override?.gameValue ?? gameValue(t.form, t.difficulty);
         const xp = t.override?.knowledgeXp ?? knowledgeXp(t.form, t.difficulty);
         if (t.gameValue !== undefined && t.gameValue !== gv) e(w, `gameValue ${t.gameValue} != computed ${gv}`);
@@ -127,9 +178,9 @@ export function validateLexicon({ categories, files, blocklist }) {
   for (const t of terms.values()) {
     const w = `${t.path}#${t.id}`;
     const seen = new Set();
-    for (const r of t.relations ?? []) {
+    for (const r of Array.isArray(t.relations) ? t.relations : []) {
+      if (!isPlainObject(r)) continue; // shape error already reported
       edges++;
-      if (!RELATION_TYPES.has(r?.type)) e(w, `invalid relation type "${r?.type}"`);
       if (r?.target === t.id) e(w, 'self relation');
       else if (!terms.has(r?.target)) e(w, `dangling relation target "${r?.target}"`);
       const key = `${r?.type}>${r?.target}`;
@@ -162,8 +213,9 @@ function checkInflections(t, w, e, warn, blocklist) {
   if (!Array.isArray(t.inflections)) { e(w, 'inflections must be an array'); return []; }
   const list = t.inflections;
   if (list.length === 0) return [];
-  if (!t.playable || typeof t.form !== 'string') e(w, 'inflections require a playable term with a form');
-  if (NO_INFLECTION_KINDS.has(t.kind)) e(w, `no inflections on ${t.kind} terms (D-6)`);
+  // An invalid owner contributes nothing to the namespace or stats: report and stop.
+  if (t.playable !== true || typeof t.form !== 'string') { e(w, 'inflections require a playable term with a form'); return []; }
+  if (NO_INFLECTION_KINDS.has(t.kind)) { e(w, `no inflections on ${t.kind} terms (D-6)`); return []; }
   if (list.length > MAX_INFLECTIONS) e(w, `has ${list.length} inflections; at most ${MAX_INFLECTIONS} allowed`);
   const out = [];
   const seen = new Set();
@@ -232,7 +284,7 @@ export function playableForms({ files }) {
   const out = [];
   for (const { data } of files) {
     for (const t of Array.isArray(data?.terms) ? data.terms : []) {
-      if (!t?.playable || typeof t.form !== 'string') continue;
+      if (t?.playable !== true || typeof t.form !== 'string') continue;
       out.push({ form: t.form, termId: t.id, kind: 'canonical' });
       for (const i of Array.isArray(t.inflections) ? t.inflections : []) out.push({ form: i.form, termId: t.id, kind: i.kind });
     }
@@ -270,13 +322,20 @@ export function loadLexicon(dataDir = join(PKG, 'data')) {
   }));
   const blocklist = new Set();
   const blDir = join(dataDir, 'blocklist');
+  const badLines = [];
   if (existsSync(blDir)) {
     for (const f of readdirSync(blDir).filter((x) => x.endsWith('.txt')).sort()) {
-      for (const line of readFileSync(join(blDir, f), 'utf8').split('\n')) {
+      readFileSync(join(blDir, f), 'utf8').split('\n').forEach((line, i) => {
         const s = line.trim();
-        if (s && !s.startsWith('#')) blocklist.add(s.toUpperCase());
-      }
+        if (!s || s.startsWith('#')) return;
+        const folded = foldBlocklistEntry(s);
+        if (FORM_RE.test(folded)) blocklist.add(folded);
+        else badLines.push(`blocklist/${f}:${i + 1} ${JSON.stringify(s)}`);
+      });
     }
+  }
+  if (badLines.length) {
+    throw new Error(`blocklist entries must match ${P.form.pattern} after folding diacritics: ${badLines.join(', ')}`);
   }
   const lex = { categories, files, blocklist };
   // Canonical content versions (ADR-0013 §D7): independent of paths, layout, whitespace and line endings.

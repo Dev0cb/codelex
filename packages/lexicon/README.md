@@ -45,5 +45,9 @@ resolves to its canonical term for every rule, card and XP; it carries no metada
   Exact field list: LEXICON_SPEC §7. Independent of files, key order, whitespace and line endings.
 - `cardsVersion` — same construction over display-only content (definitions, display, owner, sources, aliases,
   category names). Fixing a definition never changes `lexiconVersion`.
+- AC-2 evidence (schema v1 -> v2 migration, 2026-10-02): the canonical `lexiconVersion` of the pre-migration v1
+  seed (commit `d955d97`) is `2f2cc6fca8fac92b`, identical after migration (`schemaVersion` is not hashed); the
+  310 playable forms are unchanged. The old validator printed `f654db78a4264004`, a raw-file hash with a different
+  formula that was never published or pinned.
 
 Next (roadmap E-1.2): GADDAG index build per lexicon profile and the `LexiconIndex` interface for the engine.

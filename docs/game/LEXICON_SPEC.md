@@ -66,17 +66,23 @@ Check: KUBERNETES (expert) → 17 + 10 + 16 = **43** game value, 75 + 10 = **85*
   rejected; required fields present.
 - Graph: no dangling relation targets · no self-relations · no duplicate (type, target) per term · no cycle in `is_a`
   · unique `id` · every category exists and the first one equals the file category · `product` has `owner` ·
-  definitions 10..160 chars in EN and FR · `sources` are https · `gameValue`/`knowledgeXp` equal the formula unless
-  an approved `override` exists.
+  definitions 10..160 chars in EN and FR · `gameValue`/`knowledgeXp` equal the formula unless an approved
+  `override` exists.
+- Schema types of every hashed or exported field, checked against `term.schema.json` by a zero-dependency checker:
+  `playable` boolean; `override` an object with exactly `gameValue?`, `knowledgeXp?` (integers ≥ 0) and a non-empty
+  `approvedBy`; `gameValue`/`knowledgeXp` integers ≥ 0; `tags`/`aliases` arrays of unique strings; `relations` an
+  array of `{type (enum), target (string)}`; `sources` an array of `https://` strings.
 - **One global form namespace:** canonical forms of playable terms and all inflection forms share one namespace
   across every file and category. A duplicate fails with one error naming the form and both term ids. When an
   inflection equals a canonical form (IDS, OSS, VMS), the **standalone term owns the string** and the inflection is
   the one reported, whatever the file order (D-5).
-- Forms (canonical and inflections) match `^[A-Z]{2,15}$` and are not in any `data/blocklist/*.txt` (case-insensitive,
-  `#` comments).
+- Forms (canonical and inflections) match `^[A-Z]{2,15}$` and are not in any `data/blocklist/*.txt`. Blocklist
+  lines are trimmed, `#` starts a comment, entries are folded (NFD, combining marks removed, uppercased: `écu` →
+  `ECU`), and a line that does not match `^[A-Z]{2,15}$` after folding fails the load with its file and line.
 - Inflections: entries are exactly `{form, kind}`; `kind` in the enum; form ≠ the term's form; no two-letter
   inflection (AC-15); ≤ 4 per term; sorted by form (code-unit order), no duplicates; owner term is `playable` with a
-  `form`; owner kind is not `product` nor `language`.
+  `form`; owner kind is not `product` nor `language`. Inflections of an invalid owner are reported once and do not
+  enter the namespace or the stats.
 
 **Warnings (`NEEDS_REVIEW`, non-blocking, printed and in the report):**
 - an inflection that does not start with the term's form (INDICES, MATRICES, PROXIES);
