@@ -302,14 +302,18 @@ describe('L-A: Error.code', () => {
   });
 });
 
-describe('H4/M3: CPU bounds', () => {
+// Each bound samples workloads for ~0.5 s in total (more when a measurement is retried) under coverage
+// on a loaded CI runner: the default 5 s test timeout is too tight.
+describe('H4/M3: CPU bounds', { timeout: 30_000 }, () => {
   const r = createRedactor();
-  // Bounds are ratios between input sizes, never absolute milliseconds: CI runs other packages' tests
-  // on the same cores under coverage, which slows big inputs more than small ones (up to ~3x on the
-  // ratio, measured). So sizes are far enough apart that the expected complexity and the one to reject
-  // differ by >= 8x, with the threshold in between. Each sample repeats `f` for >= 2 ms (above timer
-  // granularity); both workloads are warmed up (regexp/JIT tier-up), then sampled in alternation so
-  // they see the same load, and the minimum is kept because contention only ever adds time.
+  // Bounds are ratios between input sizes, never absolute milliseconds (those measure the machine).
+  // CI runs other packages' tests on the same cores, so a thread is preempted for whole scheduler
+  // quanta. Short windows bias the ratio: a window holding one long call is preempted more often than
+  // a window of many short calls, so a minimum over short windows penalises the big input. Hence:
+  // windows of the same 20 ms for both inputs (preemption then inflates both alike and cancels out in
+  // the ratio), sampled in alternation after a warm-up (regexp/JIT tier-up), median of the ratios.
+  // Sizes are chosen so the expected complexity and the one to reject differ by >= 8x.
+  const WINDOW_MS = 20;
   const perCall = (f: () => void): number => {
     let calls = 0;
     let elapsed = 0;
@@ -318,25 +322,26 @@ describe('H4/M3: CPU bounds', () => {
       f();
       calls += 1;
       elapsed = performance.now() - start;
-    } while (elapsed < 2);
+    } while (elapsed < WINDOW_MS);
     return elapsed / calls;
+  };
+  const median = (xs: number[]): number => {
+    const sorted = [...xs].sort((x, y) => x - y);
+    return sorted[Math.floor(sorted.length / 2)] ?? Infinity;
   };
   // Cost of `b` relative to `a`. A contention episode can last a whole measurement, so up to 3 spaced
   // measurements are taken and the lowest kept: a real complexity regression exceeds the bound every time.
   const compare = (a: () => void, b: () => void, bound: number): number => {
     let best = Infinity;
     for (let attempt = 0; attempt < 3 && best >= bound; attempt += 1) {
-      for (let i = 0; i < 3; i += 1) {
-        perCall(a);
-        perCall(b);
+      perCall(a);
+      perCall(b);
+      const ratios: number[] = [];
+      for (let i = 0; i < 5; i += 1) {
+        const costA = perCall(a);
+        ratios.push(perCall(b) / costA);
       }
-      let bestA = Infinity;
-      let bestB = Infinity;
-      for (let i = 0; i < 9; i += 1) {
-        bestA = Math.min(bestA, perCall(a));
-        bestB = Math.min(bestB, perCall(b));
-      }
-      best = Math.min(best, bestB / bestA);
+      best = Math.min(best, median(ratios));
     }
     return best;
   };
