@@ -28,7 +28,7 @@ Phase 0 exit criteria are unchanged (none depends on the deferred items).
 | S2 | `packages/config`: ESLint flat config with dependency-boundary rules, Prettier, Vitest presets (base 80 %, strict 90 %), fast-check, `Result` type | devops-sre | S1 | Tests first: Result unit + property tests; fixture packages that must fail boundary lint (service→service import, game-engine→IO) and coverage floor; `pnpm turbo run lint typecheck test --filter=@codelex/config` green, coverage ≥ 90 % | M | done |
 | S3 | Minimal `packages/observability`: JSON logger with redaction (pino dropped after review) (tokens, emails, receipts), no OTel exporter yet | devops-sre | S2 | Test proves redaction of token/email/receipt fields; strict preset coverage ≥ 80 %; README with owner and API | S | done |
 | S4 | CI hardening: gitleaks (full history on main, diff on PR) + CodeQL JS/TS, coverage enforced via presets | devops-sre, security-engineer | — | Scans added as steps of existing required jobs or as non-required jobs (changing required checks = human admin action); a planted fake secret fails CI on a test branch | S | done |
-| S5 | Update `/scaffold` to wire `@codelex/config` + `@codelex/observability`; golden-path CI job scaffolds a throwaway package | devops-sre | S2, S3 | Timed CI job: scaffold + lint + typecheck + test green in < 10 min; skill text matches reality (`pnpm framework:validate` green) | M | in_review |
+| S5 | Update `/scaffold` to wire `@codelex/config` + `@codelex/observability`; golden-path CI job scaffolds a throwaway package | devops-sre | S2, S3 | Timed CI job: scaffold + lint + typecheck + test green in < 10 min; skill text matches reality (`pnpm framework:validate` green) | M | done |
 | S6 | Roadmap update: move E-0.3 and deferred E-0.5 parts to Phase 2, mark E-0.2/E-0.4/E-0.5 status | solution-architect | human approval ✔ | `docs/roadmap/ROADMAP.md` reflects the approved scope; framework validator green | S | done |
 | S7 | Phase 0 exit check | qa-engineer | S1–S6 | main green; `pnpm validate` passes; scaffold timing recorded in this file; Phase 0 marked done | S | todo |
 
@@ -50,7 +50,8 @@ Phase 0 exit criteria are unchanged (none depends on the deferred items).
   (packages and services; apps deferred to E-1.4/E-1.5); CI job "Scaffold golden path (timed)" scaffolds a throwaway
   package + service (+ `packages/game-engine` while absent) and fails over 600 s. Purity lint scoped to shipped
   game-engine code (tests and tooling configs exempt, determinism still applies). Local measurement: scaffold → install → lint/typecheck/format/test green in
-  14 s; S5 moves to done once the first CI timing is recorded here.
+  14 s; CI timing (PR #10, run 37006775807): checkout → scaffold (probe package, strict service, game-engine) →
+  install → lint/typecheck/format/test green in **39 s** (budget 600 s). S5 done.
 
 ## Deferred (recorded)
 Local stack (E-0.3), `packages/protocol` + ADR-0011, OTel exporters/collector, bundle budgets, event registry,
