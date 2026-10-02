@@ -132,6 +132,9 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       'packages/game-engine/src/clean-date-with-argument.ts',
       'packages/game-engine/src/clean-tooling.config.ts',
       'packages/game-engine/src/clean-tooling-import.test.ts',
+      'packages/game-engine/src/clean-allowed-apis.ts',
+      'packages/game-engine/src/clean-test-only-apis.test.ts',
+      'packages/bots/src/clean-integer-bot.ts',
       'services/svc-a/src/clean.ts',
       'services/svc-a/src/helper.ts',
       'services/svc-a/src/clean-game-engine.ts',
@@ -207,6 +210,62 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
         'no-restricted-properties',
       ],
       ['Math.random in bots', 'packages/bots/src/bad-math-random.ts', 'no-restricted-properties'],
+    ])('%s FAILS', async (_name, file, rule) => {
+      expect(await ruleIds(file)).toContain(rule);
+    });
+  });
+
+  describe('ADR-0013 §D4 bans (engine and bots)', () => {
+    const E = 'packages/game-engine/src/';
+    const B = 'packages/bots/src/';
+    const SYNTAX = 'no-restricted-syntax';
+    const PROPS = 'no-restricted-properties';
+    const GLOBALS = 'no-restricted-globals';
+    it.each([
+      ['BigInt literal', `${E}bad-bigint-literal.ts`, SYNTAX],
+      ['BigInt() call', `${E}bad-bigint-call.ts`, GLOBALS],
+      ['bigint type', `${E}bad-bigint-type.ts`, SYNTAX],
+      [
+        'BigInt literal in a tooling config (not a test)',
+        `${E}bad-bigint-in-config.config.ts`,
+        SYNTAX,
+      ],
+      ['Intl.*', `${E}bad-intl.ts`, GLOBALS],
+      ['localeCompare', `${E}bad-locale-compare.ts`, SYNTAX],
+      ['toLocaleString', `${E}bad-to-locale-string.ts`, SYNTAX],
+      ['toLocaleUpperCase', `${E}bad-to-locale-upper.ts`, SYNTAX],
+      ['String.prototype.normalize', `${E}bad-normalize.ts`, SYNTAX],
+      ['sort() without comparator', `${E}bad-sort-no-comparator.ts`, SYNTAX],
+      ['toSorted() without comparator', `${E}bad-to-sorted-no-comparator.ts`, SYNTAX],
+      ['TextEncoder', `${E}bad-text-encoder.ts`, GLOBALS],
+      ['TextDecoder', `${E}bad-text-decoder.ts`, GLOBALS],
+      ['Math.sqrt', `${E}bad-math-sqrt.ts`, PROPS],
+      ['Math.pow', `${E}bad-math-pow.ts`, PROPS],
+      ['Math.exp', `${E}bad-math-exp.ts`, PROPS],
+      ['Math.log', `${E}bad-math-log.ts`, PROPS],
+      ['Math trigonometry', `${E}bad-math-trig.ts`, PROPS],
+      ['Math.PI', `${E}bad-math-pi.ts`, PROPS],
+      ['** on a non-literal operand', `${E}bad-exponent-operator.ts`, SYNTAX],
+      ['fractional literal 0.5', `${E}bad-fractional-literal.ts`, SYNTAX],
+      ['fractional literal .6', `${E}bad-fractional-literal-leading-dot.ts`, SYNTAX],
+      ['negative-exponent literal 1e-3', `${E}bad-negative-exponent-literal.ts`, SYNTAX],
+      ['async function', `${E}bad-async-function.ts`, SYNTAX],
+      ['await', `${E}bad-await.ts`, SYNTAX],
+      ['Promise', `${E}bad-promise.ts`, GLOBALS],
+      ['JSON.stringify', `${E}bad-json-stringify.ts`, PROPS],
+      ['localeCompare in a game-engine test', `${E}bad-locale-compare-in-test.test.ts`, SYNTAX],
+      [
+        'sort() without comparator in a game-engine test',
+        `${E}bad-sort-no-comparator-in-test.test.ts`,
+        SYNTAX,
+      ],
+      ['Intl in bots', `${B}bad-intl.ts`, GLOBALS],
+      ['sort() without comparator in bots', `${B}bad-sort-no-comparator.ts`, SYNTAX],
+      ['localeCompare in bots', `${B}bad-locale-compare.ts`, SYNTAX],
+      ['Math.sqrt in bots', `${B}bad-math-sqrt.ts`, PROPS],
+      ['fractional literal in bots', `${B}bad-fractional-literal.ts`, SYNTAX],
+      ['BigInt literal in bots', `${B}bad-bigint-literal.ts`, SYNTAX],
+      ['async function in bots', `${B}bad-async-function.ts`, SYNTAX],
     ])('%s FAILS', async (_name, file, rule) => {
       expect(await ruleIds(file)).toContain(rule);
     });

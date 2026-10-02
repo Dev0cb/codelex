@@ -32,6 +32,8 @@ It is where `docs/standards/ENGINEERING.md` §1–§3 become executable.
   `new Date(...spread)`, `Date()`, `Math.random`, `crypto.randomUUID`, `crypto.getRandomValues`,
   `performance.now`; aliasing (`const M = Math`, `const { random } = Math`), computed access on those objects, and
   `globalThis` / `global` / `self` / `window` are errors.
+- ADR-0013 §D4 bans (all in the determinism block, so engine and bots, tests and tooling configs included unless
+  stated; see the decision table below).
 - Purity in `packages/game-engine`: an import allow-list (`codelex/pure-imports`): relative imports,
   `@codelex/lexicon` and `@codelex/config/result` only. Test files and tooling configs (`*.config.*`) are exempt
   from the purity rules (they import Vitest, fast-check and `@codelex/config`) but not from determinism. It covers static imports, re-exports, `import()`,
@@ -41,6 +43,41 @@ It is where `docs/standards/ENGINEERING.md` §1–§3 become executable.
   location of `eslint.config.js` (per-package config run by turbo, or a single root config).
 - Not yet available: the `react: 'expo' | 'next'` option of the design note. It is deferred until the first app is
   scaffolded (S5+), when `eslint-config-expo` / `@next/eslint-plugin-next` are added.
+
+### ADR-0013 §D4 lint decisions
+
+Every item of §D4.1-2 marked (L) is enforced; the rest of §D4 (3 total-order comparators, 4 iteration order,
+5 ASCII data, 6-8 bots/recursion) is not statically decidable and stays with tests and review.
+"Shipped" means files that are not tests (`*.test.*`, `test/**`); tooling configs count as shipped for
+determinism. Purity (engine only) keeps its own scope: import allow-list and IO globals. No §D4 item is a purity
+item: they all make results differ between runtimes (Node, Hermes) and therefore belong to determinism, which also
+covers `packages/bots`.
+
+| Ban                                                                                                                                                                                                                        | Scope                               | Rule                       |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------- |
+| `Intl`, `TextEncoder`, `TextDecoder`, `Promise` (global, value or type)                                                                                                                                                    | engine + bots, tests                | `no-restricted-globals`    |
+| `BigInt`, `BigInt64Array`, `BigUint64Array`, `1n` literals, `bigint` type                                                                                                                                                  | shipped only (ADR: "outside tests") | globals / syntax           |
+| `localeCompare`, `toLocale*` (also `x['toLocaleString']`), `.normalize()`                                                                                                                                                  | engine + bots, tests                | `no-restricted-syntax`     |
+| `sort()` / `toSorted()` with no argument or `undefined`                                                                                                                                                                    | engine + bots, tests                | `no-restricted-syntax`     |
+| `async` functions, `await`, `for await`, `import()`                                                                                                                                                                        | engine + bots, tests                | `no-restricted-syntax`     |
+| `Math.pow sqrt cbrt hypot exp expm1 log log1p log2 log10 sin cos tan asin acos atan atan2 sinh cosh tanh asinh acosh atanh fround`, `Math.PI E LN2 LN10 LOG2E LOG10E SQRT2 SQRT1_2`, `Number.EPSILON`, `Number.parseFloat` | engine + bots, tests                | `no-restricted-properties` |
+| `**` / `**=` unless both operands are literals (`2 ** 29` is fine, `x ** 2` is not)                                                                                                                                        | engine + bots, tests                | `no-restricted-syntax`     |
+| Fractional numeric literals (`0.5`, `.5`, `1e-3`; hex/octal/binary and `1e3` are integers)                                                                                                                                 | shipped only                        | `no-restricted-syntax`     |
+| `JSON.stringify`                                                                                                                                                                                                           | shipped only                        | `no-restricted-properties` |
+
+Decisions and limits:
+
+- **Tests are exempt** from BigInt (ADR text), fractional literals (tests probe rejection of `1.5`, `0.5`) and
+  `JSON.stringify` (comparison in assertions). The ADR bans `JSON.stringify` only "for anything hashed or compared",
+  which a linter cannot see, so shipped code is banned wholesale: hashed content goes through the canonical serialiser.
+- `**` cannot be proved integer-only statically, so the rule is conservative: only literal-to-literal is accepted.
+  Allow-list a justified use narrowly with `// eslint-disable-next-line no-restricted-syntax -- <reason>`.
+- `sort()` detection is syntactic (any `.sort()` / `.toSorted()` call with zero arguments, including on typed arrays,
+  where the numeric default is deterministic: pass a comparator anyway). Comparator totality is a review/test matter.
+- `Math.floor`, `Math.imul`, `Math.min/max/abs/trunc/sign/clz32` and `/` stay allowed (exact integer division is
+  written `Math.floor(a / b)` with operands < 2^26, ADR §D4.1).
+- Not linted: §D4.5 regex `i`/`u` flags (only banned "on game data", which is not identifiable) and `Map`/`Set`
+  iteration order.
 
 ### Coverage rules
 

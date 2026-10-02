@@ -212,6 +212,85 @@ const IO_GLOBALS = [
 /** Allow-list of module specifiers (besides relative imports) for game-engine. */
 const GAME_ENGINE_ALLOWED_IMPORTS = ['^@codelex/lexicon(/.*)?$', '^@codelex/config/result$'];
 
+/** ADR-0013 §D4.2: banned globals in every deterministic file (shipped code and tests). */
+const DETERMINISM_GLOBALS = [
+  ['Intl', 'Intl is locale- and ICU-dependent (ADR-0013 §D4.2): compare by code unit.'],
+  [
+    'TextEncoder',
+    'TextEncoder is not available on every runtime (Hermes): encode ASCII by hand (ADR-0013 §D3, §D4.2).',
+  ],
+  ['TextDecoder', 'TextDecoder is not available on every runtime (Hermes): ADR-0013 §D3, §D4.2.'],
+  ['Promise', 'Async code is banned in the engine and bots (ADR-0013 §D4.2): stay synchronous.'],
+].map(([name, message]) => ({ name: name ?? '', message }));
+
+/** ADR-0013 §D4.2: `BigInt` is banned "outside tests"; these apply to shipped code only. */
+const BIGINT_GLOBALS = ['BigInt', 'BigInt64Array', 'BigUint64Array'].map((name) => ({
+  name,
+  message: 'BigInt is banned outside tests (ADR-0013 §D4.2): use safe integers (< 2^53).',
+}));
+
+/** Transcendental / float-producing Math members (ADR-0013 §D4.1-2); `Math.floor`, `imul`, ... stay allowed. */
+const BANNED_MATH_FUNCTIONS = [
+  'pow',
+  'sqrt',
+  'cbrt',
+  'hypot',
+  'exp',
+  'expm1',
+  'log',
+  'log1p',
+  'log2',
+  'log10',
+  'sin',
+  'cos',
+  'tan',
+  'asin',
+  'acos',
+  'atan',
+  'atan2',
+  'sinh',
+  'cosh',
+  'tanh',
+  'asinh',
+  'acosh',
+  'atanh',
+  'fround',
+];
+const BANNED_MATH_CONSTANTS = ['PI', 'E', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'SQRT2', 'SQRT1_2'];
+
+const FLOAT_PROPERTIES = [
+  ...BANNED_MATH_FUNCTIONS.map((property) => ({
+    object: 'Math',
+    property,
+    message: `Math.${property} is float-producing / implementation-defined (ADR-0013 §D4.2): use integer arithmetic.`,
+  })),
+  ...BANNED_MATH_CONSTANTS.map((property) => ({
+    object: 'Math',
+    property,
+    message: `Math.${property} is a float constant (ADR-0013 §D4.1): integers only.`,
+  })),
+  {
+    object: 'Number',
+    property: 'EPSILON',
+    message: 'Floats are banned (ADR-0013 §D4.1): integers only.',
+  },
+  {
+    object: 'Number',
+    property: 'parseFloat',
+    message: 'Floats are banned (ADR-0013 §D4.1): parse integers explicitly.',
+  },
+];
+
+/** Shipped code only (tests may use JSON.stringify to compare). ADR-0013 §D4.2: use the canonical serialiser. */
+const SHIPPED_PROPERTIES = [
+  {
+    object: 'JSON',
+    property: 'stringify',
+    message:
+      'JSON.stringify key order and number format are not canonical (ADR-0013 §D3, §D4.2): use the canonical serialiser.',
+  },
+];
+
 const NON_DETERMINISTIC_OBJECTS = '(Math|crypto|performance)';
 
 const DETERMINISM_SELECTORS = [
@@ -243,6 +322,75 @@ const DETERMINISM_SELECTORS = [
     selector: `MemberExpression[computed=true][object.name=/^(Date|${NON_DETERMINISTIC_OBJECTS.slice(1)}$/][property.type!='Literal']`,
     message:
       'Computed access on Date/Math/crypto/performance hides banned members (ENGINEERING §3).',
+  },
+];
+
+const LOCALE_MESSAGE =
+  'Locale-dependent (ADR-0013 §D4.2): compare strings by code unit (a < b ? -1 : a > b ? 1 : 0).';
+
+/** ADR-0013 §D4.1-3: selectors that apply to every deterministic file (shipped code and tests). */
+const ADR_D4_SELECTORS = [
+  {
+    selector: 'MemberExpression[computed=false][property.name=/^(localeCompare|toLocale.*)$/]',
+    message: LOCALE_MESSAGE,
+  },
+  {
+    selector: 'MemberExpression[computed=true][property.value=/^(localeCompare|toLocale.*)$/]',
+    message: LOCALE_MESSAGE,
+  },
+  {
+    selector: "CallExpression[callee.property.name='normalize']",
+    message:
+      'String.prototype.normalize depends on Unicode tables (ADR-0013 §D4.2): engine data is ASCII.',
+  },
+  {
+    selector: 'CallExpression[callee.property.name=/^(sort|toSorted)$/][arguments.length=0]',
+    message:
+      'sort() without a comparator orders by UTF-16 string conversion (ADR-0013 §D4.2-3): pass a total-order comparator.',
+  },
+  {
+    selector:
+      "CallExpression[callee.property.name=/^(sort|toSorted)$/][arguments.0.type='Identifier'][arguments.0.name='undefined']",
+    message: 'sort(undefined) is sort() (ADR-0013 §D4.2-3): pass a total-order comparator.',
+  },
+  {
+    selector: "BinaryExpression[operator='**']:not([left.type='Literal'][right.type='Literal'])",
+    message:
+      '`**` is allowed only between integer literals (ADR-0013 §D4.2): use integer multiplication or a lookup table.',
+  },
+  {
+    selector: "AssignmentExpression[operator='**=']",
+    message: '`**=` is banned (ADR-0013 §D4.2): use integer multiplication.',
+  },
+  {
+    selector:
+      'FunctionDeclaration[async=true], FunctionExpression[async=true], ArrowFunctionExpression[async=true]',
+    message: 'async functions are banned in the engine and bots (ADR-0013 §D4.2).',
+  },
+  {
+    selector: 'AwaitExpression, ForOfStatement[await=true]',
+    message: 'await is banned in the engine and bots (ADR-0013 §D4.2).',
+  },
+  {
+    selector: 'ImportExpression',
+    message: 'Dynamic import() is async (ADR-0013 §D4.2): use static imports.',
+  },
+];
+
+/** Shipped code only: tests probe invalid inputs (fractional values) and cross-check with BigInt oracles. */
+const SHIPPED_SELECTORS = [
+  {
+    selector: 'Literal[bigint]',
+    message: 'BigInt literals are banned outside tests (ADR-0013 §D4.2): use safe integers.',
+  },
+  {
+    selector: 'TSBigIntKeyword',
+    message: 'bigint is banned outside tests (ADR-0013 §D4.2): use safe integers.',
+  },
+  {
+    selector: 'Literal[raw=/^(?!0[xXbBoO])(\\d*\\.|\\d+[eE]-)/]',
+    message:
+      'Fractional numeric literals are banned in engine source (ADR-0013 §D4.1): use rationals, floorDiv(a * num, den).',
   },
 ];
 
@@ -286,9 +434,36 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       basePath,
       files: DETERMINISTIC_FILES,
       rules: {
-        'no-restricted-properties': ['error', ...DETERMINISM_PROPERTIES],
-        'no-restricted-syntax': ['error', ...DETERMINISM_SELECTORS],
-        'no-restricted-globals': ['error', ...GLOBAL_OBJECTS],
+        'no-restricted-properties': ['error', ...DETERMINISM_PROPERTIES, ...FLOAT_PROPERTIES],
+        'no-restricted-syntax': ['error', ...DETERMINISM_SELECTORS, ...ADR_D4_SELECTORS],
+        'no-restricted-globals': ['error', ...GLOBAL_OBJECTS, ...DETERMINISM_GLOBALS],
+      },
+    },
+    {
+      // Shipped code (not tests): BigInt, fractional literals and JSON.stringify are banned as well.
+      // These rule entries replace the ones above, so they repeat them.
+      basePath,
+      files: DETERMINISTIC_FILES,
+      ignores: TEST_FILES,
+      rules: {
+        'no-restricted-properties': [
+          'error',
+          ...DETERMINISM_PROPERTIES,
+          ...FLOAT_PROPERTIES,
+          ...SHIPPED_PROPERTIES,
+        ],
+        'no-restricted-syntax': [
+          'error',
+          ...DETERMINISM_SELECTORS,
+          ...ADR_D4_SELECTORS,
+          ...SHIPPED_SELECTORS,
+        ],
+        'no-restricted-globals': [
+          'error',
+          ...GLOBAL_OBJECTS,
+          ...DETERMINISM_GLOBALS,
+          ...BIGINT_GLOBALS,
+        ],
       },
     },
     {
@@ -298,7 +473,13 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
       rules: {
         'codelex/pure-imports': ['error', { allow: GAME_ENGINE_ALLOWED_IMPORTS }],
-        'no-restricted-globals': ['error', ...GLOBAL_OBJECTS, ...IO_GLOBALS],
+        'no-restricted-globals': [
+          'error',
+          ...GLOBAL_OBJECTS,
+          ...DETERMINISM_GLOBALS,
+          ...BIGINT_GLOBALS,
+          ...IO_GLOBALS,
+        ],
       },
     },
   );
