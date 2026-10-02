@@ -57,18 +57,20 @@ decision below is reversible unless an ADR says otherwise.
 | D1 | ADR-0013 Determinism and replay contract | solution-architect, game-engine-engineer | — | ADR accepted with RNG algorithm, stream derivation, action-log schema, state hash, `engineRulesVersion` policy; golden-vector format defined; open questions Q-G1–G4, Q-A1, Q-H3 of the lexicon-index note closed | S | done |
 | D2 | `/feature-spec` E-1.7 playtest lexicon and inflections | product-strategist, lexicon-curator, game-designer | — | Spec Ready for design: inflection kinds, authoring rules, scoring of inflected forms, ≥ 2,000 forms / ≥ 30 two-letter target, content plan by batch, validator rules (global uniqueness, blocklist, regex) | M | done |
 | D3 | Classic premium layout (A-02) and frozen default letter table | game-designer | — | `GAME_RULES.md` / `BALANCE.md` give the 15×15 premium layout and the frozen letter values/bag for `engineRulesVersion` 1; scoring golden cases written | S | done |
-| D4 | Game-engine API note | game-engine-engineer | D1 | `docs/architecture/notes/game-engine-api.md`: `MatchConfig`, `MatchState`, `Action`, `Rejection`, `MatchEvent`, `Observation`, `ScoreBreakdown`, function signatures; reviewed by solution-architect and ai-engineer | S | todo |
-| L1 | Canonical `lexiconVersion` (RFC 8785) and schema v2 with `inflections` | lexicon-engineer | D2 | Schema v2 + validator (uniqueness across forms and inflections, blocklist, regex); `lexiconVersion` stable across key order/whitespace (property test); LEXICON_SPEC updated; existing seed migrated | M | todo |
+| D4 | Game-engine API note | game-engine-engineer | D1 | `docs/architecture/notes/game-engine-api.md`: `MatchConfig`, `MatchState`, `Action`, `Rejection`, `MatchEvent`, `Observation`, `ScoreBreakdown`, function signatures; reviewed by solution-architect and ai-engineer | S | done |
+| L1 | Canonical `lexiconVersion` (RFC 8785) and schema v2 with `inflections` | lexicon-engineer | D2 | Schema v2 + validator (uniqueness across forms and inflections, blocklist, regex); `lexiconVersion` stable across key order/whitespace (property test); LEXICON_SPEC updated; existing seed migrated | M | done |
 | L2 | Lexicon package to TypeScript and `@codelex/lexicon/index` types (`FormRef`/`TermRef`) | lexicon-engineer | D4 | Package builds with `@codelex/config` presets; `LexiconIndex`, `Gaddag`, errors and `decodeLexiconIndex` signatures exported; `pnpm lexicon:validate` unchanged | M | todo |
 | L3 | Reference `LexiconIndex` (Set/Map) and its contract tests | lexicon-engineer | L1, L2 | `T-COMPLETE`, `T-SOUND`, `T-ORACLE` green on the seed; usable by engine tests | S | todo |
-| E1 | Scaffold `packages/game-engine` and RNG with golden vectors | game-engine-engineer | D1 | Scaffolded with `/scaffold` (strict preset); xoshiro128** + stream derivation match ADR-0013 golden vectors; determinism lint green | S | todo |
+| E1 | Scaffold `packages/game-engine` and RNG with golden vectors | game-engine-engineer | D1 | Scaffolded with `/scaffold` (strict preset); xoshiro128** + stream derivation match ADR-0013 golden vectors; determinism lint green | S | done |
 | E2 | Board, bag, placement and validation (test-first) | game-engine-engineer | E1, D3, L3 | R-BOARD-*, R-BAG-*, R-TURN-* properties from RULE_PROPERTIES pass; rejection reasons typed | L | todo |
 | E3 | Classic scoring and end rules (test-first) | game-engine-engineer | E2, D3 | R-SCORE-*, R-END-* properties and all golden cases pass; `ScoreBreakdown` matches the API note | M | todo |
 | E4 | `apply` / `observe` / `stateHash` / `replay` and full-match property | game-engine-engineer | E3 | ≥ 1,000 seeded matches replay to identical hashes; 0 conservation violations; `P-GLOBAL-01..08` green; coverage ≥ 90 % | M | todo |
 | C1 | Lexicon content batch 1 | lexicon-curator | L1 | ≥ 800 playable forms incl. ≥ 30 two-letter forms, EN/FR definitions, validator green | L | todo |
 | L4 | DAWG build and binary codec (T5), size gate; GADDAG (T6) if capacity | lexicon-engineer | L3 | Byte-identical builds; `has()` < 5 µs on Node; index size gate in CI; decoder fuzz test | L | todo |
-| U1 | E-1.5 design spec (flows, board, summary, Knowledge Card) | ux-ui-designer | — | `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md` covers every AC with screens, states, EN/FR copy, a11y | M | todo |
+| U1 | E-1.5 design spec (flows, board, summary, Knowledge Card) | ux-ui-designer | — | `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md` covers every AC with screens, states, EN/FR copy, a11y | M | done |
 | B1 | Bots: random-legal + Beginner + simulator CLI (stretch) | ai-engineer | E4, L4 | `/scaffold packages/bots`; deterministic under seed; simulator reports the stretch metrics on the current lexicon | M | todo |
+| E1b | JCS (RFC 8785) serialiser in the engine + ADR-0013 `jcs.json` vector | game-engine-engineer | E1 | Pure-TS JCS subset, differential test vs a reference implementation, A.3 vector green; folded into E4 if simpler | S | todo |
+| T1 | Extend the determinism lint to every API ADR-0013 §D4 bans (BigInt, Intl, `localeCompare`, sort without comparator, `TextEncoder`, `Math.sqrt/exp/log`, async in engine) | devops-sre | E1 | `bad-*` fixtures fail for each; game-engine and bots lint stays green | S | todo |
 | Q1 | Sprint exit check | qa-engineer | E4, L4, C1 | Success indicators measured and recorded here; main green; `pnpm validate` passes | S | todo |
 
 **Start in parallel:** D1 (ADR-0013), D2 (E-1.7 spec) and D3 (premium layout + letter table); U1 can run alongside.
@@ -82,6 +84,11 @@ decision below is reversible unless an ADR says otherwise.
 - `FormRef`/`TermRef` split touches every lexicon consumer: fixed in L2, not later.
 
 ## Decisions log
+- 2026-10-02 — E1: `@codelex/game-engine` scaffolded; RNG + pure-TS SHA-256 match ADR-0013 Appendix A bit for bit
+  (100 % coverage, code review approved with nits, fixed). D4: engine API note merged. U1: E-1.5 design spec merged.
+- 2026-10-02 — L1: schema v2 (`inflections`), validator type-checks every hashed field, canonical `lexiconVersion`
+  `2f2cc6fca8fac92b` + `cardsVersion` `5269bb253564e5c7` (unchanged by the v1→v2 migration); blocklist entries are
+  diacritic-folded and must match `^[A-Z]{2,15}$` after folding.
 - 2026-10-02 — D1: ADR-0013 accepted (xoshiro128**, SHA-256 stream derivation, action log v1, state hash,
   `engineRulesVersion`); lexicon-index note Q-G1–G4, Q-A1, Q-H3 resolved.
 - 2026-10-02 — D2: E-1.7 spec Ready for design (curated inflections, canonical-term resolution, 3 content batches).
