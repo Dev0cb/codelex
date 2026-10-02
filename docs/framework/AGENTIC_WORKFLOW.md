@@ -56,8 +56,10 @@ missing packages/services are created with `/scaffold`.
 | CI | `.github/workflows/ci.yml` | validators, tests, scans on every PR |
 | Review | `/review` multi-agent | independent findings, verified before acting |
 
-Hook limits: `guard-bash` matches command text with patterns (heredoc bodies ignored). It is a safety net
-against mistakes, not a sandbox; cloud credentials and branch protection remain the real controls.
+Hook limits: `guard-bash` checks each command separately (split on unquoted `;`, `&&`, `||`, `|`) and ignores quoted
+text only for pure-data commands (`echo`, `printf`, `grep`, `git commit -m`) and heredoc bodies; executed text
+(`bash -c`, `eval`, `psql -c`) is still checked. It is a safety net against mistakes, not a sandbox; cloud
+credentials and branch protection remain the real controls.
 
 ## 5. Extending the framework
 - New agent: add `.claude/agents/<name>.md` (frontmatter `name`, `description` ≥ 40 chars, `tools`, `model`), add it

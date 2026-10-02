@@ -24,7 +24,7 @@ de construire CODELEX de bout en bout — du game design à la production — av
 | Roadmap | `docs/roadmap/ROADMAP.md` | Phases 0 → 6, épics, critères de sortie mesurables |
 | Game design | `docs/game/` | Règles (IDs testables `R-…`), équilibrage, spécification du lexicon, progression |
 | Standards | `docs/standards/` | Ingénierie, Definition of Done, tests, production readiness, catalogue analytics |
-| Lexicon seed | `packages/lexicon/` | Schéma JSON, formules, validateur, 108 termes EN/FR sur 9 catégories, graphe de relations |
+| Lexicon seed | `packages/lexicon/` | Schéma JSON, formules, validateur, 319 termes EN/FR sur 9 catégories, graphe de relations |
 | Auto-validation | `tools/framework/` | Valide agents/skills/hooks/références croisées ; tests des hooks |
 | CI | `.github/workflows/ci.yml` | Validation framework + lexicon, lint/typecheck/test des paquets affectés, audit des dépendances |
 
@@ -70,13 +70,13 @@ marqué `LEGAL_REVIEW_REQUIRED`.
 Voir `docs/framework/AGENTIC_WORKFLOW.md` §5. Toute modification sous `.claude/` est revalidée automatiquement par
 le hook post-édition et en CI (`pnpm framework:validate`).
 
-Limite connue : `guard-bash` filtre par motifs le texte des commandes (corps de heredoc ignorés). C'est un filet de
-sécurité contre les erreurs, pas un bac à sable — la protection de branche GitHub et les droits cloud restent les
-vrais contrôles. Il peut produire de rares faux positifs (texte cité dans une chaîne) : écrire alors le fichier
-avec l'outil d'édition.
+Limite connue : `guard-bash` analyse chaque commande séparément (`;`, `&&`, `||`, `|`) et ignore le texte cité
+uniquement pour les commandes de pure donnée (`echo`, `printf`, `grep`, `git commit -m`, corps de heredoc). Le texte
+exécuté (`bash -c`, `eval`, `psql -c`…) reste contrôlé. C'est un filet de sécurité contre les erreurs, pas un bac à
+sable : la protection de branche GitHub et les droits cloud restent les vrais contrôles.
 
 ## 6. État
 
-Phase 0 (fondations) en cours : framework agentique ☑, CI ◐, lexicon seed ◐ (108/300 termes). Prochaine étape :
+Phase 0 (fondations) en cours : framework agentique ☑, CI ◐, lexicon seed ☑ (319 termes, 302 relations). Prochaine étape :
 `/sprint-plan` pour l'outillage monorepo (E-0.2), la stack locale (E-0.3) et `packages/protocol` (E-0.5), puis la
 Phase 1 — le moteur de jeu.
