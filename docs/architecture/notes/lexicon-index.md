@@ -319,7 +319,7 @@ times the size of the DAWG for the same lexicon; our small set shows ≈ 6×). A
 | JS heap after load (zero-copy views) | ≈ file size + < 0.1 MB | ≈ 0.6 MB | ≈ file size | — |
 | Load on low-end Android (read + sha256 + views) | < 50 ms | < 100 ms | 150–400 ms | ≤ 500 ms (E-1.5 assumption) |
 | `has()` server (Node/V8 JIT) | 0.05–0.3 µs | 0.05–0.3 µs | 0.05–0.3 µs (bounded by length ≤ 15, not size) | < 5 µs (ARCHITECTURE §5) |
-| `has()` device (Hermes interpreter) | 1–5 µs | 1–5 µs | 1–5 µs | proposed ≤ 20 µs p99 (Q-H1) |
+| `has()` device (Hermes interpreter) | 1–5 µs | 1–5 µs | 1–5 µs | ≤ 20 µs p99 (approved 2026-10-02) |
 | Full move generation, one rack, mid-game 15×15 (V8 / Hermes) | < 1 ms / < 20 ms | < 5 ms / < 100 ms | 10–50 ms / 0.2–1 s | Strategist compute p95 ≤ 2 s on device (E-1.5 AC-8) |
 | Build time (Node, CI) | < 0.5 s | < 1 s | < 10 s | — |
 
@@ -419,9 +419,13 @@ fail.
   (Gordon's arc-final variant) or a precomputed per-node remaining-length bound for pruning?
 - **Q-A2 (ai-engineer)** On mobile at large scale, is DAWG-only generation acceptable for Strategist within the
   2 s budget if the GADDAG section has to be dropped?
-- **Q-H1 (human / solution-architect)** The 5 µs NFR is assumed to be a **server** (Node) budget; proposed device
+- **Q-H1 — RESOLVED 2026-10-02:** product owner approved 5 µs as the server (Node) budget and ≤ 20 µs p99 on
+  the reference device. Original question:
+  **Q-H1 (human / solution-architect)** The 5 µs NFR is assumed to be a **server** (Node) budget; proposed device
   budget ≤ 20 µs p99 on the reference device. Approve, and approve using a Hermes CLI proxy in CI?
-- **Q-H2 (human / monetization-liveops / security-engineer)** Emergency removal of an offensive form from live
+- **Q-H2 — RESOLVED 2026-10-02:** new `lexiconVersion` + flag; live matches finish on their pinned version (see
+  LEXICON_SPEC §6). Original question:
+  **Q-H2 (human / monetization-liveops / security-engineer)** Emergency removal of an offensive form from live
   matches pinned to an old version: is "new version + flag, live matches finish on the old one" acceptable, or do
   we need a runtime deny-list overlay (which would break strict determinism of replays unless versioned too)?
 - **Q-H3 (lexicon-curator, game-designer)** Profile semantics: does `global-ranked` include season-tagged terms,

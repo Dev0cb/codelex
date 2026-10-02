@@ -38,7 +38,7 @@ Applies to all code. Enforced by lint, CI and the `code-reviewer` agent.
 - zod validation at every trust boundary; authz check in every use-case; tenant (`orgId`) scoping tested.
 - No PII/secrets/tokens in logs, traces, analytics, error messages or LLM prompts.
 - Dependencies: justify each new one in the PR (size, maintenance, license — allowlist: MIT, Apache-2.0, BSD,
-  ISC, MPL-2.0; anything else needs approval).
+  ISC, MPL-2.0, BlueOak-1.0.0 (approved 2026-10-02); anything else needs approval).
 
 ## 7. Observability
 - Logger from `@codelex/observability` (pino JSON). Levels: `error` (actionable), `warn`, `info` (business

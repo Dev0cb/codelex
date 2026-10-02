@@ -24,5 +24,12 @@ Owner: `game-designer`. Used by `/balance-check`.
 - Report mean ± 95% CI; use paired comparisons on shared seeds.
 - Simulation outputs saved to `packages/game-engine/sim-results/<date>-<variant>.json` (gitignored except summaries).
 
+## Board-size fallback (product owner decision, 2026-10-02)
+An 11×11 "Quick Classic" variant (~60-tile bag) is simulated alongside 15×15 and may ship behind a flag for the
+E-1.5 playtest **only if** the 15×15 simulation shows any of: > 10 % of games ending on scoreless turns
+(R-TURN-004), > 15 % of turns with no legal word, or the 20 most-played terms making up > 40 % of words played.
+It is never used for ranked play.
+
 ## Changelog
+- 0.2 — 2026-10-02 — Added the measured 11×11 fallback rule (product owner decision). Invariants unchanged.
 - 0.1 — Initial targets.
