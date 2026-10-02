@@ -275,7 +275,8 @@ files, and must reproduce the same version for the same content. No version has 
 changing the formula now costs nothing; after the first published version it would be a contract change.
 *Decided 2026-10-02 (ADR-0013 §D7):* the canonical document covers the playable content only (everything the
 index or the engine can observe); display-only content (definitions, `display`, `owner`, `sources`, category
-names) is excluded and versioned by the cards artefact's own content hash. Exact field list: task L1.
+names) is excluded and versioned by the cards artefact's own content hash. Exact field list: task L1 — done,
+see `docs/game/LEXICON_SPEC.md` §7 (`lexiconVersion` and `cardsVersion`, `scripts/canonical.mjs`).
 
 ### 4.2 Profiles
 - Definitions live in `packages/lexicon/data/profiles/<id>.json` (global, season) or in `services/knowledge`
