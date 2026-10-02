@@ -1,0 +1,483 @@
+# Classic match vs bot (offline, guest)
+
+- Epic: E-1.5 (depends on E-1.1, E-1.2, E-1.3, E-1.4; feeds E-1.6) · Vision refs: V-01, V-02, V-03, V-07, V-13, V-15 · Status: Draft
+- Owner: product-strategist · Last update: 2026-10-02
+- Next reviews: `game-designer` (rules, bot feel), `ux-ui-designer` (flows, FTUE, copy), then `data-analyst`,
+  `privacy-compliance`, `mobile-engineer`, `solution-architect` (see end of document).
+
+## Problem
+
+Phase 1 has one goal: **prove the fun** (ROADMAP Phase 1). We have a rules engine (E-1.1), a lexicon index (E-1.2),
+bots (E-1.3) and a design system (E-1.4), but no player can play yet. Without a complete, polished loop of
+PLAY → (score) → DISCOVER on a real phone, we cannot run the internal playtest that gates Phase 2. The exit criteria
+are:
+
+| Phase 1 exit criterion | Target | Measured by this feature? |
+|---|---|---|
+| Internal playtest | ≥ 30 players | Yes (distribution plan below) |
+| Median session length | ≥ 8 min | Yes (client analytics) |
+| "Would play again" | ≥ 70% | Yes (in-app one-tap survey + debrief) |
+| First-player win rate (Classic 1v1, equal bots) | ≤ 52% in simulation | No, gated by E-1.3 simulator / E-1.6 balance; this feature only consumes the calibrated config |
+| Crash-free sessions | ≥ 99.5% | Yes (Sentry) |
+
+Evidence today: none (no build exists). This spec is the vehicle that produces the first evidence.
+
+## Target players & context
+
+- Segment: internal playtesters standing in for **casual tech-curious players** (students, junior developers,
+  tech enthusiasts) and **competitive word-game players**. ASSUMPTION: the ≥ 30 testers are adults (≥ 18), recruited
+  from the team, friends-and-family and partner communities (e.g. a Dakar tech community, a French school), with at
+  least one third non-engineers so we do not only test on experts.
+- Device: iOS and Android phones; design target is a **mid-range/low-end Android on an intermittent or absent
+  network** (CLAUDE.md principle 6). ASSUMPTION: reference low-end device = Android 10+, 2–3 GB RAM, entry-level
+  SoC (Galaxy A0x class); final device chosen by `qa-engineer` + `mobile-engineer`. At least 30% of testers on
+  Android devices of that class.
+- Context: short sessions (commute, break) and longer couch sessions; frequent interruptions (calls,
+  notifications, app switches, OS process kills).
+- Locale: EN and FR at launch. Board letters are always A–Z (LEXICON_SPEC §2); UI and definitions follow the
+  device locale.
+- No account, no sign-in, no server for gameplay. Everything playable in airplane mode.
+
+## User stories
+
+1. As a first-time player, I want to tap PLAY NOW and be in a real match within a minute, without creating an
+   account or reading a tutorial, so that I discover the game by playing it.
+2. As a player, I want to place tiles to form technology terms on a Classic board and immediately see what they
+   scored and why (multipliers, term bonus, Full Stack, chain), so that I feel smart and learn the scoring by doing.
+3. As a player, I want an invalid word to be rejected clearly and without penalty, so that I can experiment
+   without frustration.
+4. As a player, I want a bot opponent that plays at a believable pace and in a recognisable style, so that the
+   match feels like a duel, not a puzzle against a machine.
+5. As a player who wants more challenge, I want to choose between Beginner Bot and Strategist, so that I can
+   match the opponent to my level and mood.
+6. As a player who gets interrupted, I want my match to be exactly where I left it when I come back (even after
+   the phone killed the app), so that I never lose progress.
+7. As a player at the end of a match, I want a clear summary (result, scores, best word, terms I played, terms new
+   to me) and a one-tap Play again, so that I want to start the next match.
+8. As a curious player, I want to optionally open a Knowledge Card for any term played in the match and hop to
+   related terms, so that I discover what KAFKA or KUBERNETES is without leaving the game feel.
+9. As a French-speaking player, I want the whole interface and the definitions in French, so that the game feels
+   made for me.
+10. As a player on a low-end Android phone, I want the board to stay smooth and the bot to answer quickly, so that
+    the game feels premium on my device.
+11. As a player who prefers not to share data, I want to be able to switch off playtest analytics, so that I stay in
+    control.
+12. As the product team, we want privacy-respecting, offline-buffered analytics and a one-tap "would play again"
+    answer, so that we can decide whether Phase 1 exit criteria are met.
+
+## Acceptance criteria
+
+Reference device = the low-end Android defined above unless stated. "Engine" = `packages/game-engine` (E-1.1);
+all rules are applied by the engine, never re-implemented in the app (CLAUDE.md principle 2).
+
+- **AC-1 First match within 60 s, no gate.** Given a fresh install with no account and no network, When the player
+  launches the app and taps PLAY NOW, Then a Classic 1v1 match vs Beginner Bot starts with no sign-up, consent
+  wall, age gate or tutorial screen in between, the board and rack are interactive ≤ 5 s after the tap on the
+  reference device, and the cold start to home screen is < 3 s (ARCHITECTURE §5). Human time-to-first-match
+  (first launch → first tile placed by the player or first bot move) has p50 ≤ 60 s in the playtest.
+- **AC-2 Fully offline.** Given the device is in airplane mode for the whole session, When the player completes a
+  match, views the summary and opens Knowledge Cards, Then every step works with no network error, spinner or
+  degraded copy, and analytics are buffered locally (AC-17).
+- **AC-3 Match setup.** Given a new match, When it is created, Then the engine is initialised with: Classic 15×15
+  board and premium layout (R-BOARD-001, R-BOARD-002, tech squares R-BOARD-003 as shipped by E-1.1), a bag seeded
+  from a 64-bit seed (R-CORE-001) with the frozen distribution, values and 2 blanks (R-BAG-001, R-BAG-002), 7-tile
+  hidden racks (R-BAG-003), the bundled `lexiconVersion` pinned to the match, Tech Powers disabled, and the
+  first player determined from the seed and announced ("You start" / "Strategist starts").
+- **AC-4 Valid move and score explanation.** Given it is the player's turn, When they place tiles that satisfy
+  R-TURN-002 and form only playable terms (R-TURN-003, R-CORE-003) and tap PLAY, Then the engine applies the move,
+  the score shown equals the engine score (R-SCORE-001, R-SCORE-002, R-SCORE-007), the breakdown shows each
+  applicable component (letter/word multipliers, term bonus R-SCORE-003, Full Stack R-SCORE-004, chain
+  R-SCORE-005 with the linked term, tech square R-BOARD-003), the rack is refilled from the bag (R-BAG-003) and
+  tile conservation holds (R-BAG-004).
+- **AC-5 Live preview (flagged).** Given `match.live_score_preview` is on, When the player has tentatively placed
+  tiles, Then the projected score is displayed only if the placement is geometrically legal (R-TURN-002), and
+  validity of the words is revealed only when PLAY is tapped. ASSUMPTION: no live "word is valid" indicator before
+  commit, to keep vocabulary central; `game-designer` to confirm.
+- **AC-6 Rejection without penalty.** Given the player taps PLAY with an illegal placement or a non-playable word,
+  When the engine rejects it, Then the game state is unchanged (R-TURN-003), the tiles stay where the player put
+  them for editing, a short reason is shown ("Not in the CODELEX lexicon: KUBECTL" / "Tiles must be in one line"),
+  no points or time are lost, and it is still the player's turn. ASSUMPTION: in vs-bot casual play a rejected
+  attempt does **not** count toward R-TURN-004 (see Open questions, Q-3).
+- **AC-7 Rack actions.** Given it is the player's turn, Then: Shuffle reorders the rack locally (no turn used);
+  Exchange is enabled only when the bag holds ≥ 7 tiles (R-TURN-001) and otherwise shows why it is disabled; Pass
+  asks for one confirmation; placing a blank opens an A–Z letter picker and the blank scores 0 (R-BAG-002); and
+  after six consecutive scoreless turns across both players the match ends (R-TURN-004).
+- **AC-8 Bot turn: pace and fairness.** Given it is the bot's turn, When the bot computes its move, Then a
+  "thinking" indicator is shown, the move is applied within a perceived delay of 1.2–4 s ⚙ (minimum delay so
+  the bot never feels instant; p95 total ≤ 4 s and compute p95 ≤ 2 s for Strategist on the reference device), the
+  bot only receives its legal observation (board, own rack, unseen-tile counts; never the player's rack or bag
+  order), its action goes through the same engine `apply` as the player's, and the UI stays responsive (player
+  can scroll the move log and inspect the board) while it thinks.
+- **AC-9 Bot personalities.** Given the player has completed their first match, When they open the opponent
+  selector from home, Then Beginner Bot and Strategist are offered with a one-line style description and the last
+  choice is remembered; Given `bots.<personality>.enabled` is off, Then that personality is hidden for new
+  matches while an in-progress match against it can still be finished.
+- **AC-10 End of match and summary.** Given the bag is empty and a player empties their rack, or R-TURN-004
+  triggers, or the player resigns (one confirmation; counts as a loss), When the match ends, Then final scores
+  apply R-SCORE-006 and R-SCORE-007, the result is Victory / Defeat / Draw (equal scores), and the summary shows:
+  final scores with rack adjustments, best word (highest scoring), all terms played by both sides as tappable
+  chips, a "New to you" count of terms played for the first time on this device, the bot's remaining rack, and
+  three actions: Play again (primary, same opponent), Change opponent, Home.
+- **AC-11 Interruption and resume.** Given a match in progress, When the app is backgrounded for any duration, the
+  OS kills the process, or the phone reboots, and the player returns, Then the match restores exactly (board,
+  both racks, scores, bag, whose turn, move log) with zero committed moves lost; uncommitted tiles on the board
+  return to the rack; if the bot was thinking, it recomputes and plays the same deterministic move. The match
+  state is persisted atomically after every applied action.
+- **AC-12 One match at a time.** Given an in-progress match exists, When the home screen is shown, Then a resume
+  card ("vs Strategist · Your turn · 142–128") is the primary action and PLAY NOW resumes it; starting a new match
+  requires confirming that the current one will be abandoned (recorded as abandoned, not as a loss).
+- **AC-13 Knowledge Card: post-play, optional, never blocking.** Given the summary is shown and
+  `knowledge_card.post_match.enabled` is on, When the player taps a term chip or "Discover the terms you
+  played", Then a Knowledge Card opens from local data in ≤ 300 ms showing display form, category (icon + colour),
+  difficulty, definition in the app locale (≤ 160 chars, LEXICON_SPEC §2) and up to 5 related terms; tapping a
+  related term opens its card and Back returns; one tap/swipe closes the card back to the summary. The card never
+  opens automatically, never appears before or during the player's first match, and Play again is always one tap
+  away. If the locale definition is missing, the EN definition is shown with a language tag; if the term has no
+  definition at all, its chip is not tappable (no error screen).
+- **AC-14 Knowledge Card kill switch.** Given `knowledge_card.post_match.enabled` is off, When a match ends, Then
+  term chips are displayed but not tappable, no card entry point is shown, and the summary and Play again work
+  unchanged.
+- **AC-15 Localisation.** Given the device locale is FR (or EN), Then every user-facing string comes from
+  `packages/i18n` catalogs (no hard-coded strings), definitions use the matching locale, numbers are
+  locale-formatted, and any other locale falls back to EN. Layouts tolerate +30% text length (FR) without
+  truncating actions.
+- **AC-16 Accessibility and one-hand play.** Given any device, Then tiles can be placed by tap-rack-tile then
+  tap-square (as well as drag), all tiles/squares/actions have screen-reader labels (e.g. "Triple word square,
+  row 8 column 8, empty"), every animation has a reduced-motion alternative, category colours are always paired
+  with an icon, and the summary and card remain usable at 200% system text size.
+- **AC-17 Analytics: consent, local buffer, no PII.** Given analytics consent is on, When events defined in
+  "Analytics & KPIs" occur, Then they are written to a persistent on-device queue (survives kill/reboot), uploaded
+  in batches only when a network is available, and deleted after a confirmed upload; the queue is capped
+  (ASSUMPTION: 5,000 events or 7 days, oldest dropped first, drop count reported); no event contains PII, free
+  text or device identifiers beyond the install-scoped pseudonymous id. Given consent is off, no event is recorded
+  or uploaded and any buffered events are deleted.
+- **AC-18 "Would play again" survey (flagged).** Given `playtest.survey.enabled` is on, When the player reaches the
+  summary of their 1st and 3rd completed match, Then a one-tap question "Would you play CODELEX again?"
+  (Yes / Maybe / No) appears inline below the result, is dismissible, is shown at most twice per install, and
+  never blocks Play again.
+- **AC-19 Remote config and kill switches offline.** Given the app starts, Then flags are read from the last
+  cached remote config, or from bundled defaults if none was ever fetched, and a fetch is attempted in the
+  background only if a network is available (never blocking play); Given `play_vs_bot.enabled` is off, Then PLAY
+  NOW shows "Matches are paused for an update — back soon" instead of starting a match, and an in-progress match
+  can still be resumed and finished.
+- **AC-20 Determinism and bug reports.** Given a saved match (seed, `lexiconVersion`, engine version, ordered
+  action log), When it is replayed through the engine, Then the final state hash equals the stored hash; and a
+  playtest-only "Send match log" action in Settings exports this data (no PII) for bug reports.
+
+## Non-goals
+
+- Online play of any kind: human vs human, matchmaking, realtime, spectating (Phase 2: E-2.3, E-2.4).
+- Ranked, rating, leaderboards, Daily CODELEX, tournaments (E-2.4, E-2.6, E-5.1). Local bot results are **never**
+  imported into ranked, rating or competitive history later.
+- Accounts, sign-in, guest → account upgrade, cloud save, cross-device sync, age gate (E-2.1).
+- Tech Powers (E-3.2), Arena (E-3.1), Blitz and any per-move clock (E-2.4), 2v2 and free-for-all.
+- XP, levels, technology profile, missions, achievements (E-2.5, E-3.3). The "New to you" count is local and
+  informational only.
+- Bots beyond Beginner and Strategist (E-3.5); hint system / AI Assist; Coach (E-4.3).
+- Full knowledge graph explorer (E-3.4); Knowledge Card during the match (left behind flag, off; see Q-6).
+- Store, purchases, ads, CODELEX+ or any monetisation surface (Phase 4). Nothing in this build can be bought.
+- Push notifications, sharing, social, profiles.
+- Tablet-optimised layouts and web. Landscape mode.
+
+### Decisions and trade-offs (impact × confidence ÷ effort)
+
+| Decision | Chosen | Rejected alternative | Why |
+|---|---|---|---|
+| Opponent at first launch | Beginner Bot, auto-selected | Opponent picker before first match | Picker costs seconds and a decision before any fun; AC-1 is the top FTUE lever |
+| Clock | Untimed for the player | 25 min live clock (R-MODE-CLASSIC-001) | No opponent waiting; timer adds anxiety and complexity for low value in a playtest |
+| Validity preview | Score preview on legal geometry, validity on commit | Live "valid word" indicator | Keeps vocabulary as the skill; reversible via flag |
+| Persistence | Action log + periodic snapshot | Snapshot only | Enables deterministic replays, bug repro and resume; small extra cost |
+| In-match Knowledge Card | Off (flag) | On | Related terms mid-match act as hints and distract; revisit with playtest data |
+| Match length | Full Classic | "Quick Classic" (smaller bag) | Do not invent a mode before measuring; median match length is an explicit KPI |
+
+## UX
+
+Design spec to be produced by `ux-ui-designer`: `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md`.
+
+### Flow
+
+```
+First launch ─► Splash (< 3 s) ─► Home (PLAY NOW) ─► Match vs Beginner Bot ─► Summary ─┬─► Play again ─► Match
+                    │                    ▲                                              ├─► Knowledge Card(s) ─► Summary
+                    │                    └──────────── Home ◄──────────────────────────┤
+                    └─ one-line playtest analytics notice (non-blocking, toggle in Settings)  └─► Change opponent ─► Match
+Later launches ─► Home: Resume card (if match in progress) │ PLAY NOW (last opponent) │ Opponent selector
+```
+
+- Home (V-02): logo, tagline, **PLAY NOW** as the dominant action; Classic is the only active mode. ASSUMPTION:
+  other modes (Battle, Blitz, Knowledge, Tournaments) are hidden in this build rather than shown as locked, to
+  avoid dead ends; `ux-ui-designer` decides.
+- FTUE: no tutorial wall. At most 3 contextual coach marks in the first match (place tiles; tap PLAY; your score
+  breakdown), each dismissible and never shown again. Each completed step emits `onboarding_step_completed`.
+- Match screen: board (Skia renderer, E-1.4), scores and bag count at top, move log, rack and actions in the thumb
+  zone (PLAY, Shuffle, Exchange, Pass, menu with Resign).
+- Summary: result, scores, best word, term chips, "New to you" count, Play again (primary), Change opponent, Home,
+  optional survey (AC-18).
+- Knowledge Card: bottom sheet over the summary; related terms as chips; back/close always visible.
+
+### States
+
+| State | Behaviour |
+|---|---|
+| Empty (first launch, no history) | Home shows PLAY NOW only; no stats or empty lists. |
+| Loading (cold start, lexicon index and engine init) | Branded splash; if > 3 s, a progress indicator; never a blank screen. |
+| Bot thinking | Animated indicator on the bot avatar; board remains scrollable; no input blocked except PLAY. |
+| Error: lexicon index missing/corrupt | Full-screen message "We could not load the CODELEX lexicon. Restart the app; if it persists, reinstall." + crash report; no partial play. |
+| Error: saved match unreadable or created with another `lexiconVersion`/engine version | Message "This match was saved with an older version and can't be resumed." + Start new match; event `bot_match_abandoned` reason `version_mismatch` or `state_corrupt`. |
+| Offline | Not a state: everything works. Remote config and analytics upload silently wait for a network. |
+| Backgrounded mid-match | Persist on every action; on return restore (AC-11). No "You were away" punishment of any kind. |
+| Low storage | If the state write fails, show a non-blocking warning "Low storage: your match may not be saved"; play continues. |
+| Low-end Android | Reduced particle effects by default on devices under a RAM threshold ⚙; target 60 fps drag, never below 30 fps; bot compute off the UI thread. |
+
+### Copy (EN / FR) — key strings, final copy by `ux-ui-designer`
+
+| Key | EN | FR |
+|---|---|---|
+| home.play_now | PLAY NOW | JOUER |
+| match.you_start | You start | Tu commences |
+| match.bot_starts | {bot} starts | {bot} commence |
+| match.your_turn | Your move | À toi de jouer |
+| match.bot_thinking | {bot} is thinking… | {bot} réfléchit… |
+| match.reject.not_in_lexicon | Not in the CODELEX lexicon: {word} | Absent du lexique CODELEX : {word} |
+| match.reject.placement | Tiles must be in one line and connected | Les lettres doivent être alignées et reliées |
+| summary.victory / defeat / draw | Victory / Defeat / Draw | Victoire / Défaite / Égalité |
+| summary.play_again | Play again | Rejouer |
+| summary.discover | Discover the terms you played | Découvre les termes joués |
+| summary.new_to_you | {count} new to you | {count} nouveaux pour toi |
+| home.resume | Resume vs {bot} | Reprendre contre {bot} |
+| survey.play_again | Would you play CODELEX again? | Rejouerais-tu à CODELEX ? |
+
+ASSUMPTION: FR uses informal "tu" consistent with a game tone; `ux-ui-designer` confirms.
+
+## Rules impact
+
+No rule is added or changed by this spec. The feature consumes Classic rules from `docs/game/GAME_RULES.md` v0.1
+through the engine. Requests to `game-designer` (to be resolved in GAME_RULES.md, not here):
+
+1. **Match end on going out**: R-SCORE-006 implies the match ends when the bag is empty and a player empties
+   their rack, but no rule ID states it. Request an explicit rule (e.g. `R-END-001`) so AC-10 can cite it.
+2. **First player**: no rule defines who starts. ASSUMPTION: seeded coin flip (R-CORE-001). Request a rule ID.
+3. **Rejected attempts vs R-TURN-004**: R-TURN-003 says the state is unchanged on rejection, R-TURN-004 counts
+   rejected attempts as scoreless turns. These conflict for casual play (Q-3).
+4. **Vs-bot Classic format**: R-MODE-CLASSIC-001 lists 24 h correspondence or 25 min live clock. Request an
+   "untimed vs bot" format (casual only, never ranked).
+5. Tech Powers: disabled in this format (casual Classic allows them per §7, but they are out of scope).
+
+## Analytics & KPIs
+
+### KPIs (mapped to Phase 1 exit criteria)
+
+| KPI | Type | Target | Source |
+|---|---|---|---|
+| "Would play again" = Yes | **Primary** (phase exit) | ≥ 70% of testers who answered (last answer per install) | `playtest_survey_answered` + debrief interviews |
+| Median session length | Exit | ≥ 8 min | `app_opened` + session envelope. ASSUMPTION: session ends after 30 min in background; length = foreground time |
+| Active playtesters | Exit | ≥ 30 installs with ≥ 1 completed match | `bot_match_finished` |
+| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | Sentry |
+| First-player win rate (simulation) | Exit (dependency) | ≤ 52% (B-01) | E-1.3 simulator / E-1.6 report, not this app |
+| Time-to-first-match | Secondary | p50 ≤ 60 s, p90 ≤ 120 s | `onboarding_step_completed` (`first_launch` → `first_move`) |
+| Match completion rate | Secondary | ≥ 65% of started matches finished (not abandoned) ⚙ | `bot_match_started` / `bot_match_finished` |
+| Matches completed per tester per week | Secondary | ≥ 3 ⚙ | `bot_match_finished` |
+| Play again rate (summary → new match) | Secondary | baseline | `match_summary_action` |
+| Knowledge Card open rate (post-match) | Secondary | baseline; ≥ 20% of completed matches with ≥ 1 card ⚙ | `knowledge_card_opened` |
+| Terms discovered per tester per week | Secondary | baseline | distinct `term_id` in `bot_word_played` (actor = player) |
+
+### Guardrails (halt or investigate if breached)
+
+| Guardrail | Threshold |
+|---|---|
+| Crash-free sessions | < 99.0% over any 24 h window → halt rollout stage |
+| ANR rate (Android) | > 0.47% of sessions (Play "bad behaviour" threshold) |
+| Resume failure (state lost or `state_corrupt`) | > 0.5% of resumes |
+| Engine/app score mismatch | any occurrence (score shown ≠ engine score; detected by state hash in AC-20) |
+| Bot response time | p95 > 4 s on reference device |
+| Rejected attempts per player turn | > 1.0 median (frustration / lexicon gap signal) |
+| Human win rate vs Beginner Bot | < 55% (too hard) ⚙ |
+| Human win rate vs Strategist | outside 20–50% ⚙ |
+| Resign rate | > 15% of matches ⚙ |
+| Knowledge Card dwell p50 | < 1 s (card opened by mistake) → UX review |
+
+### Events
+
+Client-side, buffered locally (AC-17). All events carry the standard envelope from
+`docs/standards/ANALYTICS_EVENTS.md` (`event_id`, `occurred_at`, `user_id`, `session_id`, `app_version`,
+`platform`, `locale`, `schema_version`); here `user_id` is an **install-scoped random UUID** generated on device
+(reset on reinstall). ASSUMPTION: add envelope field `uploaded_at` (set at flush) so analysts can measure buffering
+delay; `occurred_at` uses the device clock and is not trusted for ordering beyond a session.
+
+Reused from the catalogue (no change in meaning):
+
+| Event | Use here |
+|---|---|
+| `app_opened` | Cold/warm start, `cold_start_ms`, `network_type` (often `none`) |
+| `onboarding_step_completed` | `step` ∈ `first_launch`, `home_seen`, `play_now_tapped`, `first_move`, `coach_mark_<n>`, `first_match_completed` |
+| `knowledge_card_opened` | `source` = `post_match` (or `graph` when opened from a related term) |
+| `knowledge_graph_navigated` | Related-term tap inside a card |
+
+Not reused: `match_started`, `match_finished`, `word_played`, `term_discovered` are **server** events for
+competitive facts. Emitting them from an offline client would pollute server-authoritative metrics, so local
+equivalents are proposed below with a distinct `bot_` prefix.
+
+### Proposed catalogue additions (for `data-analyst`; ANALYTICS_EVENTS.md not edited by this spec)
+
+| Event | Trigger | Properties | PII | Owner | v |
+|---|---|---|---|---|---|
+| `bot_match_started` | Local match vs bot created | `local_match_id`, `mode` (classic), `bot_personality`, `first_player` (player/bot), `lexicon_version`, `engine_version`, `bot_version`, `is_first_match` | pseudonymous | mobile-engineer | 1 |
+| `bot_match_finished` | Local match ends | `local_match_id`, `result` (win/loss/draw), `end_reason` (out/scoreless_turns/resign), `player_score`, `bot_score`, `active_duration_ms`, `turns`, `words_played`, `rejected_attempts`, `exchanges`, `passes`, `resume_count` | pseudonymous | mobile-engineer | 1 |
+| `bot_match_abandoned` | In-progress match discarded | `local_match_id`, `reason` (replaced_by_new/version_mismatch/state_corrupt), `turns`, `active_duration_ms` | pseudonymous | mobile-engineer | 1 |
+| `bot_match_resumed` | Match restored after background or cold start | `local_match_id`, `resume_source` (background/cold_start), `away_ms`, `restore_ms` | pseudonymous | mobile-engineer | 1 |
+| `bot_word_played` | Valid word applied locally (player or bot) | `local_match_id`, `actor` (player/bot), `term_id`, `category`, `difficulty`, `points`, `bonus_flags` (term/full_stack/chain/tech_square), `think_ms`, `turn` | pseudonymous | mobile-engineer | 1 |
+| `word_rejected` | Player's PLAY rejected by engine | `local_match_id`, `reason` (not_in_lexicon/placement/cross_word), `word_length`, `think_ms`, `turn` (attempted form excluded pending Q-8) | pseudonymous | mobile-engineer | 1 |
+| `match_summary_action` | Action tapped on summary | `local_match_id`, `action` (play_again/change_opponent/home/discover), `ms_on_summary` | pseudonymous | mobile-engineer | 1 |
+| `knowledge_card_closed` | Card dismissed | `term_id`, `source`, `dwell_ms`, `related_taps` | pseudonymous | mobile-engineer | 1 |
+| `playtest_survey_answered` | One-tap survey answered or dismissed | `survey_id`, `question_id` (would_play_again), `answer` (yes/maybe/no/dismissed), `matches_completed` | pseudonymous | mobile-engineer | 1 |
+| `analytics_buffer_flushed` | Batch uploaded | `events_sent`, `events_dropped_since_last`, `oldest_event_age_ms` | none | mobile-engineer | 1 |
+
+Rules for these events: client-local, explicitly **non-competitive**; never consumed by rating, progression or
+integrity pipelines; schema owned by `data-analyst`.
+
+## Flags & rollout
+
+Flags are evaluated through the OpenFeature client (ARCHITECTURE §6) with **bundled defaults** and a cached remote
+config fetched opportunistically when online (AC-19). Since gameplay is offline, a remote kill switch takes effect
+at the next launch with network; the hard fallback is pulling the build from the internal track.
+
+| Flag | Default (playtest build) | Purpose |
+|---|---|---|
+| `play_vs_bot.enabled` | on | Master switch for starting new matches (in-progress matches can finish) |
+| `bots.beginner.enabled` | on | Personality availability |
+| `bots.strategist.enabled` | on | Personality availability (kill if a bot bug or broken difficulty is found) |
+| `bots.think_delay_ms` (config) | min 1200, max 4000 | Perceived bot pace, tunable without a build |
+| `match.live_score_preview` | on | AC-5 |
+| `knowledge_card.post_match.enabled` | on | AC-13/AC-14 kill switch |
+| `knowledge_card.in_match.enabled` | off | Reserved for a later experiment (Q-6); not built in slice 1–6 |
+| `playtest.survey.enabled` | on | AC-18 |
+| `analytics.upload.enabled` | on | Stop uploads without a build (buffer still respects consent) |
+
+### Thin slices (each behind a flag, each measurable)
+
+| Slice | Content | Flag | Measure |
+|---|---|---|---|
+| S1 | Home + PLAY NOW + full match vs Beginner + minimal end screen | `play_vs_bot.enabled` | match completion, crash-free |
+| S2 | Score breakdown + summary (best word, term chips, New to you) | same | play again rate |
+| S3 | Persistence, resume, single in-progress match | same | resume failure rate |
+| S4 | Strategist + opponent selector | `bots.strategist.enabled` | win rate per bot |
+| S5 | Post-match Knowledge Card + related terms | `knowledge_card.post_match.enabled` | card open rate, dwell |
+| S6 | Analytics buffer/upload, consent toggle, survey, Send match log | `analytics.upload.enabled`, `playtest.survey.enabled` | data completeness |
+
+i18n (EN/FR) and accessibility are part of every slice, not a final slice.
+
+### Playtest distribution
+
+1. **Stage 0 — team dogfood** (5–10 people, 3–5 days): TestFlight internal testers + Google Play **internal
+   testing** track. Gate to next stage: no S1/S2 bug open, crash-free ≥ 99.0%, all slices S1–S6 behind flags on.
+2. **Stage 1 — internal playtest** (≥ 30 players, 14 days): TestFlight (internal/external group with beta review
+   as needed) + Play internal/closed testing track; ≥ 30% low-end Android; mix EN/FR; two moderated debrief
+   sessions (5–8 players each) plus the in-app survey.
+3. **Readout**: `data-analyst` produces the Phase 1 exit readout; `product-strategist` recommends go/no-go for
+   Phase 2.
+
+**Halt criteria** (any stage): crash-free < 99.0% in 24 h; any confirmed lost committed move; any score mismatch
+vs engine; Knowledge Card shows wrong-term or offensive content; bot plays an illegal move. Action: flag off the
+affected surface via remote config and ship a fix build; if the flag cannot reach devices, expire the build in
+TestFlight/Play and notify testers.
+
+## Privacy, security, monetisation notes
+
+- **Guest only, no PII.** No account, email, name, phone, contacts, location or advertising ID. The only
+  identifier is an install-scoped random UUID (pseudonymous), reset on reinstall. Match data stays on device;
+  only analytics events (if consented) and Sentry crash reports leave it.
+- **Consent.** ASSUMPTION: testers consent via the playtest agreement at enrollment; the app shows a one-time,
+  non-blocking notice and a Settings toggle (default per `privacy-compliance` decision); off = nothing recorded or
+  uploaded (AC-17). Sentry: no PII, scrub breadcrumbs, no user-entered text. `privacy-compliance` to add the
+  install id and playtest analytics to `docs/compliance/DATA_MAP.md` (marked `LEGAL_REVIEW_REQUIRED`).
+- **Minors.** Playtest cohort restricted to adults (ASSUMPTION); no age gate in this build. Any public release
+  requires E-2.1 age gate first.
+- **Security / integrity.** Results are local and non-competitive, so client-side computation is acceptable here
+  and does not contradict principle 1 (server authority applies to ranked, tournament, Arena and Daily results).
+  Local results must never be importable as competitive facts. Tampering with a local install has nothing to
+  gain. The "Send match log" export contains no PII.
+- **Monetisation.** No store, prices, ads or purchasable items. No pay-to-win surface exists in this build.
+- **Retention ethics.** No streaks, no notifications, no "come back" penalties, no fake urgency.
+
+## Dependencies & risks
+
+### Dependencies
+
+| Dependency | Needed for | Contract expected |
+|---|---|---|
+| E-1.1 `packages/game-engine` | AC-3..AC-11, AC-20 | Classic rules, seeded `createMatch`, `apply(state, action)`, legal observation per seat, score breakdown, state hash, serialisable action log |
+| E-1.2 `LexiconIndex` | AC-4, AC-6, AC-13 | On-device index loadable on low-end Android (ASSUMPTION: ≤ 5 MB compressed, load ≤ 500 ms), term metadata (category, difficulty, definitions EN/FR, relations) |
+| E-1.3 `packages/bots` | AC-8, AC-9 | Beginner + Strategist, deterministic given seed, time-boxed compute budget, consume only the legal observation; B-07 ladder |
+| E-1.4 design system + Skia board | All UI ACs | Tokens, board renderer, tile drag/tap, category icons/colours, reduced motion |
+| E-1.6 balance baseline | Exit criterion B-01 | Frozen distribution/values for the bundled `lexiconVersion` |
+| E-0.6 lexicon seed (≥ 300 terms) | Playability | ASSUMPTION: ≥ 300 terms is too thin for a fun 15×15 game; see R-1 |
+| Analytics collector (no epic yet; E-2.8 is Phase 2) | AC-17 | Minimal HTTPS ingestion endpoint or vetted vendor (Q-1) |
+| `packages/i18n`, `packages/observability` (Sentry) | AC-15, crash-free KPI | Catalog loading, crash reporting |
+
+### Risks
+
+| ID | Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|---|
+| R-1 | Lexicon too small: players constantly rejected or racks unplayable (only tech terms, ~300 entries) | High | High | `lexicon-curator` grows seed for playtest (target ASSUMPTION ≥ 2,000 playable forms incl. many 2–4 letter terms); track `word_rejected`; E-1.6 simulation reports pass rate |
+| R-2 | Full Classic match too long for "fun" and first impressions | Medium | High | Resume makes long matches safe; measure match length; Quick Classic as a candidate experiment, not built now |
+| R-3 | Feels like homework (definitions, "lexicon" wording) | Medium | High | Cards strictly post-play and opt-in; game-feel polish on scoring; tone review by `ux-ui-designer` |
+| R-4 | Bot too slow or janky on low-end Android | Medium | High | Compute off UI thread, time-boxed search, perf AC-8 on reference device in CI device farm |
+| R-5 | State loss on OS kill | Medium | High | Atomic writes after every action, action-log replay, resume tests in Maestro with process kill |
+| R-6 | Analytics gaps from offline buffering → unreadable exit criteria | Medium | Medium | Persistent queue, drop counters, debrief interviews as a second source for "would play again" |
+| R-7 | Bot difficulty mismatch (Beginner too strong for non-engineers) | Medium | Medium | Remote-tunable bot config, guardrails on human win rates |
+| R-8 | Lexicon update in a new build breaks resume of in-progress matches | Low | Low | Graceful `version_mismatch` handling (states table); acceptable in playtest |
+| R-9 | Trademark/product terms displayed in cards | Low | Medium | Lexicon `owner` field already required for `product` kind; curator review |
+
+## Open questions
+
+- **Q-1 (human)** Where do playtest analytics go before E-2.8 exists: a minimal first-party ingestion endpoint
+  (needs `devops-sre`, `security-engineer`) or a vetted third-party product-analytics SDK (needs DPA,
+  `privacy-compliance`)? ASSUMPTION: minimal first-party endpoint storing raw batches in object storage, region EU.
+- **Q-2 (human)** Playtest cohort: adults only, and how many outside the company? ASSUMPTION: adults only, ≥ 30
+  players, ≥ 1/3 non-engineers, ≥ 30% low-end Android, EN and FR speakers.
+- **Q-3 (game-designer)** Do rejected attempts count toward R-TURN-004 in casual vs bot? ASSUMPTION: no; they do
+  not end the turn.
+- **Q-4 (game-designer)** First player rule and untimed vs-bot format (Rules impact items 2 and 4). ASSUMPTION:
+  seeded coin flip; untimed.
+- **Q-5 (game-designer)** Live score preview before commit (AC-5)? ASSUMPTION: score preview on legal geometry
+  only; validity on commit.
+- **Q-6 (game-designer, ux-ui-designer)** Knowledge Card during a match (tap a played word in the move log)?
+  ASSUMPTION: not in this build; related terms would act as hints.
+- **Q-7 (privacy-compliance)** Is enrollment consent plus an in-app notice and toggle sufficient for the playtest,
+  or is an explicit in-app opt-in screen required (would cost FTUE seconds)? ASSUMPTION: enrollment consent +
+  notice + toggle, default on.
+- **Q-8 (privacy-compliance, lexicon-curator)** May `word_rejected` carry the attempted form (A–Z, ≤ 15 letters)?
+  It is the best signal for lexicon gaps (e.g. KUBECTL) but could in theory spell a name. ASSUMPTION: excluded
+  for now; reconsider with a blocklist + hashing scheme.
+- **Q-9 (lexicon-curator, game-designer)** Lexicon size needed for a fun 15×15 game (R-1)? ASSUMPTION: ≥ 2,000
+  playable forms for the playtest, validated by E-1.6 simulation (bot rejection/pass rates).
+- **Q-10 (human)** Should local "terms discovered" migrate to the player's account once E-2.1 ships? ASSUMPTION:
+  no migration of results or ratings ever; terms-discovered migration to be decided in E-2.1.
+- **Q-11 (ux-ui-designer)** Show other modes as "Coming soon" or hide them? ASSUMPTION: hide.
+- **Q-12 (data-analyst)** Session definition (30 min background timeout, foreground time). ASSUMPTION as stated
+  in KPIs.
+
+## Test traceability
+
+| AC | Test(s) |
+|---|---|
+| AC-1 | Maestro E2E fresh install → PLAY NOW → board interactive (no intermediate screens); perf benchmark cold start and tap→interactive on reference device; playtest metric time-to-first-match |
+| AC-2 | Maestro E2E full match + summary + card in airplane mode; unit: no network call on gameplay path |
+| AC-3 | Engine unit/property tests (E-1.1) for R-BOARD-001/002/003, R-BAG-001..003, R-CORE-001; app integration test asserting match config (powers off, lexiconVersion pinned, first player announced) |
+| AC-4 | Property tests R-SCORE-001..005/007, R-BAG-003/004 (E-1.1); component test score breakdown renders engine breakdown verbatim; golden scoring cases |
+| AC-5 | Component test preview shown only on legal geometry; flag on/off test |
+| AC-6 | Engine tests R-TURN-002/003; Maestro rejection flow (tiles stay, still player's turn, reason shown in EN/FR) |
+| AC-7 | Engine tests R-TURN-001/004, R-BAG-002; component tests Exchange disabled when bag < 7, blank picker, Pass confirmation |
+| AC-8 | Bots contract test: observation contains no opponent rack/bag order (E-1.3); perf test bot compute p95 on reference device; UI test responsiveness while thinking |
+| AC-9 | Component test selector + remembered choice; flag test hides personality, in-progress match continues |
+| AC-10 | Engine tests R-SCORE-006/007 and end conditions; Maestro play-to-end with scripted seed; component test summary contents and actions; resign flow |
+| AC-11 | Maestro: background/foreground, process kill mid-player-turn and mid-bot-turn, reboot (manual); unit: atomic persistence after each action; deterministic bot re-computation |
+| AC-12 | Component test home resume card; Maestro new-match confirmation → `bot_match_abandoned` |
+| AC-13 | Component test card contents and locale fallback; perf ≤ 300 ms open; Maestro summary → card → related → back → Play again; test card never auto-opens |
+| AC-14 | Flag test: chips non-tappable, no entry point, summary unchanged |
+| AC-15 | i18n lint (no hard-coded strings); snapshot tests EN/FR; pseudo-locale +30% length test |
+| AC-16 | Accessibility audit (VoiceOver/TalkBack) checklist; component tests tap-to-place; reduced-motion snapshot; 200% text scale screenshots |
+| AC-17 | Unit tests queue persistence, cap/drop, flush on connectivity, purge on consent off; schema tests for each event (zod); PII lint on event payloads |
+| AC-18 | Component test survey shown at 1st and 3rd completion only, dismissible, non-blocking; flag off test |
+| AC-19 | Unit tests flag resolution order (cached → bundled), background fetch non-blocking; Maestro `play_vs_bot.enabled` off with and without in-progress match |
+| AC-20 | Engine replay test: stored action log → identical state hash (property test across seeds); manual export check for absence of PII |
