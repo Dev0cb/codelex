@@ -1,7 +1,9 @@
 # CODELEX — Game Rules
 
 Owner: `game-designer` · Implementation: `packages/game-engine` · Every rule has a stable ID cited by tests.
-Version: **0.2 (accepted by the product owner on 2026-10-02, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
+Version: **0.3 (2026-10-02, decided by `game-designer` under product-owner delegation, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
+Rule constants that change replay outcomes (layouts, letter table, bag, rack size) are frozen per
+`engineRulesVersion` (ADR-0013, in progress); this document defines **`engineRulesVersion` 1**.
 Testable properties and golden cases for every rule ID: `docs/game/RULE_PROPERTIES.md`.
 
 Rule IDs are stable: a rule may be clarified or amended (recorded in the changelog), never renumbered or reused.
@@ -28,12 +30,16 @@ New rules get new IDs. "Seat" = a player position in turn order (seat 0 moves fi
   from the match seed (`bag`, `first-player`, and one stream per bot seat `bot:<seat>`), so that consuming one
   stream never shifts another. Replaying `(seed, lexiconVersion, engineVersion, ordered action log)` from the
   initial state yields a bit-identical final state and state hash. The clock is an input of timed actions, never
-  read by the engine.
+  read by the engine. *(v0.3 clarification)* "engineVersion" means the integer `engineRulesVersion` of ADR-0013:
+  it is pinned in the match header and selects the layout (§2.1), letter table and bag (§3.1) and every other
+  replay-affecting constant. Phase 1 uses `engineRulesVersion` 1.
 
 ## 2. Board
 - **R-BOARD-001** Classic board 15×15; Blitz 11×11 ⚙; Arena 13×13 ⚙. Centre square is the start square.
 - **R-BOARD-002** Premium squares: DL (double letter), TL (triple letter), DW (double word), TW (triple word),
   layout symmetric (D4 symmetry), defined per board in `packages/game-engine/src/board/layouts.ts`.
+  *(v0.3)* The Classic 15×15 layout for `engineRulesVersion` 1 is **`classic-v1`**, normative in §2.1; the code
+  table must equal it (snapshot test). Blitz 11×11 and Arena 13×13 layouts are not defined yet (A-02, open).
 - **R-BOARD-003** Tech squares ⚙: a square tagged with a category (e.g. ☁ Cloud). A main word covering it whose
   term belongs to that category gains +50% of its word score (rounded down) — applied after word multipliers.
   *(v0.2 clarifications)* (a) only a tech square **newly covered** this turn triggers (same as premiums,
@@ -45,11 +51,74 @@ New rules get new IDs. "Seat" = a player position in turn order (seat 0 moves fi
   first PlaceWord of the match must cover it and must place ≥ 2 tiles. Simulation variant to evaluate against B-01:
   start square without premium (reduces the first mover's guaranteed DW).
 
+### 2.1 Classic layout `classic-v1` (normative for `engineRulesVersion` 1; closes A-02 for Classic)
+
+**Convention.** Coordinates are `(row, col)`, **0-based**; row 0 is the top row, column 0 the leftmost column, as
+seen by every player (the board is never rotated per seat). The start square is `(7,7)` and carries a DW
+(R-BOARD-004), shown `ST`. `..` = plain square. Any UI notation (e.g. "H8") is presentational only.
+
+```
+     00 01 02 03 04 05 06 07 08 09 10 11 12 13 14
+00   .. .. .. TW .. .. .. DL .. .. .. TW .. .. ..
+01   .. .. DL .. DW .. .. .. .. .. DW .. DL .. ..
+02   .. DL DW .. .. .. .. DL .. .. .. .. DW DL ..
+03   TW .. .. TL .. DL .. .. .. DL .. TL .. .. TW
+04   .. DW .. .. DL .. TL .. TL .. DL .. .. DW ..
+05   .. .. .. DL .. .. .. .. .. .. .. DL .. .. ..
+06   .. .. .. .. TL .. .. .. .. .. TL .. .. .. ..
+07   DL .. DL .. .. .. .. ST .. .. .. .. DL .. DL
+08   .. .. .. .. TL .. .. .. .. .. TL .. .. .. ..
+09   .. .. .. DL .. .. .. .. .. .. .. DL .. .. ..
+10   .. DW .. .. DL .. TL .. TL .. DL .. .. DW ..
+11   TW .. .. TL .. DL .. .. .. DL .. TL .. .. TW
+12   .. DL DW .. .. .. .. DL .. .. .. .. DW DL ..
+13   .. .. DL .. DW .. .. .. .. .. DW .. DL .. ..
+14   .. .. .. TW .. .. .. DL .. .. .. TW .. .. ..
+```
+
+| Type | Count | Squares `(row,col)` | D4 seeds (orbit of `(r,c)` under the 8 symmetries) |
+|---|---|---|---|
+| TW | 8 | (0,3) (0,11) (3,0) (3,14) (11,0) (11,14) (14,3) (14,11) | (0,3) |
+| DW | 13 (incl. start) | (1,4) (1,10) (2,2) (2,12) (4,1) (4,13) **(7,7)** (10,1) (10,13) (12,2) (12,12) (13,4) (13,10) | (7,7), (2,2), (1,4) |
+| TL | 12 | (3,3) (3,11) (4,6) (4,8) (6,4) (6,10) (8,4) (8,10) (10,6) (10,8) (11,3) (11,11) | (3,3), (4,6) |
+| DL | 28 | (0,7) (1,2) (1,12) (2,1) (2,7) (2,13) (3,5) (3,9) (4,4) (4,10) (5,3) (5,11) (7,0) (7,2) (7,12) (7,14) (9,3) (9,11) (10,4) (10,10) (11,5) (11,9) (12,1) (12,7) (12,13) (13,2) (13,12) (14,7) | (0,7), (2,7), (1,2), (3,5), (4,4) |
+| **Total** | **61** of 225 (27.1 %) | word multipliers 21, letter multipliers 40 | |
+
+The orbit of `(r,c)` is `{(r,c),(c,r),(r,14−c),(c,14−r),(14−r,c),(14−c,r),(14−r,14−c),(14−c,14−r)}`; the
+layout is invariant under all 8 symmetries of the square (P-BOARD-002-a).
+
+**Design rationale (original layout, not derived from any commercial board).**
+- *Originality:* corners and edge midpoints carry no word premium; TWs sit 3 squares from each corner. Of the 61
+  squares, 25 coincide in position with a premium of the best-known commercial layout but only 5 with the same
+  premium type (the universal centre DW and the 4 DWs of the `(2,2)` orbit); the overall pattern is distinct.
+- *First-move fairness (B-01):* row 7 and column 7 carry no premium within 4 squares of the start; the first move
+  can reach only the start DW and, with ≥ 6 tiles, one DL at (7,2)/(7,12)/(2,7)/(12,7). No DW/TW is reachable on
+  the first move, so a 7-tile opener cannot stack two word multipliers.
+- *Swing control:* no two word multipliers are orthogonally adjacent; on any line, two word multipliers are at
+  least 7 squares apart (DW×DW = ×4 needs a ≥ 7-letter word, rows/cols 1 and 13) and TW×TW = ×9 needs a ≥ 9-letter
+  word along an edge (impossible without ≥ 2 board tiles). No line holds a TW and a DW together.
+- *Readable in 2 seconds:* a central calm zone (rows/cols 5–9 plain except the start) ringed by TLs 3 rows/columns
+  from the start, DWs towards the corners, TWs on the edges: the threat gradient goes outward.
+- *Density:* 61 premium squares, comparable to classic word games, with fewer word multipliers (21) and more DLs
+  (28): tech forms are short and acronym-heavy, so letter premiums reward the scarce high-value consonants
+  (J, Q, X, Z, V) without letting short words multiply into the dominant play.
+
+**Tech squares** (R-BOARD-003) are **not** part of `classic-v1` and are off for the Phase 1 playtest. They will be
+placed later as category tags on existing or plain squares in a new layout id (e.g. `classic-v2`), which bumps
+`engineRulesVersion`, after the category set is fixed and simulated.
+
 ## 3. Tiles and bag
-- **R-BAG-001** Letter distribution and letter values are derived from the letter frequency of the active lexicon
-  profile (formula in `docs/game/BALANCE.md`), then frozen per `lexiconVersion`. Default values: A1 B3 C3 D2 E1
-  F4 G2 H4 I1 J8 K5 L1 M3 N1 O1 P3 Q10 R1 S1 T1 U1 V4 W4 X8 Y4 Z10.
-- **R-BAG-002** 2 blank tiles (value 0) per bag in Classic ⚙.
+- **R-BAG-001** *(amended v0.3)* Letter distribution and letter values are derived **offline** from the letter
+  frequency of the global ranked lexicon (procedure in `docs/game/BALANCE.md` §"Letter values & distribution
+  derivation"), adjusted for playability, and **frozen per `engineRulesVersion`** (ADR-0013), not per
+  `lexiconVersion`: lexicon content releases never change tile values or the bag. The engine never derives the
+  table at runtime; it reads the constant table of the match's `engineRulesVersion`. For `engineRulesVersion` 1
+  the table is **`letters-v1`** (§3.1), used by every mode and every lexicon profile (no per-profile or per-locale
+  tables in v1). The table is re-derived when the lexicon reaches ≥ 2,000 playable forms (E-1.6 calibration); a
+  changed table ships as a new `engineRulesVersion`. The former default values (A1 B3 C3 D2 … Q10 … Z10) are
+  retired from the engine.
+- **R-BAG-002** 2 blank tiles (value 0) per bag in Classic ⚙. *(v0.3)* `engineRulesVersion` 1: 98 lettered tiles
+  + 2 blanks = **100 tiles**.
 - **R-BAG-003** Rack size 7. Racks are refilled at end of turn from the seeded bag. Racks are hidden information.
   *(v0.2)* If the bag holds fewer tiles than needed, the rack takes all remaining tiles.
 - **R-BAG-004** Tile conservation: tiles on board + in racks + in bag = initial bag, always.
@@ -62,6 +131,21 @@ New rules get new IDs. "Seat" = a player position in turn order (seat 0 moves fi
   (A–Z). The designation is part of the PlaceWord action, is permanent for the match, is public, and the blank
   scores 0 under any letter premium. Word multipliers, term bonus, tech-square and chain bonuses apply normally to
   words containing it. A blank on the rack has no letter. Exchanged or end-of-match blanks count 0.
+
+### 3.1 Letter table `letters-v1` (frozen for `engineRulesVersion` 1; closes A-01)
+
+| Letter | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | Blank |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Value** | 1 | 3 | 2 | 3 | 1 | 4 | 3 | 3 | 1 | 8 | 5 | 2 | 3 | 1 | 1 | 2 | 8 | 1 | 1 | 1 | 2 | 6 | 5 | 8 | 4 | 10 | 0 |
+| **Tiles** | 8 | 2 | 5 | 3 | 9 | 1 | 3 | 2 | 7 | 1 | 1 | 4 | 3 | 6 | 7 | 4 | 1 | 8 | 6 | 8 | 3 | 1 | 1 | 1 | 2 | 1 | 2 |
+
+- Compact form (for code and tests): values `A1 B3 C2 D3 E1 F4 G3 H3 I1 J8 K5 L2 M3 N1 O1 P2 Q8 R1 S1 T1 U2 V6 W5
+  X8 Y4 Z10`, blank 0; counts `A8 B2 C5 D3 E9 F1 G3 H2 I7 J1 K1 L4 M3 N6 O7 P4 Q1 R8 S6 T8 U3 V1 W1 X1 Y2 Z1`,
+  blanks 2.
+- Totals: 98 lettered tiles + 2 blanks = **100 tiles**; vowels A E I O U = 34 tiles (34.7 % of lettered tiles);
+  sum of lettered tile values = **192** (mean 1.96 per lettered tile). Rack size **7** (R-BAG-003).
+- Every letter has ≥ 1 tile; values ∈ [1, 10]; E, A, I, O, N, R, S, T = 1; values never decrease when a letter is
+  rarer in the derivation corpus (monotonic). Derivation record, smoothing choices and evidence: `BALANCE.md`.
 
 ## 4. Turn actions
 - **R-TURN-001** Actions: PlaceWord, Exchange (only if bag ≥ 7), Pass, UsePower (if mode allows), Resign.
@@ -112,7 +196,10 @@ New rules get new IDs. "Seat" = a player position in turn order (seat 0 moves fi
 - **R-SCORE-006** End of match: each player subtracts the value of their remaining rack; if a player went out,
   they add the sum of all other racks. *(v0.2)* Applies to endings by R-END-001 and R-TURN-004 only (on
   R-TURN-004 nobody went out, so nobody adds). Not applied on Resign/forfeit. In 2v2 the team score is adjusted by
-  both teammates' racks. Final scores may be negative.
+  both teammates' racks. Final scores may be negative. *(v0.3 clarification, no behaviour change)* The rule is
+  applied per player and summed per team: in 2v2, the teammate of the player who went out subtracts their own rack
+  and the player who went out adds every other rack (teammate included), so the teammate's rack cancels out and the
+  team nets `+Σ opponents' racks` while the opposing team nets `−Σ` of the same racks (zero-sum, GC-END-03).
 - **R-SCORE-007** All scores are integers; rounding is always down.
 - **R-SCORE-008** *(new v0.2)* **Scoring pipeline (order is normative).** For a PlaceWord:
   1. for each formed word *w*: `base(w) = Σ letterValue × letterMult(newly covered) × Π wordMult(newly covered)`
@@ -179,6 +266,17 @@ Powers are out of scope for Phase 1 (E-1.5). Their open questions (tile conserva
 Container targets, Compile timing) are listed in `docs/game/RULE_PROPERTIES.md` and must be resolved before E-3.2.
 
 ## 9. Changelog
+- 0.3 — 2026-10-02 · `game-designer` (decided under product-owner delegation; sprint task D3; pre-simulation,
+  E-1.6 validates) · Defines `engineRulesVersion` 1.
+  - New normative content: §2.1 Classic layout `classic-v1` (TW 8, DW 13 incl. start, TL 12, DL 28; closes A-02
+    for Classic; Blitz/Arena layouts and tech squares stay open); §3.1 letter table `letters-v1` (values, counts,
+    2 blanks, 100 tiles; closes A-01 and lexicon-index Q-G4 on the game-design side).
+  - Amended: R-BAG-001 (table frozen per `engineRulesVersion` instead of `lexiconVersion`; derived offline, never
+    at runtime; one table for all profiles in v1; re-derived at ≥ 2,000 forms; former default values retired —
+    **in-game letter values change**: C, D, G, H, L, P, Q, U, V, W, X differ from v0.2).
+  - Clarified (no behaviour change intended): R-CORE-005 (`engineVersion` = `engineRulesVersion`), R-BOARD-002
+    (points to §2.1), R-BAG-002 (100 tiles), R-SCORE-006 (2v2 per-player application, zero-sum).
+  - Golden cases recomputed with `letters-v1` and new `classic-v1` cases added in `RULE_PROPERTIES.md` §3.
 - 0.2 (accepted 2026-10-02 by the product owner, incl. R-TURN-004 amendment; tech squares (R-BOARD-003) are
   disabled for the E-1.5 playtest until a board layout and category set are defined) — 2026-10-02 · `game-designer` · Resolves E-1.5 spec requests (Q-3, Q-4, Q-5, rules impact 1–4).
   - New: R-CORE-004 (seeded first player), R-CORE-005 (determinism, named RNG streams, replay),
