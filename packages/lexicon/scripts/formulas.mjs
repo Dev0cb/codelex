@@ -1,9 +1,10 @@
 // Single source of truth for lexicon-derived values (docs/game/LEXICON_SPEC.md §4).
 // Pure functions: used by the validator, the index build and (via re-export) the game engine.
 
+// letters-v1, frozen for engineRulesVersion 1 (docs/game/GAME_RULES.md §3.1, ADR-0013).
 export const LETTER_VALUES = Object.freeze({
-  A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4, I: 1, J: 8, K: 5, L: 1, M: 3,
-  N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8, Y: 4, Z: 10,
+  A: 1, B: 3, C: 2, D: 3, E: 1, F: 4, G: 3, H: 3, I: 1, J: 8, K: 5, L: 2, M: 3,
+  N: 1, O: 1, P: 2, Q: 8, R: 1, S: 1, T: 1, U: 2, V: 6, W: 5, X: 8, Y: 4, Z: 10,
 });
 
 export const DIFFICULTY_BONUS = Object.freeze({ novice: 0, intermediate: 4, advanced: 8, expert: 16 });

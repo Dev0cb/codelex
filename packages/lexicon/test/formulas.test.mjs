@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { gameValue, knowledgeXp, letterSum, LETTER_VALUES } from '../scripts/formulas.mjs';
 
-test('KUBERNETES reproduces the vision example (V-05): game value 42, knowledge XP 85', () => {
-  assert.equal(gameValue('KUBERNETES', 'expert'), 42);
+test('KUBERNETES reproduces the vision example (V-05): game value 43, knowledge XP 85', () => {
+  assert.equal(gameValue('KUBERNETES', 'expert'), 43);
   assert.equal(knowledgeXp('KUBERNETES', 'expert'), 85);
 });
 

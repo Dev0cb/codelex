@@ -38,13 +38,13 @@ Relation types: `is_a`, `part_of`, `uses`, `related_to`, `alternative_to`, `runs
 
 ## 4. Formulas (single source, implemented in `packages/lexicon/scripts/formulas.mjs`)
 ```
-letterValue: A1 B3 C3 D2 E1 F4 G2 H4 I1 J8 K5 L1 M3 N1 O1 P3 Q10 R1 S1 T1 U1 V4 W4 X8 Y4 Z10
+letterValue: A1 B3 C2 D3 E1 F4 G3 H3 I1 J8 K5 L2 M3 N1 O1 P2 Q8 R1 S1 T1 U2 V6 W5 X8 Y4 Z10   (letters-v1 = in-game values, GAME_RULES §3.1)
 difficultyBonus = { novice: 0, intermediate: 4, advanced: 8, expert: 16 }
 gameValue   = Σ letterValue(form) + 2 × max(0, len(form) − 5) + difficultyBonus[difficulty]
 xpBase      = { novice: 10, intermediate: 25, advanced: 50, expert: 75 }
 knowledgeXp = xpBase[difficulty] + min(len(form), 10)
 ```
-Check: KUBERNETES (expert) → 16 + 10 + 16 = **42** game value, 75 + 10 = **85** Knowledge XP (vision V-05).
+Check: KUBERNETES (expert) → 17 + 10 + 16 = **43** game value, 75 + 10 = **85** Knowledge XP (vision V-05).
 
 ## 5. Graph invariants (validator-enforced)
 No dangling relation targets · no self-relations · no duplicate (type, target) per term · no cycle in `is_a` ·
