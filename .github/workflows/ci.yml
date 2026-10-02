@@ -44,9 +44,9 @@ jobs:
       - name: Affected tasks
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            pnpm turbo run lint typecheck test --filter="...[origin/${{ github.base_ref }}]"
+            pnpm turbo run lint typecheck format:check test --filter="...[origin/${{ github.base_ref }}]"
           else
-            pnpm turbo run lint typecheck test
+            pnpm turbo run lint typecheck format:check test
           fi
 
   dependencies:
