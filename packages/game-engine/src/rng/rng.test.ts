@@ -271,6 +271,18 @@ describe('createRng state validation', () => {
     }
     expect(() => createRng([1, 2, 3] as unknown as RngState)).toThrow(RangeError);
   });
+
+  it('rejects deserialised values that are not arrays with the documented RangeError', () => {
+    for (const [label, bad] of [
+      ['string', 'abcd'],
+      ['array-like', { length: 4 }],
+      ['null', null],
+      ['undefined', undefined],
+      ['number', 42],
+    ] as const) {
+      expect(() => createRng(bad as unknown as RngState), label).toThrow(RangeError);
+    }
+  });
 });
 
 describe('int(lo, hi) (ADR-0013 §D1)', () => {

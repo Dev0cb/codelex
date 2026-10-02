@@ -46,6 +46,7 @@ function isU32(x: number): boolean {
   return Number.isInteger(x) && x >= 0 && x < TWO_POW_32;
 }
 
+/** Rotate left; valid for 1 ≤ k ≤ 31 only (k = 0 would compute `x >>> 32`, which is `x`). Used with 7 and 11. */
 function rotl(x: number, k: number): number {
   return ((x << k) | (x >>> (32 - k))) >>> 0;
 }
@@ -82,8 +83,12 @@ export function deriveStreamState(seedHex: string, streamName: string): RngState
 /** Generator starting from `state`, which is copied (never mutated). Throws on an invalid state. */
 export function createRng(state: RngState): Rng {
   // Checked at runtime too: persisted states are deserialised data.
-  const words: readonly number[] = state;
-  if (words.length !== 4 || !words.every(isU32)) {
+  const words: unknown = state;
+  if (
+    !Array.isArray(words) ||
+    words.length !== 4 ||
+    !words.every((w) => typeof w === 'number' && isU32(w))
+  ) {
     throw new RangeError('createRng: state must be four unsigned 32-bit integers');
   }
   let [s0, s1, s2, s3] = state;
