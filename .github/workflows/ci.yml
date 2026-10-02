@@ -57,7 +57,8 @@ jobs:
     # service are throwaway (never committed); the job fails if scaffold → green exceeds the budget.
     name: Scaffold golden path (timed)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Above the budget so an overrun is reported by the budget check, not by a job kill.
+    timeout-minutes: 15
     env:
       BUDGET_SECONDS: 600
     steps:
@@ -69,15 +70,20 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - name: Scaffold a throwaway package and service
+      - name: Scaffold throwaway targets
         run: |
           node tools/scaffold/scaffold.mjs packages/golden-path-probe --owner devops-sre --unlisted
           node tools/scaffold/scaffold.mjs services/golden-path-svc --owner backend-engineer --unlisted --preset strict
+          filters="--filter=@codelex/golden-path-probe --filter=@codelex/golden-path-svc"
+          # Until the real package exists, also prove a scaffolded game-engine passes the purity/determinism lint.
+          if [ ! -d packages/game-engine ]; then
+            node tools/scaffold/scaffold.mjs packages/game-engine
+            filters="$filters --filter=@codelex/game-engine"
+          fi
+          echo "FILTERS=$filters" >> "$GITHUB_ENV"
       # The probes are new workspace members, so the lockfile must change; it is never committed from CI.
       - run: pnpm install --no-frozen-lockfile
-      - run: >-
-          pnpm turbo run lint typecheck format:check test
-          --filter=@codelex/golden-path-probe --filter=@codelex/golden-path-svc
+      - run: pnpm turbo run lint typecheck format:check test $FILTERS
       - name: Check time budget
         run: |
           elapsed=$(( $(date +%s) - START ))

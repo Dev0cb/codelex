@@ -6,7 +6,7 @@
 // Usage: node tools/scaffold/scaffold.mjs <packages|services>/<name> [--owner <agent>] [--preset base|strict]
 //                                         [--description <text>] [--unlisted]
 // CODELEX_ROOT overrides the repository root (tests).
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,14 +14,19 @@ const ROOT = process.env.CODELEX_ROOT ?? join(dirname(fileURLToPath(import.meta.
 
 // Packages for which the strict (90 %) coverage preset is mandatory (CLAUDE.md §5).
 const STRICT_ONLY = new Set(['packages/game-engine', 'packages/protocol']);
-// Versions are kept identical to the existing packages so one version is resolved repo-wide.
-const DEV_DEPENDENCIES = {
-  '@codelex/config': 'workspace:*',
-  '@types/node': '22.20.4',
-  '@vitest/coverage-v8': '5.0.2',
-  'fast-check': '4.10.2',
-  vitest: '5.0.2',
-};
+// Tooling a package declares itself; versions are read from the root package.json so one version is
+// resolved repo-wide and Dependabot bumps of the root reach new packages.
+const PINNED_FROM_ROOT = ['@types/node', '@vitest/coverage-v8', 'fast-check', 'vitest'];
+
+function devDependencies() {
+  const root = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).devDependencies ?? {};
+  const deps = { '@codelex/config': 'workspace:*' };
+  for (const name of PINNED_FROM_ROOT) {
+    if (typeof root[name] !== 'string') fail(`root package.json has no devDependency ${name}`);
+    deps[name] = root[name];
+  }
+  return deps;
+}
 
 function fail(message) {
   console.error(`scaffold: ${message}`);
@@ -34,7 +39,7 @@ function parseArgs(argv) {
     const a = argv[i];
     const value = () => {
       const v = argv[++i];
-      if (v === undefined || v.startsWith('--')) fail(`${a} needs a value`);
+      if (v === undefined || v.startsWith('--') || v.trim() === '') fail(`${a} needs a value`);
       return v;
     };
     if (a === '--owner') opts.owner = value();
@@ -48,17 +53,21 @@ function parseArgs(argv) {
   return opts;
 }
 
-// Reads the repository map of CLAUDE.md §2: "kind/" lines followed by "  name/ ... owner: agent" lines.
+// Reads the repository map (first code block of CLAUDE.md §2): "kind/" lines followed by
+// "  name/ ... owner: agent" lines.
 function repositoryMap() {
   const text = readFileSync(join(ROOT, 'CLAUDE.md'), 'utf8');
+  const block = /^## 2\. Repository map\s*\n+```[^\n]*\n([\s\S]*?)\n```/m.exec(text);
+  if (!block) fail('CLAUDE.md §2 "Repository map" code block not found');
   const map = new Map();
   let kind;
-  for (const line of text.split('\n')) {
+  for (const line of block[1].split('\n')) {
     const k = /^([a-z]+)\/\s*$/.exec(line);
     if (k) { kind = k[1]; continue; }
     const m = /^ {2}([a-z0-9-]+)\/\s+(.*?)\s+owner: ([a-z-]+)\s*$/.exec(line);
     if (m && kind) map.set(`${kind}/${m[1]}`, { purpose: m[2], owner: m[3] });
   }
+  if (map.size === 0) fail('CLAUDE.md §2 repository map has no entries');
   return map;
 }
 
@@ -74,7 +83,6 @@ function packageFiles({ kind, name, owner, preset, description }) {
     'format:check': 'prettier --check .',
     test: 'vitest run --coverage',
   };
-  if (isService) scripts.dev = 'node --watch dist/index.js';
   const pkg = {
     name: `@codelex/${name}`,
     version: '0.1.0',
@@ -87,7 +95,7 @@ function packageFiles({ kind, name, owner, preset, description }) {
     exports: { '.': { types: './dist/index.d.ts', default: './dist/index.js' } },
     scripts,
     ...(isService ? { dependencies: { '@codelex/observability': 'workspace:*' } } : {}),
-    devDependencies: DEV_DEPENDENCIES,
+    devDependencies: devDependencies(),
   };
   const presetName = preset === 'strict' ? 'strictPreset' : 'basePreset';
   const presetComment =
@@ -264,12 +272,25 @@ function scaffold(argv) {
   const description = opts.description ?? listed?.purpose ?? `CODELEX ${name}.`;
   const dir = join(ROOT, opts.target);
   if (existsSync(dir)) fail(`${opts.target} already exists`);
+  // Workspace package names are global: @codelex/<name> must not exist under another kind.
+  for (const other of ['packages', 'services', 'apps']) {
+    if (existsSync(join(ROOT, other, name))) fail(`@codelex/${name} already exists in ${other}/${name}`);
+  }
 
   const files = packageFiles({ kind, name, owner, preset, description });
-  for (const [rel, content] of Object.entries(files)) {
-    const file = join(dir, rel);
-    mkdirSync(dirname(file), { recursive: true });
-    writeFileSync(file, content);
+  // Write into a sibling temp directory, then rename: a failure never leaves a half-generated target.
+  mkdirSync(join(ROOT, kind), { recursive: true });
+  const tmp = mkdtempSync(join(ROOT, kind, `.tmp-scaffold-${name}-`));
+  try {
+    for (const [rel, content] of Object.entries(files)) {
+      const file = join(tmp, rel);
+      mkdirSync(dirname(file), { recursive: true });
+      writeFileSync(file, content);
+    }
+    renameSync(tmp, dir);
+  } catch (error) {
+    rmSync(tmp, { recursive: true, force: true });
+    throw error;
   }
   console.log(`Scaffolded @codelex/${name} in ${opts.target} (owner ${owner}, ${preset} preset, ${Object.keys(files).length} files).`);
   console.log(`Next: pnpm install && pnpm turbo run lint typecheck format:check test --filter=@codelex/${name}`);
