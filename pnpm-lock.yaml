@@ -100,9 +100,6 @@ importers:
       '@codelex/config':
         specifier: workspace:*
         version: link:../config
-      '@codelex/lexicon':
-        specifier: workspace:*
-        version: link:../lexicon
       '@types/node':
         specifier: 22.20.4
         version: 22.20.4
