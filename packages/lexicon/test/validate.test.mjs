@@ -18,7 +18,7 @@ const run = (terms, blocklist = new Set()) =>
 test('the committed seed lexicon is valid', () => {
   const { errors, stats } = validateLexicon(loadLexicon());
   assert.deepEqual(errors, []);
-  assert.ok(stats.terms >= 100, `expected >= 100 seed terms, got ${stats.terms}`);
+  assert.ok(stats.terms >= 300, `expected >= 300 seed terms (roadmap E-0.6), got ${stats.terms}`);
   for (const c of ['programming', 'systems', 'networking', 'cloud', 'devops', 'data', 'ai', 'cybersecurity', 'hardware']) {
     assert.ok(stats.byCategory[c] > 0, `category ${c} has no terms`);
   }

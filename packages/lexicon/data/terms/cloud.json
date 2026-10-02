@@ -3,6 +3,28 @@
   "category": "cloud",
   "terms": [
     {
+      "id": "autoscaling",
+      "form": "AUTOSCALING",
+      "display": "Autoscaling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Automatically adding or removing servers as load changes.",
+        "fr": "Ajout ou retrait automatique de serveurs selon la charge."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "loadbalancer"
+        }
+      ]
+    },
+    {
       "id": "aws",
       "form": "AWS",
       "display": "AWS",
@@ -25,6 +47,57 @@
       ],
       "sources": [
         "https://docs.aws.amazon.com/"
+      ]
+    },
+    {
+      "id": "aws-lambda",
+      "display": "AWS Lambda",
+      "playable": false,
+      "kind": "product",
+      "owner": "Amazon.com, Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "AWS serverless service running functions on demand.",
+        "fr": "Service serverless d'AWS qui exécute des fonctions à la demande."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "aws"
+        },
+        {
+          "type": "implements",
+          "target": "serverless"
+        }
+      ]
+    },
+    {
+      "id": "aws-s3",
+      "display": "S3",
+      "playable": false,
+      "kind": "product",
+      "owner": "Amazon.com, Inc.",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "AWS object storage service for files of any size.",
+        "fr": "Service de stockage objet d'AWS pour des fichiers de toute taille."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "aws"
+        },
+        {
+          "type": "uses",
+          "target": "bucket"
+        }
       ]
     },
     {
@@ -55,6 +128,22 @@
       "sources": [
         "https://learn.microsoft.com/azure/"
       ]
+    },
+    {
+      "id": "backup",
+      "form": "BACKUP",
+      "display": "Backup",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Copy of data kept to restore it after loss.",
+        "fr": "Copie de données conservée pour les restaurer après une perte."
+      }
     },
     {
       "id": "bucket",
@@ -94,6 +183,51 @@
       }
     },
     {
+      "id": "cloudflare",
+      "form": "CLOUDFLARE",
+      "display": "Cloudflare",
+      "playable": true,
+      "kind": "product",
+      "owner": "Cloudflare, Inc.",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Company providing a global CDN, DNS and security services.",
+        "fr": "Entreprise fournissant un CDN mondial, du DNS et des services de sécurité."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "cdn"
+        }
+      ]
+    },
+    {
+      "id": "datacenter",
+      "form": "DATACENTER",
+      "display": "Data centre",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Building housing thousands of servers, storage and network gear.",
+        "fr": "Bâtiment abritant des milliers de serveurs, de baies de stockage et d'équipements réseau."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "region"
+        }
+      ]
+    },
+    {
       "id": "ec2",
       "display": "EC2",
       "playable": false,
@@ -115,6 +249,71 @@
         {
           "type": "is_a",
           "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "edge",
+      "form": "EDGE",
+      "display": "Edge computing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Running computation close to users rather than in a central data centre.",
+        "fr": "Exécution des calculs au plus près des utilisateurs plutôt qu'en datacenter central."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cdn"
+        }
+      ]
+    },
+    {
+      "id": "elasticity",
+      "form": "ELASTICITY",
+      "display": "Elasticity",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Ability of a system to grow and shrink resources with demand.",
+        "fr": "Capacité d'un système à augmenter ou réduire ses ressources selon la demande."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "autoscaling"
+        }
+      ]
+    },
+    {
+      "id": "failover",
+      "form": "FAILOVER",
+      "display": "Failover",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Automatic switch to a backup system when the primary fails.",
+        "fr": "Bascule automatique vers un système de secours quand le principal tombe."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "region"
         }
       ]
     },
@@ -148,6 +347,150 @@
       ]
     },
     {
+      "id": "heroku",
+      "form": "HEROKU",
+      "display": "Heroku",
+      "playable": true,
+      "kind": "product",
+      "owner": "Salesforce, Inc.",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Platform as a Service for deploying web apps with a git push.",
+        "fr": "Plateforme PaaS pour déployer des applications web avec un git push."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "paas"
+        }
+      ]
+    },
+    {
+      "id": "iaas",
+      "form": "IAAS",
+      "display": "IaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Infrastructure as a Service: renting virtual servers, storage and networks.",
+        "fr": "Infrastructure as a Service : location de serveurs, stockage et réseaux virtuels."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "iam",
+      "form": "IAM",
+      "display": "IAM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud",
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Identity and access management: who may do what on which resource.",
+        "fr": "Gestion des identités et des accès : qui peut faire quoi sur quelle ressource."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
+        }
+      ]
+    },
+    {
+      "id": "multicloud",
+      "form": "MULTICLOUD",
+      "display": "Multicloud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Using several cloud providers for the same organisation.",
+        "fr": "Utilisation de plusieurs fournisseurs cloud par une même organisation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "openstack",
+      "form": "OPENSTACK",
+      "display": "OpenStack",
+      "playable": true,
+      "kind": "tool",
+      "owner": "OpenInfra Foundation",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Open-source software for building private clouds.",
+        "fr": "Logiciel open source pour construire des clouds privés."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "iaas"
+        }
+      ]
+    },
+    {
+      "id": "paas",
+      "form": "PAAS",
+      "display": "PaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Platform as a Service: deploying code without managing infrastructure.",
+        "fr": "Platform as a Service : déployer du code sans gérer l'infrastructure."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "quota",
+      "form": "QUOTA",
+      "display": "Quota",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Limit on how much of a resource an account may use.",
+        "fr": "Limite de ressources qu'un compte peut utiliser."
+      }
+    },
+    {
       "id": "region",
       "form": "REGION",
       "display": "Region",
@@ -164,6 +507,27 @@
       "relations": [
         {
           "type": "part_of",
+          "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "saas",
+      "form": "SAAS",
+      "display": "SaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software as a Service: applications used through the browser by subscription.",
+        "fr": "Software as a Service : applications utilisées via le navigateur par abonnement."
+      },
+      "relations": [
+        {
+          "type": "is_a",
           "target": "cloud"
         }
       ]
@@ -186,6 +550,49 @@
         {
           "type": "related_to",
           "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "snapshot",
+      "form": "SNAPSHOT",
+      "display": "Snapshot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Point-in-time copy of a disk or database.",
+        "fr": "Copie d'un disque ou d'une base à un instant donné."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ]
+    },
+    {
+      "id": "tenant",
+      "form": "TENANT",
+      "display": "Tenant",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Customer whose data is isolated within shared cloud software.",
+        "fr": "Client dont les données sont isolées au sein d'un logiciel cloud partagé."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "saas"
         }
       ]
     },

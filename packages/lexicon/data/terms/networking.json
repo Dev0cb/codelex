@@ -3,6 +3,22 @@
   "category": "networking",
   "terms": [
     {
+      "id": "api",
+      "form": "API",
+      "display": "API",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking",
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Interface letting programs talk to each other.",
+        "fr": "Interface permettant à des programmes de communiquer entre eux."
+      }
+    },
+    {
       "id": "bandwidth",
       "form": "BANDWIDTH",
       "display": "Bandwidth",
@@ -16,6 +32,70 @@
         "en": "Maximum amount of data a link can carry per second.",
         "fr": "Quantité maximale de données qu'un lien peut transporter par seconde."
       }
+    },
+    {
+      "id": "bgp",
+      "form": "BGP",
+      "display": "BGP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Routing protocol exchanging routes between Internet networks.",
+        "fr": "Protocole de routage qui échange les routes entre réseaux d'Internet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "router"
+        }
+      ]
+    },
+    {
+      "id": "cdn",
+      "form": "CDN",
+      "display": "CDN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Content delivery network caching content close to users worldwide.",
+        "fr": "Réseau de diffusion qui met en cache le contenu au plus près des utilisateurs."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "cache"
+        }
+      ]
+    },
+    {
+      "id": "dhcp",
+      "form": "DHCP",
+      "display": "DHCP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Protocol automatically assigning IP addresses to devices.",
+        "fr": "Protocole qui attribue automatiquement des adresses IP aux appareils."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "udp"
+        }
+      ]
     },
     {
       "id": "dns",
@@ -39,6 +119,52 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc1034"
+      ]
+    },
+    {
+      "id": "ethernet",
+      "form": "ETHERNET",
+      "display": "Ethernet",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Wired networking standard used in most local networks.",
+        "fr": "Norme de réseau filaire utilisée dans la plupart des réseaux locaux."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "lan"
+        },
+        {
+          "type": "alternative_to",
+          "target": "wifi"
+        }
+      ]
+    },
+    {
+      "id": "gateway",
+      "form": "GATEWAY",
+      "display": "Gateway",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Node connecting two networks that use different protocols.",
+        "fr": "Nœud reliant deux réseaux qui utilisent des protocoles différents."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "router"
+        }
       ]
     },
     {
@@ -110,6 +236,41 @@
       ]
     },
     {
+      "id": "ipv6",
+      "display": "IPv6",
+      "playable": false,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Latest version of IP with a vastly larger address space.",
+        "fr": "Dernière version d'IP avec un espace d'adressage bien plus vaste."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "lan",
+      "form": "LAN",
+      "display": "LAN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Local area network connecting devices in one home, office or campus.",
+        "fr": "Réseau local reliant les appareils d'une maison, d'un bureau ou d'un campus."
+      }
+    },
+    {
       "id": "latency",
       "form": "LATENCY",
       "display": "Latency",
@@ -125,6 +286,49 @@
       }
     },
     {
+      "id": "loadbalancer",
+      "form": "LOADBALANCER",
+      "display": "Load balancer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Component spreading traffic across several servers.",
+        "fr": "Composant qui répartit le trafic entre plusieurs serveurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "proxy"
+        }
+      ]
+    },
+    {
+      "id": "nat",
+      "form": "NAT",
+      "display": "NAT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Technique sharing one public IP address among many private devices.",
+        "fr": "Technique partageant une adresse IP publique entre de nombreux appareils privés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "router"
+        }
+      ]
+    },
+    {
       "id": "packet",
       "form": "PACKET",
       "display": "Packet",
@@ -138,6 +342,85 @@
         "en": "Small unit of data carried across a network with addressing headers.",
         "fr": "Petite unité de données transportée sur un réseau avec des en-têtes d'adressage."
       }
+    },
+    {
+      "id": "ping",
+      "form": "PING",
+      "display": "Ping",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Utility measuring whether a host is reachable and how fast it answers.",
+        "fr": "Utilitaire qui vérifie si un hôte répond et en combien de temps."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
+      ]
+    },
+    {
+      "id": "port",
+      "form": "PORT",
+      "display": "Port",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Number identifying a specific service on a networked machine.",
+        "fr": "Numéro identifiant un service précis sur une machine en réseau."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "socket"
+        }
+      ]
+    },
+    {
+      "id": "proxy",
+      "form": "PROXY",
+      "display": "Proxy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Server that relays requests between a client and other servers.",
+        "fr": "Serveur qui relaie les requêtes entre un client et d'autres serveurs."
+      }
+    },
+    {
+      "id": "rest",
+      "form": "REST",
+      "display": "REST",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Architectural style for web APIs built on HTTP resources.",
+        "fr": "Style d'architecture pour API web fondé sur les ressources HTTP."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "http"
+        }
+      ]
     },
     {
       "id": "router",
@@ -158,6 +441,71 @@
         {
           "type": "uses",
           "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "ssl",
+      "form": "SSL",
+      "display": "SSL",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Older predecessor of TLS, a name still commonly used.",
+        "fr": "Ancien prédécesseur de TLS, nom encore couramment utilisé."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "tls"
+        }
+      ]
+    },
+    {
+      "id": "subnet",
+      "form": "SUBNET",
+      "display": "Subnet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Logical subdivision of an IP network.",
+        "fr": "Subdivision logique d'un réseau IP."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "switch",
+      "form": "SWITCH",
+      "display": "Switch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Device connecting machines within a local network.",
+        "fr": "Équipement qui relie les machines d'un réseau local."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "lan"
         }
       ]
     },
@@ -190,6 +538,32 @@
       ]
     },
     {
+      "id": "tls",
+      "form": "TLS",
+      "display": "TLS",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Protocol encrypting data in transit between client and server.",
+        "fr": "Protocole qui chiffre les données en transit entre client et serveur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "encryption"
+        },
+        {
+          "type": "uses",
+          "target": "certificate"
+        }
+      ]
+    },
+    {
       "id": "udp",
       "form": "UDP",
       "display": "UDP",
@@ -214,6 +588,27 @@
       ]
     },
     {
+      "id": "url",
+      "form": "URL",
+      "display": "URL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Web address locating a resource on the Internet.",
+        "fr": "Adresse web qui localise une ressource sur Internet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dns"
+        }
+      ]
+    },
+    {
       "id": "vpn",
       "form": "VPN",
       "display": "VPN",
@@ -232,6 +627,74 @@
         {
           "type": "uses",
           "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "wan",
+      "form": "WAN",
+      "display": "WAN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Wide area network spanning cities or countries.",
+        "fr": "Réseau étendu couvrant des villes ou des pays."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "lan"
+        }
+      ]
+    },
+    {
+      "id": "websocket",
+      "form": "WEBSOCKET",
+      "display": "WebSocket",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Protocol keeping a two-way connection open for real-time data.",
+        "fr": "Protocole qui maintient une connexion bidirectionnelle pour le temps réel."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tcp"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        }
+      ]
+    },
+    {
+      "id": "wifi",
+      "form": "WIFI",
+      "display": "Wi-Fi",
+      "playable": true,
+      "kind": "standard",
+      "owner": "Wi-Fi Alliance",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Wireless technology connecting devices to a local network.",
+        "fr": "Technologie sans fil qui relie les appareils à un réseau local."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "lan"
         }
       ]
     }

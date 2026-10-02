@@ -3,6 +3,94 @@
   "category": "cybersecurity",
   "terms": [
     {
+      "id": "antivirus",
+      "form": "ANTIVIRUS",
+      "display": "Antivirus",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Software detecting and removing malware.",
+        "fr": "Logiciel qui détecte et supprime les logiciels malveillants."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "authentication",
+      "form": "AUTHENTICATION",
+      "display": "Authentication",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Verifying who a user or system is.",
+        "fr": "Vérification de l'identité d'un utilisateur ou d'un système."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "password"
+        }
+      ]
+    },
+    {
+      "id": "authorization",
+      "form": "AUTHORIZATION",
+      "display": "Authorization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Deciding what an authenticated user is allowed to do.",
+        "fr": "Décision de ce qu'un utilisateur authentifié a le droit de faire."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authentication"
+        },
+        {
+          "type": "uses",
+          "target": "permission"
+        }
+      ]
+    },
+    {
+      "id": "backdoor",
+      "form": "BACKDOOR",
+      "display": "Backdoor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Hidden way to bypass normal authentication.",
+        "fr": "Accès caché permettant de contourner l'authentification normale."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authentication"
+        }
+      ]
+    },
+    {
       "id": "botnet",
       "form": "BOTNET",
       "display": "Botnet",
@@ -20,6 +108,85 @@
         {
           "type": "uses",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "certificate",
+      "form": "CERTIFICATE",
+      "display": "Certificate",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Signed file proving a server's or person's identity.",
+        "fr": "Fichier signé qui prouve l'identité d'un serveur ou d'une personne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "cipher",
+      "form": "CIPHER",
+      "display": "Cipher",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Algorithm used to encrypt and decrypt data.",
+        "fr": "Algorithme utilisé pour chiffrer et déchiffrer des données."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "csrf",
+      "form": "CSRF",
+      "display": "CSRF",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Cross-site request forgery: tricking a browser into unwanted actions.",
+        "fr": "Falsification de requête intersite : pousser un navigateur à des actions non voulues."
+      }
+    },
+    {
+      "id": "ddos",
+      "form": "DDOS",
+      "display": "DDoS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Distributed denial of service: flooding a target to make it unavailable.",
+        "fr": "Déni de service distribué : submerger une cible pour la rendre indisponible."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "botnet"
         }
       ]
     },
@@ -91,6 +258,48 @@
       }
     },
     {
+      "id": "injection",
+      "form": "INJECTION",
+      "display": "Injection",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Attack inserting malicious input that a system then executes.",
+        "fr": "Attaque insérant une entrée malveillante qu'un système exécute ensuite."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "exploit"
+        }
+      ]
+    },
+    {
+      "id": "keylogger",
+      "form": "KEYLOGGER",
+      "display": "Keylogger",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tool recording every key a user types.",
+        "fr": "Outil qui enregistre chaque touche frappée par l'utilisateur."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "spyware"
+        }
+      ]
+    },
+    {
       "id": "malware",
       "form": "MALWARE",
       "display": "Malware",
@@ -104,6 +313,51 @@
         "en": "Software designed to damage, spy on or take control of systems.",
         "fr": "Logiciel conçu pour endommager, espionner ou prendre le contrôle de systèmes."
       }
+    },
+    {
+      "id": "mfa",
+      "form": "MFA",
+      "display": "MFA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Multi-factor authentication: proving identity with two or more factors.",
+        "fr": "Authentification multifacteur : prouver son identité avec plusieurs facteurs."
+      },
+      "aliases": [
+        "2FA"
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "authentication"
+        }
+      ]
+    },
+    {
+      "id": "oauth",
+      "form": "OAUTH",
+      "display": "OAuth",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Standard letting apps access resources on a user's behalf without their password.",
+        "fr": "Norme permettant à une appli d'agir au nom d'un utilisateur sans son mot de passe."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authorization"
+        }
+      ]
     },
     {
       "id": "password",
@@ -123,6 +377,49 @@
         {
           "type": "related_to",
           "target": "hash"
+        }
+      ]
+    },
+    {
+      "id": "patch",
+      "form": "PATCH",
+      "display": "Patch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity",
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Update fixing a bug or security flaw.",
+        "fr": "Mise à jour qui corrige un bug ou une faille de sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        }
+      ]
+    },
+    {
+      "id": "pentest",
+      "form": "PENTEST",
+      "display": "Penetration test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Authorised simulated attack to find security weaknesses.",
+        "fr": "Attaque simulée et autorisée pour trouver des failles de sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
         }
       ]
     },
@@ -163,6 +460,239 @@
         {
           "type": "uses",
           "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "rootkit",
+      "form": "ROOTKIT",
+      "display": "Rootkit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Malware hiding deep in a system to keep privileged access.",
+        "fr": "Logiciel malveillant caché au cœur d'un système pour garder un accès privilégié."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        },
+        {
+          "type": "related_to",
+          "target": "root"
+        }
+      ]
+    },
+    {
+      "id": "salt",
+      "form": "SALT",
+      "display": "Salt",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Random value added to a password before hashing it.",
+        "fr": "Valeur aléatoire ajoutée à un mot de passe avant son hachage."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hash"
+        },
+        {
+          "type": "related_to",
+          "target": "password"
+        }
+      ]
+    },
+    {
+      "id": "sandbox",
+      "form": "SANDBOX",
+      "display": "Sandbox",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Isolated environment where untrusted code runs safely.",
+        "fr": "Environnement isolé où exécuter du code non fiable en sécurité."
+      }
+    },
+    {
+      "id": "spoofing",
+      "form": "SPOOFING",
+      "display": "Spoofing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Faking an identity, address or sender to deceive.",
+        "fr": "Usurpation d'une identité, d'une adresse ou d'un expéditeur pour tromper."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        }
+      ]
+    },
+    {
+      "id": "spyware",
+      "form": "SPYWARE",
+      "display": "Spyware",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Malware secretly collecting a user's information.",
+        "fr": "Logiciel malveillant qui collecte en secret les informations d'un utilisateur."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "trojan",
+      "form": "TROJAN",
+      "display": "Trojan",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Malware disguised as legitimate software.",
+        "fr": "Logiciel malveillant déguisé en programme légitime."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "virus",
+      "form": "VIRUS",
+      "display": "Virus",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Malware that attaches to files and spreads when they run.",
+        "fr": "Logiciel malveillant qui s'attache aux fichiers et se propage à leur exécution."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "vulnerability",
+      "form": "VULNERABILITY",
+      "display": "Vulnerability",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Weakness that an attacker could exploit.",
+        "fr": "Faiblesse qu'un attaquant pourrait exploiter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "exploit"
+        }
+      ]
+    },
+    {
+      "id": "worm",
+      "form": "WORM",
+      "display": "Worm",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Malware that copies itself across networks without user action.",
+        "fr": "Logiciel malveillant qui se propage seul sur les réseaux."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "xss",
+      "form": "XSS",
+      "display": "XSS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Cross-site scripting: injecting malicious scripts into web pages.",
+        "fr": "Cross-site scripting : injection de scripts malveillants dans des pages web."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "injection"
+        }
+      ]
+    },
+    {
+      "id": "zeroday",
+      "form": "ZERODAY",
+      "display": "Zero-day",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Vulnerability exploited before its vendor knows about it.",
+        "fr": "Faille exploitée avant que l'éditeur n'en ait connaissance."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "vulnerability"
         }
       ]
     }

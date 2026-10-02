@@ -24,6 +24,155 @@
       ]
     },
     {
+      "id": "ai",
+      "form": "AI",
+      "display": "AI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Artificial intelligence: machines performing tasks that need human-like intelligence.",
+        "fr": "Intelligence artificielle : machines accomplissant des tâches qui demandent de l'intelligence."
+      },
+      "aliases": [
+        "IA"
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ml"
+        }
+      ]
+    },
+    {
+      "id": "attention",
+      "form": "ATTENTION",
+      "display": "Attention",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Mechanism letting a model weigh which inputs matter most.",
+        "fr": "Mécanisme permettant à un modèle de pondérer les entrées les plus importantes."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "transformer"
+        }
+      ]
+    },
+    {
+      "id": "backpropagation",
+      "form": "BACKPROPAGATION",
+      "display": "Backpropagation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Algorithm computing gradients to train neural networks.",
+        "fr": "Algorithme qui calcule les gradients pour entraîner les réseaux de neurones."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "gradient"
+        },
+        {
+          "type": "part_of",
+          "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "bias",
+      "form": "BIAS",
+      "display": "Bias",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Systematic skew in data or a model leading to unfair results.",
+        "fr": "Distorsion systématique des données ou d'un modèle menant à des résultats injustes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        }
+      ]
+    },
+    {
+      "id": "chatbot",
+      "form": "CHATBOT",
+      "display": "Chatbot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Program that converses with people in natural language.",
+        "fr": "Programme qui converse avec les gens en langage naturel."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "classifier",
+      "form": "CLASSIFIER",
+      "display": "Classifier",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Model that assigns inputs to categories.",
+        "fr": "Modèle qui range des entrées dans des catégories."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "clustering",
+      "form": "CLUSTERING",
+      "display": "Clustering",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Grouping similar items without predefined labels.",
+        "fr": "Regroupement d'éléments similaires sans étiquettes prédéfinies."
+      }
+    },
+    {
       "id": "dataset",
       "form": "DATASET",
       "display": "Dataset",
@@ -38,6 +187,27 @@
         "en": "Collection of examples used to train or evaluate a model.",
         "fr": "Collection d'exemples servant à entraîner ou évaluer un modèle."
       }
+    },
+    {
+      "id": "diffusion",
+      "form": "DIFFUSION",
+      "display": "Diffusion model",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Generative model creating images by gradually removing noise.",
+        "fr": "Modèle génératif qui crée des images en retirant progressivement du bruit."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "model"
+        }
+      ]
     },
     {
       "id": "embedding",
@@ -61,6 +231,69 @@
       ]
     },
     {
+      "id": "epoch",
+      "form": "EPOCH",
+      "display": "Epoch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "One full pass over the training dataset.",
+        "fr": "Un passage complet sur le jeu de données d'entraînement."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "finetuning",
+      "form": "FINETUNING",
+      "display": "Fine-tuning",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Further training a pretrained model on a specific task.",
+        "fr": "Entraînement complémentaire d'un modèle pré-entraîné sur une tâche précise."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "gan",
+      "form": "GAN",
+      "display": "GAN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Generative adversarial network: two models competing to create realistic data.",
+        "fr": "Réseau antagoniste génératif : deux modèles en compétition pour créer des données réalistes."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "neural-network"
+        }
+      ]
+    },
+    {
       "id": "gradient",
       "form": "GRADIENT",
       "display": "Gradient",
@@ -74,6 +307,27 @@
         "en": "Direction of steepest change used to adjust model weights during training.",
         "fr": "Direction de plus forte variation utilisée pour ajuster les poids d'un modèle à l'entraînement."
       }
+    },
+    {
+      "id": "hallucination",
+      "form": "HALLUCINATION",
+      "display": "Hallucination",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Confident but false output produced by an AI model.",
+        "fr": "Réponse affirmée mais fausse produite par un modèle d'IA."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "llm"
+        }
+      ]
     },
     {
       "id": "inference",
@@ -93,6 +347,28 @@
         {
           "type": "uses",
           "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "label",
+      "form": "LABEL",
+      "display": "Label",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Known answer attached to a training example.",
+        "fr": "Réponse connue associée à un exemple d'entraînement."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dataset"
         }
       ]
     },
@@ -122,6 +398,27 @@
       ]
     },
     {
+      "id": "ml",
+      "form": "ML",
+      "display": "ML",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Machine learning: systems that learn patterns from data.",
+        "fr": "Apprentissage automatique : systèmes qui apprennent à partir des données."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "model"
+        }
+      ]
+    },
+    {
       "id": "model",
       "form": "MODEL",
       "display": "Model",
@@ -135,6 +432,90 @@
         "en": "Mathematical function learned from data to make predictions.",
         "fr": "Fonction mathématique apprise à partir de données pour faire des prédictions."
       }
+    },
+    {
+      "id": "neural-network",
+      "form": "NEURALNETWORK",
+      "display": "Neural network",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Model made of layers of connected artificial neurons.",
+        "fr": "Modèle composé de couches de neurones artificiels connectés."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "nlp",
+      "form": "NLP",
+      "display": "NLP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Natural language processing: computers understanding human language.",
+        "fr": "Traitement du langage naturel : faire comprendre la langue humaine aux machines."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "overfitting",
+      "form": "OVERFITTING",
+      "display": "Overfitting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "When a model memorises training data and fails on new data.",
+        "fr": "Quand un modèle mémorise ses données d'entraînement et échoue sur de nouvelles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "perceptron",
+      "form": "PERCEPTRON",
+      "display": "Perceptron",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Simplest artificial neuron, an ancestor of deep learning.",
+        "fr": "Neurone artificiel le plus simple, ancêtre de l'apprentissage profond."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "neural-network"
+        }
+      ]
     },
     {
       "id": "prompt",
@@ -158,6 +539,147 @@
       ]
     },
     {
+      "id": "pytorch",
+      "form": "PYTORCH",
+      "display": "PyTorch",
+      "playable": true,
+      "kind": "tool",
+      "owner": "The Linux Foundation",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Popular open-source deep learning framework.",
+        "fr": "Framework open source populaire d'apprentissage profond."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tensor"
+        },
+        {
+          "type": "uses",
+          "target": "python"
+        }
+      ]
+    },
+    {
+      "id": "rag",
+      "form": "RAG",
+      "display": "RAG",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Retrieval-augmented generation: grounding an LLM's answers in fetched documents.",
+        "fr": "Génération augmentée par récupération : appuyer les réponses d'un LLM sur des documents."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "llm"
+        },
+        {
+          "type": "uses",
+          "target": "embedding"
+        }
+      ]
+    },
+    {
+      "id": "regression",
+      "form": "REGRESSION",
+      "display": "Regression",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Predicting a numeric value from input features.",
+        "fr": "Prédiction d'une valeur numérique à partir de variables d'entrée."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "reinforcement",
+      "form": "REINFORCEMENT",
+      "display": "Reinforcement learning",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Learning by trial and error from rewards.",
+        "fr": "Apprentissage par essais et erreurs guidé par des récompenses."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "agent"
+        }
+      ]
+    },
+    {
+      "id": "tensor",
+      "form": "TENSOR",
+      "display": "Tensor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Multi-dimensional array of numbers used in machine learning.",
+        "fr": "Tableau de nombres multidimensionnel utilisé en apprentissage automatique."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vector"
+        }
+      ]
+    },
+    {
+      "id": "tensorflow",
+      "form": "TENSORFLOW",
+      "display": "TensorFlow",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Google LLC",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Google's open-source machine learning framework.",
+        "fr": "Framework open source d'apprentissage automatique de Google."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "tensor"
+        },
+        {
+          "type": "alternative_to",
+          "target": "pytorch"
+        }
+      ]
+    },
+    {
       "id": "token",
       "form": "TOKEN",
       "display": "Token",
@@ -175,6 +697,27 @@
         {
           "type": "part_of",
           "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "training",
+      "form": "TRAINING",
+      "display": "Training",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Process of adjusting a model's parameters from data.",
+        "fr": "Processus d'ajustement des paramètres d'un modèle à partir des données."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "dataset"
         }
       ]
     },
@@ -214,6 +757,27 @@
         "en": "Ordered list of numbers representing a point or direction in space.",
         "fr": "Liste ordonnée de nombres représentant un point ou une direction dans l'espace."
       }
+    },
+    {
+      "id": "weight",
+      "form": "WEIGHT",
+      "display": "Weight",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Learned number scaling a connection inside a neural network.",
+        "fr": "Nombre appris qui module une connexion dans un réseau de neurones."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "neural-network"
+        }
+      ]
     }
   ]
 }

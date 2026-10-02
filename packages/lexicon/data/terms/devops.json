@@ -28,6 +28,116 @@
       ]
     },
     {
+      "id": "artifact",
+      "form": "ARTIFACT",
+      "display": "Artifact",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "File produced by a build, such as a package or container image.",
+        "fr": "Fichier produit par un build, comme un paquet ou une image de conteneur."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "branch",
+      "form": "BRANCH",
+      "display": "Branch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Independent line of development in version control.",
+        "fr": "Ligne de développement indépendante dans un gestionnaire de versions."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "canary",
+      "form": "CANARY",
+      "display": "Canary release",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Releasing to a small share of users first to limit risk.",
+        "fr": "Déploiement d'abord auprès d'une petite part d'utilisateurs pour limiter le risque."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deploy"
+        }
+      ]
+    },
+    {
+      "id": "cd",
+      "form": "CD",
+      "display": "CD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Continuous delivery: keeping software always ready to deploy.",
+        "fr": "Livraison continue : garder le logiciel toujours prêt à être déployé."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        },
+        {
+          "type": "related_to",
+          "target": "deploy"
+        }
+      ]
+    },
+    {
+      "id": "ci",
+      "form": "CI",
+      "display": "CI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Continuous integration: building and testing every code change automatically.",
+        "fr": "Intégration continue : compiler et tester automatiquement chaque changement de code."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
       "id": "cluster",
       "form": "CLUSTER",
       "display": "Cluster",
@@ -46,6 +156,28 @@
         {
           "type": "related_to",
           "target": "pod"
+        }
+      ]
+    },
+    {
+      "id": "commit",
+      "form": "COMMIT",
+      "display": "Commit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Saved snapshot of changes in a version-control history.",
+        "fr": "Instantané enregistré de modifications dans l'historique de versions."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "git"
         }
       ]
     },
@@ -121,6 +253,102 @@
       ]
     },
     {
+      "id": "github",
+      "form": "GITHUB",
+      "display": "GitHub",
+      "playable": true,
+      "kind": "product",
+      "owner": "GitHub, Inc.",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Platform hosting git repositories and collaboration tools.",
+        "fr": "Plateforme d'hébergement de dépôts git et d'outils de collaboration."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "gitlab",
+      "form": "GITLAB",
+      "display": "GitLab",
+      "playable": true,
+      "kind": "product",
+      "owner": "GitLab Inc.",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Platform combining git hosting and built-in CI/CD.",
+        "fr": "Plateforme combinant hébergement git et CI/CD intégrée."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "git"
+        },
+        {
+          "type": "alternative_to",
+          "target": "github"
+        }
+      ]
+    },
+    {
+      "id": "gitops",
+      "form": "GITOPS",
+      "display": "GitOps",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Operating infrastructure by declaring desired state in git.",
+        "fr": "Gérer l'infrastructure en déclarant l'état souhaité dans git."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "git"
+        },
+        {
+          "type": "related_to",
+          "target": "kubernetes"
+        }
+      ]
+    },
+    {
+      "id": "grafana",
+      "form": "GRAFANA",
+      "display": "Grafana",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Grafana Labs",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tool for building dashboards from metrics and logs.",
+        "fr": "Outil de création de tableaux de bord à partir de métriques et de logs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "prometheus"
+        }
+      ]
+    },
+    {
       "id": "helm",
       "form": "HELM",
       "display": "Helm",
@@ -143,6 +371,28 @@
       ],
       "sources": [
         "https://helm.sh/docs/"
+      ]
+    },
+    {
+      "id": "jenkins",
+      "form": "JENKINS",
+      "display": "Jenkins",
+      "playable": true,
+      "kind": "tool",
+      "owner": "The Linux Foundation",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Open-source automation server for CI/CD pipelines.",
+        "fr": "Serveur d'automatisation open source pour pipelines CI/CD."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "ci"
+        }
       ]
     },
     {
@@ -179,6 +429,143 @@
       ],
       "tags": [
         "season:s01-the-cloud"
+      ]
+    },
+    {
+      "id": "logging",
+      "form": "LOGGING",
+      "display": "Logging",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Recording events produced by software for later analysis.",
+        "fr": "Enregistrement des événements produits par un logiciel pour analyse ultérieure."
+      }
+    },
+    {
+      "id": "merge",
+      "form": "MERGE",
+      "display": "Merge",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Combining changes from one branch into another.",
+        "fr": "Fusion des changements d'une branche dans une autre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "branch"
+        }
+      ]
+    },
+    {
+      "id": "microservice",
+      "form": "MICROSERVICE",
+      "display": "Microservice",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Small independently deployable service owning one business capability.",
+        "fr": "Petit service déployable indépendamment, responsable d'une seule capacité métier."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "monolith"
+        }
+      ]
+    },
+    {
+      "id": "monitoring",
+      "form": "MONITORING",
+      "display": "Monitoring",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Continuously watching systems and alerting on problems.",
+        "fr": "Surveillance continue des systèmes avec alertes en cas de problème."
+      }
+    },
+    {
+      "id": "monolith",
+      "form": "MONOLITH",
+      "display": "Monolith",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Application built and deployed as a single unit.",
+        "fr": "Application construite et déployée comme un seul bloc."
+      }
+    },
+    {
+      "id": "nginx",
+      "form": "NGINX",
+      "display": "NGINX",
+      "playable": true,
+      "kind": "tool",
+      "owner": "F5, Inc.",
+      "categories": [
+        "devops",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "High-performance web server and reverse proxy.",
+        "fr": "Serveur web haute performance et proxy inverse."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "proxy"
+        }
+      ]
+    },
+    {
+      "id": "observability",
+      "form": "OBSERVABILITY",
+      "display": "Observability",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Ability to understand a system's state from its logs, metrics and traces.",
+        "fr": "Capacité à comprendre l'état d'un système via ses logs, métriques et traces."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "monitoring"
+        },
+        {
+          "type": "uses",
+          "target": "logging"
+        }
       ]
     },
     {
@@ -223,6 +610,91 @@
       ]
     },
     {
+      "id": "prometheus",
+      "form": "PROMETHEUS",
+      "display": "Prometheus",
+      "playable": true,
+      "kind": "tool",
+      "owner": "The Linux Foundation",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Open-source monitoring system collecting time-series metrics.",
+        "fr": "Système de supervision open source qui collecte des métriques temporelles."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "monitoring"
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "form": "REGISTRY",
+      "display": "Registry",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Service storing and distributing container images or packages.",
+        "fr": "Service qui stocke et distribue des images de conteneurs ou des paquets."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "container"
+        }
+      ]
+    },
+    {
+      "id": "rollback",
+      "form": "ROLLBACK",
+      "display": "Rollback",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Reverting to a previous working version after a bad change.",
+        "fr": "Retour à une version précédente fonctionnelle après un mauvais changement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deploy"
+        }
+      ]
+    },
+    {
+      "id": "sre",
+      "form": "SRE",
+      "display": "SRE",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Site reliability engineering: running production with software methods.",
+        "fr": "Site reliability engineering : exploiter la production avec des méthodes logicielles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "observability"
+        }
+      ]
+    },
+    {
       "id": "terraform",
       "form": "TERRAFORM",
       "display": "Terraform",
@@ -247,6 +719,21 @@
       "sources": [
         "https://developer.hashicorp.com/terraform/docs"
       ]
+    },
+    {
+      "id": "yaml",
+      "form": "YAML",
+      "display": "YAML",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Human-readable data format used for configuration files.",
+        "fr": "Format de données lisible utilisé pour les fichiers de configuration."
+      }
     }
   ]
 }

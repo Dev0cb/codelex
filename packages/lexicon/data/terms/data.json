@@ -3,6 +3,21 @@
   "category": "data",
   "terms": [
     {
+      "id": "acid",
+      "form": "ACID",
+      "display": "ACID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Atomicity, consistency, isolation, durability: guarantees of reliable transactions.",
+        "fr": "Atomicité, cohérence, isolation, durabilité : garanties des transactions fiables."
+      }
+    },
+    {
       "id": "airflow",
       "form": "AIRFLOW",
       "display": "Airflow",
@@ -28,6 +43,21 @@
       ]
     },
     {
+      "id": "analytics",
+      "form": "ANALYTICS",
+      "display": "Analytics",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Analysing data to find patterns and support decisions.",
+        "fr": "Analyse de données pour dégager des tendances et éclairer les décisions."
+      }
+    },
+    {
       "id": "broker",
       "form": "BROKER",
       "display": "Broker",
@@ -45,6 +75,49 @@
         {
           "type": "part_of",
           "target": "kafka"
+        }
+      ]
+    },
+    {
+      "id": "cassandra",
+      "form": "CASSANDRA",
+      "display": "Cassandra",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Apache Software Foundation",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Distributed wide-column database built for high write throughput.",
+        "fr": "Base distribuée orientée colonnes conçue pour un fort débit d'écriture."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "nosql"
+        }
+      ]
+    },
+    {
+      "id": "column",
+      "form": "COLUMN",
+      "display": "Column",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Named field shared by all rows of a table.",
+        "fr": "Champ nommé partagé par toutes les lignes d'une table."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "table"
         }
       ]
     },
@@ -74,6 +147,42 @@
       ]
     },
     {
+      "id": "csv",
+      "form": "CSV",
+      "display": "CSV",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Plain-text table format with comma-separated values.",
+        "fr": "Format de tableau en texte brut, valeurs séparées par des virgules."
+      }
+    },
+    {
+      "id": "dashboard",
+      "form": "DASHBOARD",
+      "display": "Dashboard",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Screen showing key metrics at a glance.",
+        "fr": "Écran affichant les indicateurs clés en un coup d'œil."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
       "id": "database",
       "form": "DATABASE",
       "display": "Database",
@@ -87,6 +196,28 @@
         "en": "Organised collection of data stored and accessed electronically.",
         "fr": "Collection organisée de données stockées et consultées électroniquement."
       }
+    },
+    {
+      "id": "elasticsearch",
+      "form": "ELASTICSEARCH",
+      "display": "Elasticsearch",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Elastic N.V.",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Distributed search and analytics engine.",
+        "fr": "Moteur distribué de recherche et d'analyse."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "index"
+        }
+      ]
     },
     {
       "id": "etl",
@@ -125,6 +256,59 @@
       }
     },
     {
+      "id": "graphql",
+      "form": "GRAPHQL",
+      "display": "GraphQL",
+      "playable": true,
+      "kind": "language",
+      "owner": "GraphQL Foundation",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Query language letting clients request exactly the API data they need.",
+        "fr": "Langage de requête permettant aux clients de demander exactement les données d'API voulues."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "rest"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
+      "id": "hadoop",
+      "form": "HADOOP",
+      "display": "Hadoop",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Apache Software Foundation",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Framework for distributed storage and batch processing of big data.",
+        "fr": "Framework de stockage distribué et de traitement par lots du big data."
+      },
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "cluster"
+        },
+        {
+          "type": "alternative_to",
+          "target": "spark"
+        }
+      ]
+    },
+    {
       "id": "index",
       "form": "INDEX",
       "display": "Index",
@@ -142,6 +326,49 @@
         {
           "type": "part_of",
           "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "form": "JOIN",
+      "display": "Join",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "SQL operation combining rows from two tables on a shared key.",
+        "fr": "Opération SQL combinant les lignes de deux tables selon une clé commune."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "sql"
+        }
+      ]
+    },
+    {
+      "id": "json",
+      "form": "JSON",
+      "display": "JSON",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Lightweight text format for structured data, ubiquitous in APIs.",
+        "fr": "Format texte léger pour données structurées, omniprésent dans les API."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "api"
         }
       ]
     },
@@ -179,6 +406,151 @@
       ]
     },
     {
+      "id": "lakehouse",
+      "form": "LAKEHOUSE",
+      "display": "Lakehouse",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Architecture combining a data lake's flexibility with warehouse features.",
+        "fr": "Architecture combinant la souplesse d'un data lake et les atouts d'un entrepôt."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "mongodb",
+      "form": "MONGODB",
+      "display": "MongoDB",
+      "playable": true,
+      "kind": "tool",
+      "owner": "MongoDB, Inc.",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Document database storing JSON-like records.",
+        "fr": "Base de données orientée documents stockant des enregistrements de type JSON."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "nosql"
+        }
+      ]
+    },
+    {
+      "id": "mysql",
+      "form": "MYSQL",
+      "display": "MySQL",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Oracle",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Widely used open-source relational database.",
+        "fr": "Base de données relationnelle open source très répandue."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        },
+        {
+          "type": "uses",
+          "target": "sql"
+        },
+        {
+          "type": "alternative_to",
+          "target": "postgres"
+        }
+      ]
+    },
+    {
+      "id": "nosql",
+      "form": "NOSQL",
+      "display": "NoSQL",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Databases not based on relational tables, like document or key-value stores.",
+        "fr": "Bases de données non relationnelles, comme les bases documents ou clé-valeur."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        },
+        {
+          "type": "alternative_to",
+          "target": "sql"
+        }
+      ]
+    },
+    {
+      "id": "olap",
+      "form": "OLAP",
+      "display": "OLAP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Online analytical processing: fast multi-dimensional queries over large data.",
+        "fr": "Traitement analytique en ligne : requêtes multidimensionnelles rapides sur de gros volumes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "parquet",
+      "form": "PARQUET",
+      "display": "Parquet",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Apache Software Foundation",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Columnar file format optimised for analytics.",
+        "fr": "Format de fichier en colonnes optimisé pour l'analytique."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "column"
+        },
+        {
+          "type": "alternative_to",
+          "target": "csv"
+        }
+      ]
+    },
+    {
       "id": "partition",
       "form": "PARTITION",
       "display": "Partition",
@@ -196,6 +568,35 @@
         {
           "type": "part_of",
           "target": "topic"
+        }
+      ]
+    },
+    {
+      "id": "postgres",
+      "form": "POSTGRES",
+      "display": "PostgreSQL",
+      "playable": true,
+      "kind": "tool",
+      "owner": "PostgreSQL Global Development Group",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Powerful open-source relational database.",
+        "fr": "Base de données relationnelle open source puissante."
+      },
+      "aliases": [
+        "POSTGRESQL"
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        },
+        {
+          "type": "uses",
+          "target": "sql"
         }
       ]
     },
@@ -267,6 +668,90 @@
       ]
     },
     {
+      "id": "replication",
+      "form": "REPLICATION",
+      "display": "Replication",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Keeping copies of data on several servers.",
+        "fr": "Maintien de copies des données sur plusieurs serveurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ]
+    },
+    {
+      "id": "row",
+      "form": "ROW",
+      "display": "Row",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Single record in a database table.",
+        "fr": "Enregistrement unique dans une table de base de données."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "table"
+        }
+      ]
+    },
+    {
+      "id": "schema",
+      "form": "SCHEMA",
+      "display": "Schema",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Formal description of how data is structured.",
+        "fr": "Description formelle de la structure des données."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "sharding",
+      "form": "SHARDING",
+      "display": "Sharding",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Splitting a database across machines by key ranges.",
+        "fr": "Répartition d'une base de données sur plusieurs machines selon des plages de clés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "partition"
+        }
+      ]
+    },
+    {
       "id": "spark",
       "form": "SPARK",
       "display": "Spark",
@@ -313,6 +798,31 @@
       ]
     },
     {
+      "id": "sqlite",
+      "form": "SQLITE",
+      "display": "SQLite",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Small embedded SQL database stored in a single file.",
+        "fr": "Petite base SQL embarquée stockée dans un seul fichier."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        },
+        {
+          "type": "uses",
+          "target": "sql"
+        }
+      ]
+    },
+    {
       "id": "stream",
       "form": "STREAM",
       "display": "Stream",
@@ -334,6 +844,27 @@
       ]
     },
     {
+      "id": "table",
+      "form": "TABLE",
+      "display": "Table",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Grid of rows and columns storing records in a relational database.",
+        "fr": "Grille de lignes et de colonnes stockant des enregistrements dans une base relationnelle."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "database"
+        }
+      ]
+    },
+    {
       "id": "topic",
       "form": "TOPIC",
       "display": "Topic",
@@ -351,6 +882,27 @@
         {
           "type": "part_of",
           "target": "kafka"
+        }
+      ]
+    },
+    {
+      "id": "transaction",
+      "form": "TRANSACTION",
+      "display": "Transaction",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Group of operations that succeed or fail together.",
+        "fr": "Groupe d'opérations qui réussissent ou échouent ensemble."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "acid"
         }
       ]
     },

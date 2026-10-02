@@ -18,7 +18,7 @@ Goal: a monorepo where agents can ship safely.
 | E-0.3 | Local stack: docker compose (Postgres, Redis, Redpanda, MinIO, OTel collector) | devops-sre | ☐ |
 | E-0.4 | CI pipeline (lint, typecheck, test affected, security scans, validators) | devops-sre | ◐ |
 | E-0.5 | `packages/observability`, `packages/protocol` skeleton with versioning rules | devops-sre, realtime-engineer | ☐ |
-| E-0.6 | Lexicon schema v1 + validator + seed (≥ 300 terms, 9 categories) [V-04, V-05] | lexicon-engineer, lexicon-curator | ◐ |
+| E-0.6 | Lexicon schema v1 + validator + seed (≥ 300 terms, 9 categories) [V-04, V-05] | lexicon-engineer, lexicon-curator | ☑ |
 
 Exit criteria: CI green on main; `pnpm validate` passes; a new package can be scaffolded with `/scaffold` and is
 green in < 10 min; lexicon seed validated.

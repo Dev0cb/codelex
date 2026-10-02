@@ -3,6 +3,21 @@
   "category": "programming",
   "terms": [
     {
+      "id": "algorithm",
+      "form": "ALGORITHM",
+      "display": "Algorithm",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Finite sequence of steps that solves a problem.",
+        "fr": "Suite finie d'étapes qui résout un problème."
+      }
+    },
+    {
       "id": "array",
       "form": "ARRAY",
       "display": "Array",
@@ -15,6 +30,36 @@
       "definitions": {
         "en": "Ordered collection of elements accessed by numeric index.",
         "fr": "Collection ordonnée d'éléments accessibles par un indice numérique."
+      }
+    },
+    {
+      "id": "boolean",
+      "form": "BOOLEAN",
+      "display": "Boolean",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data type with only two values: true or false.",
+        "fr": "Type de donnée à deux valeurs seulement : vrai ou faux."
+      }
+    },
+    {
+      "id": "bug",
+      "form": "BUG",
+      "display": "Bug",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Error in software that makes it behave unexpectedly.",
+        "fr": "Erreur dans un logiciel qui le fait se comporter de façon inattendue."
       }
     },
     {
@@ -60,6 +105,27 @@
       ]
     },
     {
+      "id": "closure",
+      "form": "CLOSURE",
+      "display": "Closure",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Function that remembers variables from the scope where it was created.",
+        "fr": "Fonction qui garde en mémoire les variables de la portée où elle a été créée."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "function"
+        }
+      ]
+    },
+    {
       "id": "compiler",
       "form": "COMPILER",
       "display": "Compiler",
@@ -73,6 +139,48 @@
         "en": "Program translating source code into machine code or bytecode before execution.",
         "fr": "Programme qui traduit le code source en code machine ou bytecode avant exécution."
       }
+    },
+    {
+      "id": "csharp",
+      "display": "C#",
+      "playable": false,
+      "kind": "language",
+      "owner": "Microsoft",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Microsoft's object-oriented language for .NET, games and enterprise apps.",
+        "fr": "Langage orienté objet de Microsoft pour .NET, les jeux et les applications d'entreprise."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "debugger",
+      "form": "DEBUGGER",
+      "display": "Debugger",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Tool to pause a program and inspect its state step by step.",
+        "fr": "Outil pour mettre un programme en pause et inspecter son état pas à pas."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bug"
+        }
+      ]
     },
     {
       "id": "decorator",
@@ -124,6 +232,42 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "exception",
+      "form": "EXCEPTION",
+      "display": "Exception",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Signal that an error occurred, interrupting normal program flow.",
+        "fr": "Signal indiquant qu'une erreur est survenue, interrompant le déroulement normal du programme."
+      }
+    },
+    {
+      "id": "framework",
+      "form": "FRAMEWORK",
+      "display": "Framework",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Structure of reusable code that dictates how an application is built.",
+        "fr": "Structure de code réutilisable qui impose la façon de construire une application."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "library"
+        }
       ]
     },
     {
@@ -190,6 +334,109 @@
       ]
     },
     {
+      "id": "go",
+      "form": "GO",
+      "display": "Go",
+      "playable": true,
+      "kind": "language",
+      "owner": "Google LLC",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Compiled language from Google designed for simple, concurrent network services.",
+        "fr": "Langage compilé de Google conçu pour des services réseau simples et concurrents."
+      },
+      "aliases": [
+        "GOLANG"
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "haskell",
+      "form": "HASKELL",
+      "display": "Haskell",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Purely functional language with lazy evaluation and strong static types.",
+        "fr": "Langage purement fonctionnel à évaluation paresseuse et typage statique fort."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "inheritance",
+      "form": "INHERITANCE",
+      "display": "Inheritance",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Mechanism letting a class reuse and extend another class's behaviour.",
+        "fr": "Mécanisme permettant à une classe de réutiliser et d'étendre le comportement d'une autre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "class"
+        }
+      ]
+    },
+    {
+      "id": "integer",
+      "form": "INTEGER",
+      "display": "Integer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Whole number data type, without a fractional part.",
+        "fr": "Type de donnée représentant un nombre entier, sans partie décimale."
+      }
+    },
+    {
+      "id": "interface",
+      "form": "INTERFACE",
+      "display": "Interface",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Contract listing methods a type must provide, without implementing them.",
+        "fr": "Contrat listant les méthodes qu'un type doit fournir, sans les implémenter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "class"
+        }
+      ]
+    },
+    {
       "id": "iterator",
       "form": "ITERATOR",
       "display": "Iterator",
@@ -243,6 +490,93 @@
       ]
     },
     {
+      "id": "javascript",
+      "form": "JAVASCRIPT",
+      "display": "JavaScript",
+      "playable": true,
+      "kind": "language",
+      "owner": "Oracle",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Language of the web browser, also used on servers with Node.js.",
+        "fr": "Langage du navigateur web, également utilisé côté serveur avec Node.js."
+      },
+      "aliases": [
+        "JS"
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "kotlin",
+      "form": "KOTLIN",
+      "display": "Kotlin",
+      "playable": true,
+      "kind": "language",
+      "owner": "JetBrains",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Concise JVM language, the preferred language for Android apps.",
+        "fr": "Langage concis de la JVM, langage privilégié des applications Android."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "alternative_to",
+          "target": "java"
+        }
+      ]
+    },
+    {
+      "id": "lambda",
+      "form": "LAMBDA",
+      "display": "Lambda",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Anonymous function defined inline, often passed as an argument.",
+        "fr": "Fonction anonyme définie en ligne, souvent passée en argument."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "function"
+        }
+      ]
+    },
+    {
+      "id": "library",
+      "form": "LIBRARY",
+      "display": "Library",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Reusable collection of code that programs can call.",
+        "fr": "Collection de code réutilisable que les programmes peuvent appeler."
+      }
+    },
+    {
       "id": "list",
       "form": "LIST",
       "display": "list",
@@ -280,6 +614,74 @@
         "en": "Instance bundling data and the methods that act on it.",
         "fr": "Instance regroupant des données et les méthodes qui agissent dessus."
       }
+    },
+    {
+      "id": "php",
+      "form": "PHP",
+      "display": "PHP",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Server-side scripting language powering much of the web.",
+        "fr": "Langage de script côté serveur qui fait tourner une grande partie du web."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "pointer",
+      "form": "POINTER",
+      "display": "Pointer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Variable that stores the memory address of another value.",
+        "fr": "Variable qui stocke l'adresse mémoire d'une autre valeur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "polymorphism",
+      "form": "POLYMORPHISM",
+      "display": "Polymorphism",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Ability of different types to be used through one common interface.",
+        "fr": "Capacité de types différents à être utilisés via une même interface."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "interface"
+        },
+        {
+          "type": "related_to",
+          "target": "inheritance"
+        }
+      ]
     },
     {
       "id": "programming-language",
@@ -345,6 +747,60 @@
       ]
     },
     {
+      "id": "refactor",
+      "form": "REFACTOR",
+      "display": "Refactor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "To restructure code without changing what it does.",
+        "fr": "Restructurer du code sans changer ce qu'il fait."
+      }
+    },
+    {
+      "id": "regex",
+      "form": "REGEX",
+      "display": "Regex",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Pattern language for searching and matching text.",
+        "fr": "Langage de motifs pour rechercher et filtrer du texte."
+      },
+      "aliases": [
+        "REGEXP"
+      ]
+    },
+    {
+      "id": "ruby",
+      "form": "RUBY",
+      "display": "Ruby",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Dynamic language focused on developer happiness, known for Ruby on Rails.",
+        "fr": "Langage dynamique axé sur le plaisir du développeur, connu pour Ruby on Rails."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
       "id": "rust",
       "form": "RUST",
       "display": "Rust",
@@ -398,6 +854,64 @@
       ]
     },
     {
+      "id": "string",
+      "form": "STRING",
+      "display": "String",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Sequence of characters, such as a word or sentence, in a program.",
+        "fr": "Suite de caractères, comme un mot ou une phrase, dans un programme."
+      }
+    },
+    {
+      "id": "swift",
+      "form": "SWIFT",
+      "display": "Swift",
+      "playable": true,
+      "kind": "language",
+      "owner": "Apple Inc.",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Apple's language for iOS and macOS apps.",
+        "fr": "Langage d'Apple pour les applications iOS et macOS."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "syntax",
+      "form": "SYNTAX",
+      "display": "Syntax",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Rules defining how code must be written to be valid.",
+        "fr": "Règles qui définissent comment écrire un code valide."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
       "id": "tuple",
       "form": "TUPLE",
       "display": "tuple",
@@ -423,6 +937,35 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "typescript",
+      "form": "TYPESCRIPT",
+      "display": "TypeScript",
+      "playable": true,
+      "kind": "language",
+      "owner": "Microsoft",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "JavaScript with static types, compiled to plain JavaScript.",
+        "fr": "JavaScript doté de types statiques, compilé en JavaScript classique."
+      },
+      "aliases": [
+        "TS"
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "javascript"
+        }
       ]
     },
     {

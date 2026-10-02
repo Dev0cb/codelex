@@ -3,6 +3,107 @@
   "category": "systems",
   "terms": [
     {
+      "id": "bash",
+      "form": "BASH",
+      "display": "Bash",
+      "playable": true,
+      "kind": "tool",
+      "owner": "Free Software Foundation",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Popular Unix shell and scripting language.",
+        "fr": "Shell Unix populaire et langage de script."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "shell"
+        }
+      ]
+    },
+    {
+      "id": "boot",
+      "form": "BOOT",
+      "display": "Boot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Process of starting a computer and loading its operating system.",
+        "fr": "Démarrage d'un ordinateur et chargement de son système d'exploitation."
+      }
+    },
+    {
+      "id": "concurrency",
+      "form": "CONCURRENCY",
+      "display": "Concurrency",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Handling several tasks that make progress over overlapping time.",
+        "fr": "Gestion de plusieurs tâches qui progressent sur des périodes qui se chevauchent."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "thread"
+        }
+      ]
+    },
+    {
+      "id": "cron",
+      "form": "CRON",
+      "display": "Cron",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Unix scheduler that runs commands at fixed times.",
+        "fr": "Planificateur Unix qui exécute des commandes à heures fixes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "scheduler"
+        }
+      ]
+    },
+    {
+      "id": "daemon",
+      "form": "DAEMON",
+      "display": "Daemon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Background process that runs continuously as a service.",
+        "fr": "Processus d'arrière-plan qui tourne en continu comme un service."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "process"
+        }
+      ]
+    },
+    {
       "id": "deadlock",
       "form": "DEADLOCK",
       "display": "Deadlock",
@@ -25,6 +126,28 @@
       ]
     },
     {
+      "id": "driver",
+      "form": "DRIVER",
+      "display": "Driver",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software letting the operating system talk to a hardware device.",
+        "fr": "Logiciel permettant au système d'exploitation de communiquer avec un périphérique."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "kernel"
+        }
+      ]
+    },
+    {
       "id": "filesystem",
       "form": "FILESYSTEM",
       "display": "File system",
@@ -38,6 +161,50 @@
         "en": "Method an OS uses to organise and store files on a disk.",
         "fr": "Méthode utilisée par l'OS pour organiser et stocker les fichiers sur un disque."
       }
+    },
+    {
+      "id": "hypervisor",
+      "form": "HYPERVISOR",
+      "display": "Hypervisor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Software that creates and runs virtual machines.",
+        "fr": "Logiciel qui crée et exécute des machines virtuelles."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "virtualization"
+        }
+      ]
+    },
+    {
+      "id": "interrupt",
+      "form": "INTERRUPT",
+      "display": "Interrupt",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Signal telling the CPU to pause and handle an urgent event.",
+        "fr": "Signal demandant au processeur de s'interrompre pour traiter un événement urgent."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kernel"
+        }
+      ]
     },
     {
       "id": "kernel",
@@ -83,6 +250,32 @@
       ],
       "sources": [
         "https://www.kernel.org/doc/html/latest/"
+      ]
+    },
+    {
+      "id": "macos",
+      "form": "MACOS",
+      "display": "macOS",
+      "playable": true,
+      "kind": "product",
+      "owner": "Apple Inc.",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Apple's operating system for Mac computers.",
+        "fr": "Système d'exploitation d'Apple pour les ordinateurs Mac."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "operating-system"
+        },
+        {
+          "type": "related_to",
+          "target": "unix"
+        }
       ]
     },
     {
@@ -141,6 +334,43 @@
       ]
     },
     {
+      "id": "paging",
+      "form": "PAGING",
+      "display": "Paging",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Memory management splitting memory into fixed-size pages.",
+        "fr": "Gestion mémoire qui découpe la mémoire en pages de taille fixe."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "permission",
+      "form": "PERMISSION",
+      "display": "Permission",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Right granted to a user or program to read, write or execute.",
+        "fr": "Droit accordé à un utilisateur ou programme pour lire, écrire ou exécuter."
+      }
+    },
+    {
       "id": "process",
       "form": "PROCESS",
       "display": "Process",
@@ -158,6 +388,28 @@
         {
           "type": "runs_on",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "root",
+      "form": "ROOT",
+      "display": "Root",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Superuser account with full control over a Unix system.",
+        "fr": "Compte superutilisateur disposant de tous les droits sur un système Unix."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
         }
       ]
     },
@@ -183,6 +435,21 @@
       ]
     },
     {
+      "id": "shell",
+      "form": "SHELL",
+      "display": "Shell",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Command-line interpreter that runs commands typed by the user.",
+        "fr": "Interpréteur en ligne de commande qui exécute les commandes saisies."
+      }
+    },
+    {
       "id": "socket",
       "form": "SOCKET",
       "display": "Socket",
@@ -205,6 +472,69 @@
       ]
     },
     {
+      "id": "swap",
+      "form": "SWAP",
+      "display": "Swap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Disk space used as overflow when RAM is full.",
+        "fr": "Espace disque utilisé en débordement quand la RAM est pleine."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "syscall",
+      "form": "SYSCALL",
+      "display": "System call",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Request from a program asking the kernel to perform a privileged action.",
+        "fr": "Demande d'un programme au noyau pour effectuer une action privilégiée."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "terminal",
+      "form": "TERMINAL",
+      "display": "Terminal",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Text window where you type commands for the computer.",
+        "fr": "Fenêtre texte où l'on tape des commandes pour l'ordinateur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "shell"
+        }
+      ]
+    },
+    {
       "id": "thread",
       "form": "THREAD",
       "display": "Thread",
@@ -223,6 +553,72 @@
         {
           "type": "part_of",
           "target": "process"
+        }
+      ]
+    },
+    {
+      "id": "unix",
+      "form": "UNIX",
+      "display": "Unix",
+      "playable": true,
+      "kind": "tool",
+      "owner": "The Open Group",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Family of multi-user operating systems that inspired Linux and macOS.",
+        "fr": "Famille de systèmes multi-utilisateurs qui a inspiré Linux et macOS."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "operating-system"
+        }
+      ]
+    },
+    {
+      "id": "virtualization",
+      "form": "VIRTUALIZATION",
+      "display": "Virtualization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Running several isolated virtual machines on one physical computer.",
+        "fr": "Exécution de plusieurs machines virtuelles isolées sur un même ordinateur physique."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "windows",
+      "form": "WINDOWS",
+      "display": "Windows",
+      "playable": true,
+      "kind": "product",
+      "owner": "Microsoft",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Microsoft's operating system for PCs and servers.",
+        "fr": "Système d'exploitation de Microsoft pour PC et serveurs."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "operating-system"
         }
       ]
     }

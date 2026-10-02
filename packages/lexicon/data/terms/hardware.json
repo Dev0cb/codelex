@@ -3,6 +3,119 @@
   "category": "hardware",
   "terms": [
     {
+      "id": "arm",
+      "form": "ARM",
+      "display": "Arm",
+      "playable": true,
+      "kind": "product",
+      "owner": "Arm Limited",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Energy-efficient processor architecture used in most phones.",
+        "fr": "Architecture de processeur économe en énergie utilisée dans la plupart des téléphones."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        },
+        {
+          "type": "related_to",
+          "target": "risc"
+        }
+      ]
+    },
+    {
+      "id": "asic",
+      "form": "ASIC",
+      "display": "ASIC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Chip custom-built for one specific task.",
+        "fr": "Puce conçue sur mesure pour une tâche précise."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chip"
+        },
+        {
+          "type": "alternative_to",
+          "target": "fpga"
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "form": "BATTERY",
+      "display": "Battery",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Rechargeable cell powering portable devices.",
+        "fr": "Accumulateur rechargeable qui alimente les appareils portables."
+      }
+    },
+    {
+      "id": "bios",
+      "form": "BIOS",
+      "display": "BIOS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Firmware that initialises hardware when a PC starts.",
+        "fr": "Micrologiciel qui initialise le matériel au démarrage d'un PC."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "firmware"
+        },
+        {
+          "type": "related_to",
+          "target": "boot"
+        }
+      ]
+    },
+    {
+      "id": "bus",
+      "form": "BUS",
+      "display": "Bus",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Shared pathway carrying data between computer components.",
+        "fr": "Voie partagée qui transporte les données entre composants."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "motherboard"
+        }
+      ]
+    },
+    {
       "id": "cache",
       "form": "CACHE",
       "display": "Cache",
@@ -21,6 +134,69 @@
         {
           "type": "related_to",
           "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "chip",
+      "form": "CHIP",
+      "display": "Chip",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Small piece of silicon containing an integrated circuit.",
+        "fr": "Petite pièce de silicium contenant un circuit intégré."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "transistor"
+        }
+      ]
+    },
+    {
+      "id": "clock",
+      "form": "CLOCK",
+      "display": "Clock speed",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Pace at which a CPU executes cycles, measured in gigahertz.",
+        "fr": "Rythme auquel un processeur exécute ses cycles, mesuré en gigahertz."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "core",
+      "form": "CORE",
+      "display": "Core",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Independent processing unit inside a CPU.",
+        "fr": "Unité de calcul indépendante au sein d'un processeur."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cpu"
         }
       ]
     },
@@ -62,6 +238,27 @@
       }
     },
     {
+      "id": "fpga",
+      "form": "FPGA",
+      "display": "FPGA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Chip whose logic can be reprogrammed after manufacturing.",
+        "fr": "Puce dont la logique peut être reprogrammée après fabrication."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chip"
+        }
+      ]
+    },
+    {
       "id": "gpu",
       "form": "GPU",
       "display": "GPU",
@@ -84,6 +281,118 @@
       ]
     },
     {
+      "id": "hdd",
+      "form": "HDD",
+      "display": "HDD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Hard disk drive storing data on spinning magnetic platters.",
+        "fr": "Disque dur stockant les données sur des plateaux magnétiques en rotation."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "ssd"
+        }
+      ]
+    },
+    {
+      "id": "hdmi",
+      "form": "HDMI",
+      "display": "HDMI",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Standard cable for digital audio and video.",
+        "fr": "Norme de câble pour l'audio et la vidéo numériques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "monitor"
+        }
+      ]
+    },
+    {
+      "id": "keyboard",
+      "form": "KEYBOARD",
+      "display": "Keyboard",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Input device with keys for typing.",
+        "fr": "Périphérique d'entrée à touches pour la saisie."
+      }
+    },
+    {
+      "id": "laptop",
+      "form": "LAPTOP",
+      "display": "Laptop",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Portable computer with built-in screen and keyboard.",
+        "fr": "Ordinateur portable avec écran et clavier intégrés."
+      }
+    },
+    {
+      "id": "microcontroller",
+      "form": "MICROCONTROLLER",
+      "display": "Microcontroller",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tiny computer on a chip controlling embedded devices.",
+        "fr": "Minuscule ordinateur sur puce qui pilote des appareils embarqués."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chip"
+        },
+        {
+          "type": "uses",
+          "target": "sensor"
+        }
+      ]
+    },
+    {
+      "id": "monitor",
+      "form": "MONITOR",
+      "display": "Monitor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Screen displaying a computer's output.",
+        "fr": "Écran qui affiche ce que produit l'ordinateur."
+      }
+    },
+    {
       "id": "motherboard",
       "form": "MOTHERBOARD",
       "display": "Motherboard",
@@ -96,6 +405,57 @@
       "definitions": {
         "en": "Main circuit board connecting a computer's components.",
         "fr": "Carte principale qui relie les composants d'un ordinateur."
+      }
+    },
+    {
+      "id": "mouse",
+      "form": "MOUSE",
+      "display": "Mouse",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Hand-held pointing device for moving a cursor.",
+        "fr": "Périphérique de pointage tenu en main pour déplacer un curseur."
+      }
+    },
+    {
+      "id": "nvme",
+      "form": "NVME",
+      "display": "NVMe",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Fast interface protocol for SSDs over PCIe.",
+        "fr": "Protocole d'interface rapide pour SSD via PCIe."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ssd"
+        }
+      ]
+    },
+    {
+      "id": "qubit",
+      "form": "QUBIT",
+      "display": "Qubit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Basic unit of quantum information, able to be 0 and 1 at once.",
+        "fr": "Unité de base de l'information quantique, pouvant valoir 0 et 1 à la fois."
       }
     },
     {
@@ -141,6 +501,121 @@
       ]
     },
     {
+      "id": "risc",
+      "form": "RISC",
+      "display": "RISC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Processor design using a small set of simple, fast instructions.",
+        "fr": "Conception de processeur fondée sur un petit jeu d'instructions simples et rapides."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "rom",
+      "form": "ROM",
+      "display": "ROM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Read-only memory holding data that survives power-off.",
+        "fr": "Mémoire morte qui conserve les données sans alimentation."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "semiconductor",
+      "form": "SEMICONDUCTOR",
+      "display": "Semiconductor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Material whose conductivity can be controlled, the basis of electronics.",
+        "fr": "Matériau dont on peut contrôler la conductivité, base de l'électronique."
+      }
+    },
+    {
+      "id": "sensor",
+      "form": "SENSOR",
+      "display": "Sensor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Component measuring physical data like light, heat or motion.",
+        "fr": "Composant qui mesure des données physiques comme la lumière, la chaleur ou le mouvement."
+      }
+    },
+    {
+      "id": "server",
+      "form": "SERVER",
+      "display": "Server",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Computer providing services or data to other computers.",
+        "fr": "Ordinateur qui fournit des services ou des données à d'autres ordinateurs."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "datacenter"
+        }
+      ]
+    },
+    {
+      "id": "silicon",
+      "form": "SILICON",
+      "display": "Silicon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Semiconductor element from which most chips are made.",
+        "fr": "Élément semi-conducteur dont sont faites la plupart des puces."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "semiconductor"
+        }
+      ]
+    },
+    {
       "id": "ssd",
       "form": "SSD",
       "display": "SSD",
@@ -175,6 +650,21 @@
           "target": "cpu"
         }
       ]
+    },
+    {
+      "id": "usb",
+      "form": "USB",
+      "display": "USB",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Universal standard for connecting and powering peripherals.",
+        "fr": "Norme universelle pour connecter et alimenter des périphériques."
+      }
     }
   ]
 }
