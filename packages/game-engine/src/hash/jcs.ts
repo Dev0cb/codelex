@@ -1,8 +1,8 @@
 /**
  * Canonical JSON for the state hash: the RFC 8785 (JCS) subset of ADR-0013 §D3.
  *
- * Accepted values: plain objects (prototype `Object.prototype` or `null`, own enumerable string keys only),
- * dense arrays (no holes, no extra properties), strings of printable ASCII (0x20–0x7E, keys included) and
+ * Accepted values: plain objects (prototype `Object.prototype` or `null`, own enumerable string-keyed data
+ * properties only), dense arrays (no holes, no extra properties, no accessors), strings of printable ASCII (0x20–0x7E, keys included) and
  * safe integers other than `-0`. On that subset RFC 8785 reduces to: keys sorted by UTF-16 code units, no
  * whitespace, only `"` and `\` escaped, integers in shortest decimal form. Everything else (booleans, `null`,
  * fractions, `undefined`, functions, symbols, bigints, class instances, non-ASCII or control characters) is a
@@ -10,7 +10,12 @@
  * right kind outside the subset (number range, character range, nesting depth).
  *
  * Pure: no `JSON.stringify` (ADR-0013 §D4.2), no `TextEncoder`; recursion is bounded by {@link JCS_MAX_DEPTH}
- * (§D4.8), which also turns a cyclic input into a `RangeError` instead of a stack overflow.
+ * (§D4.8), which also turns a cyclic input into a `RangeError` instead of a stack overflow. Values are read
+ * from property descriptors, never through getters (accessor properties are rejected).
+ *
+ * Out of scope: callers pass trees built by the engine. Proxies are not detected (their traps could lie
+ * about descriptors), and a subtree shared by several parents (a DAG) is serialised once per parent, as
+ * a tree, which is correct but not de-duplicated.
  */
 
 import { asciiBytes, sha256Hex } from './sha256.js';
@@ -74,19 +79,33 @@ function byCodeUnit(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
+/**
+ * Value of the own data property `key` of `target`, read from its descriptor so that no getter ever runs.
+ * `path` already ends with `key`. Throws on a missing property (array hole) or an accessor property.
+ */
+function dataValue(target: object, key: string | number, path: Path): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(target, key);
+  if (descriptor === undefined) return fail('type', 'sparse array (hole)', path);
+  if (!('value' in descriptor)) return fail('type', 'accessor property (getter/setter)', path);
+  const value: unknown = descriptor.value;
+  return value;
+}
+
 function writeArray(items: readonly unknown[], depth: number, path: Path): string {
   if (Object.getPrototypeOf(items) !== Array.prototype) fail('type', 'array subclass', path);
+  // Own keys of a dense plain array are its indices plus `length`: fewer means holes, more means extras.
+  if (
+    Object.getOwnPropertyNames(items).length !== items.length + 1 ||
+    Object.getOwnPropertySymbols(items).length !== 0
+  ) {
+    fail('type', 'array with holes or extra properties', path);
+  }
   let out = '[';
   for (let i = 0; i < items.length; i++) {
-    if (!Object.prototype.hasOwnProperty.call(items, i))
-      fail('type', `sparse array (hole at index ${String(i)})`, path);
     path.push(i);
-    out += `${i === 0 ? '' : ','}${write(items[i], depth, path)}`;
+    out += `${i === 0 ? '' : ','}${write(dataValue(items, i, path), depth, path)}`;
     path.pop();
   }
-  // Own keys of a dense plain array are its indices plus `length`; anything else is an extra property.
-  if (Reflect.ownKeys(items).length !== items.length + 1)
-    fail('type', 'array with extra properties', path);
   return `${out}]`;
 }
 
@@ -94,7 +113,10 @@ function writeObject(record: object, depth: number, path: Path): string {
   const proto: unknown = Object.getPrototypeOf(record);
   if (proto !== Object.prototype && proto !== null) fail('type', 'non-plain object', path);
   const keys = Object.keys(record);
-  if (Reflect.ownKeys(record).length !== keys.length) {
+  if (
+    Object.getOwnPropertyNames(record).length !== keys.length ||
+    Object.getOwnPropertySymbols(record).length !== 0
+  ) {
     fail('type', 'object with symbol keys or non-enumerable properties', path);
   }
   keys.sort(byCodeUnit);
@@ -103,7 +125,7 @@ function writeObject(record: object, depth: number, path: Path): string {
     const key = keys[i] as string;
     const name = quote(key, path, 'key');
     path.push(key);
-    out += `${i === 0 ? '' : ','}${name}:${write((record as Record<string, unknown>)[key], depth, path)}`;
+    out += `${i === 0 ? '' : ','}${name}:${write(dataValue(record, key, path), depth, path)}`;
     path.pop();
   }
   return `${out}}`;

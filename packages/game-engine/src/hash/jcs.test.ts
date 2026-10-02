@@ -3,26 +3,18 @@ import { createHash } from 'node:crypto';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
+import { canonicalize } from '@codelex/lexicon/canonical';
 import golden from '../../test/golden/jcs.json' with { type: 'json' };
 import { JCS_MAX_DEPTH, canonicalJson, hash16 } from './jcs.js';
 import { asciiBytes, sha256Hex } from './sha256.js';
 
-const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
-
 /**
- * Independent reference for the ADR-0013 §D3 subset: recursively key-sorted `JSON.stringify`.
- * Objects are rebuilt as text (not as objects) because `JSON.stringify` emits integer-like keys
- * ("1", "10", "2") in numeric order, not in code-unit order. On printable-ASCII strings and safe
- * integers `JSON.stringify` equals RFC 8785 (escapes only `"` and `\`, shortest integer form).
- * Swap for `@codelex/lexicon/canonical` (full RFC 8785) once lexicon PR #19 is on main.
+ * Independent RFC 8785 reference (ADR-0013 §D3 differential test): the lexicon's full JCS
+ * (`packages/lexicon/scripts/canonical.mjs`, build-time only, never imported by engine code).
+ * On the engine subset both must produce identical text.
  */
 function reference(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(reference).join(',')}]`;
-  if (typeof value === 'object' && value !== null) {
-    const entries = Object.entries(value).sort(([a], [b]) => byCodeUnit(a, b));
-    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${reference(v)}`).join(',')}}`;
-  }
-  return JSON.stringify(value);
+  return canonicalize(value);
 }
 
 const printableChar = fc.integer({ min: 0x20, max: 0x7e }).map((c) => String.fromCharCode(c));
@@ -166,7 +158,10 @@ describe('canonicalJson accepts exactly the ADR-0013 §D3 subset', () => {
     ['bigint', BigInt(1)],
     ['boolean', true],
     ['null', null],
-    ['Date', new Date(0)],
+    [
+      'object inheriting from a null-prototype object',
+      Object.create(Object.create(null) as object),
+    ],
     ['Map', new Map([['a', 1]])],
     ['Set', new Set([1])],
     ['RegExp', /a/],
@@ -186,6 +181,26 @@ describe('canonicalJson accepts exactly the ADR-0013 §D3 subset', () => {
     ['symbol key on an array', Object.assign([1], { [Symbol('s')]: 2 })],
   ])('rejects %s with TypeError', (_name, value) => {
     expect(() => canonicalJson(value)).toThrow(TypeError);
+  });
+
+  it('rejects accessor properties without running the getter (objects and array indices)', () => {
+    let calls = 0;
+    const getter = { get: () => ++calls, enumerable: true };
+    const record = Object.defineProperty({ a: 1 }, 'g', getter);
+    const items = Object.defineProperty([0, 1], 1, getter);
+    const setterOnly = Object.defineProperty({}, 's', { set: () => undefined, enumerable: true });
+    expect(() => canonicalJson(record)).toThrow(TypeError);
+    expect(() => canonicalJson(record)).toThrow('accessor property (getter/setter) at $.g');
+    expect(() => canonicalJson(items)).toThrow('accessor property (getter/setter) at $[1]');
+    expect(() => canonicalJson(setterOnly)).toThrow(TypeError);
+    expect(() => hash16({ nested: [record] })).toThrow(TypeError);
+    expect(calls).toBe(0);
+  });
+
+  it('rejects a hole even when an extra property balances the own-key count', () => {
+    expect(() => canonicalJson(Object.assign([1, , 3], { x: 1 }))).toThrow(
+      'sparse array (hole) at $[1]',
+    );
   });
 
   it('rejects sparse arrays with TypeError', () => {
