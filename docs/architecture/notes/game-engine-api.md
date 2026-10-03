@@ -848,9 +848,11 @@ export interface ReplayOutcome {
 - Golden files: `test/golden/{rng,sha256,jcs}.json`, `test/golden/replays/v1/*.json` (GC-DET-01 + seeded corpus),
   `test/golden/scoring/v1/*.json` (RULE_PROPERTIES §3.1/§3.2 transcribed). Immutable once `v1` is published.
 - **E4 implementation note (2026-10-03):** GC-DET-01 (`test/golden/replays/v1/gc-det-01*.json`, final hash
-  `59b0b2f2d2ca6c60`) is replayed on the frozen synthetic lexicon of `test/support/play.ts`, not on the bundled
-  lexicon: every content batch changes `lexiconVersion`, and a golden log must keep replaying. It moves to an
-  archived `.clxi` once L4 ships one. Its `firstSeat`, final hash and result are the regression pins.
+  `59b0b2f2d2ca6c60`) is replayed on a frozen synthetic lexicon, not on the bundled lexicon: every content batch
+  changes `lexiconVersion`, and a golden log must keep replaying. It moves to an archived `.clxi` once L4 ships one.
+  Its `firstSeat`, final hash and result are the regression pins. *(E5, review R1 n6)* The term list is frozen in
+  `test/golden/replays/v1/gc-det-01.lexicon.json` (built by `test/support/gc-det-01-lexicon.ts`), so the harness
+  vocabulary of `test/support/play.ts` can change without touching the golden.
 
 ## 16. Rules ambiguities surfaced by this API (decided by `game-designer`, GAME_RULES v0.3.1, 2026-10-03)
 

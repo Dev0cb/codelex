@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import gcDet01 from '../../test/golden/replays/v1/gc-det-01.json' with { type: 'json' };
 import gcDet01Log from '../../test/golden/replays/v1/gc-det-01.log.json' with { type: 'json' };
-import { SIM_CTX } from '../../test/support/play.js';
+import gcDet01Lexicon from '../../test/golden/replays/v1/gc-det-01.lexicon.json' with { type: 'json' };
+import { GC_DET_01_CTX, GC_DET_01_FORMS } from '../../test/support/gc-det-01-lexicon.js';
 import type { SMALL_VERSION } from '../../test/support/small-lexicon.js';
 import { CTX, config1v1, smallLexicon } from '../../test/support/small-lexicon.js';
 import type { Action, StateHash } from '../types.js';
@@ -44,11 +45,20 @@ describe('GC-DET-01 golden replay (ADR-0013 §D5; P-GLOBAL-02)', () => {
     if (!parsed.ok) throw new Error(JSON.stringify(parsed.error));
     expect(parsed.value.header.seed).toBe(gcDet01.seed);
     expect(parsed.value.actions).toHaveLength(gcDet01.actionCount);
-    const r = replay(parsed.value, SIM_CTX);
+    const r = replay(parsed.value, GC_DET_01_CTX);
     if (!r.ok) throw new Error(JSON.stringify(r.error));
     expect(r.value.finalHash).toBe(gcDet01.finalStateHash);
     expect(r.value.state.firstSeat).toBe(gcDet01.firstSeat);
     expect(r.value.state.result).toEqual(gcDet01.result);
+  });
+
+  it('n6: replays on the frozen term list stored next to the golden, not on the harness vocabulary', () => {
+    expect(GC_DET_01_FORMS).toHaveLength(gcDet01Lexicon.termCount);
+    expect(new Set(GC_DET_01_FORMS).size).toBe(gcDet01Lexicon.termCount);
+    expect(GC_DET_01_CTX.lexicon.version).toBe(gcDet01Lexicon.version);
+    expect(GC_DET_01_CTX.lexicon.profile.definitionHash).toBe(
+      gcDet01Lexicon.profile.definitionHash,
+    );
   });
 
   it('serialises the stored log byte for byte (JCS)', () => {

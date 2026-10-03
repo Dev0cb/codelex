@@ -1,7 +1,7 @@
 {
   "id": "GC-DET-01",
   "source": "RULE_PROPERTIES §3 GC-DET-01; log in gc-det-01.log.json (JCS text, never reformatted)",
-  "note": "Seed 0x00C0DE1E00000001, scripted random-legal match on the frozen synthetic test lexicon of test/support/play.ts (the bundled lexicon changes with every content batch; an archived .clxi replaces it with L4). Immutable once engineRulesVersion 1 is published.",
+  "note": "Seed 0x00C0DE1E00000001, scripted random-legal match on the frozen synthetic test lexicon gc-det-01.lexicon.json, built by test/support/gc-det-01-lexicon.ts (the bundled lexicon changes with every content batch; an archived .clxi replaces it with L4). Immutable once engineRulesVersion 1 is published.",
   "seed": "00c0de1e00000001",
   "firstSeat": 1,
   "actionCount": 90,
