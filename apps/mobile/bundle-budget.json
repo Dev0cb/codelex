@@ -1,5 +1,5 @@
 {
-  "$comment": "Bytes per platform for `expo export` output (Hermes bytecode bundle, bundled assets). Raise only with a reason in the PR (mobile-engineer + devops-sre). Measured 2026-10-03 at SDK 57: android 3,822,094 B bundle + 989,294 B assets; ios 3,612,368 B bundle + 23,136 B assets. The .clxi lexicon index gets its own line when it is bundled (task L6).",
-  "android": { "bundleBytes": 4400000, "assetBytes": 1150000 },
-  "ios": { "bundleBytes": 4200000, "assetBytes": 60000 }
+  "$comment": "Bytes per platform for `expo export` output (Hermes bytecode bundle, bundled assets). Raise only with a reason in the PR (mobile-engineer + devops-sre). Measured 2026-10-03 at SDK 57: android 3,822,094 B bundle + 989,294 B assets; ios 3,612,368 B bundle + 23,136 B assets. lexiconBytes is the .clxi lexicon index line: the lexicon-index note §5 size gate (0.55 MB with the GADDAG for up to 2,000 forms), enforced by prepare:lexicon.",
+  "android": { "bundleBytes": 4400000, "assetBytes": 1150000, "lexiconBytes": 550000 },
+  "ios": { "bundleBytes": 4200000, "assetBytes": 60000, "lexiconBytes": 550000 }
 }

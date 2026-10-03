@@ -33,6 +33,9 @@ GoogleService-Info.plist
 # simulation outputs (summaries are committed explicitly)
 packages/game-engine/sim-results/*.json
 
+# mobile lexicon asset, written by `prepare:lexicon` from @codelex/lexicon#build:index (reproducible)
+apps/mobile/assets/lexicon/
+
 # local Claude Code settings
 .claude/settings.local.json
 

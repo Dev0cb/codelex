@@ -2,12 +2,24 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
+    "prepare:lexicon": {
+      "dependsOn": ["@codelex/lexicon#build:index"],
+      "inputs": [
+        "scripts/prepare-lexicon.mjs",
+        "scripts/lexicon-asset.mjs",
+        "bundle-budget.json",
+        "package.json"
+      ],
+      "outputs": ["assets/lexicon/**"]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "prepare:lexicon"],
       "outputs": ["dist/**"],
       "env": ["EXPO_PUBLIC_*"]
     },
-    "test": { "dependsOn": ["^build"], "outputs": [] },
+    "lint": { "dependsOn": ["^build", "prepare:lexicon"] },
+    "typecheck": { "dependsOn": ["^build", "prepare:lexicon"] },
+    "test": { "dependsOn": ["^build", "prepare:lexicon"], "outputs": [] },
     "bundle:check": { "dependsOn": ["build"], "outputs": [] }
   }
 }

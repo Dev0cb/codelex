@@ -13,12 +13,14 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
     "test": "jest --coverage && node --test \"scripts/*.test.mjs\"",
+    "prepare:lexicon": "node scripts/prepare-lexicon.mjs",
     "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist"
   },
   "dependencies": {
     "@codelex/design-system": "workspace:*",
     "@codelex/game-engine": "workspace:*",
     "@codelex/i18n": "workspace:*",
+    "@codelex/lexicon": "workspace:*",
     "expo": "57.0.26",
     "expo-constants": "57.0.20",
     "expo-linking": "57.0.11",
