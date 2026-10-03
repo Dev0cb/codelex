@@ -4,6 +4,7 @@ import { renderRouter, screen } from 'expo-router/testing-library';
 import bundledDescriptor from '../assets/lexicon/lexicon.json';
 import Home from './app/index';
 import RootLayout from './app/_layout';
+import * as nativeIntent from './app/+native-intent';
 
 jest.mock('expo-localization', () => ({ useLocales: () => [{ languageTag: 'en-US' }] }));
 // The layout loads the real bundled `.clxi` (prepare:lexicon) through Node stand-ins of the native modules.
@@ -18,5 +19,19 @@ describe('app routes', () => {
     expect(screen.getByTestId('lexicon-version').props.children).toBe(
       `Lexicon ${bundledDescriptor.lexiconVersion}`,
     );
+  });
+
+  it('routes the initial system URL through the deep-link guard before parsing it', async () => {
+    const redirectSystemPath = jest.fn(nativeIntent.redirectSystemPath);
+    const malformed = '/?q=%E0%A4%A';
+    await renderRouter(
+      { _layout: RootLayout, index: Home, '+native-intent': { redirectSystemPath } },
+      { initialUrl: malformed },
+    );
+    expect(await screen.findByText('Play the language of technology.')).toBeTruthy();
+    expect(redirectSystemPath).toHaveBeenCalledWith(
+      expect.objectContaining({ path: expect.stringContaining('%E0%A4%A'), initial: true }),
+    );
+    expect(redirectSystemPath).toHaveReturnedWith('/');
   });
 });
