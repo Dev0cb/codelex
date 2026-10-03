@@ -1,6 +1,7 @@
 /**
  * `.clxi` format version 1 (lexicon-index note §3.3; this file is the normative layout). Little-endian; every
- * section starts on an 8-byte boundary; padding is zero; no timestamps, no paths. All strings are ASCII.
+ * section starts on an 8-byte boundary; padding is zero; the artefact ends at the first 8-byte boundary after
+ * the last section; no timestamps, no paths. All strings are ASCII.
  *
  * Header (56 bytes) then a section table of SECTION_COUNT × (offset u32, length u32), then the sections:
  *

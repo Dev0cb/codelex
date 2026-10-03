@@ -261,9 +261,20 @@ describe('createReferenceIndex — invalid sources', () => {
       [term('a', 'POD', { inflections: [{ form: 'API', kind: 'plural' }] }), term('b', 'API')],
     ],
     ['duplicate id', [term('a', 'POD'), term('a', 'API')]],
+    ['empty category list', [term('a', 'POD', { categories: [] })]],
+    ['duplicate secondary category', [term('a', 'POD', { categories: ['ai', 'cloud', 'cloud'] })]],
+    ['primary repeated as secondary', [term('a', 'POD', { categories: ['ai', 'cloud', 'ai'] })]],
     ['unknown relation type', [term('a', 'POD', { relations: [{ type: 'likes', target: 'a' }] })]],
   ])('throws on %s', (_name, terms) => {
     expect(build(terms)).toThrow(RangeError);
+  });
+
+  it('normalises categories to [primary, ...rest sorted by code unit] (R1 m2)', () => {
+    const index = build([
+      term('a', 'POD', { categories: ['devops', 'networking', 'ai', 'cloud'] }),
+    ])();
+    expect(index.meta(0 as TermRef).categories).toEqual(['devops', 'ai', 'cloud', 'networking']);
+    expect(index.categories()).toEqual(['ai', 'cloud', 'devops', 'networking']);
   });
 
   it('ignores self-links', () => {
@@ -283,6 +294,17 @@ describe('createReferenceIndex — real lexicon data (T-COMPLETE, T-SOUND)', () 
   const expected = playableForms(lex);
   const playableSet = new Set(expected.map((r) => r.form));
   const termsById = new Map(document.terms.map((t) => [t.id, t]));
+  /** Raw source terms (data files, not the canonical document D): an oracle independent of the normaliser. */
+  interface RawTerm {
+    readonly id: string;
+    readonly playable?: boolean;
+    readonly categories: readonly string[];
+    readonly relations?: readonly { readonly type: string; readonly target: string }[];
+  }
+  const rawTerms = (lex.files as readonly { data?: { terms?: RawTerm[] } }[]).flatMap(
+    (f) => f.data?.terms ?? [],
+  );
+  const rawById = new Map(rawTerms.map((t) => [t.id, t]));
 
   it('T-COMPLETE: every playable form resolves to its source term with the same metadata', () => {
     expect(index.size).toBe(expected.length);
@@ -295,7 +317,11 @@ describe('createReferenceIndex — real lexicon data (T-COMPLETE, T-SOUND)', () 
       expect(meta.id).toBe(row.termId);
       expect(meta.form).toBe(source?.form);
       expect(meta.difficulty).toBe(source?.difficulty);
-      expect(meta.categories).toEqual(source?.categories);
+      const [primary, ...secondary] = rawById.get(row.termId)?.categories ?? [];
+      expect(meta.categories).toEqual([
+        primary,
+        ...[...secondary].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
+      ]);
       expect(meta.gameValue).toBe(source?.gameValue);
       expect(meta.knowledgeXp).toBe(source?.knowledgeXp);
       expect(index.formMeta(f as FormRef).kind).toBe(row.kind);
@@ -335,6 +361,26 @@ describe('createReferenceIndex — real lexicon data (T-COMPLETE, T-SOUND)', () 
         expect(index.has(w.slice(i))).toBe(playableSet.has(w.slice(i)));
       }
     }
+  });
+
+  it('T-REL: every data edge with both ends in the profile is present with its type', () => {
+    const refOf = new Map<string, TermRef>();
+    for (let t = 0; t < index.termCount; t += 1)
+      refOf.set(index.meta(t as TermRef).id, t as TermRef);
+    let checked = 0;
+    for (const raw of rawTerms) {
+      const a = refOf.get(raw.id);
+      if (raw.playable !== true || a === undefined) continue;
+      for (const r of raw.relations ?? []) {
+        const b = refOf.get(r.target);
+        if (b === undefined || b === a) continue;
+        const bit = relationBit(r.type as Parameters<typeof relationBit>[0]);
+        expect(index.related(a, b) & bit, `${raw.id} -${r.type}-> ${r.target}`).toBe(bit);
+        expect(index.related(b, a) & bit).toBe(bit);
+        checked += 1;
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 
   it('relations are symmetric and never point to the term itself', () => {

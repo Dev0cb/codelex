@@ -11,7 +11,8 @@
 import { err, ok, type Result } from '@codelex/config/result';
 import { DIFFICULTIES, FORM_KINDS, LETTER_COUNT } from '../constants.js';
 import { createReferenceIndex, type ReferenceTermInput } from '../reference.js';
-import type { FormRef, LexiconIndex, TermRef } from '../types.js';
+import { decodeLexiconIndex } from '../decode.js';
+import type { FormRef, LexiconIndex, LexiconVersion, TermRef } from '../types.js';
 import { crc32 } from './crc32.js';
 import {
   align8,
@@ -326,8 +327,8 @@ function encode(index: LexiconIndex, input: LexiconBuildInput): Uint8Array {
 }
 
 /**
- * Builds a `.clxi` artefact. Errors: `VALIDATION_FAILED` (source breaks an index invariant, or a malformed
- * version/profile), `BLOCKLISTED_FORM`, `EMPTY_PROFILE`, `LIMIT_EXCEEDED` (> 32 categories, non-ASCII ids,
+ * Builds a `.clxi` artefact. Errors: `VALIDATION_FAILED` (source breaks an index invariant, a malformed
+ * version/profile, or the artefact fails its own decoder — `checkBuiltArtefact`),`BLOCKLISTED_FORM`, `EMPTY_PROFILE`, `LIMIT_EXCEEDED` (> 32 categories, non-ASCII ids,
  * values outside u16, unsupported options).
  */
 export function buildLexiconIndex(
@@ -389,5 +390,31 @@ export function buildLexiconIndex(
       );
     }
   }
-  return ok(encode(index, input));
+  return checkBuiltArtefact(encode(index, input), input);
+}
+
+/**
+ * Self-check of a freshly built artefact: it must decode with its own decoder and match the requested version
+ * and profile; otherwise the build fails with `VALIDATION_FAILED` (details: `decodeError`, and `what` for
+ * CORRUPT) instead of publishing bytes that every loader would reject. Exported for tests.
+ */
+export function checkBuiltArtefact(
+  bytes: Uint8Array,
+  input: Pick<LexiconBuildInput, 'version' | 'profile'>,
+): Result<Uint8Array, LexiconBuildError> {
+  const decoded = decodeLexiconIndex(bytes, {
+    version: input.version as LexiconVersion,
+    profileId: input.profile.id,
+  });
+  if (decoded.ok) return ok(bytes);
+  return err(
+    buildError(
+      'VALIDATION_FAILED',
+      `built artefact fails its own decoder: ${decoded.error.message}`,
+      {
+        decodeError: decoded.error.code,
+        ...decoded.error.details,
+      },
+    ),
+  );
 }

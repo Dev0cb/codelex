@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Builds the `.clxi` artefact of every profile (lexicon-index note §3.4, sprint L4):
 //   dist/indexes/<lexiconVersion>/<profileId>.clxi + dist/indexes/<lexiconVersion>/manifest.json
-// Refuses to build when `validateLexicon` reports any error. Artefacts are reproducible and git-ignored.
+// Refuses to build when the data cannot be loaded or `validateLexicon` reports any error, and refuses to write an
+// artefact that does not decode with the expected version and profile. Artefacts are reproducible and git-ignored.
 // Needs `pnpm --filter @codelex/lexicon build` first (imports the compiled builder from dist/).
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -17,9 +18,27 @@ import {
 import { loadLexicon, validateLexicon } from './validate.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const { buildLexiconIndex } = await import('../dist/index/index.js');
+const { buildLexiconIndex, decodeLexiconIndex } = await import('../dist/index/index.js');
 
-const lex = loadLexicon();
+// Optional `--data <dir>`: another data directory (tests, curator previews); default `data/` of this package.
+const args = process.argv.slice(2);
+let dataDir;
+if (args.length === 2 && args[0] === '--data' && args[1]) dataDir = args[1];
+else if (args.length > 0) {
+  console.error('build:index: usage: build-index.mjs [--data <dir>]');
+  process.exit(1);
+}
+
+let lex;
+try {
+  lex = loadLexicon(dataDir);
+} catch (e) {
+  // A refusal, not a crash: no stack trace (malformed JSON, bad blocklist line, missing directory…).
+  console.error(
+    `build:index refused: lexicon data cannot be loaded: ${e instanceof Error ? e.message : String(e)}`,
+  );
+  process.exit(1);
+}
 const { errors } = validateLexicon(lex);
 if (errors.length > 0) {
   console.error(
@@ -47,6 +66,14 @@ for (const definition of [GLOBAL_PROFILE]) {
   if (!built.ok) {
     console.error(
       `build:index failed for ${definition.id}: ${built.error.code} ${built.error.message}`,
+    );
+    process.exit(1);
+  }
+  // Self-check before anything is written: the artefact must decode as the requested version and profile.
+  const check = decodeLexiconIndex(built.value, { version, profileId: definition.id });
+  if (!check.ok) {
+    console.error(
+      `build:index refused for ${definition.id}: artefact fails its own decoder: ${check.error.code} ${check.error.message}`,
     );
     process.exit(1);
   }

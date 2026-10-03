@@ -159,7 +159,9 @@ export interface LexiconIndexExpectation {
   readonly profileId?: string;
 }
 
-/** Pure; never throws on bad input; zero-copy views over `bytes` when 4-byte aligned, else one copy. */
+/** Pure; never throws on bad input; zero-copy views over `bytes` when `bytes.byteOffset % 8 === 0`, else one
+ *  copy. Zero-copy views share memory with `bytes`: the caller (loader) owns the buffer and must keep it
+ *  immutable for the lifetime of the index — validation runs once, at decode time. */
 export type DecodeLexiconIndex = (
   bytes: Uint8Array,
   expect?: LexiconIndexExpectation,
@@ -231,7 +233,9 @@ data/terms/*.json, categories.json, blocklist/*.txt, profiles/<id>.json
   → resolveProfile(profile)                    (set algebra over tags/categories/ids, §4.2)
   → canonical model: forms sorted, TermMeta[], symmetric adjacency (CSR), letter counts
   → DAWG (minimised, rank-annotated)  +  GADDAG (minimised, optional section)
-  → encode binary v1 (§3.3)  → <profile>.clxi  +  manifest.json entry (sha256, sizes, formatVersion)
+  → encode binary v1 (§3.3)
+  → self-check: decode the bytes with expect {version, profileId}; failure ⇒ VALIDATION_FAILED, nothing written
+  → <profile>.clxi  +  manifest.json entry (sha256, sizes, formatVersion)
 ```
 
 ### 3.2 Build API
@@ -294,7 +298,11 @@ array reads, which is what makes the < 5 µs budget plausible (§5).
   E-1.5 "lexicon index missing/corrupt" state; never partial play.
 - **Server (`services/game`):** read once per (`lexiconVersion`, profile) into a process-wide immutable cache
   shared by all matches; sha256 verified with `node:crypto` against the registry. `readFileSync` can return a
-  pooled, unaligned `Buffer` for small files — the decoder copies once if `byteOffset % 4 !== 0`.
+  pooled, unaligned `Buffer` for small files — the decoder makes one real copy if `byteOffset % 8 !== 0` (a
+  `Buffer#slice` would be a view, R1 review M1).
+- **Ownership (all loaders):** the bytes handed to `decodeLexiconIndex` belong to the loader and must stay
+  immutable after decoding. Aligned input is not copied, so the index reads that very memory; the decoder
+  validated it once and does not re-check on queries. Never reuse or write to that buffer while the index lives.
 - **Engine tests / bots simulator:** decode from the build output, or use the reference implementation (§7, T4).
 
 ### 3.6 Cards artefact (not part of the engine interface)
@@ -336,7 +344,7 @@ see `docs/game/LEXICON_SPEC.md` §7 (`lexiconVersion` and `cardsVersion`, `scrip
 
 ### 4.3 Build determinism (same input ⇒ same bytes)
 Inputs sorted (forms by UTF-16 code unit, ids, categories, edges); automaton minimisation assigns node ids in a
-fixed traversal order (post-order, arcs ascending); no `Map`/`Set` iteration order leaks into output without an
+fixed traversal order (breadth-first from the root, arcs ascending; root = node 0); no `Map`/`Set` iteration order leaks into output without an
 explicit sort; fixed endianness, zero padding, no timestamps. Verified by tests (§7) and by CI building on Linux
 and macOS runners and comparing sha256.
 
@@ -432,7 +440,7 @@ Strict coverage preset (90 %, config note §2) for `packages/lexicon/src/index` 
 | T-ROUNDTRIP | `decode(encode(model))` equals `model`; `encode(model(decode(bytes)))` equals `bytes` | property |
 | T-BLOCKLIST | fixture with a blocklisted playable form ⇒ `Err(BLOCKLISTED_FORM)`; no artefact section contains a blocklisted form | unit |
 | T-PROFILE | resolved set equals the set expression evaluated by the reference implementation on fixture tags/categories/ids; empty profile ⇒ `Err(EMPTY_PROFILE)` | property |
-| T-CORRUPT | truncation, bit flips, wrong magic, unknown format ⇒ typed `Err`, never a throw, never a wrong answer | fuzz |
+| T-CORRUPT | truncation, bit flips, wrong magic, unknown format ⇒ typed `Err`, never a throw, never a wrong answer; with a recomputed CRC, semantic invariants are still checked (one canonical form per term, LETTERS = counts of the forms, u16 values, unique term ids, every category used, zero padding, no trailing bytes) and any artefact that still decodes is coherent; unaligned Node `Buffer` inputs (offsets 1..7) decode | fuzz + unit |
 | T-VERSION | header version equals `loadLexicon().version`; mismatched `expect` ⇒ `Err(VERSION_MISMATCH / PROFILE_MISMATCH)`. **Gate:** L4 must make this pass before adding format 1 to `SUPPORTED_FORMAT_VERSIONS` (TODO in `decode.ts`), otherwise `expect` is silently ignored | unit |
 | T-ORACLE | for every query in the above suites, binary index and `Set`-backed reference give identical answers; for both implementations (L3 first), mutating the array returned by `letterCounts()` (after a cast, or a frozen-array write attempt) leaves the next `letterCounts()` unchanged | differential |
 
