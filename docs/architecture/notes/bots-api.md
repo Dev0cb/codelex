@@ -2,7 +2,8 @@
 
 - Status: Proposed · Date: 2026-10-03 · Owner/author: ai-engineer (contract proposed by solution-architect;
   Beginner design with game-designer reasoning, decisions delegated by the product owner)
-- Reviewed-by: pending solution-architect, game-designer, lexicon-engineer (§4.3 DAWG accessor)
+- Reviewed-by: pending solution-architect, game-designer; lexicon-engineer delivered the §4.3 DAWG accessor (L5, #47)
+- Updated 2026-10-03 (B2): §4.3 DAWG fallback implemented, §6 Q-A2 measured, §9 O-1 closed.
 - Sprint: `docs/sprints/2026-10-03-phase1-bots-app-foundation.md` — B0 (this note). Unblocks B1 (bots), B2
   (simulator), H1 (device timing), S1 (first playable slice).
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013,
@@ -109,12 +110,17 @@ Gordon (1994) over `Gaddag.arcs/next/isFinal` (lexicon-index §2.3): from the an
 letters from rack or board, cross `◇`, walk right; prune with the masks and remaining rack counts. Recursion depth
 ≤ 15 + 1 (ADR-0013 §D4.8 limit 64).
 
-### 4.3 DAWG fallback (needs one index member)
-Appel–Jacobson: for each anchor, enumerate left parts up to the anchor's free-square limit, then extend right.
-`LexiconIndex` does not expose the DAWG today (only `has`/`lookup`/`crossCheck`/`gaddag`). **Request to
-lexicon-engineer (L5):** add `readonly dawg: Dawg` with `root`, `arcs(node)` (bits 0..25), `next(node, letter)`,
-`isFinal(node)`, i.e. the `Gaddag` shape without the separator, over the mandatory DAWG section (zero size cost).
-Until then B1 implements and tests the GADDAG path and the DAWG path against the reference index (L3).
+### 4.3 DAWG fallback
+Appel–Jacobson over `LexiconIndex.dawg` (L5, #47: `root`, `arcs(node)` bits 0..25, `next(node, letter)`,
+`isFinal(node)`, over the mandatory DAWG section, so zero size cost), used when `ctx.lexicon.gaddag` is undefined
+(`src/movegen/dawg.ts`). For each anchor and direction: if the square before the anchor holds a tile, the left part
+is that run of board tiles read through the DAWG; otherwise left parts are built from the rack over the free,
+non-anchor squares before the anchor (they have no perpendicular neighbour, so no mask), then extended to the right
+through rack and board tiles with the masks. A left part never covers an anchor, so each placement comes from its
+leftmost anchor, as on the GADDAG path; keys deduplicate one-tile moves. Same node definition (BOT-3) and budget
+handling (BOT-4); rack, placement and dedupe bookkeeping are shared with the GADDAG path (`src/movegen/common.ts`).
+Generation order differs from the GADDAG's, so decisions can differ only when a cap drops work (P-BOT-03, tested on
+reference tries and decoded `.clxi` automata, real and synthetic lexicons).
 
 ### 4.4 Canonical action key (tie-break)
 `P` followed by, per canonical tile, `RRCCt` (2-digit row, 2-digit column, tile char); `X` + sorted tiles for an
@@ -228,6 +234,40 @@ estimated `c_node`); H1 converts with measured Hermes constants. Fail ⇒ mobile
 gate permitting) or Strategist gets a DAWG-specific budget; decided with lexicon-engineer before Strategist starts.
 Q-A1's trigger (compute p95 > 1 s on device ⇒ arc-final letter sets) is checked with the same data.
 
+**Q-A2 result (2026-10-03, B2): pass.** `pnpm --filter @codelex/bots bench` (`test/qa2.bench.ts`): each fixture is
+built as a `.clxi` artefact with and without the GADDAG section and decoded (the shipped minimal automata); 200
+positions per fixture from Beginner mirror games (on-turn observations from action 2); unbounded generation. Node
+counts are exact. Times are Vitest bench per-position latencies on Node 22.22 (4 vCPU shared host, load ≈ 5, so
+indicative only); they include the fixed cost (board view and cross-checks).
+
+| Fixture | Automaton | Nodes p50 / p95 / max | Two-blank nodes p50 / p95 / max | Node ms p50 / p95 / max | Two-blank ms p50 / p95 / max |
+|---|---|---|---|---|---|
+| real, 1,501 forms | GADDAG | 822 / 2,218 / 22,870 | 20,895 / 46,092 / 60,185 | 1.5 / 3.2 / 34 | 23 / 53 / 75 |
+| real, 1,501 forms | DAWG | 839 / 2,094 / 23,670 | 19,395 / 38,257 / 46,939 | 1.9 / 4.6 / 50 | 39 / 79 / 107 |
+| synthetic 2,000 | GADDAG | 1,465 / 4,118 / 26,990 | 44,157 / 87,131 / 118,934 | 2.1 / 6.0 / 34 | 48 / 95 / 125 |
+| synthetic 2,000 | DAWG | 1,594 / 4,273 / 28,564 | 45,904 / 84,499 / 113,078 | 3.2 / 8.7 / 62 | 86 / 164 / 225 |
+| synthetic 50,000 | GADDAG | 8,856 / 90,249 / 243,841 | 477,747 / 1,078,318 / 1,631,497 | 11 / 95 / 345 | 589 / 1,339 / 2,002 |
+| synthetic 50,000 | DAWG | **9,465 / 84,469** / 216,607 | 490,742 / 1,064,400 / 1,433,040 | 18 / 136 / 456 | 932 / 2,048 / 2,785 |
+
+- **Criterion met:** DAWG p95 = 84,469 nodes at 50,000 forms (≤ 400,000). Both automata yield the same move set on
+  every position (checked in the bench and by P-BOT-03).
+- **DAWG vs GADDAG:** with BOT-3's node definition the DAWG needs about as many nodes as the GADDAG (DAWG ÷ GADDAG
+  per position p50 / p95 / max: real 100 / 121 / 145 %, 2,000 forms 110 / 183 / 309 %, 50,000 forms 106 / 139 /
+  220 %) but costs ≈ 1.3–1.9× the time per position. Dropping the GADDAG section on mobile costs ≈ 1.5× generation
+  time, not a different order of magnitude.
+- **Candidates** p50 / p95 / max: real 4 / 20 / 292, 2,000 forms 23 / 94 / 527, 50,000 forms 414 / 2,484 / 21,368
+  (two blanks: 16,456 / 59,137 / 115,502). Fixed cost p50 / p95: 0.6 / 0.8 ms (real) to 0.8 / 1.3 ms (50,000).
+- **`c_node` is 10–20× the estimate above.** Two-blank runs give ≈ 1.2 µs per node (GADDAG) and ≈ 1.9 µs (DAWG) on
+  Node, against the 0.1 µs assumed in the constants table; the time includes recording candidates (key, sort),
+  which dominates at 50,000 forms. The Hermes guess of ≤ 2 µs per node is therefore optimistic. Consequences:
+  Beginner is unaffected at the real lexicon (simulator: p95 ≈ 2,500 nodes per decision, max ≈ 60,000, BG-5 = 0);
+  Strategist's provisional 400,000-node cap could take seconds on device and binds on ≈ 69 % of two-blank
+  positions at 50,000 forms (137–139 of 200, both automata). Before Strategist starts: H1 measures `c_node` on
+  Hermes and a low-end Android, then Strategist's `maxNodes` is set by the rule above (or generation gets cheaper,
+  e.g. keys built only for kept candidates). Q-A1 stays as decided until H1 shows compute p95 > 1 s on device.
+- Mobile may ship without the GADDAG section from the bots' point of view (lexicon-index §5 size gate); the
+  decision stays with lexicon-engineer and mobile-engineer once H1 has device numbers.
+
 ## 7. Test obligations (B1)
 
 | ID | Property | Kind |
@@ -254,8 +294,8 @@ intentional and reviewed). Bench (`vitest bench`): §6 tables, JSON artefact in 
 
 ## 9. Open questions
 
-- **O-1 (lexicon-engineer, L5):** add `LexiconIndex.dawg` (§4.3). Without it the DAWG fallback cannot be built
-  and P-BOT-03 cannot run; B1 is blocked on that half only.
+- **O-1 — closed (L5 #47, B2):** `LexiconIndex.dawg` shipped; the DAWG fallback and P-BOT-03 are implemented
+  (§4.3), Q-A2 measured (§6).
 - **O-2 (game-designer):** confirm BOT-6/§5.3 step 6 (Beginner exchanges when it has no word, at any turn, but
   never voluntarily) as the reading of F-8; confirm BG-1..BG-5 as the B2 calibration targets.
 - **O-3 (product-strategist, E-1.5 R-7):** remote-tunable bot config needs `PersonalityData` overrides in the
