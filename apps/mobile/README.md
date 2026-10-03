@@ -22,9 +22,10 @@ src/app/            Expo Router routes only (default exports allowed here, nowhe
 src/features/<f>/   screens and feature components
 src/i18n/           I18nProvider / useI18n over @codelex/i18n (device locale, EN fallback)
 src/theme/          useTokens() over @codelex/design-system (OS appearance, dark default)
-scripts/            bundle-size budget (node:test)
+scripts/            bundle-size budget and bundle-contents check (node:test)
 metro.config.cjs    Expo defaults + `clxi` asset extension (lexicon index)
 bundle-budget.json  bytes per platform for the Hermes bundle and the bundled assets
+bundle-forbidden-packages.json  toolchain packages that must never be bundled (audit exceptions)
 ```
 
 ## Commands
@@ -32,12 +33,14 @@ bundle-budget.json  bytes per platform for the Hermes bundle and the bundled ass
 ```bash
 pnpm --filter @codelex/mobile start                  # Expo dev server (needs a dev build or Expo Go 57)
 pnpm turbo run lint typecheck format:check test --filter=@codelex/mobile
-pnpm turbo run bundle:check --filter=@codelex/mobile # expo export (Hermes bytecode, both platforms) + budget
+pnpm turbo run bundle:check --filter=@codelex/mobile # expo export (Hermes bytecode + maps) + budget + contents
 ```
 
-`build` is `expo export --platform android --platform ios`: Metro plus `hermesc` produce the same Hermes bytecode
-bundles a store build embeds, on any Linux host, without Xcode or the Android SDK. `bundle:check` compares them and
-the bundled assets to `bundle-budget.json` and fails CI above budget. Native binaries (EAS Build), cold-start and
+`build` is `expo export --platform android --platform ios --source-maps`: Metro plus `hermesc -O -output-source-map`
+(the flags of a React Native release build) produce the Hermes bytecode bundles a store build embeds, on any Linux
+host, without Xcode or the Android SDK. `bundle:check` compares them and the bundled assets to `bundle-budget.json`,
+then fails if a package listed in `bundle-forbidden-packages.json` is a module in either source map: that is the
+proof behind the toolchain audit exceptions in `docs/security/audit-exceptions.md`. Native binaries (EAS Build), cold-start and
 60 fps measurements need devices and are not part of CI yet (sprint task H1).
 
 ## Rules

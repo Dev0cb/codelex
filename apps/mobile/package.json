@@ -8,12 +8,12 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "build": "expo export --platform android --platform ios --output-dir dist",
+    "build": "expo export --platform android --platform ios --source-maps --output-dir dist",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
     "test": "jest --coverage && node --test \"scripts/*.test.mjs\"",
-    "bundle:check": "node scripts/check-bundle-size.mjs dist"
+    "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist"
   },
   "dependencies": {
     "@codelex/design-system": "workspace:*",
