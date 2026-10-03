@@ -10,7 +10,7 @@
   },
   "type": "module",
   "scripts": {
-    "validate": "pnpm framework:validate && pnpm lexicon:validate && pnpm test:framework",
+    "validate": "pnpm framework:validate && pnpm lexicon:validate && pnpm test:framework && pnpm traceability:check && pnpm test:traceability",
     "framework:validate": "node tools/framework/validate.mjs",
     "lexicon:validate": "node packages/lexicon/scripts/validate.mjs",
     "test:framework": "node --test \"tools/framework/*.test.mjs\" \"tools/scaffold/*.test.mjs\"",
@@ -19,7 +19,10 @@
     "typecheck": "turbo run typecheck",
     "format:check": "turbo run format:check",
     "test": "turbo run test",
-    "affected": "turbo run lint typecheck format:check test --filter=...[origin/main]"
+    "affected": "turbo run lint typecheck format:check test --filter=...[origin/main]",
+    "traceability:check": "node tools/traceability/check.mjs",
+    "traceability:write": "node tools/traceability/check.mjs --write",
+    "test:traceability": "node --test \"tools/traceability/*.test.mjs\""
   },
   "devDependencies": {
     "@types/node": "22.20.4",
