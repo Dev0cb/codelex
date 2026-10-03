@@ -155,13 +155,26 @@ const RELATIONS: readonly (readonly [string, string])[] = [
   ['STACK', 'QUEUE'],
 ];
 /**
- * Every 2- and 3-letter string is playable in this synthetic lexicon, so that single tiles can almost always be
+ * Most 2- and 3-letter strings are playable in this synthetic lexicon, so that single tiles can almost always be
  * placed and matches reach the endgame (empty bag, going out). Only the harness's fallback uses them.
+ * About one in seven is NOT playable (`isUnplayableShort`), so cross-words are rejected with `not_in_lexicon` too
+ * (review R1 m3). GC-DET-01 does not use this vocabulary: its lexicon is frozen in its golden directory.
  */
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+/** Deterministic ~1/7 of the short strings: the sum of letter codes is a multiple of 7. */
+export function isUnplayableShort(form: string): boolean {
+  let sum = 0;
+  for (let i = 0; i < form.length; i += 1) sum += form.charCodeAt(i);
+  return sum % 7 === 0;
+}
+
 const SHORT = LETTERS.flatMap((a) =>
   LETTERS.flatMap((b) => [a + b, ...LETTERS.map((c) => a + b + c)]),
-).filter((form) => !FORMS.includes(form) && !Object.values(PLURALS).includes(form));
+).filter(
+  (form) =>
+    !FORMS.includes(form) && !Object.values(PLURALS).includes(form) && !isUnplayableShort(form),
+);
 const DIFFICULTIES = ['novice', 'intermediate', 'advanced', 'expert'] as const;
 
 export const SIM_VERSION = 'abcdefabcdefabcd' as LexiconVersion;
