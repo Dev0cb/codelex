@@ -6,9 +6,8 @@
 import { evaluateMove, type Observation, type PlaceWordAction } from '@codelex/game-engine';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 import { describe, expect, it } from 'vitest';
-import { buildGaddag, formsOf } from '../../test/support/gaddag.js';
 import { generateFor } from '../../test/support/generation.js';
-import { lexiconOf, term, tinyIndex } from '../../test/support/lexicons.js';
+import { lexiconOf, term, TINY_TERMS, tinyIndex } from '../../test/support/lexicons.js';
 import {
   boardWith,
   botRng,
@@ -211,10 +210,11 @@ describe('random-legal (§5.2)', () => {
     }
   });
 
-  // A GADDAG that knows a form the index does not: its moves are generated, then rejected by evaluateMove.
+  // A GADDAG that knows a form the index does not (another index's automaton): its moves are generated, then
+  // rejected by evaluateMove.
   const liar: LexiconIndex = Object.freeze({
     ...TINY,
-    gaddag: buildGaddag([...formsOf(TINY), 'QI']),
+    gaddag: lexiconOf([...TINY_TERMS, term('QI')]).gaddag,
   });
   const qObs = craftedObservation(liar, boardWith([]), 'QIIIIII');
 

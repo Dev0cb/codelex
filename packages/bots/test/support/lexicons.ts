@@ -1,7 +1,10 @@
 /**
- * Lexicon fixtures for the bots' tests: the real lexicon data (`createReferenceIndex` over the canonical content
- * document, as `pnpm lexicon:validate` sees it), a tiny hand-written lexicon, and seeded synthetic lexicons of a
- * given size (2,000 and 50,000 forms for Q-A2). Every fixture gets the test-only GADDAG of `gaddag.ts`.
+ * Lexicon fixtures for the bots' tests: the real lexicon data (as `pnpm lexicon:validate` sees it), a tiny
+ * hand-written lexicon, and seeded synthetic lexicons of a given size (2,000 and 50,000 forms for Q-A2).
+ *
+ * Automata come from the index itself (L5): the reference index (`createReferenceIndex`, unminimised tries built
+ * on first access) by default, or the shipped `.clxi` decoder (`buildLexiconIndex` + `decodeLexiconIndex`, minimal
+ * automata) with `clxi`. `gaddag: false` gives an index without a GADDAG (the DAWG fallback path, BOT-8).
  */
 import { getLetterTable } from '@codelex/game-engine';
 import { createRng } from '@codelex/game-engine/rng';
@@ -11,15 +14,17 @@ import {
   profileDefinitionHash,
 } from '@codelex/lexicon/canonical';
 import {
+  buildLexiconIndex,
   createReferenceIndex,
+  decodeLexiconIndex,
   type DefinitionHash,
   type Difficulty,
   type LexiconIndex,
+  type LexiconProfileRef,
   type LexiconVersion,
   type ReferenceTermInput,
 } from '@codelex/lexicon/index';
 import { loadLexicon } from '@codelex/lexicon/validate';
-import { withGaddag } from './gaddag.js';
 
 export const TEST_PROFILE = {
   id: 'global-ranked',
@@ -27,30 +32,70 @@ export const TEST_PROFILE = {
   definitionHash: 'fedcba9876543210' as DefinitionHash,
 } as const;
 
-let real: LexiconIndex | undefined;
-let realNoGaddag: LexiconIndex | undefined;
+export interface FixtureOptions {
+  /** Expose a GADDAG (default true); false = DAWG fallback path. */
+  readonly gaddag?: boolean;
+  /** Decode a built `.clxi` artefact (minimal automata) instead of the reference index (default false). */
+  readonly clxi?: boolean;
+}
 
-/** The real lexicon (`packages/lexicon/data`), reference index, without a GADDAG (what L3/L4 ship today). */
-export function realIndexWithoutGaddag(): LexiconIndex {
-  if (realNoGaddag === undefined) {
+/** An index over `terms`, from the reference implementation or a built and decoded `.clxi` artefact. */
+export function indexOf(
+  version: string,
+  profile: LexiconProfileRef,
+  terms: readonly ReferenceTermInput[],
+  options: FixtureOptions = {},
+  blocklist: readonly string[] = [],
+): LexiconIndex {
+  const gaddag = options.gaddag ?? true;
+  if (options.clxi !== true) {
+    return createReferenceIndex({
+      version: version as LexiconVersion,
+      profile,
+      document: { terms },
+      gaddag,
+    });
+  }
+  const built = buildLexiconIndex(
+    { version, profile, document: { terms }, blocklist },
+    { formatVersion: 1, gaddag },
+  );
+  if (!built.ok) throw new Error(`buildLexiconIndex: ${built.error.code} ${built.error.message}`);
+  const decoded = decodeLexiconIndex(built.value, {
+    version: version as LexiconVersion,
+    profileId: profile.id,
+  });
+  if (!decoded.ok) throw new Error(`decodeLexiconIndex: ${decoded.error.code}`);
+  return decoded.value;
+}
+
+const realCache = new Map<string, LexiconIndex>();
+
+/** The real lexicon (`packages/lexicon/data`, `global-ranked`), with its own GADDAG unless `gaddag` is false. */
+export function realIndex(options: FixtureOptions = {}): LexiconIndex {
+  const key = `${String(options.gaddag ?? true)}:${String(options.clxi ?? false)}`;
+  let index = realCache.get(key);
+  if (index === undefined) {
     const lex = loadLexicon();
-    realNoGaddag = createReferenceIndex({
-      version: lex.version as LexiconVersion,
-      profile: {
+    index = indexOf(
+      lex.version,
+      {
         id: GLOBAL_PROFILE.id,
         kind: GLOBAL_PROFILE.kind,
         definitionHash: profileDefinitionHash(GLOBAL_PROFILE) as DefinitionHash,
       },
-      document: lexiconContentDocument(lex),
-    });
+      lexiconContentDocument(lex).terms,
+      options,
+      [...lex.blocklist],
+    );
+    realCache.set(key, index);
   }
-  return realNoGaddag;
+  return index;
 }
 
-/** The real lexicon with the test GADDAG attached. */
-export function realIndex(): LexiconIndex {
-  real ??= withGaddag(realIndexWithoutGaddag());
-  return real;
+/** The real lexicon without a GADDAG (an artefact built without the section, BOT-8 DAWG fallback). */
+export function realIndexWithoutGaddag(): LexiconIndex {
+  return realIndex({ gaddag: false });
 }
 
 export function term(
@@ -71,18 +116,13 @@ export function term(
   };
 }
 
-/** A lexicon of the given terms, with the test GADDAG unless `gaddag` is false. */
+/** A lexicon of the given terms (reference index; GADDAG unless `gaddag` is false). */
 export function lexiconOf(
   terms: readonly ReferenceTermInput[],
   version = '0123456789abcdef',
   gaddag = true,
 ): LexiconIndex {
-  const index = createReferenceIndex({
-    version: version as LexiconVersion,
-    profile: TEST_PROFILE,
-    document: { terms },
-  });
-  return gaddag ? withGaddag(index) : index;
+  return indexOf(version, TEST_PROFILE, terms, { gaddag });
 }
 
 /** Tiny lexicon for completeness checks and crafted positions. */
@@ -143,7 +183,11 @@ function weightedPick(weights: readonly number[], draw: number): number {
  * `letters-v1` tile frequencies, difficulties uniform. Denser in short forms than real tech vocabulary, so it is
  * a pessimistic fixture for node counts.
  */
-export function syntheticIndex(size: number, seedWord = 1): LexiconIndex {
+export function syntheticIndex(
+  size: number,
+  seedWord = 1,
+  options: FixtureOptions = {},
+): LexiconIndex {
   const rng = createRng([seedWord >>> 0 || 1, size >>> 0, 0x9e3779b9, 0x7f4a7c15]);
   const letterWeights = getLetterTable('letters-v1').counts;
   const letterTotal = letterWeights.reduce((a, b) => a + b, 0);
@@ -169,5 +213,5 @@ export function syntheticIndex(size: number, seedWord = 1): LexiconIndex {
     });
   }
   const version = (size.toString(16).padStart(8, '0') + '00000000').slice(0, 16);
-  return lexiconOf(terms, version);
+  return indexOf(version, TEST_PROFILE, terms, options);
 }
