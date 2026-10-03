@@ -100,6 +100,25 @@ export interface FormMeta {
   readonly kind: FormKind;
 }
 
+/** A node of the DAWG automaton of one artefact. Never persisted. */
+export type DawgNode = number & { readonly __brand: 'DawgNode' };
+
+/**
+ * Membership automaton over the playable forms (bots-api note §4.3, DAWG / Appel–Jacobson fallback): the
+ * `Gaddag` shape without the separator. The language is exactly the set of playable forms (canonical and
+ * inflections), read left to right. Every implementation answers a node that is not one of its own (negative,
+ * fractional, out of range) like a dead end: `arcs` 0, `next` -1, `isFinal` false; it never throws.
+ */
+export interface Dawg {
+  readonly root: DawgNode;
+  /** Bits 0..25 = letter arcs. Iterate set bits ascending ⇒ deterministic order. */
+  arcs(node: DawgNode): LetterMask;
+  /** Target node, or -1 when the arc does not exist (or `letter` is not a LetterCode). O(1). */
+  next(node: DawgNode, letter: LetterCode): DawgNode | -1;
+  /** True when the letters read from the root spell a playable form. */
+  isFinal(node: DawgNode): boolean;
+}
+
 /** GADDAG symbol: 0..25 letters, 26 = separator ◇ (Gordon 1994). */
 export type GaddagSymbol = number;
 
@@ -108,7 +127,8 @@ export type GaddagNode = number & { readonly __brand: 'GaddagNode' };
 
 /**
  * Move-generation automaton (packages/bots, lexicon-index note §2.3). Each form w of length n is inserted as
- * rev(w[0..i]) ◇ w[i..n] for i = 1..n−1, plus rev(w). Covers every playable form (canonical and inflections).
+ * rev(w[0..i]) ◇ w[i..n] for i = 1..n−1, plus rev(w). Covers every playable form (canonical and inflections);
+ * its language is exactly those paths (T-GADDAG). Nodes that are not its own behave as dead ends, as in `Dawg`.
  */
 export interface Gaddag {
   readonly root: GaddagNode;
@@ -178,8 +198,10 @@ export interface LexiconIndex {
   letterCounts(): LetterCounts;
 
   // --- move generation (packages/bots) ---
-  /** Undefined if the artefact omits the section. */
+  /** Undefined if the artefact omits the section (`.clxi` flags bit 0 clear). */
   readonly gaddag: Gaddag | undefined;
+  /** Always present: the membership automaton (the mandatory DAWG section), for DAWG-based generation. */
+  readonly dawg: Dawg;
   /** Letters L such that before + L + after is a playable form. */
   crossCheck(before: ArrayLike<LetterCode>, after: ArrayLike<LetterCode>): LetterMask;
 }

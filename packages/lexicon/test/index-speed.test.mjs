@@ -14,7 +14,8 @@ import { loadLexicon } from '../scripts/validate.mjs';
 
 const { buildLexiconIndex, decodeLexiconIndex } = await import('../dist/index/index.js');
 
-test('has() < 5 µs per call on the real lexicon (median of 5 batches, gate 10 µs)', () => {
+/** The decoded server artefact (with the GADDAG section) of the real data. */
+function realIndex() {
   const lex = loadLexicon();
   const built = buildLexiconIndex(
     {
@@ -26,12 +27,17 @@ test('has() < 5 µs per call on the real lexicon (median of 5 batches, gate 10 �
       },
       document: lexiconContentDocument(lex),
     },
-    { formatVersion: 1, gaddag: false },
+    { formatVersion: 1, gaddag: true },
   );
   assert.ok(built.ok);
   const decoded = decodeLexiconIndex(built.value);
   assert.ok(decoded.ok);
-  const index = decoded.value;
+  assert.ok(decoded.value.gaddag !== undefined);
+  return decoded.value;
+}
+
+test('has() < 5 µs per call on the real lexicon (median of 5 batches, gate 10 µs)', () => {
+  const index = realIndex();
   const forms = Array.from({ length: index.size }, (_, i) => index.formMeta(i).form);
   const misses = forms.map((f) => `${f}Q`);
   const batch = () => {
@@ -50,4 +56,32 @@ test('has() < 5 µs per call on the real lexicon (median of 5 batches, gate 10 �
     `has(): median ${samples[2].toFixed(3)} µs per call over ${forms.length} forms + misses`,
   );
   assert.ok(samples[2] < 10, `has() median ${samples[2]} µs ≥ 10 µs`);
+});
+
+// crossCheck (bots-api note §6 T_fixed: ≤ 450 calls per decision): reported, and gated at 50 µs per call, far
+// above the expected cost (one prefix walk plus ≤ 26 suffix walks) so that only a regression in kind fails.
+test('crossCheck() timing on the real lexicon (median of 5 batches, gate 50 µs)', () => {
+  const index = realIndex();
+  const codes = (s) => Array.from(s, (c) => c.charCodeAt(0) - 65);
+  const contexts = [];
+  for (let i = 0; i < index.size; i += 1) {
+    const form = index.formMeta(i).form;
+    const cut = i % form.length;
+    contexts.push([codes(form.slice(0, cut)), codes(form.slice(cut + 1))]);
+  }
+  const batch = () => {
+    const start = performance.now();
+    let hits = 0;
+    for (let r = 0; r < 10; r += 1) {
+      for (const [before, after] of contexts) if (index.crossCheck(before, after) !== 0) hits += 1;
+    }
+    assert.equal(hits, 10 * contexts.length);
+    return ((performance.now() - start) * 1000) / (10 * contexts.length);
+  };
+  batch(); // warm-up (JIT)
+  const samples = [batch(), batch(), batch(), batch(), batch()].sort((a, b) => a - b);
+  console.log(
+    `crossCheck(): median ${samples[2].toFixed(3)} µs per call over ${contexts.length} contexts`,
+  );
+  assert.ok(samples[2] < 50, `crossCheck() median ${samples[2]} µs ≥ 50 µs`);
 });

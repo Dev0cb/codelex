@@ -104,7 +104,8 @@ describe('createReferenceIndex — fixture', () => {
     expect(index.size).toBe(7);
     expect(index.termCount).toBe(5);
     expect(index.maxFormLength).toBe(10);
-    expect(index.gaddag).toBeUndefined();
+    expect(index.gaddag).toBeDefined();
+    expect(createReferenceIndex({ ...FIXTURE, gaddag: false }).gaddag).toBeUndefined();
     expect(Object.isFrozen(index)).toBe(true);
   });
 

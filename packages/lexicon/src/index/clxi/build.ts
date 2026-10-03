@@ -3,13 +3,14 @@
  *
  * The canonical model (forms, terms, relations, letter counts) is the reference index of sprint L3, so the binary
  * artefact and the test oracle share one interpretation of the source; this module only lays it out. The
- * GADDAG section (T6) is not built yet: `flags` = 0 and `gaddag` decodes as undefined.
+ * GADDAG sections (T6, sprint L5) are built when `options.gaddag` is true (header flags bit 0); otherwise they
+ * are empty, flags = 0 and `gaddag` decodes as undefined.
  *
  * Profiles: only the whole playable set (`global` kind) is resolved here; season/org set expressions (T-PROFILE)
  * arrive with `data/profiles/*.json`.
  */
 import { err, ok, type Result } from '@codelex/config/result';
-import { DIFFICULTIES, FORM_KINDS, LETTER_COUNT } from '../constants.js';
+import { DIFFICULTIES, FORM_KINDS, GADDAG_SEPARATOR, LETTER_COUNT } from '../constants.js';
 import { createReferenceIndex, type ReferenceTermInput } from '../reference.js';
 import { decodeLexiconIndex } from '../decode.js';
 import type { FormRef, LexiconIndex, LexiconVersion, TermRef } from '../types.js';
@@ -20,6 +21,7 @@ import {
   CRC_OFFSET,
   FINAL_BIT,
   FIRST_SECTION_OFFSET,
+  FLAG_GADDAG,
   FORMAT_VERSION,
   MAX_CATEGORIES,
   PROFILE_KINDS,
@@ -59,7 +61,7 @@ export interface LexiconBuildInput {
 
 export interface LexiconBuildOptions {
   readonly formatVersion: 1;
-  /** GADDAG section (T6); only `false` is supported by this build (`true` → LIMIT_EXCEEDED). */
+  /** Include the GADDAG sections (T6, header flags bit 0). Mobile builds may omit them (note §5 size gate). */
   readonly gaddag: boolean;
 }
 
@@ -75,46 +77,40 @@ function buildError(
   return details === undefined ? { code, message } : { code, message, details };
 }
 
-// --- DAWG -------------------------------------------------------------------------------------------------
+// --- automata (DAWG, GADDAG) ------------------------------------------------------------------------------
 
 interface TrieNode {
   final: boolean;
-  /** Child per letter code 0..25 (sparse). */
+  /** Child per symbol (sparse). */
   readonly children: (TrieNode | undefined)[];
 }
 
 const newTrieNode = (): TrieNode => ({ final: false, children: [] });
 
-export interface Dawg {
-  /** Per node: arcMask | final << 31, firstEdge. */
-  readonly nodes: Uint32Array;
-  /** Per edge: target, rank. */
-  readonly edges: Uint32Array;
-  readonly nodeCount: number;
-  readonly edgeCount: number;
+function insert(root: TrieNode, symbols: readonly number[]): void {
+  let node = root;
+  for (const symbol of symbols) {
+    let child = node.children[symbol];
+    if (child === undefined) {
+      child = newTrieNode();
+      node.children[symbol] = child;
+    }
+    node = child;
+  }
+  node.final = true;
+}
+
+interface MinimalNode {
+  readonly final: boolean;
+  /** (symbol, final node id), symbols ascending. */
+  readonly arcs: readonly (readonly [number, number])[];
 }
 
 /**
- * Minimal DAWG of `forms` (A–Z strings, sorted, unique), numbered root 0 then breadth-first with arcs ascending.
- * Minimisation: bottom-up merge of nodes with equal (final, arcs → canonical child) signatures.
+ * Minimal automaton of a trie over symbols 0..alphabet−1: bottom-up merge of nodes with equal (final,
+ * arcs → canonical child) signatures, then numbering root 0 and breadth-first with arcs ascending (§4.3).
  */
-export function buildDawg(forms: readonly string[]): Dawg {
-  const root = newTrieNode();
-  for (const form of forms) {
-    let node = root;
-    for (let i = 0; i < form.length; i += 1) {
-      const code = form.charCodeAt(i) - 65;
-      let child = node.children[code];
-      if (child === undefined) {
-        child = newTrieNode();
-        node.children[code] = child;
-      }
-      node = child;
-    }
-    node.final = true;
-  }
-
-  // Bottom-up canonicalisation (post-order); ids here are temporary.
+function minimise(root: TrieNode, alphabet: number): MinimalNode[] {
   const registry = new Map<string, number>();
   const canonical: { final: boolean; arcs: [number, number][] }[] = [];
   const canonicalOf = new Map<TrieNode, number>();
@@ -122,9 +118,9 @@ export function buildDawg(forms: readonly string[]): Dawg {
     const known = canonicalOf.get(node);
     if (known !== undefined) return known;
     const arcs: [number, number][] = [];
-    for (let code = 0; code < LETTER_COUNT; code += 1) {
-      const child = node.children[code];
-      if (child !== undefined) arcs.push([code, visit(child)]);
+    for (let symbol = 0; symbol < alphabet; symbol += 1) {
+      const child = node.children[symbol];
+      if (child !== undefined) arcs.push([symbol, visit(child)]);
     }
     const signature = `${node.final ? 'F' : 'N'}|${arcs.map(([c, t]) => `${String(c)}:${String(t)}`).join(',')}`;
     let id = registry.get(signature);
@@ -137,21 +133,6 @@ export function buildDawg(forms: readonly string[]): Dawg {
     return id;
   };
   const rootTemp = visit(root);
-
-  // Word counts per canonical node (for ranks).
-  const words = new Array<number>(canonical.length).fill(-1);
-  const countWords = (id: number): number => {
-    const cached = words[id] ?? -1;
-    if (cached >= 0) return cached;
-    const node = canonical[id] as (typeof canonical)[number];
-    let n = node.final ? 1 : 0;
-    for (const [, target] of node.arcs) n += countWords(target);
-    words[id] = n;
-    return n;
-  };
-  countWords(rootTemp);
-
-  // Deterministic numbering: breadth-first from the root, arcs ascending.
   const order: number[] = [rootTemp];
   const finalId = new Map<number, number>([[rootTemp, 0]]);
   for (let i = 0; i < order.length; i += 1) {
@@ -162,25 +143,111 @@ export function buildDawg(forms: readonly string[]): Dawg {
       }
     }
   }
-  const edgeCount = order.reduce((sum, id) => sum + (canonical[id]?.arcs.length ?? 0), 0);
-  const nodes = new Uint32Array(order.length * 2);
+  return order.map((id) => {
+    const node = canonical[id] as (typeof canonical)[number];
+    return {
+      final: node.final,
+      arcs: node.arcs.map(([symbol, target]) => [symbol, finalId.get(target) ?? 0] as const),
+    };
+  });
+}
+
+const codesOfForm = (form: string): number[] =>
+  Array.from({ length: form.length }, (_, i) => form.charCodeAt(i) - 65);
+
+/** Minimal DAWG tables (format.ts DAWG_NODES / DAWG_EDGES). */
+export interface DawgTables {
+  /** Per node: arcMask | final << 31, firstEdge. */
+  readonly nodes: Uint32Array;
+  /** Per edge: target, rank. */
+  readonly edges: Uint32Array;
+  readonly nodeCount: number;
+  readonly edgeCount: number;
+}
+
+/** Minimal DAWG of `forms` (A–Z strings, sorted, unique), numbered root 0 then breadth-first with arcs ascending. */
+export function buildDawg(forms: readonly string[]): DawgTables {
+  const root = newTrieNode();
+  for (const form of forms) insert(root, codesOfForm(form));
+  const minimal = minimise(root, LETTER_COUNT);
+
+  // Words below each node (for ranks), children before parents: reverse topological order is not the BFS
+  // order, so memoise recursively (depth ≤ 15).
+  const words = new Array<number>(minimal.length).fill(-1);
+  const countWords = (id: number): number => {
+    const cached = at(words, id);
+    if (cached >= 0) return cached;
+    const node = minimal[id] as MinimalNode;
+    let n = node.final ? 1 : 0;
+    for (const [, target] of node.arcs) n += countWords(target);
+    words[id] = n;
+    return n;
+  };
+  countWords(0);
+
+  const edgeCount = minimal.reduce((sum, node) => sum + node.arcs.length, 0);
+  const nodes = new Uint32Array(minimal.length * 2);
   const edges = new Uint32Array(edgeCount * 2);
   let edge = 0;
-  order.forEach((id, index) => {
-    const node = canonical[id] as (typeof canonical)[number];
+  minimal.forEach((node, index) => {
     let mask = 0;
     let rank = node.final ? 1 : 0;
     nodes[index * 2 + 1] = edge;
     for (const [code, target] of node.arcs) {
       mask |= 1 << code;
-      edges[edge * 2] = finalId.get(target) ?? 0;
+      edges[edge * 2] = target;
       edges[edge * 2 + 1] = rank;
       rank += at(words, target);
       edge += 1;
     }
     nodes[index * 2] = (mask | (node.final ? FINAL_BIT : 0)) >>> 0;
   });
-  return { nodes, edges, nodeCount: order.length, edgeCount };
+  return { nodes, edges, nodeCount: minimal.length, edgeCount };
+}
+
+/** Minimal GADDAG tables (format.ts GADDAG_NODES / GADDAG_EDGES). */
+export interface GaddagTables {
+  /** Per node: arcMask (bits 0..26) | final << 31, firstEdge. */
+  readonly nodes: Uint32Array;
+  /** Per edge: target. */
+  readonly edges: Uint32Array;
+  readonly nodeCount: number;
+  readonly edgeCount: number;
+}
+
+/**
+ * The GADDAG paths of one form (lexicon-index note §2.3): rev(w), then rev(w[0..i]) ◇ w[i..n] for i = 1..n−1.
+ * Exported for tests (T-GADDAG enumerates exactly these).
+ */
+export function gaddagPaths(form: string): number[][] {
+  const codes = codesOfForm(form);
+  const paths: number[][] = [[...codes].reverse()];
+  for (let i = 1; i < codes.length; i += 1) {
+    paths.push([...codes.slice(0, i).reverse(), GADDAG_SEPARATOR, ...codes.slice(i)]);
+  }
+  return paths;
+}
+
+/** Minimal GADDAG of `forms` (A–Z strings, unique), numbered root 0 then breadth-first with arcs ascending. */
+export function buildGaddag(forms: readonly string[]): GaddagTables {
+  const root = newTrieNode();
+  for (const form of forms) for (const path of gaddagPaths(form)) insert(root, path);
+  const minimal = minimise(root, GADDAG_SEPARATOR + 1);
+  const edgeCount = minimal.reduce((sum, node) => sum + node.arcs.length, 0);
+  const nodes = new Uint32Array(minimal.length * 2);
+  const edges = new Uint32Array(edgeCount);
+  let edge = 0;
+  minimal.forEach((node, index) => {
+    let mask = 0;
+    nodes[index * 2 + 1] = edge;
+    for (const [symbol, target] of node.arcs) {
+      mask |= 1 << symbol;
+      edges[edge] = target;
+      edge += 1;
+    }
+    nodes[index * 2] = (mask | (node.final ? FINAL_BIT : 0)) >>> 0;
+  });
+  return { nodes, edges, nodeCount: minimal.length, edgeCount };
 }
 
 // --- encoder ----------------------------------------------------------------------------------------------
@@ -236,9 +303,14 @@ class StringPool {
   }
 }
 
-function encode(index: LexiconIndex, input: LexiconBuildInput): Uint8Array {
+function encode(
+  index: LexiconIndex,
+  input: LexiconBuildInput,
+  options: LexiconBuildOptions,
+): Uint8Array {
   const forms = Array.from({ length: index.size }, (_, i) => index.formMeta(i as FormRef));
   const dawg = buildDawg(forms.map((f) => f.form));
+  const gaddag = options.gaddag ? buildGaddag(forms.map((f) => f.form)) : undefined;
   const categories = index.categories();
   const categoryIndex = new Map<string, number>(categories.map((c, i) => [c, i]));
 
@@ -284,6 +356,8 @@ function encode(index: LexiconIndex, input: LexiconBuildInput): Uint8Array {
       profileLength,
       dawg.nodeCount,
       dawg.edgeCount,
+      gaddag?.nodeCount ?? 0,
+      gaddag?.edgeCount ?? 0,
     ]),
     STRINGS: pool.bytes(),
     CATEGORIES: u32Bytes(categoryRefs),
@@ -297,6 +371,8 @@ function encode(index: LexiconIndex, input: LexiconBuildInput): Uint8Array {
     LETTERS: u32Bytes(index.letterCounts()),
     DAWG_NODES: u32Bytes(dawg.nodes),
     DAWG_EDGES: u32Bytes(dawg.edges),
+    GADDAG_NODES: gaddag === undefined ? new Uint8Array(0) : u32Bytes(gaddag.nodes),
+    GADDAG_EDGES: gaddag === undefined ? new Uint8Array(0) : u32Bytes(gaddag.edges),
   };
 
   const writer = new Writer();
@@ -312,7 +388,7 @@ function encode(index: LexiconIndex, input: LexiconBuildInput): Uint8Array {
   const view = new DataView(out.buffer);
   out.set(asciiBytes('CLXI'), 0);
   view.setUint16(4, FORMAT_VERSION, true);
-  view.setUint16(6, 0, true);
+  view.setUint16(6, options.gaddag ? FLAG_GADDAG : 0, true);
   out.set(asciiBytes(input.version), 8);
   out.set(asciiBytes(input.profile.definitionHash), 24);
   out[40] = PROFILE_KINDS.indexOf(input.profile.kind);
@@ -335,8 +411,8 @@ export function buildLexiconIndex(
   input: LexiconBuildInput,
   options: LexiconBuildOptions,
 ): Result<Uint8Array, LexiconBuildError> {
-  if ((options.formatVersion as number) !== FORMAT_VERSION || options.gaddag) {
-    return err(buildError('LIMIT_EXCEEDED', 'only formatVersion 1 without GADDAG is supported'));
+  if ((options.formatVersion as number) !== FORMAT_VERSION) {
+    return err(buildError('LIMIT_EXCEEDED', 'only formatVersion 1 is supported'));
   }
   if (!HEX16.test(input.version)) return err(buildError('VALIDATION_FAILED', 'bad lexiconVersion'));
   if (!HEX16.test(input.profile.definitionHash) || !ASCII_ID.test(input.profile.id)) {
@@ -390,7 +466,7 @@ export function buildLexiconIndex(
       );
     }
   }
-  return checkBuiltArtefact(encode(index, input), input);
+  return checkBuiltArtefact(encode(index, input, options), input);
 }
 
 /**

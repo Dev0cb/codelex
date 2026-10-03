@@ -1,6 +1,9 @@
 #!/usr/bin/env node
-// Builds the `.clxi` artefact of every profile (lexicon-index note §3.4, sprint L4):
-//   dist/indexes/<lexiconVersion>/<profileId>.clxi + dist/indexes/<lexiconVersion>/manifest.json
+// Builds the `.clxi` artefacts of every profile (lexicon-index note §3.4, sprints L4 and L5), one per header
+// flags value: with the GADDAG (flags 1, server and default) and without it (flags 0, mobile fallback):
+//   dist/indexes/<lexiconVersion>/<profileId>.f<flags>.clxi + dist/indexes/<lexiconVersion>/manifest.json
+// Both variants share (lexiconVersion, profile id, definitionHash) but not their bytes, so the file name and
+// the manifest entry carry the flags.
 // Refuses to build when the data cannot be loaded or `validateLexicon` reports any error, and refuses to write an
 // artefact that does not decode with the expected version and profile. Artefacts are reproducible and git-ignored.
 // Needs `pnpm --filter @codelex/lexicon build` first (imports the compiled builder from dist/).
@@ -51,45 +54,55 @@ const document = lexiconContentDocument(lex);
 const outDir = join(ROOT, 'dist', 'indexes', version);
 mkdirSync(outDir, { recursive: true });
 
+// Header flags bit 0 = GADDAG present (src/index/clxi/format.ts).
+const VARIANTS = [
+  { flags: 1, gaddag: true },
+  { flags: 0, gaddag: false },
+];
+
 const profiles = [];
 for (const definition of [GLOBAL_PROFILE]) {
-  const definitionHash = profileDefinitionHash(definition);
-  const built = buildLexiconIndex(
-    {
-      version,
-      profile: { id: definition.id, kind: definition.kind, definitionHash },
-      document,
-      blocklist: [...lex.blocklist],
-    },
-    { formatVersion: 1, gaddag: false },
-  );
-  if (!built.ok) {
-    console.error(
-      `build:index failed for ${definition.id}: ${built.error.code} ${built.error.message}`,
+  for (const { flags, gaddag } of VARIANTS) {
+    const definitionHash = profileDefinitionHash(definition);
+    const built = buildLexiconIndex(
+      {
+        version,
+        profile: { id: definition.id, kind: definition.kind, definitionHash },
+        document,
+        blocklist: [...lex.blocklist],
+      },
+      { formatVersion: 1, gaddag },
     );
-    process.exit(1);
+    if (!built.ok) {
+      console.error(
+        `build:index failed for ${definition.id}: ${built.error.code} ${built.error.message}`,
+      );
+      process.exit(1);
+    }
+    // Self-check before anything is written: the artefact must decode as the requested version and profile.
+    const check = decodeLexiconIndex(built.value, { version, profileId: definition.id });
+    if (!check.ok || (check.value.gaddag !== undefined) !== gaddag) {
+      console.error(
+        `build:index refused for ${definition.id}: artefact fails its own decoder: ${check.ok ? 'GADDAG presence differs from flags' : `${check.error.code} ${check.error.message}`}`,
+      );
+      process.exit(1);
+    }
+    const file = `${definition.id}.f${flags}.clxi`;
+    writeFileSync(join(outDir, file), built.value);
+    const sha256 = createHash('sha256').update(built.value).digest('hex');
+    profiles.push({
+      id: definition.id,
+      kind: definition.kind,
+      definitionHash,
+      formatVersion: 1,
+      flags,
+      gaddag,
+      file,
+      bytes: built.value.length,
+      sha256,
+    });
+    console.log(`${file}: ${built.value.length} bytes, sha256 ${sha256}`);
   }
-  // Self-check before anything is written: the artefact must decode as the requested version and profile.
-  const check = decodeLexiconIndex(built.value, { version, profileId: definition.id });
-  if (!check.ok) {
-    console.error(
-      `build:index refused for ${definition.id}: artefact fails its own decoder: ${check.error.code} ${check.error.message}`,
-    );
-    process.exit(1);
-  }
-  const file = `${definition.id}.clxi`;
-  writeFileSync(join(outDir, file), built.value);
-  const sha256 = createHash('sha256').update(built.value).digest('hex');
-  profiles.push({
-    id: definition.id,
-    kind: definition.kind,
-    definitionHash,
-    formatVersion: 1,
-    file,
-    bytes: built.value.length,
-    sha256,
-  });
-  console.log(`${file}: ${built.value.length} bytes, sha256 ${sha256}`);
 }
 writeFileSync(
   join(outDir, 'manifest.json'),

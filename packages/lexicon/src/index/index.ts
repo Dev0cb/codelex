@@ -27,8 +27,10 @@ export {
 } from './reference.js';
 export {
   buildDawg,
+  buildGaddag,
   buildLexiconIndex,
-  type Dawg,
+  type DawgTables,
+  type GaddagTables,
   type LexiconBuildError,
   type LexiconBuildErrorCode,
   type LexiconBuildInput,
