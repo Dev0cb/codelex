@@ -14,6 +14,14 @@ import type {
 } from './types.js';
 import { ENGINE_RULES_VERSION } from './version.js';
 
+/**
+ * Exhaustiveness guard for `switch` statements (API note §17.5): unreachable when the switch covers every member;
+ * adding a member makes the call a compile error. Throws if reached through an ill-typed value (programmer error).
+ */
+export function assertNever(value: never): never {
+  throw new TypeError(`unexpected variant: ${typeof value}`);
+}
+
 export function engineError(
   code: EngineErrorCode,
   message: string,

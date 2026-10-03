@@ -5,6 +5,7 @@
  */
 import { ok, type Result } from '@codelex/config/result';
 import { validateAction } from '../actions/validate.js';
+import { assertNever } from '../errors.js';
 import { refillRack } from '../bag/bag.js';
 import { placeTiles } from '../placement/check.js';
 import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
@@ -193,5 +194,7 @@ export function apply(
       events.push({ type: 'TURN_STARTED', seat: seatOnTurn, turnNumber: state.turnNumber });
       return ok({ state: { ...next, seatOnTurn }, events, action: v.action });
     }
+    default:
+      return assertNever(v);
   }
 }

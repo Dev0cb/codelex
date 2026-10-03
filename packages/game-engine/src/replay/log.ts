@@ -85,6 +85,7 @@ export interface ReplayOutcome {
 
 const HEX16 = /^[0-9a-f]{16}$/;
 const LOG_KEYS = ['actions', 'final', 'header', 'logVersion', 'stateHashes'];
+const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 const malformedLog = (path: string): ReplayError => ({
   kind: 'replay',
@@ -136,7 +137,10 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
       details: { engineRulesVersion: versionOrMinusOne(version) },
     });
   }
-  const extra = Object.keys(doc).find((k) => !LOG_KEYS.includes(k));
+  // First unknown key in code-unit order, not in document order (deterministic reporting).
+  const extra = Object.keys(doc)
+    .sort(byCodeUnit)
+    .find((k) => !LOG_KEYS.includes(k));
   if (extra !== undefined) return err(malformedLog(extra));
   const headerProblem = configProblem(header as MatchConfig);
   if (headerProblem !== undefined) {
@@ -270,6 +274,8 @@ export function replay(
       hashes.push(actual);
     }
   }
+  // A final checkpoint exists only once the match is over (ADR-0013 §D2; review R1 n5).
+  if (log.final !== undefined && state.status !== 'finished') return err(malformedLog('final'));
   const finalHash = stateHash(state);
   if (log.final !== undefined && log.final.stateHash !== finalHash) {
     return err(hashMismatch('final', log.final.stateHash, finalHash));

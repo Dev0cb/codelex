@@ -41,9 +41,9 @@ function unknownKey(
   return extra === undefined ? undefined : malformed('unknown_field', `${path}${extra}`);
 }
 
-/** `(row, col)` ascending. */
+/** `(row, col, tile)` ascending: a total order, so even duplicate squares have one canonical order (n2). */
 export function comparePlacements(a: Placement, b: Placement): number {
-  return a.row - b.row || a.col - b.col;
+  return a.row - b.row || a.col - b.col || byCodeUnit(a.tile, b.tile);
 }
 
 function parsePlacement(value: unknown, index: number): Result<Placement, Rejection> {

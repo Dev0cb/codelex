@@ -170,13 +170,16 @@ export function evaluateMove(
 
 /**
  * R-SCORE-009: projected score of a tentative placement for the viewer, or `null` when the match is over, the
- * viewer is a spectator, or the placement fails geometry or the viewer's rack (P-SCORE-009-d). No lexicon.
+ * viewer is a spectator or no longer active, or the placement fails geometry or the viewer's rack
+ * (P-SCORE-009-d). No lexicon.
  */
 export function previewScore(
   observation: Observation,
   tiles: readonly Placement[],
 ): PreviewScore | null {
   if (observation.status === 'finished' || observation.viewer === 'spectator') return null;
+  // A resigned seat can never move again: no preview (review R1 n7).
+  if (observation.seats[observation.viewer]?.status !== 'active') return null;
   const parsed = parseAction(
     { seat: observation.viewer, type: 'PLACE_WORD', tiles },
     observation.config.seats,

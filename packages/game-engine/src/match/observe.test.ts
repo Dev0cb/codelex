@@ -243,5 +243,12 @@ describe('previewScore (R-SCORE-009, P-API-02)', () => {
     expect(previewScore(observe(s, 0), [{ row: 7, col: 7, tile: '?' as 'A' }])).toBeNull();
     expect(previewScore(observe(s, 'spectator'), AI.tiles)).toBeNull();
     expect(previewScore({ ...observe(s, 0), status: 'finished' }, AI.tiles)).toBeNull();
+    // n7: a viewer whose seat is no longer active gets no preview.
+    const o = observe(s, 0);
+    const resigned: Observation = {
+      ...o,
+      seats: o.seats.map((x) => (x.seat === 0 ? { ...x, status: 'resigned' as const } : x)),
+    };
+    expect(previewScore(resigned, AI.tiles)).toBeNull();
   });
 });

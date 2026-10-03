@@ -57,6 +57,7 @@ const RACK = /^[?A-Z]*$/;
 const BOARD_ROW = /^[.A-Za-z]+$/;
 const FORM = /^[A-Z]{2,15}$/;
 const TWO_POW_32 = 0x1_0000_0000;
+const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 // `JSON.parse('-0')` is `-0`, which the JCS subset rejects (ADR-0013 §D3): never accept it.
 const isInt = (x: unknown): x is number => isJcsInteger(x);
@@ -120,7 +121,10 @@ function resultProblem(value: unknown, seats: number, teams: number): string | u
 
 /** First invalid field of a parsed state document, or undefined. */
 function stateProblem(doc: Readonly<Record<string, unknown>>): string | undefined {
-  const extra = Object.keys(doc).find((k) => !STATE_KEYS.includes(k) && k !== 'result');
+  // First unknown key in code-unit order, not in document order (deterministic reporting).
+  const extra = Object.keys(doc)
+    .sort(byCodeUnit)
+    .find((k) => !STATE_KEYS.includes(k) && k !== 'result');
   if (extra !== undefined) return extra;
   const missing = STATE_KEYS.find((k) => !Object.hasOwn(doc, k));
   if (missing !== undefined) return missing;

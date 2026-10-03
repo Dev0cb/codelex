@@ -112,6 +112,8 @@ describe('parseState (P-GLOBAL-04, API note §13.6)', () => {
 
   it.each<[string, (d: Record<string, unknown>) => void]>([
     ['extra', (d) => (d['extra'] = 1)],
+    // n1: the first unknown key in code-unit order, whatever the document order.
+    ['Zz', (d) => ((d['zz'] = 1), (d['Zz'] = 1), (d['z'] = 1))],
     ['bag', (d) => delete d['bag']],
     ['seed', (d) => (d['seed'] = 'nope')],
     ['config.teams', (d) => ((d['config'] as Record<string, unknown>)['teams'] = [[1], [0]])],

@@ -112,6 +112,8 @@ describe('parseActionLog (ADR-0013 §D2, P-API-06)', () => {
 
   it.each<[string, (d: Record<string, unknown>) => void]>([
     ['extra', (d) => (d['extra'] = 1)],
+    // n1: the first unknown key in code-unit order, whatever the document order.
+    ['Zz', (d) => ((d['zz'] = 1), (d['Zz'] = 1), (d['z'] = 1))],
     ['header.seed', (d) => ((d['header'] as Record<string, unknown>)['seed'] = 'x')],
     ['actions', (d) => (d['actions'] = {})],
     ['actions[0]', (d) => ((d['actions'] as unknown[])[0] = { seat: 0, type: 'PASS', at: 1 })],
@@ -147,13 +149,31 @@ describe('replay (ADR-0013 §D2, P-API-07)', () => {
     expect(replay({ ...log, stateHashes: flipped }, CTX)).toMatchObject({
       error: { code: 'HASH_MISMATCH', details: { index: 1, expected: 'ffffffffffffffff' } },
     });
+    // A finished log (seat 0 resigns): its final checkpoint is verified.
+    const finished: ActionLog = { ...log, actions: [...log.actions, { seat: 0, type: 'RESIGN' }] };
+    const done = replay(finished, CTX);
+    if (!done.ok) throw new Error('replay');
+    expect(done.value.state.status).toBe('finished');
+    expect(
+      replay({ ...finished, final: { stateHash: done.value.finalHash, actionCount: 3 } }, CTX).ok,
+    ).toBe(true);
     expect(
       replay(
-        { ...log, final: { stateHash: 'ffffffffffffffff' as StateHash, actionCount: 2 } },
+        { ...finished, final: { stateHash: 'ffffffffffffffff' as StateHash, actionCount: 3 } },
         CTX,
       ),
     ).toMatchObject({ error: { code: 'HASH_MISMATCH', details: { index: 'final' } } });
     expect(replay(log, CTX)).not.toHaveProperty('value.stateHashes');
+  });
+
+  it('n5: a final checkpoint on an unfinished match is MALFORMED_LOG', () => {
+    const log = shortLog();
+    const r = replay(log, CTX);
+    if (!r.ok) throw new Error('replay');
+    expect(r.value.state.status).toBe('in_progress');
+    expect(
+      replay({ ...log, final: { stateHash: r.value.finalHash, actionCount: 2 } }, CTX),
+    ).toMatchObject({ error: { code: 'MALFORMED_LOG', details: { path: 'final' } } });
   });
 
   it('ACTION_REJECTED names the index and the rejection', () => {
