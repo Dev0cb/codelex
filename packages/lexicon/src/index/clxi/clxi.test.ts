@@ -540,6 +540,7 @@ describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', () => {
 
 // --- budgets: size gate and has() speed (lexicon-index note §5) --------------------------------------------
 
+// The has() speed gate runs on the compiled dist/ without coverage instrumentation: test/index-speed.test.mjs.
 describe('budgets (lexicon-index note §5)', () => {
   const bytes = built(REAL);
   const index = decoded(bytes);
@@ -548,22 +549,5 @@ describe('budgets (lexicon-index note §5)', () => {
     expect(index.size).toBeLessThanOrEqual(2000);
     expect(bytes.length).toBeLessThanOrEqual(550_000);
     expect(bytes.length / index.size).toBeLessThanOrEqual(128);
-  });
-
-  it('has() < 5 µs per call on Node (gate at 2× = 10 µs: CI runners are noisy)', () => {
-    const forms = Array.from({ length: index.size }, (_, i) => index.formMeta(i as FormRef).form);
-    const misses = forms.map((f) => `${f}Q`);
-    const batch = (): number => {
-      const start = performance.now();
-      let hits = 0;
-      for (let r = 0; r < 20; r += 1) {
-        for (const f of forms) if (index.has(f)) hits += 1;
-        for (const f of misses) if (index.has(f)) hits += 1;
-      }
-      expect(hits).toBe(20 * forms.length);
-      return ((performance.now() - start) * 1000) / (40 * forms.length);
-    };
-    const samples = [batch(), batch(), batch(), batch(), batch()].sort((a, b) => a - b);
-    expect(samples[2]).toBeLessThan(10);
   });
 });
