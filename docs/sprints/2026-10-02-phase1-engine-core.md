@@ -64,7 +64,7 @@ decision below is reversible unless an ADR says otherwise.
 | E1 | Scaffold `packages/game-engine` and RNG with golden vectors | game-engine-engineer | D1 | Scaffolded with `/scaffold` (strict preset); xoshiro128** + stream derivation match ADR-0013 golden vectors; determinism lint green | S | done |
 | E2 | Board, bag, placement and validation (test-first) | game-engine-engineer | E1, D3, L3 | R-BOARD-*, R-BAG-*, R-TURN-* properties from RULE_PROPERTIES pass; rejection reasons typed | L | done |
 | E3 | Classic scoring and end rules (test-first) | game-engine-engineer | E2, D3 | R-SCORE-*, R-END-* properties and all golden cases pass; `ScoreBreakdown` matches the API note | M | done |
-| E4 | `apply` / `observe` / `stateHash` / `replay` and full-match property | game-engine-engineer | E3 | ≥ 1,000 seeded matches replay to identical hashes; 0 conservation violations; `P-GLOBAL-01..08` green; coverage ≥ 90 % | M | todo |
+| E4 | `apply` / `observe` / `stateHash` / `replay` and full-match property | game-engine-engineer | E3 | ≥ 1,000 seeded matches replay to identical hashes; 0 conservation violations; `P-GLOBAL-01..08` green; coverage ≥ 90 % | M | done |
 | C1 | Lexicon content batch 1 | lexicon-curator | L1 | ≥ 800 playable forms incl. ≥ 30 two-letter forms, EN/FR definitions, validator green | L | todo |
 | L4 | DAWG build and binary codec (T5), size gate; GADDAG (T6) if capacity | lexicon-engineer | L3 | Byte-identical builds; `has()` < 5 µs on Node; index size gate in CI; decoder fuzz test | L | todo |
 | U1 | E-1.5 design spec (flows, board, summary, Knowledge Card) | ux-ui-designer | — | `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md` covers every AC with screens, states, EN/FR copy, a11y | M | done |

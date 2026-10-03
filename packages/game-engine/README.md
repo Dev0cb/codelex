@@ -5,9 +5,9 @@ placement, validation, scoring, powers, modes, replay). Contract: `docs/adr/0013
 
 - Owner: `game-engine-engineer` (rules questions go to `game-designer`)
 - Coverage preset: `strict`, 90 % on lines, statements, functions and branches (`@codelex/config/vitest`)
-- Status: sprint E3 — RNG, SHA-256, JCS (E1/E1b); rules constants, `createMatch`, action parsing, bag and
-  placement validation (E2); scoring, preview and end of match (E3). `apply` / `observe` / `stateHash` / `replay`
-  arrive in E4.
+- Status: sprint E4 — the full `engineRulesVersion` 1 Classic engine of the API note: `createMatch`, `apply`,
+  `observe` / `eventsFor`, `evaluateMove`, `previewScore`, `serializeState` / `parseState` / `stateHash`, action
+  log and `replay`. 1,000 seeded full matches replay to identical hashes in CI (`src/match/simulation.test.ts`).
 
 ## API
 
@@ -31,13 +31,6 @@ input (action logs) before it reaches the RNG.
 ### `@codelex/game-engine`
 
 - `ENGINE_RULES_VERSION` — integer rules version (ADR-0013 §D5), currently `1`.
-- `sha256(bytes)`, `sha256Hex(bytes)`, `toHex(bytes)`, `asciiBytes(text)` — pure-TS SHA-256 (FIPS 180-4) for
-  stream derivation and, from E4, the state hash. No `node:crypto`, no `TextEncoder`.
-- `canonicalJson(value)` — RFC 8785 (JCS) text for the ADR-0013 §D3 subset only: plain objects, dense arrays,
-  printable-ASCII strings (0x20–0x7E, keys included) and safe integers except `-0`; keys sorted by UTF-16 code
-  units, nesting ≤ 64. Booleans, `null`, fractions and anything else throw (`TypeError` for a wrong kind of
-  value, `RangeError` for a value out of range); the message gives the path, e.g. `$.seats[1].score`.
-- `hash16(value)` — `hex(SHA-256(JCS(value)))[0..16)`, the `stateHash` format of ADR-0013 §D3.
 - Types of `docs/architecture/notes/game-engine-api.md` §4–§12 (`MatchConfig`, `MatchState`, `Action`,
   `Rejection`, `EngineError`, `MatchEvent`, `ScoreBreakdown`, `MatchResult`, `EngineLexicon`, …).
 - `getLayout('classic-v1')`, `getLetterTable('letters-v1')`, `RULES` — frozen `engineRulesVersion` 1 constants
@@ -45,13 +38,23 @@ input (action logs) before it reaches the RNG.
 - `createMatch(config, ctx)` — API note §13.1: `RULES_VERSION_UNSUPPORTED` → `INVALID_CONFIG` →
   `LEXICON_MISMATCH`, then first seat (`first-player` stream), shuffled bag (`bag` stream) and deal.
 
-Internal (used by `apply`/`evaluateMove` in E4, not exported yet): `parseAction` (untrusted shape →
-canonical action or `malformed`), `validateAction` (full §8.3 precedence), `checkPlacementGeometry` /
-`checkPlacement` (R-TURN-002/003/006, R-BOARD-004; formed words, main first), `drawTiles` / `refillRack` /
-`exchangeTiles` (R-BAG-003/005), `scorePlacement` / `chainAfter` / `previewPlacement` (R-SCORE-001…005, 008, 009),
-`finishMatch` / `endAdjustments` (R-SCORE-006, R-END-001…003; default readings of API note §16 Q-GD-2…4).
-Scoring golden cases live in `test/golden/scoring/v1/` (RULE_PROPERTIES §3.1/§3.2, transcribed verbatim). Tests use `test/support/small-lexicon.ts` (G-LEX-SMALL on the lexicon's
-reference index).
+- `apply(state, action, ctx)` — API note §13.2: §8.3 precedence (`validateAction`), then PLACE_WORD / EXCHANGE /
+  PASS / RESIGN, end detection (R-END-001, R-END-002, R-TURN-004) and events (§9). Never mutates its input.
+- `observe(state, viewer)`, `eventsFor(events, viewer)` — per-viewer projections (P-GLOBAL-07, P-API-03/04).
+- `evaluateMove(observation, action, ctx)` — the bots' only scoring path (P-API-01: identical to `apply`).
+- `previewScore(observation, tiles)` — lexicon-free projection (R-SCORE-009); `null` when geometry fails.
+- `serializeState`, `stateHash`, `parseState` — JCS text, its 16-hex SHA-256, and the validating parser
+  (shapes, sorted racks, tile conservation, `result` iff finished).
+- `newActionLog`, `serializeActionLog`, `parseActionLog`, `replay`, `LOG_VERSION` — ADR-0013 §D2 logs; replay
+  verifies optional per-action and final hashes.
+
+SHA-256 and the JCS subset (`src/hash/`) are internal since E4 (API note §3): callers hash states with
+`stateHash`. Internal rules modules: `actions/` (parse, validate), `placement/`, `bag/`, `scoring/` (score,
+end; default readings of API note §16 Q-GD-1…4), `state/`, `replay/`.
+
+Tests: golden cases in `test/golden/` (RNG, SHA-256, JCS, scoring `v1`, replay `v1` GC-DET-01); lexicon fixtures
+in `test/support/` (`small-lexicon.ts` = G-LEX-SMALL; `play.ts` = seeded random-legal player on a frozen synthetic
+lexicon, used by the full-match property and GC-DET-01).
 
 ## Commands
 
@@ -66,7 +69,8 @@ pnpm turbo run build lint typecheck format:check test --filter=@codelex/game-eng
    `src/` (lint-enforced, ADR-0013 §D4). Inputs are never mutated.
 2. **Golden vectors are immutable once published.** `test/golden/rng.json` is a transcription of ADR-0013
    Appendix A (normative), `test/golden/sha256.json` holds the FIPS 180-4 / NIST CAVP vectors and
-   `test/golden/jcs.json` holds Appendix A.3 plus subset and rejection cases. A failing
+   `test/golden/jcs.json` holds Appendix A.3 plus subset and rejection cases; `test/golden/scoring/v1` and
+   `test/golden/replays/v1` hold the rules golden cases and GC-DET-01 (log kept as JCS text). A failing
    golden test means the code is wrong: never edit a vector to make it pass. Changing the RNG, the derivation
    or the shuffle is an outcome change: bump `ENGINE_RULES_VERSION` and supersede the ADR.
 3. **Streams are independent.** Adding a stream never changes existing ones; bots receive a derived `Rng`,

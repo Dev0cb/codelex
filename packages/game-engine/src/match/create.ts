@@ -44,14 +44,14 @@ const CANONICAL_TEAMS: Readonly<Record<number, readonly string[]>> = {
   4: ['[[0],[1],[2],[3]]', '[[0,2],[1,3]]'],
 };
 
-function isPlainObject(value: unknown): value is Readonly<Record<string, unknown>> {
+export function isPlainObject(value: unknown): value is Readonly<Record<string, unknown>> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const proto: unknown = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;
 }
 
 /** First key of `value` outside `allowed` or missing from it, in sorted order (deterministic reporting). */
-function keyProblem(
+export function keyProblem(
   value: Readonly<Record<string, unknown>>,
   allowed: readonly string[],
 ): string | undefined {
@@ -78,7 +78,7 @@ function teamsKey(teams: unknown): string | undefined {
 }
 
 /** Returns the first invalid field of the config (shape and values of API note §6), or undefined. */
-function configProblem(config: MatchConfig): string | undefined {
+export function configProblem(config: MatchConfig): string | undefined {
   if (!isPlainObject(config)) return '';
   const top = keyProblem(config, CONFIG_KEYS);
   if (top !== undefined) return top;

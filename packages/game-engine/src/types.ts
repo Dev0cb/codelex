@@ -414,6 +414,57 @@ export type MatchEvent =
 
 export type MatchEventType = MatchEvent['type'];
 
+// --- §10 observation ---
+
+/**
+ * What one viewer may know. Contains NO seed, NO RNG state, NO bag order, NO other seat's rack contents
+ * (only counts). It is the only input of bots (`chooseAction(observation, ctx)`), of `evaluateMove` and of
+ * `previewScore`, and what the app renders. Not hashed; a plain JSON-safe object.
+ */
+export interface Observation {
+  readonly engineRulesVersion: EngineRulesVersion;
+  readonly lexiconVersion: LexiconVersion;
+  readonly profileId: string;
+  readonly definitionHash: string;
+  readonly config: MatchSetup;
+  readonly viewer: Viewer;
+
+  readonly status: 'in_progress' | 'finished';
+  readonly firstSeat: Seat;
+  readonly seatOnTurn: Seat;
+  readonly turnNumber: number;
+  readonly scorelessTurns: number;
+  readonly actionCount: number;
+
+  readonly board: readonly BoardRow[];
+  readonly bagCount: number;
+  /** The viewer's own rack (sorted); "" for a spectator. */
+  readonly rack: TileString;
+  /**
+   * Tiles the viewer cannot see (bag + every other rack), as counts: index 0..25 = 'A'..'Z', 26 = blank.
+   * Derived from public information only (initial bag − board − own rack). E-1.5 AC-8 "unseen-tile counts".
+   */
+  readonly unseen: readonly number[];
+  readonly seats: readonly SeatView[];
+  /** Index = team index in config.teams; Σ of member scores. */
+  readonly teamScores: readonly number[];
+
+  readonly result?: MatchResult;
+  /** Present iff finished: every seat's final rack (public at the end, API note §16 Q-GD-5). */
+  readonly finalRacks?: readonly TileString[];
+}
+
+export interface SeatView {
+  readonly seat: Seat;
+  readonly team: number;
+  readonly rackCount: number;
+  readonly score: number;
+  readonly chainK: number;
+  readonly lastMainForm: string;
+  readonly bestTurnScore: number;
+  readonly status: SeatState['status'];
+}
+
 // --- §11 scoring ---
 
 export interface WordScore {
