@@ -16,14 +16,14 @@ function header(formatVersion: number, extra = 0): Uint8Array {
   return bytes;
 }
 
-describe('decodeLexiconIndex (sprint L2: format prefix only, no format supported yet)', () => {
+describe('decodeLexiconIndex: format prefix (sprint L2) and dispatch (sprint L4)', () => {
   it('CLXI_MAGIC is ASCII "CLXI"', () => {
     expect(String.fromCharCode(...CLXI_MAGIC)).toBe('CLXI');
     expect(Object.isFrozen(CLXI_MAGIC)).toBe(true);
   });
 
-  it('no format version is supported until L4', () => {
-    expect(SUPPORTED_FORMAT_VERSIONS).toEqual([]);
+  it('format 1 is supported (sprint L4)', () => {
+    expect(SUPPORTED_FORMAT_VERSIONS).toEqual([1]);
     expect(Object.isFrozen(SUPPORTED_FORMAT_VERSIONS)).toBe(true);
   });
 
@@ -40,10 +40,16 @@ describe('decodeLexiconIndex (sprint L2: format prefix only, no format supported
     expect(errorOf(almost).code).toBe('BAD_MAGIC');
   });
 
-  it.each([1, 2, 0xffff])('a CLXI header with format %i is UNSUPPORTED_FORMAT', (version) => {
+  it.each([0, 2, 0xffff])('a CLXI header with format %i is UNSUPPORTED_FORMAT', (version) => {
     const error = errorOf(header(version, 64));
     expect(error.code).toBe('UNSUPPORTED_FORMAT');
-    expect(error.details).toEqual({ formatVersion: version, supported: '' });
+    expect(error.details).toEqual({ formatVersion: version, supported: '1' });
+  });
+
+  it('a format 1 prefix without the rest of the header is TRUNCATED', () => {
+    const error = errorOf(header(1, 64));
+    expect(error.code).toBe('TRUNCATED');
+    expect(error.details).toEqual({ length: 70, required: 160 });
   });
 
   it('reads the prefix through byteOffset (unaligned views of a larger buffer)', () => {

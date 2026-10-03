@@ -15,6 +15,8 @@ describe('@codelex/lexicon/index public API', () => {
       'REFERENCE_FORMAT_VERSION',
       'RELATION_TYPES',
       'SUPPORTED_FORMAT_VERSIONS',
+      'buildDawg',
+      'buildLexiconIndex',
       'createReferenceIndex',
       'decodeLexiconIndex',
       'hasRelation',

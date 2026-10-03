@@ -149,3 +149,18 @@ function stripUndefined(value) {
   }
   return value;
 }
+
+/**
+ * The global ranked profile: every playable term (lexicon-index note §4.2). Season and org profiles will be
+ * `data/profiles/<id>.json` files with the same shape.
+ */
+export const GLOBAL_PROFILE = Object.freeze({
+  id: 'global-ranked',
+  kind: 'global',
+  include: Object.freeze({ all: true }),
+});
+
+/** definitionHash = sha256 (first 16 hex) of the canonical profile definition (lexicon-index note §4.2). */
+export function profileDefinitionHash(definition) {
+  return sha256Hex16(canonicalize(definition));
+}

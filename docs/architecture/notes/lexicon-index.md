@@ -447,12 +447,12 @@ fail.
 | T1 | Canonical `lexiconVersion`, `data/profiles/*.json` + schema + validator rules, `.gitattributes` (`eol=lf` for data), `LEXICON_SPEC.md` §6 update | lexicon-engineer | lexicon-curator, game-designer (profile semantics) | T0 | S |
 | T2 | TypeScript in `packages/lexicon` (`src/`, tsconfig, strict Vitest preset, ESLint) keeping `validate.mjs` zero-dependency — done (sprint L2) | lexicon-engineer | devops-sre | sprint S2, S5 | S |
 | T3 | Types: `LexiconIndex`, `Gaddag`, errors (this note §2) — done (sprint L2) | lexicon-engineer | game-engine-engineer, ai-engineer | T2 | S |
-| T4 | `Set`/`Map` reference implementation (test oracle; unblocks E-1.1 immediately) | lexicon-engineer | game-engine-engineer | T3 | S |
-| T5 | DAWG build + minimisation + rank, encoder/decoder v1, CRC32 | lexicon-engineer | code-reviewer | T3 | M |
+| T4 | `Set`/`Map` reference implementation (test oracle; unblocks E-1.1 immediately) — done (sprint L3) | lexicon-engineer | game-engine-engineer | T3 | S |
+| T5 | DAWG build + minimisation + rank, encoder/decoder v1, CRC32 — done (sprint L4; normative layout in `src/index/clxi/format.ts`, adds TERM_FORM/FORM_TERM/FORM_KIND tables for the FormRef/TermRef split) | lexicon-engineer | code-reviewer | T3 | M |
 | T6 | GADDAG build + traversal + `crossCheck` | lexicon-engineer | ai-engineer | T5 | M |
 | T7 | Property/differential/fuzz tests, golden fixtures | lexicon-engineer | qa-engineer | T4–T6 | M |
 | T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring | lexicon-engineer | devops-sre | T5–T6 | S |
-| T9 | `build:index` CLI, Turborepo task, manifest | lexicon-engineer | devops-sre | T5 | S |
+| T9 | `build:index` CLI, Turborepo task, manifest — CLI and manifest done (sprint L4, global profile only); Turborepo task pending | lexicon-engineer | devops-sre | T5 | S |
 | T10 | Mobile asset bundling + loader + corrupt-index state (E-1.5) | mobile-engineer | lexicon-engineer | T9 | S |
 | T11 | Server loader cache in `services/game` (Phase 2) | game-engine-engineer | lexicon-engineer | T9 | S |
 | T12 | `services/knowledge` publish path, immutable storage, version registry (Phase 2+) | lexicon-engineer | devops-sre, security-engineer | T9 | M |
