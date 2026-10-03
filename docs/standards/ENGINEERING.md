@@ -39,6 +39,18 @@ Applies to all code. Enforced by lint, CI and the `code-reviewer` agent.
 - No PII/secrets/tokens in logs, traces, analytics, error messages or LLM prompts.
 - Dependencies: justify each new one in the PR (size, maintenance, license — allowlist: MIT, Apache-2.0, BSD,
   ISC, MPL-2.0, BlueOak-1.0.0 (approved 2026-10-02); anything else needs approval).
+- Licences outside the allowlist, **pending product-owner approval** (security-engineer assessment 2026-10-03, PR #48;
+  none is in the Hermes bundles of `expo export`, verified by source map; all are toolchain code that runs on developer
+  and CI machines only):
+
+  | Package | Licence | Arrives via | Assessment |
+  | --- | --- | --- | --- |
+  | `argparse` 2.0.1 | Python-2.0 (permissive, OSI) | `expo` > `@expo/cli` > `@expo/xcpretty` > `js-yaml`; also dev tooling | Acceptable: not distributed |
+  | `big-integer` 1.6.52 | Unlicense (public-domain dedication) | `expo` > `@expo/cli` > `bplist-parser` | Acceptable: not distributed |
+  | `stream-buffers` 2.2.0 | Unlicense | `expo` > `@expo/cli` > `bplist-creator` | Acceptable: not distributed |
+  | `caniuse-lite` 1.0.30001814 | CC-BY-4.0 (data) | `expo` > `@expo/metro-config` > `browserslist` | Acceptable: build-time data, not distributed; attribution needed only if redistributed |
+
+  Re-assess if any of them appears in a bundle or in a service image.
 
 ## 7. Observability
 - Logger from `@codelex/observability` (JSON lines, pino-compatible shape, zero runtime deps, mandatory redaction). Levels: `error` (actionable), `warn`, `info` (business
