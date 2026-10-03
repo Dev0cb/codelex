@@ -24,10 +24,20 @@ export function engineError(
     : { kind: 'engine', code, message, details };
 }
 
+/**
+ * Total over any value (review R1 m1): a finite number or a string is reported as is, anything else by its
+ * `typeof` only. Nothing is stringified, so no `toString`/`valueOf` of untrusted JSON ever runs or throws, and
+ * no `NaN`/`Infinity` reaches the details (n4).
+ */
+function describeVersion(actual: unknown): string | number {
+  if (typeof actual === 'number') return Number.isFinite(actual) ? actual : 'number';
+  return typeof actual === 'string' ? actual : typeof actual;
+}
+
 export function rulesVersionError(actual: unknown): EngineError {
   return engineError('RULES_VERSION_UNSUPPORTED', 'unsupported engineRulesVersion', {
     expected: ENGINE_RULES_VERSION,
-    actual: typeof actual === 'number' ? actual : String(actual),
+    actual: describeVersion(actual),
   });
 }
 

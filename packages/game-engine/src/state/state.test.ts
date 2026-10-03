@@ -58,6 +58,25 @@ describe('parseState (P-GLOBAL-04, API note §13.6)', () => {
     );
   });
 
+  it('m1: an unsupported engineRulesVersion of any JSON type is reported without stringifying it', () => {
+    const actual = (text: string): unknown => {
+      const r = parseState(text);
+      return r.ok
+        ? 'ok'
+        : r.error.code === 'RULES_VERSION_UNSUPPORTED' && r.error.details?.['actual'];
+    };
+    expect(actual('{"engineRulesVersion":{"toString":1}}')).toBe('object');
+    expect(actual('{"engineRulesVersion":{"toString":{},"valueOf":{}}}')).toBe('object');
+    expect(actual('{"engineRulesVersion":[1]}')).toBe('object');
+    expect(actual('{"engineRulesVersion":null}')).toBe('object');
+    expect(actual('{"engineRulesVersion":true}')).toBe('boolean');
+    expect(actual('{}')).toBe('undefined');
+    expect(actual('{"engineRulesVersion":"1"}')).toBe('1');
+    expect(actual('{"engineRulesVersion":2}')).toBe(2);
+    expect(actual('{"engineRulesVersion":1.5}')).toBe(1.5);
+    expect(actual('{"engineRulesVersion":1e400}')).toBe('number'); // Infinity: no non-finite number in details
+  });
+
   it.each([
     ['not JSON', null],
     ['not an object', null],

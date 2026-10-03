@@ -78,9 +78,18 @@ describe('parseActionLog (ADR-0013 §D2, P-API-06)', () => {
     expect(code(edit((d) => ((d['logVersion'] = 2), (d['x'] = 1))))).toBe(
       'LOG_VERSION_UNSUPPORTED',
     );
+    // n4: a non-numeric version is reported as -1, never NaN.
     expect(parseActionLog(edit((d) => (d['logVersion'] = '1')))).toMatchObject({
-      error: { details: { logVersion: Number.NaN } },
+      error: { details: { logVersion: -1 } },
     });
+    expect(parseActionLog(edit((d) => (d['logVersion'] = 1.5)))).toMatchObject({
+      error: { details: { logVersion: -1 } },
+    });
+    expect(
+      parseActionLog(
+        edit((d) => ((d['header'] as Record<string, unknown>)['engineRulesVersion'] = 'x')),
+      ),
+    ).toMatchObject({ error: { details: { engineRulesVersion: -1 } } });
     expect(
       code(
         edit(
@@ -180,6 +189,11 @@ describe('replay (ADR-0013 §D2, P-API-07)', () => {
       replay({ ...log, header: { ...log.header, engineRulesVersion: 2 as 1 } }, CTX),
     ).toMatchObject({
       error: { code: 'RULES_VERSION_UNSUPPORTED', details: { engineRulesVersion: 2 } },
+    });
+    expect(
+      replay({ ...log, header: { ...log.header, engineRulesVersion: Number.NaN as 1 } }, CTX),
+    ).toMatchObject({
+      error: { code: 'RULES_VERSION_UNSUPPORTED', details: { engineRulesVersion: -1 } },
     });
     expect(replay({ ...log, header: { ...log.header, profileId: '' } }, CTX)).toMatchObject({
       error: { code: 'MALFORMED_LOG', details: { path: 'header.profileId' } },

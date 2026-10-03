@@ -466,7 +466,10 @@ export interface EngineError {
   readonly kind: 'engine';
   readonly code: EngineErrorCode;
   readonly message: string;
-  /** e.g. { field: 'config.teams' } or { expected: '<version>/<profile>/<hash>', actual: '…' }. */
+  /**
+   * e.g. { field: 'config.teams' } or { expected: '<version>/<profile>/<hash>', actual: '…' }.
+   * RULES_VERSION_UNSUPPORTED `actual`: the finite number or string found, else its `typeof` (never stringified).
+   */
   readonly details?: Readonly<Record<string, string | number>>;
 }
 
@@ -808,6 +811,7 @@ export interface ActionLog {
 }
 
 export type ReplayError =
+  /** E5 (review R1 n4): a logVersion / engineRulesVersion that is not a safe integer is reported as -1, never NaN. */
   | { readonly kind: 'replay'; readonly code: 'LOG_VERSION_UNSUPPORTED'; readonly message: string;
       readonly details: { readonly logVersion: number } }
   | { readonly kind: 'replay'; readonly code: 'RULES_VERSION_UNSUPPORTED'; readonly message: string;

@@ -93,7 +93,8 @@ const malformedLog = (path: string): ReplayError => ({
   details: { path },
 });
 
-const numberOrNaN = (x: unknown): number => (typeof x === 'number' ? x : Number.NaN);
+/** A version number for error details: the value if it is a safe integer, else -1 (never NaN; review R1 n4). */
+const versionOrMinusOne = (x: unknown): number => (Number.isSafeInteger(x) ? (x as number) : -1);
 
 /** An empty log for a new match. */
 export function newActionLog(config: MatchConfig): ActionLog {
@@ -122,7 +123,7 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
       kind: 'replay',
       code: 'LOG_VERSION_UNSUPPORTED',
       message: 'unsupported logVersion',
-      details: { logVersion: numberOrNaN(doc['logVersion']) },
+      details: { logVersion: versionOrMinusOne(doc['logVersion']) },
     });
   }
   const header = doc['header'];
@@ -132,7 +133,7 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
       kind: 'replay',
       code: 'RULES_VERSION_UNSUPPORTED',
       message: 'unsupported engineRulesVersion',
-      details: { engineRulesVersion: numberOrNaN(version) },
+      details: { engineRulesVersion: versionOrMinusOne(version) },
     });
   }
   const extra = Object.keys(doc).find((k) => !LOG_KEYS.includes(k));
@@ -236,7 +237,7 @@ export function replay(
         kind: 'replay',
         code: 'RULES_VERSION_UNSUPPORTED',
         message: e.message,
-        details: { engineRulesVersion: numberOrNaN(log.header.engineRulesVersion) },
+        details: { engineRulesVersion: versionOrMinusOne(log.header.engineRulesVersion) },
       });
     }
     return err(malformedLog(`header.${String(e.details?.['field'] ?? '')}`));
