@@ -70,7 +70,7 @@ Content lives in the lexicon (owner `lexicon-curator`); these are the game-desig
 ## 2. Board
 - **R-BOARD-001** Classic board 15×15; Blitz 11×11 ⚙; Arena 13×13 ⚙. Centre square is the start square.
 - **R-BOARD-002** Premium squares: DL (double letter), TL (triple letter), DW (double word), TW (triple word),
-  layout symmetric (D4 symmetry), defined per board in `packages/game-engine/src/board/layouts.ts`.
+  layout symmetric (D4 symmetry), defined per board in `packages/game-engine/src/rules/constants.ts`.
   *(v0.3)* The Classic 15×15 layout for `engineRulesVersion` 1 is **`classic-v1`**, normative in §2.1; the code
   table must equal it (snapshot test). Blitz 11×11 and Arena 13×13 layouts are not defined yet (A-02, open).
 - **R-BOARD-003** Tech squares ⚙: a square tagged with a category (e.g. ☁ Cloud). A main word covering it whose
