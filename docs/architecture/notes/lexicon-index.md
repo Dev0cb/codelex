@@ -140,7 +140,8 @@ export interface LexiconIndex {
   letterCounts(): LetterCounts;
 
   // --- move generation (packages/bots) ---
-  readonly gaddag: Gaddag | undefined;                // undefined if the artefact omits the section
+  readonly gaddag: Gaddag | undefined;                // undefined if the artefact omits the section (flags bit 0)
+  readonly dawg: Dawg;                                // always present (sprint L5, bots-api O-1)
   /** Letters L such that before + L + after is a playable form (DAWG walk, ≤ 26 suffix walks). */
   crossCheck(before: ArrayLike<LetterCode>, after: ArrayLike<LetterCode>): LetterMask;
 }
@@ -214,6 +215,27 @@ Each form `w` of length n is inserted as `rev(w[0..i]) ◇ w[i..n]` for i = 1..n
 last letter). Generation from an anchor square walks left with the rack (reading reversed), crosses ◇, then walks
 right, pruning with the per-square `LetterMask` from `crossCheck`.
 
+*Implemented 2026-10-03 (sprint L5, T6):* the GADDAG language is **exactly** those paths (Σ |w| paths, nothing
+else), which the decoder proves at load (§3.3). The same sprint adds the DAWG accessor requested by
+`docs/architecture/notes/bots-api.md` §4.3 (O-1), for DAWG (Appel–Jacobson) generation when `gaddag` is undefined:
+
+```ts
+export type DawgNode = number & { readonly __brand: 'DawgNode' };
+export interface Dawg {                               // the Gaddag shape without the separator
+  readonly root: DawgNode;
+  arcs(node: DawgNode): LetterMask;                   // bits 0..25, iterate ascending
+  next(node: DawgNode, letter: LetterCode): DawgNode | -1;
+  isFinal(node: DawgNode): boolean;                   // the letters read spell a playable form
+}
+```
+
+Its language is exactly the playable forms (canonical and inflections); enumerating it with arcs ascending yields
+them in `FormRef` order. In both automata and both implementations, a node that is not one of the automaton's
+own (negative, fractional, out of range) is a dead end — `arcs` 0, `next` −1, `isFinal` false — never a throw,
+and a symbol outside the alphabet gives −1. The reference index (§7, T4) serves both as plain unminimised tries
+built on first access (`createReferenceIndex({ …, gaddag: false })` mimics an artefact without the section), so
+the minimal automata of the binary index are checked against an independent construction.
+
 Split of responsibilities (proposal to `ai-engineer`):
 
 | Concern | Where |
@@ -232,10 +254,10 @@ data/terms/*.json, categories.json, blocklist/*.txt, profiles/<id>.json
   → loadLexicon() + validateLexicon()          (existing validate.mjs — the build refuses on any error)
   → resolveProfile(profile)                    (set algebra over tags/categories/ids, §4.2)
   → canonical model: forms sorted, TermMeta[], symmetric adjacency (CSR), letter counts
-  → DAWG (minimised, rank-annotated)  +  GADDAG (minimised, optional section)
+  → DAWG (minimised, rank-annotated)  +  GADDAG (minimised, optional section, flags bit 0)
   → encode binary v1 (§3.3)
   → self-check: decode the bytes with expect {version, profileId}; failure ⇒ VALIDATION_FAILED, nothing written
-  → <profile>.clxi  +  manifest.json entry (sha256, sizes, formatVersion)
+  → <profile>.f<flags>.clxi  +  manifest.json entry (flags, gaddag, sha256, sizes, formatVersion)
 ```
 
 ### 3.2 Build API
@@ -267,6 +289,32 @@ export function buildLexiconIndex(
 
 Little-endian, every section 8-byte aligned, zero padding, no timestamps, no absolute paths.
 
+*Implemented (sprints L4, L5):* the normative layout is `packages/lexicon/src/index/clxi/format.ts`; the table below
+is the original design, kept for its rationale. As built, format 1 has a 56-byte header and a **fixed table of 15
+sections** — `META` (9 × u32, including the DAWG and GADDAG node/edge counts), `STRINGS`, `CATEGORIES`, `TERMS`,
+`TERM_FORM`, `FORM_TERM`, `FORM_KIND`, `ADJ_START`, `ADJ`, `ADJ_MASK`, `LETTERS`, `DAWG_NODES`, `DAWG_EDGES`,
+`GADDAG_NODES`, `GADDAG_EDGES` — each starting at the first 8-byte boundary after the previous one.
+
+- **Flags (header u16 at offset 6):** bit 0 = GADDAG present. Bit 0 clear ⇒ both GADDAG sections are empty
+  (length 0) and their META counts are 0; bit 0 set ⇒ a non-empty GADDAG is required; any disagreement is
+  `CORRUPT` (`gaddag counts`). Any other bit set ⇒ `UNSUPPORTED_FORMAT` (checked after the CRC, so a flipped bit
+  in a damaged file is still `CORRUPT`). The two variants of one (`lexiconVersion`, profile, `definitionHash`)
+  differ only in the header flags, META counts, the GADDAG sections and the CRC; every other section is
+  byte-identical (tested).
+- **GADDAG sections:** nodes u32 × 2 (arc mask bits 0..26, bit 26 = ◇, | final << 31; first edge), edges u32
+  (target). Both automata are minimal, numbered root 0 then breadth-first with arcs ascending, with node k's edges
+  starting where node k−1's end.
+- **Decoder checks behind the CRC** (T-CORRUPT, both automata): only known arc/final bits, contiguous edges,
+  targets in range, breadth-first numbering (so every node is reachable), acyclic with ≤ 16-symbol paths, trim
+  (every node reaches a final node), minimal (no two nodes with the same final bit, arcs and targets): one
+  language ⇒ one byte string. GADDAG language: every `rev(w[0..i]) [◇ w[i..n]]` path of every enumerated form
+  reaches a final node, and the automaton accepts exactly Σ |w| paths (post-order path count, saturating), so it
+  accepts nothing else. Cost O(nodes + edges + Σ |w|²) at load.
+- **Format 1 freeze:** format 1 freezes when the first artefact ships (A1/T10) or the first replay is published;
+  any later layout change is format 2. Replays identify an index by (`lexiconVersion`, profile id,
+  `definitionHash`) only (ADR-0013 §D7): the GADDAG is derived from the forms, so both flag variants give the same
+  answers to every engine and bot query.
+
 | Section | Layout | Notes |
 |---|---|---|
 | Header (fixed) | magic `CLXI`, `formatVersion` u16, flags u16, `lexiconVersion` (8 bytes), profile id + `definitionHash`, section table (offset, length), CRC32 of payload | CRC32 = corruption check, pure JS on every platform |
@@ -282,12 +330,14 @@ array reads, which is what makes the < 5 µs budget plausible (§5).
 
 ### 3.4 Where it runs
 - **Phase 1:** `pnpm --filter @codelex/lexicon build:index` (Turborepo task, cached on inputs) writes
-  `packages/lexicon/dist/indexes/<lexiconVersion>/<profileId>.clxi` and `manifest.json` (git-ignored; CI builds
-  them; artefacts are reproducible so they are never committed). `apps/mobile` copies the bundled profile into
-  its assets at build time.
+  `packages/lexicon/dist/indexes/<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server,
+  default), `f0` without it — and `manifest.json`, one entry per (profile, flags) with `flags` and `gaddag`
+  (git-ignored; CI builds them; artefacts are reproducible so they are never committed). `apps/mobile` copies the
+  bundled profile variant into its assets at build time (`f1` while the size gate holds, §5).
 - **Later (ARCHITECTURE §3.4):** `services/knowledge` publish runs the **same builder** (imports
   `@codelex/lexicon`) on the approved draft, uploads to object storage under an immutable key
-  `lexicon/<lexiconVersion>/<profileId>/<definitionHash>.v<formatVersion>.clxi`, and registers it. Org-restricted
+  `lexicon/<lexiconVersion>/<profileId>/<definitionHash>.v<formatVersion>.f<flags>.clxi` (the flags are part of
+  the key: both variants share version, profile and hash but not their bytes), and registers it. Org-restricted
   profiles (B2B/EDU) are built only there, because org definitions are tenant data and never live in the repo.
 
 ### 3.5 Loading
@@ -383,6 +433,14 @@ times the size of the DAWG for the same lexicon; our small set shows ≈ 6×). A
 | Full move generation, one rack, mid-game 15×15 (V8 / Hermes) | < 1 ms / < 20 ms | < 5 ms / < 100 ms | 10–50 ms / 0.2–1 s | Strategist compute p95 ≤ 2 s on device (E-1.5 AC-8) |
 | Build time (Node, CI) | < 0.5 s | < 1 s | < 10 s | — |
 
+*Measured 2026-10-03 (sprint L5, `lexiconVersion` ec9854cca6650c5c, 1,053 forms, 7,166 letters, Node 22, Linux
+container):* DAWG 1,306 nodes / 1,963 edges = 26,152 B; GADDAG 8,476 nodes / 12,466 edges = 117,672 B (4.50× the
+DAWG sections, gate ≤ 6×); artefact 184,688 B with the GADDAG (82,657 B gzip -9), 67,016 B without (26,395 B
+gzip); decode with full validation 12.8 ms with the GADDAG, 3.8 ms without; build 47 ms / 11 ms; `has()` median 0.6–2.3
+µs, `crossCheck()` median 0.7 µs alone (up to ≈ 7 µs while other suites run in parallel). Size gates (hard, in
+`clxi.test.ts`): ≤ 0.55 MB with the GADDAG for ≤ 2,000 forms, ≤ 128 B per form without it, GADDAG sections ≤ 6×
+DAWG sections. Speed gates (node:test on `dist/`): `has()` < 10 µs, `crossCheck()` < 50 µs (median).
+
 Reading the table: lookup cost depends on form length, not lexicon size, so the 5 µs NFR holds at any scale on
 the server; the binding constraints are **artefact size at 50,000 forms** on mobile (mitigations: omit the GADDAG
 section on mobile and let bots fall back to DAWG-based generation, roughly 2× slower but ≈ 5× smaller, or deliver
@@ -434,7 +492,7 @@ Strict coverage preset (90 %, config note §2) for `packages/lexicon/src/index` 
 | T-COMPLETE | ∀ form in the resolved profile: `has(form)`, and `meta(termOf(lookup(form)))` equals the source (canonical) term (id, difficulty, categories, gameValue/knowledgeXp from `formulas.mjs` or override) | property, real data + fixtures |
 | T-SOUND | ∀ string not in the profile set: `!has(s)` — generators: random A–Z 1..16, edits of real forms (insert, delete, substitute, transpose), every proper prefix/suffix, concatenations of two forms | property |
 | T-INPUT | `has` is false and never throws for `''`, 1 letter, 16+ letters, lowercase, digits, `É`, Turkish `İ`, surrogate pairs | unit |
-| T-GADDAG | the language of the GADDAG (all accepted paths, un-reversed) equals the DAWG language; every (form, split) path exists; `crossCheck(before, after)` equals brute force over the form set | property |
+| T-GADDAG | the language of the GADDAG (all accepted paths, un-reversed) equals the DAWG language; every (form, split) path exists; `crossCheck(before, after)` equals brute force over the form set. *Done (L5, `src/index/clxi/gaddag.test.ts`):* every path exists and is final, the language is exactly those paths (no extra words), `dawg` enumerates exactly the forms in `FormRef` order, `crossCheck` via the GADDAG ≡ index `crossCheck` ≡ brute force at every position of every form and on 3,000 random contexts — binary and reference, fixture and real data | property |
 | T-REL | `related` symmetric and irreflexive; every data edge with both ends in the profile is present with its type; no neighbour outside the profile | property |
 | T-DETERMINISM | building twice ⇒ identical bytes; shuffled file order, `\` paths and CRLF ⇒ identical bytes (after T1); golden sha256 for the fixture lexicon committed; Linux vs macOS CI comparison | unit + CI |
 | T-ROUNDTRIP | `decode(encode(model))` equals `model`; `encode(model(decode(bytes)))` equals `bytes` | property |
@@ -457,7 +515,7 @@ fail.
 | T3 | Types: `LexiconIndex`, `Gaddag`, errors (this note §2) — done (sprint L2) | lexicon-engineer | game-engine-engineer, ai-engineer | T2 | S |
 | T4 | `Set`/`Map` reference implementation (test oracle; unblocks E-1.1 immediately) — done (sprint L3) | lexicon-engineer | game-engine-engineer | T3 | S |
 | T5 | DAWG build + minimisation + rank, encoder/decoder v1, CRC32 — done (sprint L4; normative layout in `src/index/clxi/format.ts`, adds TERM_FORM/FORM_TERM/FORM_KIND tables for the FormRef/TermRef split) | lexicon-engineer | code-reviewer | T3 | M |
-| T6 | GADDAG build + traversal + `crossCheck` | lexicon-engineer | ai-engineer | T5 | M |
+| T6 | GADDAG build + traversal + `crossCheck` — done (sprint L5: 15-section format 1, flags bit 0, `LexiconIndex.dawg`, T-GADDAG) | lexicon-engineer | ai-engineer | T5 | M |
 | T7 | Property/differential/fuzz tests, golden fixtures | lexicon-engineer | qa-engineer | T4–T6 | M |
 | T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring | lexicon-engineer | devops-sre | T5–T6 | S |
 | T9 | `build:index` CLI, Turborepo task, manifest — CLI and manifest done (sprint L4, global profile only); Turborepo task pending | lexicon-engineer | devops-sre | T5 | S |

@@ -55,7 +55,20 @@ test('builds the real data: every artefact decodes with the version and profile 
   assert.ok(outDir);
   const manifest = JSON.parse(readFileSync(join(outDir, 'manifest.json'), 'utf8'));
   assert.ok(manifest.profiles.length > 0);
+  // One entry per (profile, flags): with the GADDAG (flags 1) and without it (flags 0); the key carries the flags.
+  const keys = manifest.profiles.map((p) => `${p.id}/${p.flags}`);
+  assert.equal(new Set(keys).size, keys.length);
+  for (const id of new Set(manifest.profiles.map((p) => p.id))) {
+    assert.deepEqual(
+      manifest.profiles.filter((p) => p.id === id).map((p) => [p.flags, p.gaddag]),
+      [
+        [1, true],
+        [0, false],
+      ],
+    );
+  }
   for (const profile of manifest.profiles) {
+    assert.equal(profile.file, `${profile.id}.f${profile.flags}.clxi`);
     const bytes = readFileSync(join(outDir, profile.file));
     assert.equal(bytes.length, profile.bytes);
     const decoded = decodeLexiconIndex(bytes, {
@@ -63,6 +76,8 @@ test('builds the real data: every artefact decodes with the version and profile 
       profileId: profile.id,
     });
     assert.equal(decoded.ok, true);
+    assert.equal(bytes.readUInt16LE(6), profile.flags);
+    assert.equal(decoded.value.gaddag !== undefined, profile.gaddag);
   }
 });
 

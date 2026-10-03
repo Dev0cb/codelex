@@ -1,7 +1,7 @@
 /**
- * `.clxi` format 1 decoder (lexicon-index note §3.5, §7 T-CORRUPT). Validates the whole artefact once (CRC-32,
- * section table, zero padding, every count, reference and DAWG invariant, and the semantic invariants a CRC
- * cannot vouch for) so that a decoded index can never throw or give a wrong answer afterwards; then serves
+ * `.clxi` format 1 decoder (lexicon-index note §3.5, §7 T-CORRUPT).  * Validates the whole artefact once (CRC-32,
+ * flags, section table, zero padding, every count, reference, DAWG and GADDAG invariant, and the semantic
+ * invariants a CRC cannot vouch for) so that a decoded index can never throw or give a wrong answer afterwards; then serves
  * queries from typed-array views over the bytes.
  *
  * Zero-copy: when `input.byteOffset` is a multiple of 8 the views share `input`'s memory; otherwise the decoder
@@ -10,13 +10,23 @@
  * so writing to the buffer afterwards would bypass it (lexicon-index note §2.2, §3.5).
  */
 import { err, ok, type Result } from '@codelex/config/result';
-import { DIFFICULTIES, FORM_KINDS, LETTER_COUNT, MAX_FORM_LENGTH } from '../constants.js';
+import {
+  DIFFICULTIES,
+  FORM_KINDS,
+  GADDAG_SEPARATOR,
+  LETTER_COUNT,
+  MAX_FORM_LENGTH,
+} from '../constants.js';
 import type {
   CategoryId,
+  Dawg,
+  DawgNode,
   DefinitionHash,
   Difficulty,
   FormMeta,
   FormRef,
+  Gaddag,
+  GaddagNode,
   LetterCode,
   LetterCounts,
   LetterMask,
@@ -35,7 +45,10 @@ import {
   CRC_OFFSET,
   FINAL_BIT,
   FIRST_SECTION_OFFSET,
+  FLAG_GADDAG,
   FORMAT_VERSION,
+  GADDAG_ARC_MASK,
+  KNOWN_FLAGS,
   MAX_CATEGORIES,
   META_FIELDS,
   PROFILE_KINDS,
@@ -100,6 +113,8 @@ interface Model {
   readonly letters: Uint32Array;
   readonly nodes: Uint32Array;
   readonly edges: Uint32Array;
+  /** GADDAG tables, when flags bit 0 is set. */
+  readonly gaddag: { readonly nodes: Uint32Array; readonly edges: Uint32Array } | undefined;
   /** Forms by FormRef, recovered while validating the DAWG. */
   readonly forms: readonly string[];
 }
@@ -124,7 +139,16 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
   const crc = crc32(bytes, CRC_OFFSET + 4, bytes.length, crc32(bytes, 0, CRC_OFFSET, 0));
   if (crc !== stored) return err(corrupt('crc32'));
 
-  if (view.getUint16(6, true) !== 0) return err(corrupt('flags'));
+  const flags = view.getUint16(6, true);
+  if ((flags & ~KNOWN_FLAGS) !== 0) {
+    return err(
+      indexError('UNSUPPORTED_FORMAT', 'this decoder does not support the .clxi flags', {
+        flags,
+        supported: KNOWN_FLAGS,
+      }),
+    );
+  }
+  const hasGaddag = (flags & FLAG_GADDAG) !== 0;
   const version = ascii(bytes, 8, 16);
   const definitionHash = ascii(bytes, 24, 16);
   if (version === undefined || !HEX16.test(version)) return err(corrupt('lexiconVersion'));
@@ -166,8 +190,14 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
     meta;
   const nodeCount = at(meta, 5);
   const edgeCount = at(meta, 6);
+  const gaddagNodeCount = at(meta, 7);
+  const gaddagEdgeCount = at(meta, 8);
   if (categoryCount > MAX_CATEGORIES || termCount > formCount || formCount === 0) {
     return err(corrupt('counts'));
+  }
+  // Flags bit 0 <=> a non-empty GADDAG: the two GADDAG sections are empty exactly when the bit is clear.
+  if (hasGaddag ? gaddagNodeCount === 0 : gaddagNodeCount !== 0 || gaddagEdgeCount !== 0) {
+    return err(corrupt('gaddag counts'));
   }
   const strings = section.STRINGS;
   const pool = new Uint8Array(bytes.buffer, bytes.byteOffset + strings.offset, strings.length);
@@ -199,14 +229,28 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
   const letters = u32('LETTERS', LETTER_COUNT);
   const nodes = u32('DAWG_NODES', nodeCount * 2);
   const edges = u32('DAWG_EDGES', edgeCount * 2);
-  if (!adj || !adjMask || !letters || !nodes || !edges || nodeCount === 0) {
+  const gaddagNodes = u32('GADDAG_NODES', gaddagNodeCount * 2);
+  const gaddagEdges = u32('GADDAG_EDGES', gaddagEdgeCount);
+  if (
+    !adj ||
+    !adjMask ||
+    !letters ||
+    !nodes ||
+    !edges ||
+    !gaddagNodes ||
+    !gaddagEdges ||
+    nodeCount === 0
+  ) {
     return err(corrupt('sections'));
   }
-  // Padding before each section is zero ("padding is zero", format.ts), and the artefact ends at the next
-  // 8-byte boundary after the last section: one content ⇒ one byte string.
+  // Each section starts at the first 8-byte boundary after the previous one with zero padding ("padding is
+  // zero", format.ts), and the artefact ends at the next 8-byte boundary after the last section: one content ⇒
+  // one byte string.
   let gap = FIRST_SECTION_OFFSET;
   for (const name of SECTIONS) {
-    if (!zero(bytes, gap, section[name].offset)) return err(corrupt('padding'));
+    if (section[name].offset !== align8(gap) || !zero(bytes, gap, section[name].offset)) {
+      return err(corrupt('padding'));
+    }
     gap = section[name].offset + section[name].length;
   }
   if (bytes.length !== align8(gap) || !zero(bytes, gap, bytes.length)) {
@@ -304,6 +348,14 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
   for (let code = 0; code < LETTER_COUNT; code += 1) {
     if (at(counts, code) !== at(letters, code)) return err(corrupt('LETTERS'));
   }
+  // Both automata: canonical numbering, contiguous edges, acyclic, trim and minimal (one language ⇒ one byte
+  // string). The DAWG language was proven by the enumeration above; the GADDAG language is proven here.
+  const dawgShape = checkAutomaton(nodes, edges, 2, ARC_MASK, formCount, 'dawg');
+  if (typeof dawgShape === 'string') return err(corrupt(dawgShape));
+  if (hasGaddag) {
+    const failure = checkGaddag(gaddagNodes, gaddagEdges, forms);
+    if (failure !== undefined) return err(corrupt(failure));
+  }
 
   // Terms ↔ forms and relation symmetry.
   for (let t = 0; t < termCount; t += 1) {
@@ -341,8 +393,132 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
     letters,
     nodes,
     edges,
+    gaddag: hasGaddag ? { nodes: gaddagNodes, edges: gaddagEdges } : undefined,
     forms,
   });
+}
+
+/**
+ * Shape of a format-1 automaton (`stride` u32 per edge, target first): only `arcMask` bits and the final bit
+ * set; node k's edges start where node k−1's end and the last one ends at the edge count; targets in range;
+ * nodes numbered root 0 then breadth-first with arcs ascending (so every node is reachable); acyclic, with
+ * paths of at most MAX_FORM_LENGTH + 1 symbols; every node leads to a final node (trim); no two nodes with the
+ * same (final, arcs, targets) (minimal). Returns an error description, or the number of accepted paths from
+ * the root, saturated at `cap` + 1 so that a hostile graph cannot overflow. O(nodes + edges). Exported for unit
+ * tests only (not part of `@codelex/lexicon/index`).
+ */
+export function checkAutomaton(
+  nodes: Uint32Array,
+  edges: Uint32Array,
+  stride: number,
+  arcMask: number,
+  cap: number,
+  label: string,
+): string | number {
+  const nodeCount = nodes.length / 2;
+  const edgeCount = edges.length / stride;
+  let expectedFirst = 0;
+  for (let n = 0; n < nodeCount; n += 1) {
+    const word = at(nodes, n * 2);
+    if ((word & ~(arcMask | FINAL_BIT)) !== 0 || at(nodes, n * 2 + 1) !== expectedFirst) {
+      return `${label} node ${String(n)}`;
+    }
+    expectedFirst += popcount(word & arcMask);
+  }
+  if (expectedFirst !== edgeCount) return `${label} edges`;
+  for (let e = 0; e < edgeCount; e += 1) {
+    if (at(edges, e * stride) >= nodeCount) return `${label} edge ${String(e)}`;
+  }
+  // Breadth-first numbering: scanning the nodes in id order replays the BFS queue, so every target is either
+  // already discovered (< discovered) or exactly the next id.
+  let discovered = 1;
+  for (let n = 0; n < nodeCount; n += 1) {
+    if (n >= discovered) return `${label} order`;
+    const first = at(nodes, n * 2 + 1);
+    const degree = popcount(at(nodes, n * 2) & arcMask);
+    for (let k = 0; k < degree; k += 1) {
+      const target = at(edges, (first + k) * stride);
+      if (target === discovered) discovered += 1;
+      else if (target > discovered) return `${label} order`;
+    }
+  }
+  // Depth-first post-order: no cycle, bounded depth, accepted paths per node (0 ⇒ dead node, not trim).
+  const onStack = new Uint8Array(nodeCount);
+  const paths = new Float64Array(nodeCount).fill(-1);
+  const stack: number[] = [0];
+  const nextArc: number[] = [0];
+  onStack[0] = 1;
+  while (stack.length > 0) {
+    const top = stack.length - 1;
+    const n = at(stack, top);
+    const word = at(nodes, n * 2);
+    const first = at(nodes, n * 2 + 1);
+    const degree = popcount(word & arcMask);
+    const k = at(nextArc, top);
+    if (k < degree) {
+      nextArc[top] = k + 1;
+      const target = at(edges, (first + k) * stride);
+      if (at(onStack, target) === 1) return `${label} cycle`;
+      if (at(paths, target) < 0) {
+        if (stack.length > MAX_FORM_LENGTH + 1) return `${label} depth`;
+        onStack[target] = 1;
+        stack.push(target);
+        nextArc.push(0);
+      }
+      continue;
+    }
+    let total = (word & FINAL_BIT) !== 0 ? 1 : 0;
+    for (let j = 0; j < degree; j += 1) total += at(paths, at(edges, (first + j) * stride));
+    if (total === 0) return `${label} dead node`;
+    paths[n] = Math.min(total, cap + 1);
+    onStack[n] = 0;
+    stack.pop();
+    nextArc.pop();
+  }
+  const signatures = new Set<string>();
+  for (let n = 0; n < nodeCount; n += 1) {
+    const first = at(nodes, n * 2 + 1);
+    let signature = String(at(nodes, n * 2));
+    const degree = popcount(at(nodes, n * 2) & arcMask);
+    for (let k = 0; k < degree; k += 1) signature += `,${String(at(edges, (first + k) * stride))}`;
+    if (signatures.has(signature)) return `${label} minimality`;
+    signatures.add(signature);
+  }
+  return at(paths, 0);
+}
+
+/**
+ * GADDAG sections (lexicon-index note §2.3, T-GADDAG): the shape of `checkAutomaton`, then the language is
+ * exactly the GADDAG paths of `forms`: every path rev(w[0..i]) [◇ w[i..n]] reaches a final node, and the
+ * automaton accepts exactly Σ |w| paths, so it accepts nothing else. Returns an error description.
+ */
+function checkGaddag(
+  nodes: Uint32Array,
+  edges: Uint32Array,
+  forms: readonly string[],
+): string | undefined {
+  const expected = forms.reduce((sum, form) => sum + form.length, 0);
+  const accepted = checkAutomaton(nodes, edges, 1, GADDAG_ARC_MASK, expected, 'gaddag');
+  if (typeof accepted === 'string') return accepted;
+  if (accepted !== expected) return 'gaddag language';
+  const step = (node: number, symbol: number): number => {
+    if (node < 0) return -1;
+    const mask = at(nodes, node * 2) & GADDAG_ARC_MASK;
+    const bit = 1 << symbol;
+    if ((mask & bit) === 0) return -1;
+    return at(edges, at(nodes, node * 2 + 1) + popcount(mask & (bit - 1)));
+  };
+  for (const form of forms) {
+    const n = form.length;
+    for (let i = 1; i <= n; i += 1) {
+      let node = 0;
+      for (let j = i - 1; j >= 0; j -= 1) node = step(node, form.charCodeAt(j) - CODE_A);
+      if (i < n) node = step(node, GADDAG_SEPARATOR);
+      for (let j = i; j < n; j += 1) node = step(node, form.charCodeAt(j) - CODE_A);
+      if (node < 0 || (at(nodes, node * 2) & FINAL_BIT) === 0) return 'gaddag language';
+    }
+  }
+  return undefined;
 }
 
 /** True when `bytes[from, to)` are all zero. */
@@ -417,6 +593,31 @@ function enumerate(
   return undefined;
 }
 
+/** True when `node` is an integer node id in [0, count): anything else is a dead end, never an index. */
+const isNode = (node: number, count: number): boolean => node >>> 0 === node && node < count;
+/** True when `symbol` is an integer in [0, count). */
+const isSymbol = (symbol: number, count: number): boolean =>
+  symbol >>> 0 === symbol && symbol < count;
+
+/** `Gaddag` over validated GADDAG tables (lexicon-index note §2.3): O(1) transitions, no allocation. */
+function gaddagOf(nodes: Uint32Array, edges: Uint32Array): Gaddag {
+  const count = nodes.length / 2;
+  return Object.freeze({
+    root: 0 as GaddagNode,
+    arcs: (node: GaddagNode): number =>
+      isNode(node, count) ? at(nodes, node * 2) & GADDAG_ARC_MASK : 0,
+    next(node: GaddagNode, symbol: number): GaddagNode | -1 {
+      if (!isNode(node, count) || !isSymbol(symbol, GADDAG_SEPARATOR + 1)) return -1;
+      const mask = at(nodes, node * 2) & GADDAG_ARC_MASK;
+      const bit = 1 << symbol;
+      if ((mask & bit) === 0) return -1;
+      return at(edges, at(nodes, node * 2 + 1) + popcount(mask & (bit - 1))) as GaddagNode;
+    },
+    isFinal: (node: GaddagNode): boolean =>
+      isNode(node, count) && (at(nodes, node * 2) & FINAL_BIT) !== 0,
+  });
+}
+
 /** Decodes and validates a `.clxi` artefact; see `decodeLexiconIndex` in `../decode.ts`. */
 export function decodeFormat1(
   input: Uint8Array,
@@ -472,6 +673,21 @@ function createBinaryIndex(m: Model): LexiconIndex {
   }
 
   const isFinal = (node: number): boolean => (at(nodes, node * 2) & FINAL_BIT) !== 0;
+
+  const dawgNodes = nodes.length / 2;
+  const dawg: Dawg = Object.freeze({
+    root: 0 as DawgNode,
+    arcs: (node: DawgNode): LetterMask =>
+      isNode(node, dawgNodes) ? at(nodes, node * 2) & ARC_MASK : 0,
+    next(node: DawgNode, letter: LetterCode): DawgNode | -1 {
+      if (!isNode(node, dawgNodes) || !isSymbol(letter, LETTER_COUNT)) return -1;
+      const mask = at(nodes, node * 2) & ARC_MASK;
+      const bit = 1 << letter;
+      if ((mask & bit) === 0) return -1;
+      return at(edges, (at(nodes, node * 2 + 1) + popcount(mask & (bit - 1))) * 2) as DawgNode;
+    },
+    isFinal: (node: DawgNode): boolean => isNode(node, dawgNodes) && isFinal(node),
+  });
 
   /** FormRef of the `length` codes read through `codeAt`, or undefined. */
   function walk(length: number, codeAt: (i: number) => number): FormRef | undefined {
@@ -605,7 +821,8 @@ function createBinaryIndex(m: Model): LexiconIndex {
 
     letterCounts: (): LetterCounts => Uint32Array.from(m.letters),
 
-    gaddag: undefined,
+    gaddag: m.gaddag === undefined ? undefined : gaddagOf(m.gaddag.nodes, m.gaddag.edges),
+    dawg,
     crossCheck(before, after): LetterMask {
       if (!codesOk(before) || !codesOk(after)) return 0;
       const length = before.length + 1 + after.length;

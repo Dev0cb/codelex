@@ -49,7 +49,7 @@ describe('decodeLexiconIndex: format prefix (sprint L2) and dispatch (sprint L4)
   it('a format 1 prefix without the rest of the header is TRUNCATED', () => {
     const error = errorOf(header(1, 64));
     expect(error.code).toBe('TRUNCATED');
-    expect(error.details).toEqual({ length: 70, required: 160 });
+    expect(error.details).toEqual({ length: 70, required: 176 });
   });
 
   it('reads the prefix through byteOffset (unaligned views of a larger buffer)', () => {

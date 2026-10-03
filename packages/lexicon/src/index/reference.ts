@@ -2,18 +2,29 @@
  * Reference `LexiconIndex` (sprint L3): a `Map`/`Set`-backed implementation of the contract, built from the
  * canonical content document D of ADR-0013 §D7 (`lexiconContentDocument()` in `scripts/canonical.mjs`). It is
  * the test oracle of the binary `.clxi` index (L4, T-ORACLE) and lets the engine (E2–E4) and the bots run against
- * real data before L4 lands. It favours obviousness over speed: no GADDAG (`gaddag` is undefined) and
- * `lookupCodes` builds a string.
+ * real data before L4 lands. It favours obviousness over speed: `lookupCodes` builds a string, and `dawg` /
+ * `gaddag` are plain (unminimised) tries over the forms and their GADDAG paths, built on first access, so that
+ * the minimal automata of the binary index are checked against an independent construction (T-GADDAG).
  *
  * Profile: the whole playable set (`global` profile). Season/org profile resolution arrives with L4 (T-PROFILE).
  */
-import { DIFFICULTIES, LETTER_COUNT, MAX_FORM_LENGTH, relationBit } from './constants.js';
+import {
+  DIFFICULTIES,
+  GADDAG_SEPARATOR,
+  LETTER_COUNT,
+  MAX_FORM_LENGTH,
+  relationBit,
+} from './constants.js';
 import type {
   CategoryId,
+  Dawg,
+  DawgNode,
   Difficulty,
   FormKind,
   FormMeta,
   FormRef,
+  Gaddag,
+  GaddagNode,
   InflectionKind,
   LetterCode,
   LetterCounts,
@@ -46,6 +57,8 @@ export interface ReferenceIndexInput {
   readonly version: LexiconVersion;
   readonly profile: LexiconProfileRef;
   readonly document: { readonly terms: readonly ReferenceTermInput[] };
+  /** Expose a GADDAG (default true); false mimics an artefact without the section (bots' DAWG fallback). */
+  readonly gaddag?: boolean;
 }
 
 /** `formatVersion` reported by the reference implementation: it has no binary format. */
@@ -61,6 +74,56 @@ const INFLECTION_KIND_SET: ReadonlySet<string> = new Set<InflectionKind>([
 ]);
 
 const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
+/**
+ * A trie over symbols 0..alphabet−1 behind the `Dawg` / `Gaddag` shape: node = index in `children`; nodes that
+ * are not ours are dead ends (`arcs` 0, `next` -1, `isFinal` false), as the contract requires.
+ */
+function trie(paths: Iterable<readonly number[]>, alphabet: number): Dawg & Gaddag {
+  const children: number[][] = [[]];
+  const masks: number[] = [0];
+  const finals: boolean[] = [false];
+  for (const path of paths) {
+    let node = 0;
+    for (const symbol of path) {
+      let child = children[node]?.[symbol];
+      if (child === undefined) {
+        child = children.length;
+        children.push([]);
+        masks.push(0);
+        finals.push(false);
+        (children[node] as number[])[symbol] = child;
+        masks[node] = (masks[node] ?? 0) | (1 << symbol);
+      }
+      node = child;
+    }
+    finals[node] = true;
+  }
+  const own = (node: number): boolean => Number.isInteger(node) && node >= 0 && node < masks.length;
+  return Object.freeze({
+    root: 0 as DawgNode & GaddagNode,
+    arcs: (node: number) => (own(node) ? (masks[node] ?? 0) : 0),
+    next(node: number, symbol: number) {
+      if (!own(node) || !Number.isInteger(symbol) || symbol < 0 || symbol >= alphabet) return -1;
+      return (children[node]?.[symbol] ?? -1) as (DawgNode & GaddagNode) | -1;
+    },
+    isFinal: (node: number) => own(node) && finals[node] === true,
+  });
+}
+
+const codesOf = (form: string): number[] =>
+  Array.from({ length: form.length }, (_, i) => form.charCodeAt(i) - CODE_A);
+
+/** rev(w), then rev(w[0..i]) ◇ w[i..n] for i = 1..n−1 (lexicon-index note §2.3). */
+function* gaddagPathsOf(forms: readonly string[]): Generator<number[]> {
+  for (const form of forms) {
+    const codes = codesOf(form);
+    yield [...codes].reverse();
+    for (let i = 1; i < codes.length; i += 1) {
+      yield [...codes.slice(0, i).reverse(), GADDAG_SEPARATOR, ...codes.slice(i)];
+    }
+  }
+}
 
 function isDifficulty(value: string | undefined): value is Difficulty {
   return value !== undefined && (DIFFICULTIES as readonly string[]).includes(value);
@@ -190,6 +253,11 @@ export function createReferenceIndex(input: ReferenceIndexInput): LexiconIndex {
   );
   const maxFormLength = formRows.reduce((m, r) => Math.max(m, r.form.length), 0);
 
+  const formStrings = formRows.map((r) => r.form);
+  let dawg: Dawg | undefined;
+  let gaddag: Gaddag | undefined;
+  const withGaddag = input.gaddag ?? true;
+
   const termMetaCache = new Map<TermRef, TermMeta>();
   const formMetaCache = new Map<FormRef, FormMeta>();
 
@@ -300,7 +368,16 @@ export function createReferenceIndex(input: ReferenceIndexInput): LexiconIndex {
     // A fresh copy per call: callers can never alter the index's own counts (T-ORACLE).
     letterCounts: (): LetterCounts => Uint32Array.from(counts),
 
-    gaddag: undefined,
+    // Built on first access (pure: same forms ⇒ same tries), so indexes that never generate moves stay cheap.
+    get gaddag(): Gaddag | undefined {
+      if (!withGaddag) return undefined;
+      gaddag ??= trie(gaddagPathsOf(formStrings), GADDAG_SEPARATOR + 1);
+      return gaddag;
+    },
+    get dawg(): Dawg {
+      dawg ??= trie(formStrings.map(codesOf), LETTER_COUNT);
+      return dawg;
+    },
     crossCheck(before, after): LetterMask {
       const prefix = lettersOf(before, 0, before.length);
       const suffix = lettersOf(after, 0, after.length);

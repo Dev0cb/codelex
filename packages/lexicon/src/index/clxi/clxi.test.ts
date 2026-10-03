@@ -8,7 +8,7 @@ import {
   profileDefinitionHash,
 } from '../../../scripts/canonical.mjs';
 import { loadLexicon } from '../../../scripts/validate.mjs';
-import { relationTypesOf } from '../constants.js';
+import { GADDAG_SEPARATOR, relationTypesOf } from '../constants.js';
 import { decodeLexiconIndex } from '../decode.js';
 import { createReferenceIndex, type ReferenceTermInput } from '../reference.js';
 import type {
@@ -23,13 +23,17 @@ import { Buffer } from 'node:buffer';
 
 import {
   buildDawg,
+  buildGaddag,
   buildLexiconIndex,
   checkBuiltArtefact,
+  gaddagPaths,
   type LexiconBuildInput,
 } from './build.js';
 import { crc32 } from './crc32.js';
 import {
   CRC_OFFSET,
+  align8,
+  GADDAG_ARC_MASK,
   SECTION_TABLE_OFFSET,
   SECTIONS,
   TERM_FIELDS,
@@ -99,7 +103,9 @@ const FIXTURE: LexiconBuildInput = {
   },
 };
 
-const OPTIONS = { formatVersion: 1, gaddag: false } as const;
+/** Default build: with the GADDAG (server artefact); `NO_GADDAG` is the mobile fallback (flags bit 0 clear). */
+const OPTIONS = { formatVersion: 1, gaddag: true } as const;
+const NO_GADDAG = { formatVersion: 1, gaddag: false } as const;
 
 /** The L3 reference index of a build input (the oracle). */
 const referenceOf = (input: LexiconBuildInput): LexiconIndex =>
@@ -109,10 +115,35 @@ const referenceOf = (input: LexiconBuildInput): LexiconIndex =>
     document: input.document,
   });
 
-function built(input: LexiconBuildInput): Uint8Array {
-  const r = buildLexiconIndex(input, OPTIONS);
+function build(
+  input: LexiconBuildInput,
+  options: { readonly formatVersion: 1; readonly gaddag: boolean } = OPTIONS,
+): Uint8Array {
+  const r = buildLexiconIndex(input, options);
   if (!r.ok) throw new Error(`${r.error.code}: ${r.error.message}`);
   return r.value;
+}
+
+/**
+ * `build`, memoised per (input object, gaddag) to keep the suite fast under coverage; returns a fresh copy so
+ * that a test can never alter another test's bytes. Determinism tests call `build` directly.
+ */
+const builtCache = new Map<LexiconBuildInput, Map<boolean, Uint8Array>>();
+function built(
+  input: LexiconBuildInput,
+  options: { readonly formatVersion: 1; readonly gaddag: boolean } = OPTIONS,
+): Uint8Array {
+  let byInput = builtCache.get(input);
+  if (byInput === undefined) {
+    byInput = new Map();
+    builtCache.set(input, byInput);
+  }
+  let bytes = byInput.get(options.gaddag);
+  if (bytes === undefined) {
+    bytes = build(input, options);
+    byInput.set(options.gaddag, bytes);
+  }
+  return bytes.slice();
 }
 
 function decoded(bytes: Uint8Array): LexiconIndex {
@@ -123,6 +154,48 @@ function decoded(bytes: Uint8Array): LexiconIndex {
 
 const codesOf = (s: string): number[] =>
   Array.from({ length: s.length }, (_, i) => s.charCodeAt(i) - 65);
+
+/** The shape shared by `Dawg` and `Gaddag`, with plain numbers (tests only). */
+interface Automaton {
+  readonly root: number;
+  arcs(node: never): number;
+  next(node: never, symbol: number): number;
+  isFinal(node: never): boolean;
+}
+
+/** Every accepted path, letters as A–Z and the separator as `+`, in traversal order (arcs ascending). */
+function languageOf(automaton: Automaton): string[] {
+  const out: string[] = [];
+  const arcs = automaton.arcs.bind(automaton) as (node: number) => number;
+  const next = automaton.next.bind(automaton) as (node: number, symbol: number) => number;
+  const isFinal = automaton.isFinal.bind(automaton) as (node: number) => boolean;
+  const visit = (node: number, path: string): void => {
+    if (isFinal(node)) out.push(path);
+    const mask = arcs(node);
+    for (let symbol = 0; symbol <= GADDAG_SEPARATOR; symbol += 1) {
+      if ((mask & (1 << symbol)) === 0) continue;
+      const target = next(node, symbol);
+      if (target === -1)
+        throw new Error(`arc ${String(symbol)} of node ${String(node)} has no target`);
+      visit(target, path + (symbol === GADDAG_SEPARATOR ? '+' : String.fromCharCode(65 + symbol)));
+    }
+  };
+  visit(automaton.root, '');
+  return out;
+}
+
+/** The GADDAG language of a set of forms, as `languageOf` spells it. */
+const gaddagLanguageOf = (forms: readonly string[]): string[] =>
+  forms
+    .flatMap((f) =>
+      gaddagPaths(f).map((p) =>
+        p.map((c) => (c === GADDAG_SEPARATOR ? '+' : String.fromCharCode(65 + c))).join(''),
+      ),
+    )
+    .sort();
+
+const formsOf = (index: LexiconIndex): string[] =>
+  Array.from({ length: index.size }, (_, i) => index.formMeta(i as FormRef).form);
 
 /** Recomputes the CRC so that structural checks (not the checksum) are exercised. */
 function withCrc(bytes: Uint8Array): Uint8Array {
@@ -183,13 +256,29 @@ function expectCoherent(index: LexiconIndex): void {
   expect([...used].sort()).toEqual([...index.categories()]);
   index.crossCheck(codesOf('PO'), []);
   index.crossCheck([], codesOf('I'));
+  // Automata (T-GADDAG): the DAWG spells exactly the forms in FormRef order; the GADDAG, when present, spells
+  // exactly their GADDAG paths.
+  const forms = formsOf(index);
+  expect(languageOf(index.dawg)).toEqual(forms);
+  if (index.gaddag !== undefined) {
+    expect(languageOf(index.gaddag).sort()).toEqual(gaddagLanguageOf(forms));
+  }
 }
 
 // --- T-ORACLE ----------------------------------------------------------------------------------------------
 
-function expectSameIndex(binary: LexiconIndex, reference: LexiconIndex): void {
+function expectSameIndex(binary: LexiconIndex, reference: LexiconIndex, withGaddag = true): void {
   expect(binary.formatVersion).toBe(1);
-  expect(binary.gaddag).toBeUndefined();
+  expect(languageOf(binary.dawg)).toEqual(languageOf(reference.dawg));
+  if (withGaddag) {
+    expect(binary.gaddag).toBeDefined();
+    expect(reference.gaddag).toBeDefined();
+    expect(languageOf(binary.gaddag as Automaton).sort()).toEqual(
+      languageOf(reference.gaddag as Automaton).sort(),
+    );
+  } else {
+    expect(binary.gaddag).toBeUndefined();
+  }
   expect([binary.version, binary.size, binary.termCount, binary.maxFormLength]).toEqual([
     reference.version,
     reference.size,
@@ -258,6 +347,18 @@ describe('binary index ≡ reference index (T-ORACLE, T-COMPLETE)', REAL_DATA_BU
   it('decoded indexes are coherent (fixture and real data)', () => {
     expectCoherent(decoded(built(FIXTURE)));
     expectCoherent(decoded(built(REAL)));
+    expectCoherent(decoded(built(FIXTURE, NO_GADDAG)));
+  });
+
+  it('without the GADDAG (flags bit 0 clear): same index, gaddag undefined, dawg present', () => {
+    for (const input of [FIXTURE, REAL]) {
+      const bytes = built(input, NO_GADDAG);
+      expect(new DataView(bytes.buffer).getUint16(6, true)).toBe(0);
+      expect(sectionOf(bytes, 'GADDAG_NODES').length).toBe(0);
+      expect(sectionOf(bytes, 'GADDAG_EDGES').length).toBe(0);
+      expectSameIndex(decoded(bytes), referenceOf(input), false);
+    }
+    expect(new DataView(built(FIXTURE).buffer).getUint16(6, true)).toBe(1);
   });
 
   it('T-SOUND / T-REL / crossCheck: random strings, edits, pairs and contexts agree with the reference', () => {
@@ -403,29 +504,49 @@ function documentOf(index: LexiconIndex): LexiconBuildInput['document'] {
 
 describe('build determinism and round trip (T-DETERMINISM, T-ROUNDTRIP)', REAL_DATA_BUILDS, () => {
   it('same input ⇒ same bytes; term and array order do not matter', () => {
-    const a = built(REAL);
-    expect(built(REAL)).toEqual(a);
+    const a = build(REAL);
+    expect(build(REAL)).toEqual(a);
     const shuffled = [...REAL.document.terms].reverse().map((t) => ({
       ...t,
       inflections: [...t.inflections].reverse(),
       relations: [...t.relations].reverse(),
     }));
-    expect(built({ ...REAL, document: { terms: shuffled } })).toEqual(a);
+    expect(build({ ...REAL, document: { terms: shuffled } })).toEqual(a);
   });
 
   it('golden pin: the fixture artefact keeps its CRC-32 and size (format 1 is frozen once published)', () => {
     const bytes = built(FIXTURE);
     expect(new DataView(bytes.buffer).getUint32(CRC_OFFSET, true)).toMatchInlineSnapshot(
-      `3840568987`,
+      `3204721097`,
     );
-    expect(bytes.length).toMatchInlineSnapshot(`1048`);
+    expect(bytes.length).toMatchInlineSnapshot(`2696`);
+    const lean = built(FIXTURE, NO_GADDAG);
+    expect(new DataView(lean.buffer).getUint32(CRC_OFFSET, true)).toMatchInlineSnapshot(
+      `3433582439`,
+    );
+    expect(lean.length).toMatchInlineSnapshot(`1072`);
+  });
+
+  it('with and without the GADDAG, every other section is byte-identical', () => {
+    const full = built(REAL);
+    const lean = built(REAL, NO_GADDAG);
+    for (const name of SECTIONS) {
+      if (name === 'META' || name.startsWith('GADDAG')) continue;
+      const a = sectionOf(full, name);
+      const b = sectionOf(lean, name);
+      expect(full.subarray(a.offset, a.offset + a.length), name).toEqual(
+        lean.subarray(b.offset, b.offset + b.length),
+      );
+    }
   });
 
   it('encode(model(decode(bytes))) = bytes', () => {
     for (const input of [FIXTURE, REAL]) {
-      const bytes = built(input);
-      const again = built({ ...input, document: documentOf(decoded(bytes)) });
-      expect(again).toEqual(bytes);
+      for (const options of [OPTIONS, NO_GADDAG]) {
+        const bytes = built(input, options);
+        const again = built({ ...input, document: documentOf(decoded(bytes)) }, options);
+        expect(again).toEqual(bytes);
+      }
     }
   });
 
@@ -448,6 +569,24 @@ describe('build determinism and round trip (T-DETERMINISM, T-ROUNDTRIP)', REAL_D
     }
     expect(signatures.size).toBe(dawg.nodeCount);
     expect(dawg.edgeCount).toBeLessThan(forms.join('').length);
+  });
+
+  it('the GADDAG is minimal, numbered root-first, and smaller than its trie', () => {
+    const forms = formsOf(referenceOf(REAL));
+    const gaddag = buildGaddag(forms);
+    const signatures = new Set<string>();
+    for (let n = 0; n < gaddag.nodeCount; n += 1) {
+      const word = gaddag.nodes[n * 2] ?? 0;
+      const first = gaddag.nodes[n * 2 + 1] ?? 0;
+      const targets = Array.from(
+        { length: popcount(word & GADDAG_ARC_MASK) },
+        (_, k) => gaddag.edges[first + k],
+      );
+      signatures.add(`${String(word)}|${targets.join(',')}`);
+    }
+    expect(signatures.size).toBe(gaddag.nodeCount);
+    const pathSymbols = forms.reduce((sum, f) => sum + f.length * f.length, 0);
+    expect(gaddag.edgeCount).toBeLessThan(pathSymbols);
   });
 });
 
@@ -496,7 +635,6 @@ describe('buildLexiconIndex errors (T-BLOCKLIST, limits)', () => {
     ['LIMIT_EXCEEDED', withTerms([term('é', 'POD')])],
     ['LIMIT_EXCEEDED', withTerms([term('a', 'POD', { categories: ['dévops'] })])],
     ['LIMIT_EXCEEDED', withTerms([term('a', 'POD', { gameValue: 70000 })])],
-    ['LIMIT_EXCEEDED', FIXTURE, { formatVersion: 1, gaddag: true }],
     ['LIMIT_EXCEEDED', FIXTURE, { formatVersion: 2, gaddag: false }],
   ])('%s', (expected, input, options) => {
     expect(code(input, options ?? OPTIONS)).toBe(expected);
@@ -646,13 +784,63 @@ describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', REAL_DATA_BUILDS,
     );
   });
 
+  it.each([2, 4, 0x80, 0x8000, 0xfffe, 0xffff])(
+    'UNSUPPORTED_FORMAT: flags 0x%s (any bit other than bit 0)',
+    (flags) => {
+      for (const options of [OPTIONS, NO_GADDAG]) {
+        const copy = built(FIXTURE, options);
+        const view = new DataView(copy.buffer);
+        view.setUint16(6, view.getUint16(6, true) | flags, true);
+        expect(decodeLexiconIndex(withCrc(copy))).toMatchObject({
+          ok: false,
+          error: { code: 'UNSUPPORTED_FORMAT', details: { supported: 1 } },
+        });
+      }
+    },
+  );
+
+  it('CORRUPT: flags bit 0 disagrees with the GADDAG sections', () => {
+    for (const [options, flags] of [
+      [OPTIONS, 0],
+      [NO_GADDAG, 1],
+    ] as const) {
+      const copy = built(FIXTURE, options);
+      new DataView(copy.buffer).setUint16(6, flags, true);
+      expect(decodeLexiconIndex(withCrc(copy))).toMatchObject({
+        error: { code: 'CORRUPT', details: { what: 'gaddag counts' } },
+      });
+    }
+  });
+
+  it.each<SectionName>(['DAWG_NODES', 'DAWG_EDGES', 'GADDAG_NODES', 'GADDAG_EDGES'])(
+    'CORRUPT: every u32 of %s, changed, with a valid CRC (canonical automata, exact language)',
+    (name) => {
+      const bytes0 = built(FIXTURE);
+      const { offset, length } = sectionOf(bytes0, name);
+      for (let at = offset; at < offset + length; at += 4) {
+        const original = new DataView(bytes0.buffer).getUint32(at, true);
+        for (const value of [
+          original + 1,
+          original - 1,
+          original ^ 0x8000_0000,
+          original ^ (1 << 26),
+          0,
+          0xffff_ffff,
+        ]) {
+          if (value >>> 0 === original) continue;
+          const copy = bytes0.slice();
+          new DataView(copy.buffer).setUint32(at, value >>> 0, true);
+          const r = decodeLexiconIndex(withCrc(copy));
+          expect(
+            r.ok ? undefined : r.error.code,
+            `${name} +${String(at - offset)} = ${String(value)}`,
+          ).toBe('CORRUPT');
+        }
+      }
+    },
+  );
+
   it.each<[string, (view: DataView, b: Uint8Array) => void]>([
-    [
-      'flags',
-      (v) => {
-        v.setUint16(6, 1, true);
-      },
-    ],
     ['lexiconVersion', (_v, b) => (b[8] = 0x47)],
     ['definitionHash', (_v, b) => (b[24] = 0x20)],
     ['profile kind', (_v, b) => (b[40] = 3)],
@@ -749,9 +937,26 @@ describe('budgets (lexicon-index note §5)', () => {
   const bytes = built(REAL);
   const index = decoded(bytes);
 
-  it('size gate: ≤ 0.55 MB for ≤ 2,000 forms, ≤ 128 bytes per form', () => {
+  const lean = built(REAL, NO_GADDAG);
+  const sizeOf = (b: Uint8Array, ...names: SectionName[]): number =>
+    names.reduce((sum, name) => sum + sectionOf(b, name).length, 0);
+
+  it('size gate: ≤ 0.55 MB for ≤ 2,000 forms with the GADDAG; ≤ 128 bytes per form without it', () => {
     expect(index.size).toBeLessThanOrEqual(2000);
     expect(bytes.length).toBeLessThanOrEqual(550_000);
-    expect(bytes.length / index.size).toBeLessThanOrEqual(128);
+    expect(lean.length / index.size).toBeLessThanOrEqual(128);
+  });
+
+  it('size gate: GADDAG sections ≤ 6 × DAWG sections (sprint 2 decision log)', () => {
+    const dawg = sizeOf(bytes, 'DAWG_NODES', 'DAWG_EDGES');
+    const gaddag = sizeOf(bytes, 'GADDAG_NODES', 'GADDAG_EDGES');
+    expect(gaddag).toBeGreaterThan(0);
+    expect(gaddag).toBeLessThanOrEqual(6 * dawg);
+    expect(bytes.length - lean.length).toBe(align8(gaddag));
+    console.log(
+      `size: ${String(index.size)} forms; artefact ${String(bytes.length)} B with GADDAG, ` +
+        `${String(lean.length)} B without; DAWG ${String(dawg)} B, GADDAG ${String(gaddag)} B ` +
+        `(${(gaddag / dawg).toFixed(2)}×)`,
+    );
   });
 });
