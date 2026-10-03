@@ -1,7 +1,7 @@
 # Design note — `@codelex/game-engine` public API (`engineRulesVersion` 1)
 
 - Status: Proposed · Date: 2026-10-02 · Owner/author: game-engine-engineer (decisions delegated by the product owner)
-- Reviewed-by: pending solution-architect, ai-engineer
+- Reviewed-by: ai-engineer (2026-10-03, §20 Q8–Q12, B0); pending solution-architect
 - Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` — D4 (this note). Unblocks E2–E4 (engine), L2 (lexicon
   index types), B1 (bots), and the E-1.5 mobile work next sprint.
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013),
@@ -951,6 +951,33 @@ For **ai-engineer**:
     evaluation and Hermes performance, or prefer `Uint8Array` / code arrays?
 12. Bot RNG: host derives `bot:<seat>:<observation.actionCount>` and passes an `Rng` — confirm `actionCount` in
     the observation is the `n` you need, and that no other stream is required by B1.
+
+**Answered 2026-10-03 (B0)** by ai-engineer; full contract in `docs/architecture/notes/bots-api.md`. No change to
+this note's types or functions.
+- **Q8 — yes.** `chooseAction(obs, ctx)` and `evaluateMove(obs, …)` take the same observation, so the bot never
+  needs anything else. The simulator holds full states and calls `observe(state, seat)` once per decision
+  (< 20 µs Node), then `apply` with the decision's action; it never hands a `MatchState` to a bot (bots-api BOT-2,
+  enforced by `no-restricted-imports` in `packages/bots/src`). P-API-01 is what makes "accepted by
+  `evaluateMove`" ⇒ "accepted by `apply`", the base of P-BOT-01.
+- **Q9 — enough for Phase 1; no second scoring path.** Beginner evaluates ≤ 300 candidates (≤ 0.3 s on Hermes at
+  the 1 ms budget), Strategist (provisional) ≤ 800 (≤ 0.8 s), inside the 2 s AC-8 budget with node generation
+  (bots-api §6). The bots never pre-score candidates themselves: when generation yields more than `maxCandidates`,
+  Beginner samples (an "attention" limit, which is also the desired behaviour), and Strategist's shortlisting is
+  designed next sprint. If B1/H1 measure `evaluateMove` above 50 % of a bot's device compute, the fix is an engine-
+  owned variant (e.g. trusting GADDAG-generated main words) covered by an extended P-API-01 parity property, owned
+  by game-engine-engineer, never code in `packages/bots`.
+- **Q10 — sufficient.** `breakdown` (per-word `total`, `difficulty`, `termId`, `chain`, `chainKAfter`,
+  `fullStack`, `tilesPlaced`), `leave` and `goesOut` cover Beginner and the planned Strategist (leave value, chain
+  preference, going-out). Premium-square exposure and open lanes are board analysis the bot derives from
+  `obs.board` + `getLayout`, which is not scoring. No new fields requested.
+- **Q11 — keep as is.** 27 counts and sorted `TileString` racks are JSON-safe and cheap to read; the bot converts
+  them once per decision into per-call scratch `Uint8Array`s (no module state). A typed-array observation would
+  only move that conversion into the engine and complicate the app.
+- **Q12 — confirmed.** `Observation.actionCount` (= action-log length, `MatchState.actionCount`) is the `n` of
+  `bot:<seat>:<n>`, read from the observation the bot is given while on turn; a resumed match re-derives the same
+  stream and gets the same move (AC-11). B1 needs no other stream. If S1 wants seeded think-time jitter, the host
+  (not the bot) uses a separate presentation stream `bot-think:<seat>:<n>`, added to the ADR-0013 §D1 name list
+  when S1 implements it (adding a name never changes existing streams).
 
 For **lexicon-engineer** (L2, FYI): 13. Confirm the member names `termOf(FormRef): TermRef`, `lookup`/`lookupCodes`
 returning `FormRef`, and that `meta(TermRef).form` is the canonical form (§5).
