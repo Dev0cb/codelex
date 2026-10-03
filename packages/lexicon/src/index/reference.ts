@@ -82,8 +82,22 @@ interface FormRow {
 }
 
 /**
+ * A term's categories as `[primary, ...secondary sorted by code unit]` (the order of document D and of the
+ * binary index). Throws `RangeError` on an empty list or a repeated category (LEXICON_SPEC: ≥ 1, unique).
+ */
+function normaliseCategories(id: string, categories: readonly string[]): readonly CategoryId[] {
+  const [primary, ...secondary] = categories;
+  if (primary === undefined) throw new RangeError(`term ${id}: no category`);
+  if (new Set(categories).size !== categories.length) {
+    throw new RangeError(`term ${id}: duplicate category`);
+  }
+  return [primary, ...[...secondary].sort(byCodeUnit)].map((c) => c as CategoryId);
+}
+
+/**
  * Builds the reference index. Throws `RangeError` on a source that breaks the lexicon invariants (duplicate
- * form, invalid form, unknown difficulty or inflection kind, unknown relation type, missing values): it is
+ * form, invalid form, unknown difficulty or inflection kind, unknown relation type, missing values, an empty or
+ * repeated category list): it is
  * meant for validated data (`pnpm lexicon:validate`), so a throw is a bug in the caller or the validator.
  */
 export function createReferenceIndex(input: ReferenceIndexInput): LexiconIndex {
@@ -105,7 +119,7 @@ export function createReferenceIndex(input: ReferenceIndexInput): LexiconIndex {
       id: t.id,
       form,
       difficulty: t.difficulty,
-      categories: t.categories as readonly CategoryId[],
+      categories: normaliseCategories(t.id, t.categories),
       gameValue: t.gameValue as number,
       knowledgeXp: t.knowledgeXp as number,
     };

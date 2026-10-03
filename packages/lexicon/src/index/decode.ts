@@ -12,8 +12,10 @@ import type {
 
 /**
  * Pure decoder of a `.clxi` artefact (lexicon-index note §2.2, §3.3). Never throws on bad input; returns a
- * typed error. Zero-copy typed-array views over `bytes` when 4-byte aligned, else one copy. `expect` turns a
- * different `lexiconVersion` / profile id into `VERSION_MISMATCH` / `PROFILE_MISMATCH`.
+ * typed error. Zero-copy typed-array views over `bytes` when `bytes.byteOffset` is a multiple of 8, else one
+ * copy. Zero-copy views share memory with `bytes`: the loader owns the buffer and must never write to it after
+ * decoding (validation runs once, at decode time). `expect` turns a different `lexiconVersion` / profile id into
+ * `VERSION_MISMATCH` / `PROFILE_MISMATCH`.
  */
 export type DecodeLexiconIndex = (
   bytes: Uint8Array,

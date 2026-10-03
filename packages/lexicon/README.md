@@ -81,6 +81,7 @@ resolves to its canonical term for every rule, card and XP; it carries no metada
   formula that was never published or pinned.
 
 `pnpm --filter @codelex/lexicon build:index` (after `build`) writes `dist/indexes/<lexiconVersion>/global-ranked.clxi` and
-`manifest.json` (sha256, sizes, `definitionHash`); the build refuses invalid data. Artefacts are reproducible and
-git-ignored. Next (roadmap E-1.2): the GADDAG section (T6) for bots, season/org profile files (T-PROFILE), CI
+`manifest.json` (sha256, sizes, `definitionHash`); the build refuses unloadable or invalid data and any artefact
+that does not decode as the expected version and profile (`--data <dir>` builds another data directory).
+Artefacts are reproducible and git-ignored. Next (roadmap E-1.2): the GADDAG section (T6) for bots, season/org profile files (T-PROFILE), CI
 benchmarks (T8).

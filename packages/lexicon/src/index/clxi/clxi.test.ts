@@ -19,9 +19,23 @@ import type {
   LexiconVersion,
   TermRef,
 } from '../types.js';
-import { buildDawg, buildLexiconIndex, type LexiconBuildInput } from './build.js';
+import { Buffer } from 'node:buffer';
+
+import {
+  buildDawg,
+  buildLexiconIndex,
+  checkBuiltArtefact,
+  type LexiconBuildInput,
+} from './build.js';
 import { crc32 } from './crc32.js';
-import { CRC_OFFSET, popcount } from './format.js';
+import {
+  CRC_OFFSET,
+  SECTION_TABLE_OFFSET,
+  SECTIONS,
+  TERM_FIELDS,
+  popcount,
+  type SectionName,
+} from './format.js';
 
 // --- inputs ------------------------------------------------------------------------------------------------
 
@@ -121,6 +135,56 @@ function withCrc(bytes: Uint8Array): Uint8Array {
   return bytes;
 }
 
+/** Offset and length of a section, read from the section table. */
+function sectionOf(bytes: Uint8Array, name: SectionName): { offset: number; length: number } {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const i = SECTIONS.indexOf(name);
+  return {
+    offset: view.getUint32(SECTION_TABLE_OFFSET + i * 8, true),
+    length: view.getUint32(SECTION_TABLE_OFFSET + i * 8 + 4, true),
+  };
+}
+
+/** Invariants that any successfully decoded index must satisfy, whatever its bytes (T-CORRUPT, R1 m4). */
+function expectCoherent(index: LexiconIndex): void {
+  const canonical = new Set<number>();
+  const letters = new Array<number>(26).fill(0);
+  for (let f = 0; f < index.size; f += 1) {
+    const form = f as FormRef;
+    const meta = index.formMeta(form);
+    expect(meta.term).toBe(index.termOf(form));
+    expect(index.lookup(meta.form)).toBe(form);
+    if (meta.kind === 'canonical') canonical.add(f);
+    for (const c of codesOf(meta.form)) letters[c] = (letters[c] ?? 0) + 1;
+  }
+  expect(canonical.size).toBe(index.termCount);
+  expect([...index.letterCounts()]).toEqual(letters);
+  const ids = new Set<string>();
+  const used = new Set<string>();
+  for (let t = 0; t < index.termCount; t += 1) {
+    const term = t as TermRef;
+    const meta = index.meta(term);
+    const ref = index.lookup(meta.form);
+    expect(ref).toBeDefined();
+    expect(canonical.has(ref as number)).toBe(true);
+    expect(index.termOf(ref as FormRef)).toBe(term);
+    expect(meta.gameValue).toBeLessThanOrEqual(0xffff);
+    expect(meta.knowledgeXp).toBeLessThanOrEqual(0xffff);
+    ids.add(meta.id);
+    meta.categories.forEach((c) => used.add(c));
+    index.difficulty(term);
+    for (const c of index.categories()) index.inCategory(term, c);
+    for (const n of index.neighbours(term)) {
+      expect(index.related(n, term)).toBe(index.related(term, n));
+      expect(index.related(term, n)).not.toBe(0);
+    }
+  }
+  expect(ids.size).toBe(index.termCount);
+  expect([...used].sort()).toEqual([...index.categories()]);
+  index.crossCheck(codesOf('PO'), []);
+  index.crossCheck([], codesOf('I'));
+}
+
 // --- T-ORACLE ----------------------------------------------------------------------------------------------
 
 function expectSameIndex(binary: LexiconIndex, reference: LexiconIndex): void {
@@ -167,6 +231,31 @@ describe('binary index ≡ reference index (T-ORACLE, T-COMPLETE)', () => {
     expectSameIndex(decoded(built(REAL)), referenceOf(REAL));
   });
 
+  it('non-canonical category order: binary and reference agree on [primary, ...rest sorted] (R1 m2)', () => {
+    const input: LexiconBuildInput = {
+      ...FIXTURE,
+      document: {
+        terms: [
+          term('pod', 'POD', { categories: ['devops', 'networking', 'cloud', 'ai'] }),
+          term('ip', 'IP', { categories: ['networking'] }),
+        ],
+      },
+    };
+    const binary = decoded(built(input));
+    expectSameIndex(binary, referenceOf(input));
+    expect(binary.meta(binary.termOf(binary.lookup('POD') as FormRef)).categories).toEqual([
+      'devops',
+      'ai',
+      'cloud',
+      'networking',
+    ]);
+  });
+
+  it('decoded indexes are coherent (fixture and real data)', () => {
+    expectCoherent(decoded(built(FIXTURE)));
+    expectCoherent(decoded(built(REAL)));
+  });
+
   it('T-SOUND / T-REL / crossCheck: random strings, edits, pairs and contexts agree with the reference', () => {
     const binary = decoded(built(REAL));
     const reference = referenceOf(REAL);
@@ -185,13 +274,19 @@ describe('binary index ≡ reference index (T-ORACLE, T-COMPLETE)', () => {
         fc.integer({ min: 0, max: 20 }),
         fc.integer({ min: 0, max: reference.termCount - 1 }),
         fc.integer({ min: 0, max: reference.termCount - 1 }),
-        (random, form, cut, a, b) => {
+        fc.constantFrom(...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')),
+        (random, form, cut, a, b, letter) => {
+          const i = cut % (form.length + 1);
           for (const s of [
             random,
             form + random,
             form.slice(0, cut),
             form.slice(cut),
             random + form,
+            form.slice(0, i) + letter + form.slice(i), // insert
+            form.slice(0, i) + letter + form.slice(i + 1), // substitute
+            form.slice(0, i) + form.slice(i + 1), // delete
+            form.slice(0, i) + form.charAt(i + 1) + form.charAt(i) + form.slice(i + 2), // transpose
           ]) {
             expect(binary.has(s)).toBe(reference.has(s));
             expect(binary.lookup(s)).toBe(reference.lookup(s));
@@ -403,6 +498,28 @@ describe('buildLexiconIndex errors (T-BLOCKLIST, limits)', () => {
     expect(code(input, options ?? OPTIONS)).toBe(expected);
   });
 
+  it('self-check: an artefact its own decoder rejects is VALIDATION_FAILED (R1 m2)', () => {
+    const bytes = built(FIXTURE);
+    expect(checkBuiltArtefact(bytes, FIXTURE)).toEqual({ ok: true, value: bytes });
+    const broken = bytes.slice();
+    broken[100] = (broken[100] ?? 0) ^ 1;
+    expect(checkBuiltArtefact(broken, FIXTURE)).toMatchObject({
+      ok: false,
+      error: { code: 'VALIDATION_FAILED', details: { decodeError: 'CORRUPT', what: 'crc32' } },
+    });
+    expect(checkBuiltArtefact(bytes, { ...FIXTURE, version: 'ffffffffffffffff' })).toMatchObject({
+      ok: false,
+      error: { details: { decodeError: 'VERSION_MISMATCH' } },
+    });
+  });
+
+  it.each<[string, string[]]>([
+    ['empty', []],
+    ['duplicate', ['devops', 'cloud', 'devops']],
+  ])('%s category list → VALIDATION_FAILED', (_name, categories) => {
+    expect(code(withTerms([term('a', 'POD', { categories })]))).toBe('VALIDATION_FAILED');
+  });
+
   it('a non-RangeError from the source is reported as VALIDATION_FAILED', () => {
     const r = buildLexiconIndex(
       withTerms([{ ...term('a', 'POD'), relations: null as never }]),
@@ -450,6 +567,35 @@ describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', () => {
     expect(decoded(backing.subarray(3)).has('POD')).toBe(true);
   });
 
+  it.each([1, 2, 3, 4, 5, 6, 7])(
+    'decodes a Node Buffer at byte offset %i (Buffer#slice is a view: R1 M1)',
+    (k) => {
+      const buffer = Buffer.alloc(bytes.length + k).subarray(k);
+      buffer.set(bytes);
+      expect(buffer.byteOffset % 8).not.toBe(0);
+      const r = decodeLexiconIndex(buffer);
+      expect(r.ok).toBe(true);
+      if (r.ok) expectSameIndex(r.value, referenceOf(FIXTURE));
+      expect(Buffer.compare(buffer, Buffer.from(bytes))).toBe(0); // the input is never written to
+    },
+  );
+
+  it('decodes Buffer.from(bytes) (pooled allocation) and an unaligned Buffer of the real data', () => {
+    expect(decoded(Buffer.from(bytes)).has('POD')).toBe(true);
+    const real = built(REAL);
+    const backing = Buffer.alloc(real.length + 5);
+    backing.set(real, 5);
+    expectSameIndex(decoded(backing.subarray(5)), referenceOf(REAL));
+  });
+
+  it('CORRUPT: trailing bytes after the last section', () => {
+    const longer = new Uint8Array(bytes.length + 8);
+    longer.set(bytes);
+    expect(decodeLexiconIndex(withCrc(longer))).toMatchObject({
+      error: { code: 'CORRUPT', details: { what: 'trailing bytes' } },
+    });
+  });
+
   it('every truncation is an error, never a throw', () => {
     for (let length = 0; length < bytes.length; length += 1) {
       expect(errorOf(bytes.slice(0, length))).not.toBe('ok');
@@ -484,12 +630,12 @@ describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', () => {
           }
           const r = decodeLexiconIndex(withCrc(copy));
           if (!r.ok) return;
-          // If it still decodes, every query stays total.
+          // If it still decodes, every query stays total and the index is coherent.
           for (const f of forms) {
             const ref = r.value.lookup(f);
             if (ref !== undefined) r.value.meta(r.value.termOf(ref));
           }
-          for (let t = 0; t < r.value.termCount; t += 1) r.value.neighbours(t as TermRef);
+          expectCoherent(r.value);
         },
       ),
       { seed: 99, numRuns: 3000 },
@@ -531,6 +677,59 @@ describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', () => {
       },
     ],
     ['maxFormLength', (_v, b) => (b[41] = 14)],
+    [
+      // PODS (FormRef 6) claims to be a canonical form.
+      'canonical forms',
+      (_v, b) => (b[sectionOf(b, 'FORM_KIND').offset + 6] = 0),
+    ],
+    [
+      // POD (FormRef 5) loses its canonical kind: one canonical form too few.
+      'canonical forms',
+      (_v, b) => (b[sectionOf(b, 'FORM_KIND').offset + 5] = 1),
+    ],
+    [
+      'LETTERS',
+      (v, b) => {
+        v.setUint32(sectionOf(b, 'LETTERS').offset, 99, true);
+      },
+    ],
+    [
+      'term 0',
+      (v, b) => {
+        v.setUint32(sectionOf(b, 'TERMS').offset + 2 * 4, 0x1_0000, true);
+      },
+    ],
+    [
+      'term 0',
+      (v, b) => {
+        v.setUint32(sectionOf(b, 'TERMS').offset + 3 * 4, 0x1_0000, true);
+      },
+    ],
+    [
+      'term ids',
+      (v, b) => {
+        const terms = sectionOf(b, 'TERMS').offset;
+        const second = terms + TERM_FIELDS * 4;
+        v.setUint32(second + 4 * 4, v.getUint32(terms + 4 * 4, true), true);
+        v.setUint32(second + 5 * 4, v.getUint32(terms + 5 * 4, true), true);
+      },
+    ],
+    [
+      // IP (TermRef 2) moves from networking (category 3) to ai (category 0): networking is unused.
+      'categories',
+      (v, b) => {
+        const base = sectionOf(b, 'TERMS').offset + 2 * TERM_FIELDS * 4;
+        v.setUint32(base, v.getUint32(base, true) & 0xff, true);
+        v.setUint32(base + 4, 1, true);
+      },
+    ],
+    [
+      'padding',
+      (_v, b) => {
+        const kinds = sectionOf(b, 'FORM_KIND');
+        b[kinds.offset + kinds.length] = 1;
+      },
+    ],
   ])('CORRUPT: %s', (what, edit) => {
     const copy = bytes.slice();
     edit(new DataView(copy.buffer), copy);

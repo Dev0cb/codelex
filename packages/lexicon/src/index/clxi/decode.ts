@@ -1,8 +1,13 @@
 /**
  * `.clxi` format 1 decoder (lexicon-index note §3.5, §7 T-CORRUPT). Validates the whole artefact once (CRC-32,
- * section table, every count, reference and DAWG invariant) so that a decoded index can never throw or give a
- * wrong answer afterwards; then serves queries from typed-array views over the bytes (one copy only when the
- * input is not 4-byte aligned).
+ * section table, zero padding, every count, reference and DAWG invariant, and the semantic invariants a CRC
+ * cannot vouch for) so that a decoded index can never throw or give a wrong answer afterwards; then serves
+ * queries from typed-array views over the bytes.
+ *
+ * Zero-copy: when `input.byteOffset` is a multiple of 8 the views share `input`'s memory; otherwise the decoder
+ * makes one real copy (a Node `Buffer#slice` is a view, so it must not be used for that). Ownership: the loader
+ * owns the bytes and must keep them immutable for the lifetime of the decoded index — validation is done once,
+ * so writing to the buffer afterwards would bypass it (lexicon-index note §2.2, §3.5).
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { DIFFICULTIES, FORM_KINDS, LETTER_COUNT, MAX_FORM_LENGTH } from '../constants.js';
@@ -38,6 +43,7 @@ import {
   SECTION_TABLE_OFFSET,
   SECTIONS,
   TERM_FIELDS,
+  align8,
   at,
   popcount,
   str,
@@ -46,6 +52,7 @@ import {
 
 const HEX16 = /^[0-9a-f]{16}$/;
 const RELATION_BITS = 0x7f;
+const U16_MAX = 0xffff;
 const CODE_A = 65;
 
 function indexError(
@@ -110,7 +117,8 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
   if (!littleEndian) {
     return err(indexError('UNSUPPORTED_PLATFORM', 'big-endian platforms are not supported'));
   }
-  const bytes = input.byteOffset % 8 === 0 ? input : input.slice();
+  // `new Uint8Array(typedArray)` always copies into a fresh, 0-offset ArrayBuffer (unlike `Buffer#slice`).
+  const bytes = input.byteOffset % 8 === 0 ? input : new Uint8Array(input);
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const stored = view.getUint32(CRC_OFFSET, true);
   const crc = crc32(bytes, CRC_OFFSET + 4, bytes.length, crc32(bytes, 0, CRC_OFFSET, 0));
@@ -194,9 +202,21 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
   if (!adj || !adjMask || !letters || !nodes || !edges || nodeCount === 0) {
     return err(corrupt('sections'));
   }
+  // Padding before each section is zero ("padding is zero", format.ts), and the artefact ends at the next
+  // 8-byte boundary after the last section: one content ⇒ one byte string.
+  let gap = FIRST_SECTION_OFFSET;
+  for (const name of SECTIONS) {
+    if (!zero(bytes, gap, section[name].offset)) return err(corrupt('padding'));
+    gap = section[name].offset + section[name].length;
+  }
+  if (bytes.length !== align8(gap) || !zero(bytes, gap, bytes.length)) {
+    return err(corrupt('trailing bytes'));
+  }
 
   const allCategories = categoryCount === 32 ? 0xffffffff : (1 << categoryCount) - 1;
   const termIds: string[] = [];
+  const seenIds = new Set<string>();
+  let usedCategories = 0;
   for (let t = 0; t < termCount; t += 1) {
     const base = t * TERM_FIELDS;
     const packed = at(terms, base);
@@ -209,12 +229,17 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
       primary >= categoryCount ||
       (mask & ~allCategories) !== 0 ||
       (mask & (1 << primary)) === 0 ||
+      at(terms, base + 2) > U16_MAX ||
+      at(terms, base + 3) > U16_MAX ||
       id === undefined ||
       id === ''
     ) {
       return err(corrupt(`term ${String(t)}`));
     }
+    if (seenIds.has(id)) return err(corrupt('term ids'));
+    seenIds.add(id);
     termIds.push(id);
+    usedCategories |= mask;
     const start = at(adjStart, t);
     const stop = at(adjStart, t + 1);
     if (stop < start) return err(corrupt('ADJ_START'));
@@ -233,11 +258,21 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
     }
   }
   if (at(adjStart, 0) !== 0) return err(corrupt('ADJ_START'));
+  if (usedCategories >>> 0 !== allCategories >>> 0) return err(corrupt('categories'));
+  // Exactly one canonical (kind 0) form per term, and it is the one TERM_FORM points to.
+  let canonicalForms = 0;
   for (let f = 0; f < formCount; f += 1) {
-    if (at(formTerm, f) >= termCount || at(formKind, f) >= FORM_KINDS.length) {
+    const owner = at(formTerm, f);
+    const kind = at(formKind, f);
+    if (owner >= termCount || kind >= FORM_KINDS.length) {
       return err(corrupt(`form ${String(f)}`));
     }
+    if (kind === 0) {
+      canonicalForms += 1;
+      if (at(termForm, owner) !== f) return err(corrupt('canonical forms'));
+    }
   }
+  if (canonicalForms !== termCount) return err(corrupt('canonical forms'));
 
   // DAWG: bounds, then a bounded depth-first enumeration in arc order. It recovers the forms, proves the
   // automaton acyclic within 15 letters, and checks every rank against the enumeration index (FormRef order).
@@ -257,6 +292,17 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
   if (forms.length !== formCount) return err(corrupt('form count'));
   if (forms.reduce((m, f) => Math.max(m, f.length), 0) !== maxFormLength) {
     return err(corrupt('maxFormLength'));
+  }
+  // R-BAG-001 letter counts must be those of the enumerated forms.
+  const counts = new Uint32Array(LETTER_COUNT);
+  for (const form of forms) {
+    for (let i = 0; i < form.length; i += 1) {
+      const code = form.charCodeAt(i) - CODE_A;
+      counts[code] = at(counts, code) + 1;
+    }
+  }
+  for (let code = 0; code < LETTER_COUNT; code += 1) {
+    if (at(counts, code) !== at(letters, code)) return err(corrupt('LETTERS'));
   }
 
   // Terms ↔ forms and relation symmetry.
@@ -297,6 +343,12 @@ function readModel(input: Uint8Array): Result<Model, LexiconIndexError> {
     edges,
     forms,
   });
+}
+
+/** True when `bytes[from, to)` are all zero. */
+function zero(bytes: Uint8Array, from: number, to: number): boolean {
+  for (let i = from; i < to; i += 1) if (at(bytes, i) !== 0) return false;
+  return true;
 }
 
 /** Relation mask stored in row `from` for neighbour `to` (binary search in the CSR row), 0 when absent. */
@@ -398,22 +450,36 @@ function createBinaryIndex(m: Model): LexiconIndex {
   const formMetaCache = new Map<number, FormMeta>();
   const categories = Object.freeze([...m.categories]);
 
-  /** FormRef of `codes[from, to)` read through `codeAt`, or undefined. */
-  function walk(length: number, codeAt: (i: number) => number): FormRef | undefined {
-    if (length < 2 || length > MAX_FORM_LENGTH) return undefined;
-    let node = 0;
-    let rank = 0;
+  /** Cursor in the DAWG: node, and rank of the prefix read so far. Reused to avoid allocations. */
+  const cursor = { node: 0, rank: 0 };
+
+  /** Follows `length` codes read through `codeAt` from `cursor`; false when an arc is missing or a code is bad. */
+  function advance(length: number, codeAt: (i: number) => number): boolean {
+    let { node, rank } = cursor;
     for (let i = 0; i < length; i += 1) {
       const code = codeAt(i);
-      if (!(code >= 0 && code < LETTER_COUNT)) return undefined;
+      if (!(code >= 0 && code < LETTER_COUNT)) return false;
       const mask = at(nodes, node * 2) & ARC_MASK;
       const bit = 1 << code;
-      if ((mask & bit) === 0) return undefined;
+      if ((mask & bit) === 0) return false;
       const edge = at(nodes, node * 2 + 1) + popcount(mask & (bit - 1));
       rank += at(edges, edge * 2 + 1);
       node = at(edges, edge * 2);
     }
-    return (at(nodes, node * 2) & FINAL_BIT) !== 0 ? (rank as FormRef) : undefined;
+    cursor.node = node;
+    cursor.rank = rank;
+    return true;
+  }
+
+  const isFinal = (node: number): boolean => (at(nodes, node * 2) & FINAL_BIT) !== 0;
+
+  /** FormRef of the `length` codes read through `codeAt`, or undefined. */
+  function walk(length: number, codeAt: (i: number) => number): FormRef | undefined {
+    if (length < 2 || length > MAX_FORM_LENGTH) return undefined;
+    cursor.node = 0;
+    cursor.rank = 0;
+    if (!advance(length, codeAt)) return undefined;
+    return isFinal(cursor.node) ? (cursor.rank as FormRef) : undefined;
   }
 
   function lookup(form: string): FormRef | undefined {
@@ -543,17 +609,19 @@ function createBinaryIndex(m: Model): LexiconIndex {
     crossCheck(before, after): LetterMask {
       if (!codesOk(before) || !codesOk(after)) return 0;
       const length = before.length + 1 + after.length;
-      if (length > MAX_FORM_LENGTH) return 0;
+      if (length < 2 || length > MAX_FORM_LENGTH) return 0;
+      // Walk the prefix once, then branch on each arc leaving that node and follow the suffix.
+      cursor.node = 0;
+      cursor.rank = 0;
+      if (!advance(before.length, (i) => before[i] ?? -1)) return 0;
+      const origin = cursor.node;
+      const arcs = at(nodes, origin * 2) & ARC_MASK;
       let mask = 0;
       for (let code = 0; code < LETTER_COUNT; code += 1) {
-        const found = walk(length, (i) =>
-          i < before.length
-            ? (before[i] ?? -1)
-            : i === before.length
-              ? code
-              : (after[i - before.length - 1] ?? -1),
-        );
-        if (found !== undefined) mask |= 1 << code;
+        const bit = 1 << code;
+        if ((arcs & bit) === 0) continue;
+        cursor.node = at(edges, (at(nodes, origin * 2 + 1) + popcount(arcs & (bit - 1))) * 2);
+        if (advance(after.length, (i) => after[i] ?? -1) && isFinal(cursor.node)) mask |= bit;
       }
       return mask;
     },
