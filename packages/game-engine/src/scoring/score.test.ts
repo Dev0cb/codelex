@@ -125,7 +125,7 @@ const cases: readonly GoldenCase[] = [
   ...(inflectionGolden.scoringCases as readonly GoldenCase[]),
 ];
 
-describe('golden scoring cases (RULE_PROPERTIES §3.1, §3.2; R-SCORE-001…005, R-SCORE-008)', () => {
+describe('golden scoring cases (RULE_PROPERTIES §3.1, §3.2; R-SCORE-001, R-SCORE-002, R-SCORE-003, R-SCORE-004, R-SCORE-005, R-SCORE-008)', () => {
   it('transcribes every case', () => {
     expect(cases).toHaveLength(22);
   });

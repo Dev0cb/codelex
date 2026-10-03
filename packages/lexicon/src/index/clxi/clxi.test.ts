@@ -212,7 +212,7 @@ describe('binary index ≡ reference index (T-ORACLE, T-COMPLETE)', () => {
   });
 });
 
-describe('queries (T-INPUT, contract edge cases)', () => {
+describe('queries (T-INPUT, R-CORE-003 / P-CORE-003-b form gate, contract edge cases)', () => {
   const index = decoded(built(FIXTURE));
 
   it.each([
