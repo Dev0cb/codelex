@@ -20,7 +20,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "bench": "vitest bench --run --config vitest.bench.config.ts"
   },
   "dependencies": {
     "@codelex/config": "workspace:*",
