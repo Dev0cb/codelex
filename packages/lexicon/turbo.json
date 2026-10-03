@@ -2,8 +2,31 @@
   "$schema": "https://turbo.build/schema.json",
   "extends": ["//"],
   "tasks": {
+    "build": {
+      "inputs": [
+        "src/**",
+        "!src/**/*.test.ts",
+        "package.json",
+        "tsconfig.json",
+        "tsconfig.build.json"
+      ],
+      "outputs": ["dist/**", "!dist/indexes/**"]
+    },
+    "build:index": {
+      "dependsOn": ["build"],
+      "inputs": [
+        "data/**",
+        "schema/**",
+        "scripts/build-index.mjs",
+        "scripts/canonical.mjs",
+        "scripts/formulas.mjs",
+        "scripts/validate.mjs",
+        "package.json"
+      ],
+      "outputs": ["dist/indexes/**"]
+    },
     "lint": { "dependsOn": ["^build", "build"] },
     "format:check": { "dependsOn": ["^build", "build"] },
-    "test": { "dependsOn": ["^build", "build"], "outputs": [] }
+    "test": { "dependsOn": ["^build", "build", "build:index"], "outputs": [] }
   }
 }

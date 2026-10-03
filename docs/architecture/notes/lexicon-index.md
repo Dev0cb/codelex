@@ -329,11 +329,32 @@ Popcount is a constant-time bit trick in JS (no `Math` intrinsic needed); every 
 array reads, which is what makes the < 5 µs budget plausible (§5).
 
 ### 3.4 Where it runs
-- **Phase 1:** `pnpm --filter @codelex/lexicon build:index` (Turborepo task, cached on inputs) writes
-  `packages/lexicon/dist/indexes/<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server,
-  default), `f0` without it — and `manifest.json`, one entry per (profile, flags) with `flags` and `gaddag`
-  (git-ignored; CI builds them; artefacts are reproducible so they are never committed). `apps/mobile` copies the
-  bundled profile variant into its assets at build time (`f1` while the size gate holds, §5).
+- **Phase 1 (T9, done in sprint L6):** `pnpm turbo run build:index` (Turborepo task `@codelex/lexicon#build:index`,
+  defined in `packages/lexicon/turbo.json`) writes, under `packages/lexicon/dist/indexes/`:
+  - `<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server, default), `f0` without it;
+  - `<lexiconVersion>/manifest.json` — `{ lexiconVersion, profiles: [{ id, kind, definitionHash, formatVersion,
+    flags, gaddag, file, bytes, sha256 }] }`, one entry per (profile, flags), canonical JSON;
+  - `current.json` — `{ lexiconVersion, manifest: "<lexiconVersion>/manifest.json" }`, the stable entry point for
+    consumers that cannot know the version in advance.
+
+  The directory holds exactly one version: the build empties it after every artefact passed its self-check and
+  before writing. Git-ignored; artefacts are reproducible so they are never committed.
+  - **Cache inputs:** `data/**`, `schema/**`, the scripts it runs (`build-index`, `validate`, `canonical`,
+    `formulas`), `package.json`, and through `dependsOn: ["build"]` the builder source (`build` inputs:
+    `src/**` minus tests, `package.json`, `tsconfig*.json`). Tests, README and other docs do not invalidate it.
+    **Outputs:** `dist/indexes/**`, so a cache hit restores the artefacts, the manifest and `current.json`;
+    `build` excludes `dist/indexes/**` from its own outputs so it never restores stale ones.
+  - **Consumers:** `@codelex/lexicon/indexes` (`scripts/indexes.mjs`, zero-dependency) —
+    `resolveIndexArtefact({ profileId, flags })` follows `current.json`, finds the manifest entry and refuses
+    (typed `IndexArtefactError`: `INDEX_NOT_BUILT`, `INDEX_MANIFEST_INVALID`, `INDEX_PROFILE_MISSING`,
+    `INDEX_SHA_MISMATCH`) unless the file's size and sha256 match; it returns `{ lexiconVersion, path, entry,
+    bytes }`. `readIndexManifest()` returns every entry. A consumer's task depends on
+    `@codelex/lexicon#build:index`. `apps/mobile` (`prepare:lexicon`, mobile-app-foundation note §3.1) copies
+    the bundled profile variant — chosen explicitly with `flags`, `f1` while the size gate holds (§5) — and its
+    manifest entry into its assets at build time.
+  - **Proof in CI:** the lexicon `test` task depends on `build:index` and `test/build-index.test.mjs` checks that
+    very output (one build per run): version equals the current data, one version directory, every file decodes
+    with its version and profile, GADDAG presence matches `flags`, size and sha256 match the manifest.
 - **Later (ARCHITECTURE §3.4):** `services/knowledge` publish runs the **same builder** (imports
   `@codelex/lexicon`) on the approved draft, uploads to object storage under an immutable key
   `lexicon/<lexiconVersion>/<profileId>/<definitionHash>.v<formatVersion>.f<flags>.clxi` (the flags are part of
@@ -518,7 +539,7 @@ fail.
 | T6 | GADDAG build + traversal + `crossCheck` — done (sprint L5: 15-section format 1, flags bit 0, `LexiconIndex.dawg`, T-GADDAG) | lexicon-engineer | ai-engineer | T5 | M |
 | T7 | Property/differential/fuzz tests, golden fixtures | lexicon-engineer | qa-engineer | T4–T6 | M |
 | T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring | lexicon-engineer | devops-sre | T5–T6 | S |
-| T9 | `build:index` CLI, Turborepo task, manifest — CLI and manifest done (sprint L4, global profile only); Turborepo task pending | lexicon-engineer | devops-sre | T5 | S |
+| T9 | `build:index` CLI, Turborepo task, manifest — done (CLI and manifest sprint L4, global profile only; cached Turborepo task, `current.json` pointer and `@codelex/lexicon/indexes` resolver sprint L6, §3.4) | lexicon-engineer | devops-sre | T5 | S |
 | T10 | Mobile asset bundling + loader + corrupt-index state (E-1.5) | mobile-engineer | lexicon-engineer | T9 | S |
 | T11 | Server loader cache in `services/game` (Phase 2) | game-engine-engineer | lexicon-engineer | T9 | S |
 | T12 | `services/knowledge` publish path, immutable storage, version registry (Phase 2+) | lexicon-engineer | devops-sre, security-engineer | T9 | M |

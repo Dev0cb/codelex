@@ -15,7 +15,8 @@
     "./validate": "./scripts/validate.mjs",
     "./canonical": "./scripts/canonical.mjs",
     "./schema/term.schema.json": "./schema/term.schema.json",
-    "./data/*": "./data/*"
+    "./data/*": "./data/*",
+    "./indexes": "./scripts/indexes.mjs"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

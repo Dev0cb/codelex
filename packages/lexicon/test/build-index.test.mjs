@@ -1,13 +1,17 @@
 // scripts/build-index.mjs (lexicon-index note §3.1, §3.4): refusals are one-line messages with exit code 1 and
 // no stack trace; a successful build writes artefacts that decode as the manifest says. Runs the compiled dist/
-// builder, like the script itself (`pnpm test` runs after `build`, turbo dependsOn).
+// builder, like the script itself (`pnpm test` runs after `build` and `build:index`, turbo dependsOn).
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdtempSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { computeLexiconVersion } from '../scripts/canonical.mjs';
+import { INDEXES_DIR, readIndexManifest, resolveIndexArtefact } from '../scripts/indexes.mjs';
+import { loadLexicon } from '../scripts/validate.mjs';
 
 const PKG = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT = join(PKG, 'scripts', 'build-index.mjs');
@@ -48,36 +52,30 @@ test('refuses invalid data (validation errors), exit 1', () => {
   }
 });
 
-test('builds the real data: every artefact decodes with the version and profile of its manifest', () => {
-  const r = run();
-  assert.equal(r.status, 0, r.stderr);
-  const outDir = /→ (.+)$/m.exec(r.stdout)?.[1];
-  assert.ok(outDir);
-  const manifest = JSON.parse(readFileSync(join(outDir, 'manifest.json'), 'utf8'));
-  assert.ok(manifest.profiles.length > 0);
-  // One entry per (profile, flags): with the GADDAG (flags 1) and without it (flags 0); the key carries the flags.
-  const keys = manifest.profiles.map((p) => `${p.id}/${p.flags}`);
-  assert.equal(new Set(keys).size, keys.length);
-  for (const id of new Set(manifest.profiles.map((p) => p.id))) {
-    assert.deepEqual(
-      manifest.profiles.filter((p) => p.id === id).map((p) => [p.flags, p.gaddag]),
-      [
-        [1, true],
-        [0, false],
-      ],
-    );
-  }
-  for (const profile of manifest.profiles) {
+// The real artefacts are not rebuilt here: `test` depends on the Turborepo `build:index` task
+// (packages/lexicon/turbo.json), so this checks the very output that a cache hit restores and that apps copy
+// (one build per CI run, sprint L6).
+test('the build:index output decodes and matches its manifest (sha256, bytes, flags, current data)', () => {
+  const { lexiconVersion, dir, profiles } = readIndexManifest();
+  assert.equal(lexiconVersion, computeLexiconVersion(loadLexicon()), 'stale build:index output');
+  assert.deepEqual(readdirSync(INDEXES_DIR).sort(), [lexiconVersion, 'current.json'].sort());
+  assert.deepEqual(
+    readdirSync(dir).sort(),
+    ['manifest.json', ...profiles.map((p) => p.file)].sort(),
+  );
+  assert.deepEqual(profiles.map((p) => `${p.id}.f${p.flags}`).sort(), [
+    'global-ranked.f0',
+    'global-ranked.f1',
+  ]);
+  for (const profile of profiles) {
+    const { bytes, entry } = resolveIndexArtefact({ profileId: profile.id, flags: profile.flags });
+    assert.deepEqual(entry, profile);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), profile.sha256);
     assert.equal(profile.file, `${profile.id}.f${profile.flags}.clxi`);
-    const bytes = readFileSync(join(outDir, profile.file));
-    assert.equal(bytes.length, profile.bytes);
-    const decoded = decodeLexiconIndex(bytes, {
-      version: manifest.lexiconVersion,
-      profileId: profile.id,
-    });
+    assert.equal(profile.gaddag, profile.flags === 1);
+    const decoded = decodeLexiconIndex(bytes, { version: lexiconVersion, profileId: profile.id });
     assert.equal(decoded.ok, true);
-    assert.equal(bytes.readUInt16LE(6), profile.flags);
-    assert.equal(decoded.value.gaddag !== undefined, profile.gaddag);
+    assert.equal(decoded.ok && decoded.value.gaddag !== undefined, profile.gaddag);
   }
 });
 
