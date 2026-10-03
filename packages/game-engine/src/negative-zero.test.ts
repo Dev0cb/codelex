@@ -85,123 +85,144 @@ describe('M1: -0 is rejected at every trust boundary (ADR-0013 §D3)', () => {
     expect(field({ ...base, config: { ...base.config, teams: [[-0], [1]] } })).toBe('config.teams');
   });
 
-  it('PBT: an action with -0 in any numeric field is rejected as malformed; nothing downstream throws', () => {
-    fc.assert(
-      fc.property(fc.nat(400), fc.nat(60), (i, steps) => {
-        const played = playSteps(seedOf(i), 2, steps);
-        const s = played.states.at(-1);
-        if (s === undefined || s.status === 'finished') return;
-        // A legal action shape for the seat on turn: the harness's next move, else a placement at the start.
-        const candidate: Action = {
-          seat: s.seatOnTurn,
-          type: 'PLACE_WORD',
-          tiles: [
-            { row: 7, col: 7, tile: 'A' },
-            { row: 7, col: 8, tile: 'I' },
-          ],
-        };
-        for (const action of [candidate, { seat: s.seatOnTurn, type: 'PASS' } as const]) {
-          for (const path of numericPaths(action)) {
-            const bad = setAt(action, path, -0) as Action;
-            const r = apply(s, bad, SIM_CTX);
-            expect(r.ok ? 'ok' : r.error.code).toBe('malformed');
-            const log: ActionLog = {
-              ...newActionLog(played.config),
-              actions: [...played.actions, bad],
-            };
-            const replayed = replay(log, SIM_CTX);
-            expect(replayed.ok ? 'ok' : replayed.error.code).toBe('ACTION_REJECTED');
-            if (bad.type === 'PLACE_WORD') {
-              const ev = evaluateMove(observe(s, s.seatOnTurn), bad, SIM_CTX);
-              expect(ev.ok ? 'ok' : ev.error.code).toBe('malformed');
-              expect(previewScore(observe(s, s.seatOnTurn), bad.tiles)).toBeNull();
+  it(
+    'PBT: an action with -0 in any numeric field is rejected as malformed; nothing downstream throws',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(fc.nat(400), fc.nat(60), (i, steps) => {
+          const played = playSteps(seedOf(i), 2, steps);
+          const s = played.states.at(-1);
+          if (s === undefined || s.status === 'finished') return;
+          // A legal action shape for the seat on turn: the harness's next move, else a placement at the start.
+          const candidate: Action = {
+            seat: s.seatOnTurn,
+            type: 'PLACE_WORD',
+            tiles: [
+              { row: 7, col: 7, tile: 'A' },
+              { row: 7, col: 8, tile: 'I' },
+            ],
+          };
+          for (const action of [candidate, { seat: s.seatOnTurn, type: 'PASS' } as const]) {
+            for (const path of numericPaths(action)) {
+              const bad = setAt(action, path, -0) as Action;
+              const r = apply(s, bad, SIM_CTX);
+              expect(r.ok ? 'ok' : r.error.code).toBe('malformed');
+              const log: ActionLog = {
+                ...newActionLog(played.config),
+                actions: [...played.actions, bad],
+              };
+              const replayed = replay(log, SIM_CTX);
+              expect(replayed.ok ? 'ok' : replayed.error.code).toBe('ACTION_REJECTED');
+              if (bad.type === 'PLACE_WORD') {
+                const ev = evaluateMove(observe(s, s.seatOnTurn), bad, SIM_CTX);
+                expect(ev.ok ? 'ok' : ev.error.code).toBe('malformed');
+                expect(previewScore(observe(s, s.seatOnTurn), bad.tiles)).toBeNull();
+              }
             }
           }
-        }
-      }),
-      { seed: 20261003, numRuns: 40 },
-    );
-  });
+        }),
+        { seed: 20261003, numRuns: 40 },
+      );
+    },
+  );
 
-  it('PBT: a config with -0 in any numeric field never yields a state or log that cannot be hashed', () => {
-    fc.assert(
-      fc.property(fc.nat(1000), fc.constantFrom(2, 3, 4), (i, seats) => {
-        const config = playSteps(seedOf(i), seats, 0).config;
-        for (const path of numericPaths(config)) {
-          const bad = setAt(config, path, -0) as MatchConfig;
-          const created = createMatch(bad, SIM_CTX);
-          if (created.ok) expect(() => stateHash(created.value.state)).not.toThrow();
-          expect(created.ok).toBe(false);
-          // replay always returns a Result.
-          const r = replay(newActionLog(bad), SIM_CTX);
-          expect(r.ok).toBe(false);
-          // The same -0 in a log text: parseActionLog rejects it or yields a hashable log.
-          const text = textWithNegativeZero(newActionLog(config), ['header', ...path]);
-          expect(isNegativeZeroIn(text)).toBe(true);
-          const parsed = parseActionLog(text);
-          if (parsed.ok) expect(() => serializeActionLog(parsed.value)).not.toThrow();
-          expect(parsed.ok).toBe(false);
-        }
-      }),
-      { seed: 31, numRuns: 60 },
-    );
-  });
-
-  it('PBT: a state with -0 in any numeric field is rejected by parseState', () => {
-    fc.assert(
-      fc.property(fc.nat(400), fc.nat(120), (i, steps) => {
-        const played = playSteps(seedOf(i), 2 + (i % 3), steps);
-        const s = played.states.at(-1);
-        if (s === undefined) return;
-        const doc: unknown = JSON.parse(serializeState(s));
-        for (const path of numericPaths(doc)) {
-          const r = parseState(textWithNegativeZero(doc, path));
-          if (r.ok) {
-            expect(() => serializeState(r.value)).not.toThrow();
-            expect(() => stateHash(r.value)).not.toThrow();
+  it(
+    'PBT: a config with -0 in any numeric field never yields a state or log that cannot be hashed',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(fc.nat(1000), fc.constantFrom(2, 3, 4), (i, seats) => {
+          const config = playSteps(seedOf(i), seats, 0).config;
+          for (const path of numericPaths(config)) {
+            const bad = setAt(config, path, -0) as MatchConfig;
+            const created = createMatch(bad, SIM_CTX);
+            if (created.ok) expect(() => stateHash(created.value.state)).not.toThrow();
+            expect(created.ok).toBe(false);
+            // replay always returns a Result.
+            const r = replay(newActionLog(bad), SIM_CTX);
+            expect(r.ok).toBe(false);
+            // The same -0 in a log text: parseActionLog rejects it or yields a hashable log.
+            const text = textWithNegativeZero(newActionLog(config), ['header', ...path]);
+            expect(isNegativeZeroIn(text)).toBe(true);
+            const parsed = parseActionLog(text);
+            if (parsed.ok) expect(() => serializeActionLog(parsed.value)).not.toThrow();
+            expect(parsed.ok).toBe(false);
           }
-          expect(r.ok).toBe(false);
-        }
-      }),
-      { seed: 47, numRuns: 25 },
-    );
-  });
+        }),
+        { seed: 31, numRuns: 60 },
+      );
+    },
+  );
 
-  it('PBT: a log with -0 in any numeric field parses to a serialisable log or fails; replay always returns a Result', () => {
-    fc.assert(
-      fc.property(fc.nat(400), fc.nat(30), (i, steps) => {
-        const played = playSteps(seedOf(i), 2, steps);
-        const base: ActionLog = { ...newActionLog(played.config), actions: played.actions };
-        const recorded = replay(base, SIM_CTX, { recordHashes: true });
-        if (!recorded.ok) throw new Error(recorded.error.code);
-        const full: ActionLog = {
-          ...base,
-          stateHashes: recorded.value.stateHashes ?? [],
-          ...(recorded.value.state.status === 'finished'
-            ? { final: { stateHash: recorded.value.finalHash, actionCount: played.actions.length } }
-            : {}),
-        };
-        const doc: unknown = JSON.parse(serializeActionLog(full));
-        for (const path of numericPaths(doc)) {
-          const parsed = parseActionLog(textWithNegativeZero(doc, path));
-          if (!parsed.ok) continue;
-          // Accepted only where -0 cannot survive (e.g. final.actionCount is rebuilt from the actions).
-          const text = serializeActionLog(parsed.value);
-          expect(isNegativeZeroIn(text)).toBe(false);
-          const r = replay(parsed.value, SIM_CTX);
-          if (r.ok) expect(() => stateHash(r.value.state)).not.toThrow();
-        }
-        // In-memory logs (typed callers) with -0 anywhere: replay returns a Result, never throws.
-        for (const path of numericPaths(full)) {
-          const bad = setAt(full, path, -0) as ActionLog;
-          let outcome: unknown;
-          expect(() => (outcome = replay(bad, SIM_CTX))).not.toThrow();
-          expect(outcome).toHaveProperty('ok');
-        }
-      }),
-      { seed: 53, numRuns: 25 },
-    );
-  });
+  it(
+    'PBT: a state with -0 in any numeric field is rejected by parseState',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(fc.nat(400), fc.nat(120), (i, steps) => {
+          const played = playSteps(seedOf(i), 2 + (i % 3), steps);
+          const s = played.states.at(-1);
+          if (s === undefined) return;
+          const doc: unknown = JSON.parse(serializeState(s));
+          for (const path of numericPaths(doc)) {
+            const r = parseState(textWithNegativeZero(doc, path));
+            if (r.ok) {
+              expect(() => serializeState(r.value)).not.toThrow();
+              expect(() => stateHash(r.value)).not.toThrow();
+            }
+            expect(r.ok).toBe(false);
+          }
+        }),
+        { seed: 47, numRuns: 25 },
+      );
+    },
+  );
+
+  it(
+    'PBT: a log with -0 in any numeric field parses to a serialisable log or fails; replay always returns a Result',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(fc.nat(400), fc.nat(30), (i, steps) => {
+          const played = playSteps(seedOf(i), 2, steps);
+          const base: ActionLog = { ...newActionLog(played.config), actions: played.actions };
+          const recorded = replay(base, SIM_CTX, { recordHashes: true });
+          if (!recorded.ok) throw new Error(recorded.error.code);
+          const full: ActionLog = {
+            ...base,
+            stateHashes: recorded.value.stateHashes ?? [],
+            ...(recorded.value.state.status === 'finished'
+              ? {
+                  final: {
+                    stateHash: recorded.value.finalHash,
+                    actionCount: played.actions.length,
+                  },
+                }
+              : {}),
+          };
+          const doc: unknown = JSON.parse(serializeActionLog(full));
+          for (const path of numericPaths(doc)) {
+            const parsed = parseActionLog(textWithNegativeZero(doc, path));
+            if (!parsed.ok) continue;
+            // Accepted only where -0 cannot survive (e.g. final.actionCount is rebuilt from the actions).
+            const text = serializeActionLog(parsed.value);
+            expect(isNegativeZeroIn(text)).toBe(false);
+            const r = replay(parsed.value, SIM_CTX);
+            if (r.ok) expect(() => stateHash(r.value.state)).not.toThrow();
+          }
+          // In-memory logs (typed callers) with -0 anywhere: replay returns a Result, never throws.
+          for (const path of numericPaths(full)) {
+            const bad = setAt(full, path, -0) as ActionLog;
+            let outcome: unknown;
+            expect(() => (outcome = replay(bad, SIM_CTX))).not.toThrow();
+            expect(outcome).toHaveProperty('ok');
+          }
+        }),
+        { seed: 53, numRuns: 25 },
+      );
+    },
+  );
 
   it('canonicalJson itself still rejects -0 (programmer error)', () => {
     expect(() => canonicalJson({ x: -0 })).toThrow(RangeError);

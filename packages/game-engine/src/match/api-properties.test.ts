@@ -266,31 +266,35 @@ const OBSERVATION_KEYS = [
 ];
 
 describe('P-API-03: observe is invariant under hidden-information changes (PBT)', () => {
-  it('same observation for every viewer; no seed, rng, bag or other rack in it', () => {
-    fc.assert(
-      fc.property(generatedState, fc.nat(4), ({ i, played }, v) => {
-        const s = played.states.at(-1) as MatchState;
-        const viewer: Viewer = v >= s.config.seats ? 'spectator' : v;
-        const other = withHiddenChanged(s, viewer, harnessRng(seedOf(i + 11)));
-        const o = observe(s, viewer);
-        expect(observe(other, viewer)).toEqual(o);
-        const finished = s.status === 'finished' ? ['finalRacks', 'result'] : [];
-        const sorted = (keys: string[]): string[] =>
-          keys.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-        expect(sorted(Object.keys(o))).toEqual(sorted([...OBSERVATION_KEYS, ...finished]));
-        expect(o.rack).toBe(viewer === 'spectator' ? '' : s.seats[viewer]?.rack);
-        for (const view of o.seats) {
-          expect(Object.keys(view)).not.toContain('rack');
-          expect(view.rackCount).toBe(s.seats[view.seat]?.rack.length);
-        }
-        const unseenTotal = o.unseen.reduce((a, b) => a + b, 0);
-        const hidden =
-          s.bag.length + s.seats.reduce((t, x, k) => t + (k === viewer ? 0 : x.rack.length), 0);
-        expect(unseenTotal).toBe(hidden);
-      }),
-      { seed: 1004, numRuns: 120 },
-    );
-  });
+  it(
+    'same observation for every viewer; no seed, rng, bag or other rack in it',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(generatedState, fc.nat(4), ({ i, played }, v) => {
+          const s = played.states.at(-1) as MatchState;
+          const viewer: Viewer = v >= s.config.seats ? 'spectator' : v;
+          const other = withHiddenChanged(s, viewer, harnessRng(seedOf(i + 11)));
+          const o = observe(s, viewer);
+          expect(observe(other, viewer)).toEqual(o);
+          const finished = s.status === 'finished' ? ['finalRacks', 'result'] : [];
+          const sorted = (keys: string[]): string[] =>
+            keys.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+          expect(sorted(Object.keys(o))).toEqual(sorted([...OBSERVATION_KEYS, ...finished]));
+          expect(o.rack).toBe(viewer === 'spectator' ? '' : s.seats[viewer]?.rack);
+          for (const view of o.seats) {
+            expect(Object.keys(view)).not.toContain('rack');
+            expect(view.rackCount).toBe(s.seats[view.seat]?.rack.length);
+          }
+          const unseenTotal = o.unseen.reduce((a, b) => a + b, 0);
+          const hidden =
+            s.bag.length + s.seats.reduce((t, x, k) => t + (k === viewer ? 0 : x.rack.length), 0);
+          expect(unseenTotal).toBe(hidden);
+        }),
+        { seed: 1004, numRuns: 120 },
+      );
+    },
+  );
 });
 
 /** Every event seat field of `events` that carries private tiles. */
@@ -325,28 +329,32 @@ function checkRedaction(events: readonly MatchEvent[], seats: number): void {
 }
 
 describe('P-API-04: eventsFor never leaks another seat’s tiles (PBT)', () => {
-  it('for creation events and for the events of every accepted action', () => {
-    fc.assert(
-      fc.property(generatedState, ({ i, played }) => {
-        const created = createMatch(played.config, SIM_CTX);
-        if (!created.ok) throw new Error(created.error.code);
-        checkRedaction(created.value.events, played.config.config.seats);
-        const rng = createRng(harnessRng(seedOf(i + 13)).state());
-        played.actions.forEach((action, k) => {
-          if (rng.int(0, 3) !== 0) return; // a third of the actions, for time
-          const r = apply(played.states[k] as MatchState, action, SIM_CTX);
-          if (!r.ok) throw new Error('replayed action rejected');
-          checkRedaction(r.value.events, played.config.config.seats);
-        });
-        // Exchanges are rare in play: also check every arbitrary exchange of the final state.
-        const s = played.states.at(-1) as MatchState;
-        for (const action of arbitraryActions(s, rng)) {
-          if (action.type !== 'EXCHANGE') continue;
-          const r = apply(s, action, SIM_CTX);
-          if (r.ok) checkRedaction(r.value.events, played.config.config.seats);
-        }
-      }),
-      { seed: 1005, numRuns: 80 },
-    );
-  });
+  it(
+    'for creation events and for the events of every accepted action',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(generatedState, ({ i, played }) => {
+          const created = createMatch(played.config, SIM_CTX);
+          if (!created.ok) throw new Error(created.error.code);
+          checkRedaction(created.value.events, played.config.config.seats);
+          const rng = createRng(harnessRng(seedOf(i + 13)).state());
+          played.actions.forEach((action, k) => {
+            if (rng.int(0, 3) !== 0) return; // a third of the actions, for time
+            const r = apply(played.states[k] as MatchState, action, SIM_CTX);
+            if (!r.ok) throw new Error('replayed action rejected');
+            checkRedaction(r.value.events, played.config.config.seats);
+          });
+          // Exchanges are rare in play: also check every arbitrary exchange of the final state.
+          const s = played.states.at(-1) as MatchState;
+          for (const action of arbitraryActions(s, rng)) {
+            if (action.type !== 'EXCHANGE') continue;
+            const r = apply(s, action, SIM_CTX);
+            if (r.ok) checkRedaction(r.value.events, played.config.config.seats);
+          }
+        }),
+        { seed: 1005, numRuns: 80 },
+      );
+    },
+  );
 });

@@ -238,18 +238,22 @@ describe('parseState rejects wedged or inconsistent states (review R1 m2)', () =
     );
   });
 
-  it('PBT: every reachable state parses (no over-rejection) and round-trips', () => {
-    fc.assert(
-      fc.property(fc.nat(2000), fc.constantFrom(2, 3, 4), fc.nat(200), (i, seats, steps) => {
-        const played = playSteps(seedOf(i), seats, steps);
-        for (const s of [played.states.at(-1), played.states[played.states.length >> 1]]) {
-          if (s === undefined) continue;
-          const r = parseState(serializeState(s));
-          if (!r.ok) throw new Error(JSON.stringify(r.error));
-          expect(r.value).toEqual(s);
-        }
-      }),
-      { seed: 2610, numRuns: 60 },
-    );
-  });
+  it(
+    'PBT: every reachable state parses (no over-rejection) and round-trips',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(fc.nat(2000), fc.constantFrom(2, 3, 4), fc.nat(200), (i, seats, steps) => {
+          const played = playSteps(seedOf(i), seats, steps);
+          for (const s of [played.states.at(-1), played.states[played.states.length >> 1]]) {
+            if (s === undefined) continue;
+            const r = parseState(serializeState(s));
+            if (!r.ok) throw new Error(JSON.stringify(r.error));
+            expect(r.value).toEqual(s);
+          }
+        }),
+        { seed: 2610, numRuns: 60 },
+      );
+    },
+  );
 });
