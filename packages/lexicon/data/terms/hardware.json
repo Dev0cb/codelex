@@ -3,6 +3,64 @@
   "category": "hardware",
   "terms": [
     {
+      "id": "actuator",
+      "form": "ACTUATOR",
+      "display": "Actuator",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Component that turns a control signal into motion, such as a motor or a valve.",
+        "fr": "Composant qui transforme un signal de commande en mouvement, comme un moteur ou une vanne."
+      },
+      "inflections": [
+        {
+          "form": "ACTUATORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sensor"
+        },
+        {
+          "type": "related_to",
+          "target": "robot"
+        }
+      ]
+    },
+    {
+      "id": "alu",
+      "form": "ALU",
+      "display": "ALU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Arithmetic logic unit: the part of a processor that does arithmetic and logic operations.",
+        "fr": "Arithmetic logic unit (unité arithmétique et logique) : partie du processeur qui fait les calculs et opérations logiques."
+      },
+      "inflections": [
+        {
+          "form": "ALUS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
       "id": "ar",
       "form": "AR",
       "display": "AR",
@@ -270,6 +328,10 @@
       },
       "inflections": [
         {
+          "form": "CACHED",
+          "kind": "verb_ed"
+        },
+        {
           "form": "CACHES",
           "kind": "plural"
         }
@@ -278,6 +340,33 @@
         {
           "type": "related_to",
           "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "capacitor",
+      "form": "CAPACITOR",
+      "display": "Capacitor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Electronic component that stores and releases electric charge.",
+        "fr": "Composant électronique qui stocke puis restitue une charge électrique."
+      },
+      "inflections": [
+        {
+          "form": "CAPACITORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "circuit"
         }
       ]
     },
@@ -332,6 +421,118 @@
         {
           "type": "uses",
           "target": "transistor"
+        }
+      ]
+    },
+    {
+      "id": "chipset",
+      "form": "CHIPSET",
+      "display": "Chipset",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Group of chips on a motherboard that manages data flow between the processor and other parts.",
+        "fr": "Ensemble de puces d'une carte mère qui gère les échanges entre le processeur et les autres composants."
+      },
+      "inflections": [
+        {
+          "form": "CHIPSETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "motherboard"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "circuit",
+      "form": "CIRCUIT",
+      "display": "Circuit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Closed path of components through which electric current flows.",
+        "fr": "Chemin fermé de composants dans lequel circule le courant électrique."
+      },
+      "inflections": [
+        {
+          "form": "CIRCUITS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "transistor"
+        },
+        {
+          "type": "related_to",
+          "target": "chip"
+        }
+      ]
+    },
+    {
+      "id": "circuit-board",
+      "form": "CIRCUITBOARD",
+      "display": "Circuit board",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Board carrying chips and the copper tracks that connect them.",
+        "fr": "Carte qui porte des puces et les pistes de cuivre qui les relient."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "motherboard"
+        },
+        {
+          "type": "related_to",
+          "target": "circuit"
+        }
+      ]
+    },
+    {
+      "id": "cisc",
+      "form": "CISC",
+      "display": "CISC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Complex instruction set computer: processor design with many rich, multi-step instructions.",
+        "fr": "Complex instruction set computer : conception de processeur à jeu d'instructions riche et complexe."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "risc"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
         }
       ]
     },
@@ -417,6 +618,37 @@
       ]
     },
     {
+      "id": "diode",
+      "form": "DIODE",
+      "display": "Diode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Component that lets electric current flow in one direction only.",
+        "fr": "Composant qui ne laisse passer le courant électrique que dans un sens."
+      },
+      "inflections": [
+        {
+          "form": "DIODES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "circuit"
+        },
+        {
+          "type": "related_to",
+          "target": "led"
+        }
+      ]
+    },
+    {
       "id": "disk",
       "form": "DISK",
       "display": "Disk",
@@ -448,6 +680,159 @@
       ]
     },
     {
+      "id": "display",
+      "form": "DISPLAY",
+      "display": "Display",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Screen or panel that shows visual output.",
+        "fr": "Écran ou dalle qui affiche une sortie visuelle."
+      },
+      "inflections": [
+        {
+          "form": "DISPLAYS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "screen"
+        },
+        {
+          "type": "related_to",
+          "target": "monitor"
+        }
+      ]
+    },
+    {
+      "id": "dma",
+      "form": "DMA",
+      "display": "DMA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Direct memory access: lets devices move data to memory without going through the processor.",
+        "fr": "Direct memory access : permet aux périphériques de déplacer des données en mémoire sans passer par le processeur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ram"
+        },
+        {
+          "type": "related_to",
+          "target": "bus"
+        }
+      ]
+    },
+    {
+      "id": "docking-station",
+      "form": "DOCKINGSTATION",
+      "display": "Docking station",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Stand that links a laptop to screens, power and accessories through one connection.",
+        "fr": "Socle qui relie un ordinateur portable à écrans, alimentation et accessoires par un seul branchement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "laptop"
+        },
+        {
+          "type": "related_to",
+          "target": "usb"
+        }
+      ]
+    },
+    {
+      "id": "dpi",
+      "form": "DPI",
+      "display": "DPI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Dots per inch: measure of print, scan or screen resolution.",
+        "fr": "Dots per inch (points par pouce) : mesure de résolution d'impression, de numérisation ou d'écran."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "resolution"
+        },
+        {
+          "type": "related_to",
+          "target": "printer"
+        }
+      ]
+    },
+    {
+      "id": "dram",
+      "form": "DRAM",
+      "display": "DRAM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Dynamic RAM: main memory type that must be refreshed constantly to keep its data.",
+        "fr": "Dynamic RAM : type de mémoire principale qui doit être rafraîchi en continu pour garder ses données."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ram"
+        }
+      ]
+    },
+    {
+      "id": "embedded-system",
+      "form": "EMBEDDEDSYSTEM",
+      "display": "Embedded system",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Computer built into a device to do one dedicated job, as in a washing machine.",
+        "fr": "Ordinateur intégré à un appareil pour une tâche dédiée, comme dans un lave-linge."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "microcontroller"
+        },
+        {
+          "type": "related_to",
+          "target": "firmware"
+        }
+      ]
+    },
+    {
       "id": "firmware",
       "form": "FIRMWARE",
       "display": "Firmware",
@@ -462,6 +847,56 @@
         "en": "Low-level software embedded in a hardware device.",
         "fr": "Logiciel de bas niveau intégré à un appareil matériel."
       }
+    },
+    {
+      "id": "flash-memory",
+      "form": "FLASHMEMORY",
+      "display": "Flash memory",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Memory chip that keeps data without power, used in SSDs and USB sticks.",
+        "fr": "Puce mémoire qui conserve les données sans alimentation, utilisée dans les SSD et clés USB."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ssd"
+        },
+        {
+          "type": "related_to",
+          "target": "usb-stick"
+        }
+      ]
+    },
+    {
+      "id": "foundry",
+      "form": "FOUNDRY",
+      "display": "Foundry",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Factory that manufactures chips designed by other companies.",
+        "fr": "Usine qui fabrique des puces conçues par d'autres entreprises."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "semiconductor"
+        },
+        {
+          "type": "related_to",
+          "target": "wafer"
+        }
+      ]
     },
     {
       "id": "fpga",
@@ -491,6 +926,58 @@
       ]
     },
     {
+      "id": "fps",
+      "form": "FPS",
+      "display": "FPS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Frames per second: how many images a video or a game shows each second.",
+        "fr": "Frames per second (images par seconde) : nombre d'images qu'une vidéo ou un jeu affiche chaque seconde."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "refresh-rate"
+        },
+        {
+          "type": "related_to",
+          "target": "gpu"
+        }
+      ]
+    },
+    {
+      "id": "gamepad",
+      "form": "GAMEPAD",
+      "display": "Gamepad",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Hand-held controller with buttons and sticks for playing games.",
+        "fr": "Manette tenue à deux mains, avec boutons et sticks, pour jouer."
+      },
+      "inflections": [
+        {
+          "form": "GAMEPADS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "joystick"
+        }
+      ]
+    },
+    {
       "id": "gb",
       "form": "GB",
       "display": "GB",
@@ -512,6 +999,87 @@
       ],
       "sources": [
         "https://physics.nist.gov/cuu/Units/binary.html"
+      ]
+    },
+    {
+      "id": "gigabyte",
+      "form": "GIGABYTE",
+      "display": "Gigabyte",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unit of data equal to about one billion bytes.",
+        "fr": "Unité de données valant environ un milliard d'octets."
+      },
+      "inflections": [
+        {
+          "form": "GIGABYTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "gb"
+        },
+        {
+          "type": "related_to",
+          "target": "byte"
+        }
+      ]
+    },
+    {
+      "id": "gigahertz",
+      "form": "GIGAHERTZ",
+      "display": "Gigahertz",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One billion cycles per second, a common unit for processor clock speed.",
+        "fr": "Un milliard de cycles par seconde, unité courante de la fréquence d'un processeur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "clock"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "gps",
+      "form": "GPS",
+      "display": "GPS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Global Positioning System: satellite service that lets a device work out where it is.",
+        "fr": "Global Positioning System : service satellitaire qui permet à un appareil de connaître sa position."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        },
+        {
+          "type": "related_to",
+          "target": "sensor"
+        }
       ]
     },
     {
@@ -539,6 +1107,62 @@
         {
           "type": "alternative_to",
           "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "graphics-card",
+      "form": "GRAPHICSCARD",
+      "display": "Graphics card",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Expansion card holding a GPU that produces the images sent to the display.",
+        "fr": "Carte d'extension portant un GPU qui produit les images envoyées à l'écran."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "gpu"
+        },
+        {
+          "type": "related_to",
+          "target": "motherboard"
+        }
+      ]
+    },
+    {
+      "id": "hard-drive",
+      "form": "HARDDRIVE",
+      "display": "Hard drive",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Storage device that keeps data on spinning magnetic disks.",
+        "fr": "Périphérique de stockage qui conserve les données sur des disques magnétiques en rotation."
+      },
+      "inflections": [
+        {
+          "form": "HARDDRIVES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hdd"
+        },
+        {
+          "type": "alternative_to",
+          "target": "ssd"
         }
       ]
     },
@@ -591,6 +1215,31 @@
       ],
       "sources": [
         "https://www.hdmi.org/"
+      ]
+    },
+    {
+      "id": "hdr",
+      "form": "HDR",
+      "display": "HDR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "High dynamic range: imaging that shows brighter highlights and deeper shadows.",
+        "fr": "High dynamic range (grande plage dynamique) : image aux zones claires plus lumineuses et aux ombres plus profondes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "display"
+        },
+        {
+          "type": "related_to",
+          "target": "pixel"
+        }
       ]
     },
     {
@@ -648,6 +1297,57 @@
         {
           "type": "related_to",
           "target": "chip"
+        }
+      ]
+    },
+    {
+      "id": "iot",
+      "form": "IOT",
+      "display": "IoT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Internet of things: everyday objects fitted with sensors and connected to the internet.",
+        "fr": "Internet of things (internet des objets) : objets du quotidien équipés de capteurs et connectés à Internet."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "sensor"
+        },
+        {
+          "type": "related_to",
+          "target": "internet"
+        }
+      ]
+    },
+    {
+      "id": "irq",
+      "form": "IRQ",
+      "display": "IRQ",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Interrupt request: signal a device sends to get the processor's attention.",
+        "fr": "Interrupt request (demande d'interruption) : signal qu'un périphérique envoie pour solliciter le processeur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "interrupt"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
         }
       ]
     },
@@ -724,6 +1424,64 @@
       ]
     },
     {
+      "id": "keystroke",
+      "form": "KEYSTROKE",
+      "display": "Keystroke",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Single press of a key on a keyboard.",
+        "fr": "Appui unique sur une touche du clavier."
+      },
+      "inflections": [
+        {
+          "form": "KEYSTROKES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "keyboard"
+        }
+      ]
+    },
+    {
+      "id": "kilobyte",
+      "form": "KILOBYTE",
+      "display": "Kilobyte",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unit of data equal to about one thousand bytes.",
+        "fr": "Unité de données valant environ mille octets."
+      },
+      "inflections": [
+        {
+          "form": "KILOBYTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kb"
+        },
+        {
+          "type": "related_to",
+          "target": "byte"
+        }
+      ]
+    },
+    {
       "id": "laptop",
       "form": "LAPTOP",
       "display": "Laptop",
@@ -741,6 +1499,33 @@
         {
           "form": "LAPTOPS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "lcd",
+      "form": "LCD",
+      "display": "LCD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Liquid crystal display: flat screen that uses liquid crystals lit from behind.",
+        "fr": "Liquid crystal display (écran à cristaux liquides) : écran plat à cristaux liquides éclairés par l'arrière."
+      },
+      "inflections": [
+        {
+          "form": "LCDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "display"
         }
       ]
     },
@@ -776,6 +1561,87 @@
       ]
     },
     {
+      "id": "lidar",
+      "form": "LIDAR",
+      "display": "Lidar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Sensor that measures distances with laser pulses to map its surroundings.",
+        "fr": "Capteur qui mesure les distances par impulsions laser pour cartographier son environnement."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "sensor"
+        },
+        {
+          "type": "related_to",
+          "target": "self-driving"
+        }
+      ]
+    },
+    {
+      "id": "liquid-cooling",
+      "form": "LIQUIDCOOLING",
+      "display": "Liquid cooling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Cooling computer parts with circulating liquid rather than air alone.",
+        "fr": "Refroidissement des composants d'un ordinateur par un liquide en circulation plutôt que par l'air seul."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "heatsink"
+        },
+        {
+          "type": "related_to",
+          "target": "overclocking"
+        }
+      ]
+    },
+    {
+      "id": "mainframe",
+      "form": "MAINFRAME",
+      "display": "Mainframe",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Large, very reliable computer that handles huge volumes of business transactions.",
+        "fr": "Grand ordinateur très fiable qui traite d'énormes volumes de transactions métier."
+      },
+      "inflections": [
+        {
+          "form": "MAINFRAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "server"
+        },
+        {
+          "type": "related_to",
+          "target": "transaction"
+        }
+      ]
+    },
+    {
       "id": "mb",
       "form": "MB",
       "display": "MB",
@@ -800,6 +1666,37 @@
       ]
     },
     {
+      "id": "megabyte",
+      "form": "MEGABYTE",
+      "display": "Megabyte",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unit of data equal to about one million bytes.",
+        "fr": "Unité de données valant environ un million d'octets."
+      },
+      "inflections": [
+        {
+          "form": "MEGABYTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mb"
+        },
+        {
+          "type": "related_to",
+          "target": "byte"
+        }
+      ]
+    },
+    {
       "id": "microcontroller",
       "form": "MICROCONTROLLER",
       "display": "Microcontroller",
@@ -821,6 +1718,56 @@
         {
           "type": "uses",
           "target": "sensor"
+        }
+      ]
+    },
+    {
+      "id": "microphone",
+      "form": "MICROPHONE",
+      "display": "Microphone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that turns sound into an electrical signal.",
+        "fr": "Appareil qui transforme le son en signal électrique."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "headset"
+        },
+        {
+          "type": "related_to",
+          "target": "speaker"
+        }
+      ]
+    },
+    {
+      "id": "microprocessor",
+      "form": "MICROPROCESSOR",
+      "display": "Microprocessor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Processor built on a single integrated circuit.",
+        "fr": "Processeur réalisé sur un seul circuit intégré."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "processor"
+        },
+        {
+          "type": "related_to",
+          "target": "transistor"
         }
       ]
     },
@@ -882,6 +1829,56 @@
       }
     },
     {
+      "id": "multicore",
+      "form": "MULTICORE",
+      "display": "Multi-core",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Describes a processor with several cores that work in parallel.",
+        "fr": "Qualifie un processeur doté de plusieurs cœurs qui travaillent en parallèle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "core"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "nanometer",
+      "form": "NANOMETER",
+      "display": "Nanometer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Billionth of a metre, used to name chip manufacturing processes.",
+        "fr": "Milliardième de mètre, utilisé pour désigner les procédés de fabrication des puces."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "transistor"
+        },
+        {
+          "type": "related_to",
+          "target": "semiconductor"
+        }
+      ]
+    },
+    {
       "id": "nas",
       "form": "NAS",
       "display": "NAS",
@@ -911,6 +1908,89 @@
       ]
     },
     {
+      "id": "nfc",
+      "form": "NFC",
+      "display": "NFC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Near-field communication: very short-range wireless link used for contactless payments.",
+        "fr": "Near-field communication : liaison sans fil à très courte portée utilisée pour le paiement sans contact."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bluetooth"
+        },
+        {
+          "type": "related_to",
+          "target": "rfid"
+        }
+      ]
+    },
+    {
+      "id": "nibble",
+      "form": "NIBBLE",
+      "display": "Nibble",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Group of four bits, half a byte.",
+        "fr": "Groupe de quatre bits, soit un demi-octet."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "byte"
+        },
+        {
+          "type": "related_to",
+          "target": "bit"
+        }
+      ]
+    },
+    {
+      "id": "npu",
+      "form": "NPU",
+      "display": "NPU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Neural processing unit: chip specialized in running AI models efficiently.",
+        "fr": "Neural processing unit : puce spécialisée dans l'exécution efficace de modèles d'IA."
+      },
+      "inflections": [
+        {
+          "form": "NPUS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tpu"
+        },
+        {
+          "type": "related_to",
+          "target": "gpu"
+        }
+      ]
+    },
+    {
       "id": "nvme",
       "form": "NVME",
       "display": "NVMe",
@@ -932,6 +2012,56 @@
       ],
       "sources": [
         "https://nvmexpress.org/specifications/"
+      ]
+    },
+    {
+      "id": "oled",
+      "form": "OLED",
+      "display": "OLED",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Organic light-emitting diode: screen technology whose pixels make their own light.",
+        "fr": "Organic light-emitting diode : technologie d'écran dont les pixels produisent leur propre lumière."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "led"
+        },
+        {
+          "type": "alternative_to",
+          "target": "lcd"
+        }
+      ]
+    },
+    {
+      "id": "overclocking",
+      "form": "OVERCLOCKING",
+      "display": "Overclocking",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Running a processor faster than its rated speed for extra performance.",
+        "fr": "Faire tourner un processeur au-delà de sa fréquence nominale pour gagner en performance."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "clock"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
       ]
     },
     {
@@ -965,6 +2095,62 @@
       ]
     },
     {
+      "id": "peripheral",
+      "form": "PERIPHERAL",
+      "display": "Peripheral",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "External device that connects to a computer, such as a printer or a mouse.",
+        "fr": "Appareil externe relié à un ordinateur, comme une imprimante ou une souris."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "printer"
+        },
+        {
+          "type": "related_to",
+          "target": "mouse"
+        }
+      ]
+    },
+    {
+      "id": "petabyte",
+      "form": "PETABYTE",
+      "display": "Petabyte",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Unit of data equal to about one million gigabytes.",
+        "fr": "Unité de données valant environ un million de gigaoctets."
+      },
+      "inflections": [
+        {
+          "form": "PETABYTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "byte"
+        },
+        {
+          "type": "related_to",
+          "target": "big-data"
+        }
+      ]
+    },
+    {
       "id": "pixel",
       "form": "PIXEL",
       "display": "Pixel",
@@ -989,6 +2175,31 @@
         {
           "type": "part_of",
           "target": "screen"
+        }
+      ]
+    },
+    {
+      "id": "power-supply",
+      "form": "POWERSUPPLY",
+      "display": "Power supply",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unit that converts mains electricity into the voltages a computer needs.",
+        "fr": "Bloc qui convertit le courant du secteur en tensions dont l'ordinateur a besoin."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pc"
+        },
+        {
+          "type": "related_to",
+          "target": "motherboard"
         }
       ]
     },
@@ -1020,6 +2231,64 @@
       ]
     },
     {
+      "id": "processor",
+      "form": "PROCESSOR",
+      "display": "Processor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Chip that carries out a computer's instructions; another name for the CPU.",
+        "fr": "Puce qui exécute les instructions d'un ordinateur ; autre nom du CPU."
+      },
+      "inflections": [
+        {
+          "form": "PROCESSORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        },
+        {
+          "type": "related_to",
+          "target": "core"
+        }
+      ]
+    },
+    {
+      "id": "projector",
+      "form": "PROJECTOR",
+      "display": "Projector",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that casts an image from a computer onto a wall or screen.",
+        "fr": "Appareil qui projette l'image d'un ordinateur sur un mur ou une toile."
+      },
+      "inflections": [
+        {
+          "form": "PROJECTORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "display"
+        }
+      ]
+    },
+    {
       "id": "qubit",
       "form": "QUBIT",
       "display": "Qubit",
@@ -1037,6 +2306,38 @@
         {
           "form": "QUBITS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "rack",
+      "form": "RACK",
+      "display": "Rack",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware",
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Standard frame that holds servers and network gear in a data center.",
+        "fr": "Bâti standard qui accueille serveurs et équipements réseau dans un centre de données."
+      },
+      "inflections": [
+        {
+          "form": "RACKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "server"
+        },
+        {
+          "type": "related_to",
+          "target": "datacenter"
         }
       ]
     },
@@ -1088,6 +2389,31 @@
       ]
     },
     {
+      "id": "refresh-rate",
+      "form": "REFRESHRATE",
+      "display": "Refresh rate",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "How many times per second a screen redraws its image, in hertz.",
+        "fr": "Nombre de fois par seconde où un écran redessine son image, en hertz."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "display"
+        },
+        {
+          "type": "related_to",
+          "target": "fps"
+        }
+      ]
+    },
+    {
       "id": "register",
       "form": "REGISTER",
       "display": "Register",
@@ -1111,6 +2437,108 @@
         {
           "type": "part_of",
           "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "resistor",
+      "form": "RESISTOR",
+      "display": "Resistor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Component that limits the flow of electric current.",
+        "fr": "Composant qui limite le passage du courant électrique."
+      },
+      "inflections": [
+        {
+          "form": "RESISTORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "circuit"
+        }
+      ]
+    },
+    {
+      "id": "resolution",
+      "form": "RESOLUTION",
+      "display": "Resolution",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Number of pixels an image or a screen has across and down.",
+        "fr": "Nombre de pixels d'une image ou d'un écran en largeur et en hauteur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        },
+        {
+          "type": "related_to",
+          "target": "display"
+        }
+      ]
+    },
+    {
+      "id": "rfid",
+      "form": "RFID",
+      "display": "RFID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Radio-frequency identification: tags read wirelessly, used in badges and stock tracking.",
+        "fr": "Radio-frequency identification : étiquettes lues sans fil, utilisées pour badges et suivi de stock."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sensor"
+        },
+        {
+          "type": "related_to",
+          "target": "nfc"
+        }
+      ]
+    },
+    {
+      "id": "rgb",
+      "form": "RGB",
+      "display": "RGB",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Red, green, blue: colour model that mixes three lights to make every colour on a screen.",
+        "fr": "Red, green, blue (rouge, vert, bleu) : modèle qui mélange trois lumières pour produire toutes les couleurs d'un écran."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        },
+        {
+          "type": "related_to",
+          "target": "display"
         }
       ]
     },
@@ -1160,6 +2588,34 @@
           "type": "is_a",
           "target": "memory"
         }
+      ]
+    },
+    {
+      "id": "sata",
+      "form": "SATA",
+      "display": "SATA",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Serial ATA: interface that connects storage drives to a motherboard.",
+        "fr": "Serial ATA : interface qui relie les disques de stockage à la carte mère."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hdd"
+        },
+        {
+          "type": "related_to",
+          "target": "ssd"
+        }
+      ],
+      "sources": [
+        "https://sata-io.org/"
       ]
     },
     {
@@ -1316,6 +2772,27 @@
       ]
     },
     {
+      "id": "sim",
+      "form": "SIM",
+      "display": "SIM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Subscriber identity module: chip card that links a phone to a mobile network account.",
+        "fr": "Subscriber identity module : carte à puce qui associe un téléphone à un abonnement mobile."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
+      ]
+    },
+    {
       "id": "smartphone",
       "form": "SMARTPHONE",
       "display": "Smartphone",
@@ -1343,6 +2820,62 @@
         {
           "type": "uses",
           "target": "screen"
+        }
+      ]
+    },
+    {
+      "id": "smartwatch",
+      "form": "SMARTWATCH",
+      "display": "Smartwatch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Wrist-worn computer that shows notifications and tracks activity.",
+        "fr": "Ordinateur porté au poignet qui affiche des notifications et suit l'activité."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "wearable"
+        },
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
+      ]
+    },
+    {
+      "id": "sound-card",
+      "form": "SOUNDCARD",
+      "display": "Sound card",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Component that processes audio input and output.",
+        "fr": "Composant qui traite l'entrée et la sortie audio."
+      },
+      "inflections": [
+        {
+          "form": "SOUNDCARDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "speaker"
+        },
+        {
+          "type": "related_to",
+          "target": "microphone"
         }
       ]
     },
@@ -1391,6 +2924,62 @@
         {
           "form": "SSDS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "stylus",
+      "form": "STYLUS",
+      "display": "Stylus",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Pen-shaped tool used to write or tap on a touchscreen.",
+        "fr": "Outil en forme de stylo pour écrire ou toucher un écran tactile."
+      },
+      "inflections": [
+        {
+          "form": "STYLUSES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "touchscreen"
+        },
+        {
+          "type": "related_to",
+          "target": "tablet"
+        }
+      ]
+    },
+    {
+      "id": "supercomputer",
+      "form": "SUPERCOMPUTER",
+      "display": "Supercomputer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Extremely powerful computer used for science and large simulations.",
+        "fr": "Ordinateur extrêmement puissant utilisé pour la science et les grandes simulations."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        },
+        {
+          "type": "related_to",
+          "target": "gpu"
         }
       ]
     },
@@ -1446,6 +3035,87 @@
       ]
     },
     {
+      "id": "terabyte",
+      "form": "TERABYTE",
+      "display": "Terabyte",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unit of data equal to about one thousand gigabytes.",
+        "fr": "Unité de données valant environ mille gigaoctets."
+      },
+      "inflections": [
+        {
+          "form": "TERABYTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tb"
+        },
+        {
+          "type": "related_to",
+          "target": "byte"
+        }
+      ]
+    },
+    {
+      "id": "thermal-paste",
+      "form": "THERMALPASTE",
+      "display": "Thermal paste",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Paste placed between a chip and its cooler to help carry heat away.",
+        "fr": "Pâte placée entre une puce et son refroidisseur pour mieux évacuer la chaleur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "heatsink"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "touchscreen",
+      "form": "TOUCHSCREEN",
+      "display": "Touchscreen",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Display that responds to the touch of a finger or a stylus.",
+        "fr": "Écran qui réagit au toucher d'un doigt ou d'un stylet."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "display"
+        },
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
+      ]
+    },
+    {
       "id": "tpu",
       "form": "TPU",
       "display": "TPU",
@@ -1481,6 +3151,37 @@
       ]
     },
     {
+      "id": "trackpad",
+      "form": "TRACKPAD",
+      "display": "Trackpad",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Touch-sensitive surface on a laptop that moves the pointer.",
+        "fr": "Surface tactile d'un ordinateur portable qui déplace le pointeur."
+      },
+      "inflections": [
+        {
+          "form": "TRACKPADS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "mouse"
+        },
+        {
+          "type": "part_of",
+          "target": "laptop"
+        }
+      ]
+    },
+    {
       "id": "transistor",
       "form": "TRANSISTOR",
       "display": "Transistor",
@@ -1508,6 +3209,35 @@
       ]
     },
     {
+      "id": "uefi",
+      "form": "UEFI",
+      "display": "UEFI",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Unified Extensible Firmware Interface: modern firmware standard that starts a PC, successor to BIOS.",
+        "fr": "Unified Extensible Firmware Interface : norme de micrologiciel moderne qui démarre un PC, successeur du BIOS."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "bios"
+        },
+        {
+          "type": "related_to",
+          "target": "boot"
+        }
+      ],
+      "sources": [
+        "https://uefi.org/specifications"
+      ]
+    },
+    {
       "id": "usb",
       "form": "USB",
       "display": "USB",
@@ -1523,6 +3253,33 @@
       },
       "sources": [
         "https://www.usb.org/documents"
+      ]
+    },
+    {
+      "id": "usb-stick",
+      "form": "USBSTICK",
+      "display": "USB stick",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Small removable flash drive that plugs into a USB port.",
+        "fr": "Petite mémoire flash amovible qui se branche sur un port USB."
+      },
+      "inflections": [
+        {
+          "form": "USBSTICKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "usb"
+        }
       ]
     },
     {
@@ -1547,6 +3304,64 @@
       ],
       "sources": [
         "https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API"
+      ]
+    },
+    {
+      "id": "wafer",
+      "form": "WAFER",
+      "display": "Wafer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Thin disc of silicon on which many chips are made at once.",
+        "fr": "Fin disque de silicium sur lequel on fabrique de nombreuses puces à la fois."
+      },
+      "inflections": [
+        {
+          "form": "WAFERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "silicon"
+        },
+        {
+          "type": "related_to",
+          "target": "semiconductor"
+        }
+      ]
+    },
+    {
+      "id": "wearable",
+      "form": "WEARABLE",
+      "display": "Wearable",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Electronic device worn on the body, such as a smartwatch or a fitness band.",
+        "fr": "Appareil électronique porté sur le corps, comme une montre connectée ou un bracelet d'activité."
+      },
+      "inflections": [
+        {
+          "form": "WEARABLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sensor"
+        }
       ]
     },
     {
