@@ -14,6 +14,14 @@ import type {
 } from './types.js';
 import { ENGINE_RULES_VERSION } from './version.js';
 
+/**
+ * Exhaustiveness guard for `switch` statements (API note §17.5): unreachable when the switch covers every member;
+ * adding a member makes the call a compile error. Throws if reached through an ill-typed value (programmer error).
+ */
+export function assertNever(value: never): never {
+  throw new TypeError(`unexpected variant: ${typeof value}`);
+}
+
 export function engineError(
   code: EngineErrorCode,
   message: string,
@@ -24,10 +32,20 @@ export function engineError(
     : { kind: 'engine', code, message, details };
 }
 
+/**
+ * Total over any value (review R1 m1): a finite number or a string is reported as is, anything else by its
+ * `typeof` only. Nothing is stringified, so no `toString`/`valueOf` of untrusted JSON ever runs or throws, and
+ * no `NaN`/`Infinity` reaches the details (n4).
+ */
+function describeVersion(actual: unknown): string | number {
+  if (typeof actual === 'number') return Number.isFinite(actual) ? actual : 'number';
+  return typeof actual === 'string' ? actual : typeof actual;
+}
+
 export function rulesVersionError(actual: unknown): EngineError {
   return engineError('RULES_VERSION_UNSUPPORTED', 'unsupported engineRulesVersion', {
     expected: ENGINE_RULES_VERSION,
-    actual: typeof actual === 'number' ? actual : String(actual),
+    actual: describeVersion(actual),
   });
 }
 

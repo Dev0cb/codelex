@@ -10,6 +10,8 @@ import {
   type LexiconVersion,
   type ReferenceTermInput,
 } from '@codelex/lexicon/index';
+import { apply } from '../../src/match/apply.js';
+import { createMatch } from '../../src/match/create.js';
 import { evaluateMove, observe } from '../../src/match/observe.js';
 import { createRng, deriveStreamState, type Rng } from '../../src/rng/index.js';
 import type {
@@ -153,13 +155,26 @@ const RELATIONS: readonly (readonly [string, string])[] = [
   ['STACK', 'QUEUE'],
 ];
 /**
- * Every 2- and 3-letter string is playable in this synthetic lexicon, so that single tiles can almost always be
+ * Most 2- and 3-letter strings are playable in this synthetic lexicon, so that single tiles can almost always be
  * placed and matches reach the endgame (empty bag, going out). Only the harness's fallback uses them.
+ * About one in seven is NOT playable (`isUnplayableShort`), so cross-words are rejected with `not_in_lexicon` too
+ * (review R1 m3). GC-DET-01 does not use this vocabulary: its lexicon is frozen in its golden directory.
  */
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+/** Deterministic ~1/7 of the short strings: the sum of letter codes is a multiple of 7. */
+export function isUnplayableShort(form: string): boolean {
+  let sum = 0;
+  for (let i = 0; i < form.length; i += 1) sum += form.charCodeAt(i);
+  return sum % 7 === 0;
+}
+
 const SHORT = LETTERS.flatMap((a) =>
   LETTERS.flatMap((b) => [a + b, ...LETTERS.map((c) => a + b + c)]),
-).filter((form) => !FORMS.includes(form) && !Object.values(PLURALS).includes(form));
+).filter(
+  (form) =>
+    !FORMS.includes(form) && !Object.values(PLURALS).includes(form) && !isUnplayableShort(form),
+);
 const DIFFICULTIES = ['novice', 'intermediate', 'advanced', 'expert'] as const;
 
 export const SIM_VERSION = 'abcdefabcdefabcd' as LexiconVersion;
@@ -351,4 +366,38 @@ function singleTileMove(state: MatchState, rng: Rng): MoveEvaluation | undefined
     }
   }
   return undefined;
+}
+
+/** A seed for match `i` of a generated corpus (16 lowercase hex chars). */
+export function seedOf(i: number): string {
+  return (i * 0x9e3779b1 + 12345).toString(16).padStart(16, '0').slice(-16);
+}
+
+export interface Played {
+  readonly config: MatchConfig;
+  /** States after 0, 1, … accepted actions (`states[0]` is the initial state). */
+  readonly states: readonly MatchState[];
+  readonly actions: readonly Action[];
+}
+
+/**
+ * G-STATE (RULE_PROPERTIES §4): up to `steps` accepted random-legal actions from the initial state of `seed`.
+ * Stops early when the match ends. Every state is reachable through `apply`.
+ */
+export function playSteps(seed: string, seats: number, steps: number): Played {
+  const config = simConfig(seed, seats);
+  const created = createMatch(config, SIM_CTX);
+  if (!created.ok) throw new Error(created.error.code);
+  const rng = harnessRng(seed);
+  const states: MatchState[] = [created.value.state];
+  const actions: Action[] = [];
+  let state = created.value.state;
+  while (actions.length < steps && state.status === 'in_progress') {
+    const r = apply(state, chooseAction(state, rng), SIM_CTX);
+    if (!r.ok) throw new Error(`${seed}: legal action rejected: ${JSON.stringify(r.error)}`);
+    state = r.value.state;
+    states.push(state);
+    actions.push(r.value.action);
+  }
+  return { config, states, actions };
 }

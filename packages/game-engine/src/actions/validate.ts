@@ -5,7 +5,13 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { exchangeTiles, type Exchanged } from '../bag/bag.js';
-import { lexiconMismatch, matchOver, notYourTurn, rulesVersionError } from '../errors.js';
+import {
+  assertNever,
+  lexiconMismatch,
+  matchOver,
+  notYourTurn,
+  rulesVersionError,
+} from '../errors.js';
 import { checkPlacement, type CheckedPlacement } from '../placement/check.js';
 import { getLayout } from '../rules/constants.js';
 import type {
@@ -81,5 +87,7 @@ export function validateAction(
         ? ok({ type: 'PLACE_WORD', action, placement: placement.value })
         : placement;
     }
+    default:
+      return assertNever(action);
   }
 }

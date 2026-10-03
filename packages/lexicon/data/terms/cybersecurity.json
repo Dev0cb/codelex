@@ -3,6 +3,58 @@
   "category": "cybersecurity",
   "terms": [
     {
+      "id": "acl",
+      "form": "ACL",
+      "display": "ACL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Access control list: list stating who may do what with a resource.",
+        "fr": "Access control list (liste de contrôle d'accès) : liste qui indique qui peut faire quoi sur une ressource."
+      },
+      "inflections": [
+        {
+          "form": "ACLS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
+        },
+        {
+          "type": "related_to",
+          "target": "authorization"
+        }
+      ]
+    },
+    {
+      "id": "adware",
+      "form": "ADWARE",
+      "display": "Adware",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software that pushes unwanted advertising onto a device.",
+        "fr": "Logiciel qui impose de la publicité non désirée sur un appareil."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        }
+      ]
+    },
+    {
       "id": "aes",
       "form": "AES",
       "display": "AES",
@@ -24,6 +76,31 @@
       ],
       "sources": [
         "https://csrc.nist.gov/pubs/fips/197/final"
+      ]
+    },
+    {
+      "id": "air-gap",
+      "form": "AIRGAP",
+      "display": "Air gap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Keeping a computer physically cut off from every network for security.",
+        "fr": "Isolement physique d'un ordinateur de tout réseau, par sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "network"
+        },
+        {
+          "type": "related_to",
+          "target": "firewall"
+        }
       ]
     },
     {
@@ -75,6 +152,31 @@
         {
           "type": "related_to",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "attack-surface",
+      "form": "ATTACKSURFACE",
+      "display": "Attack surface",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "All the points where an attacker could try to get into a system or extract data.",
+        "fr": "Ensemble des points par lesquels un attaquant pourrait entrer dans un système ou en extraire des données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        },
+        {
+          "type": "related_to",
+          "target": "hardening"
         }
       ]
     },
@@ -183,6 +285,93 @@
       ]
     },
     {
+      "id": "biometrics",
+      "form": "BIOMETRICS",
+      "display": "Biometrics",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Identifying people by body traits such as fingerprints or face shape.",
+        "fr": "Identification des personnes par des traits physiques comme l'empreinte digitale ou le visage."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authentication"
+        },
+        {
+          "type": "related_to",
+          "target": "fingerprint"
+        }
+      ]
+    },
+    {
+      "id": "blocklist",
+      "form": "BLOCKLIST",
+      "display": "Blocklist",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "List of addresses, apps or items that are explicitly refused.",
+        "fr": "Liste d'adresses, d'applications ou d'éléments explicitement refusés."
+      },
+      "inflections": [
+        {
+          "form": "BLOCKLISTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "allowlist"
+        },
+        {
+          "type": "related_to",
+          "target": "firewall"
+        }
+      ]
+    },
+    {
+      "id": "blue-team",
+      "form": "BLUETEAM",
+      "display": "Blue team",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Group that defends systems and responds to attacks, often in exercises against a red team.",
+        "fr": "Équipe qui défend les systèmes et répond aux attaques, souvent en exercice face à une équipe rouge."
+      },
+      "inflections": [
+        {
+          "form": "BLUETEAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "red-team"
+        },
+        {
+          "type": "related_to",
+          "target": "siem"
+        }
+      ]
+    },
+    {
       "id": "botnet",
       "form": "BOTNET",
       "display": "Botnet",
@@ -231,6 +420,56 @@
         {
           "type": "related_to",
           "target": "exploit"
+        }
+      ]
+    },
+    {
+      "id": "brute-force",
+      "form": "BRUTEFORCE",
+      "display": "Brute force",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Attack that tries every possible password or key until one works.",
+        "fr": "Attaque qui essaie tous les mots de passe ou clés possibles jusqu'à trouver le bon."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "password"
+        },
+        {
+          "type": "related_to",
+          "target": "captcha"
+        }
+      ]
+    },
+    {
+      "id": "bug-bounty",
+      "form": "BUGBOUNTY",
+      "display": "Bug bounty",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Program that rewards people who responsibly report security flaws.",
+        "fr": "Programme qui récompense les personnes signalant de façon responsable des failles de sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        },
+        {
+          "type": "related_to",
+          "target": "ethical-hacker"
         }
       ]
     },
@@ -316,6 +555,83 @@
       ]
     },
     {
+      "id": "ciphertext",
+      "form": "CIPHERTEXT",
+      "display": "Ciphertext",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Scrambled output of encryption, unreadable without the key.",
+        "fr": "Résultat brouillé d'un chiffrement, illisible sans la clé."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cipher"
+        },
+        {
+          "type": "alternative_to",
+          "target": "plaintext"
+        }
+      ]
+    },
+    {
+      "id": "ciso",
+      "form": "CISO",
+      "display": "CISO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Chief information security officer: executive in charge of an organization's security.",
+        "fr": "Chief information security officer : dirigeant chargé de la sécurité de l'information d'une organisation."
+      },
+      "inflections": [
+        {
+          "form": "CISOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "infosec"
+        }
+      ]
+    },
+    {
+      "id": "clickjacking",
+      "form": "CLICKJACKING",
+      "display": "Clickjacking",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Trick that hides a malicious button under something the user means to click.",
+        "fr": "Ruse qui cache un bouton malveillant sous un élément sur lequel l'utilisateur veut cliquer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "xss"
+        },
+        {
+          "type": "related_to",
+          "target": "browser"
+        }
+      ]
+    },
+    {
       "id": "cookie",
       "form": "COOKIE",
       "display": "Cookie",
@@ -348,6 +664,106 @@
       ],
       "sources": [
         "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies"
+      ]
+    },
+    {
+      "id": "cors",
+      "form": "CORS",
+      "display": "CORS",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Cross-origin resource sharing: browser rules that decide when a site may call another domain.",
+        "fr": "Cross-origin resource sharing : règles du navigateur qui décident quand un site peut appeler un autre domaine."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "browser"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://fetch.spec.whatwg.org/"
+      ]
+    },
+    {
+      "id": "credential",
+      "form": "CREDENTIAL",
+      "display": "Credential",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Proof of identity such as a password, a key or a token.",
+        "fr": "Preuve d'identité comme un mot de passe, une clé ou un jeton."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "password"
+        },
+        {
+          "type": "related_to",
+          "target": "authentication"
+        }
+      ]
+    },
+    {
+      "id": "cryptography",
+      "form": "CRYPTOGRAPHY",
+      "display": "Cryptography",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Science of protecting information with codes, keys and mathematics.",
+        "fr": "Science de la protection de l'information par des codes, des clés et les mathématiques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "encryption"
+        },
+        {
+          "type": "related_to",
+          "target": "cipher"
+        }
+      ]
+    },
+    {
+      "id": "cryptojacking",
+      "form": "CRYPTOJACKING",
+      "display": "Cryptojacking",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Secretly using someone else's device to mine cryptocurrency.",
+        "fr": "Utilisation secrète de l'appareil d'autrui pour miner de la cryptomonnaie."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        }
       ]
     },
     {
@@ -400,6 +816,83 @@
       ]
     },
     {
+      "id": "cyberattack",
+      "form": "CYBERATTACK",
+      "display": "Cyberattack",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Attempt to damage, disrupt or break into computer systems.",
+        "fr": "Tentative d'endommager, de perturber ou de pénétrer des systèmes informatiques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "threat"
+        },
+        {
+          "type": "related_to",
+          "target": "hacker"
+        }
+      ]
+    },
+    {
+      "id": "cybersecurity",
+      "form": "CYBERSECURITY",
+      "display": "Cybersecurity",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Protecting computers, networks and data from attacks and unauthorized access.",
+        "fr": "Protection des ordinateurs, réseaux et données contre les attaques et les accès non autorisés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "threat"
+        },
+        {
+          "type": "related_to",
+          "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "data-leak",
+      "form": "DATALEAK",
+      "display": "Data leak",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Accidental exposure of private data to people who should not see it.",
+        "fr": "Exposition accidentelle de données privées à des personnes qui ne devraient pas les voir."
+      },
+      "inflections": [
+        {
+          "form": "DATALEAKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "breach"
+        }
+      ]
+    },
+    {
       "id": "ddos",
       "form": "DDOS",
       "display": "DDoS",
@@ -422,6 +915,56 @@
       ]
     },
     {
+      "id": "decryption",
+      "form": "DECRYPTION",
+      "display": "Decryption",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Turning encrypted data back into readable form with the right key.",
+        "fr": "Retour de données chiffrées à une forme lisible grâce à la bonne clé."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "encryption"
+        },
+        {
+          "type": "related_to",
+          "target": "key"
+        }
+      ]
+    },
+    {
+      "id": "edr",
+      "form": "EDR",
+      "display": "EDR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Endpoint detection and response: tools that watch devices to spot and stop attacks.",
+        "fr": "Endpoint detection and response : outils qui surveillent les appareils pour repérer et stopper les attaques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "antivirus"
+        },
+        {
+          "type": "related_to",
+          "target": "siem"
+        }
+      ]
+    },
+    {
       "id": "encryption",
       "form": "ENCRYPTION",
       "display": "Encryption",
@@ -435,6 +978,31 @@
         "en": "Transforming data so only holders of the right key can read it.",
         "fr": "Transformation des données pour que seuls les détenteurs de la bonne clé puissent les lire."
       }
+    },
+    {
+      "id": "ethical-hacker",
+      "form": "ETHICALHACKER",
+      "display": "Ethical hacker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Security expert hired to find weaknesses before criminals do.",
+        "fr": "Expert en sécurité engagé pour trouver les failles avant les criminels."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pentest"
+        },
+        {
+          "type": "related_to",
+          "target": "hacker"
+        }
+      ]
     },
     {
       "id": "exploit",
@@ -454,6 +1022,27 @@
         {
           "form": "EXPLOITS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "fingerprint",
+      "form": "FINGERPRINT",
+      "display": "Fingerprint",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unique ridge pattern of a finger, used to unlock devices; also any unique identifying trace.",
+        "fr": "Motif unique des crêtes d'un doigt, utilisé pour déverrouiller un appareil ; aussi toute trace identifiante unique."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "biometrics"
         }
       ]
     },
@@ -486,6 +1075,70 @@
       ]
     },
     {
+      "id": "forensics",
+      "form": "FORENSICS",
+      "display": "Forensics",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Collecting and analysing digital evidence after a security incident.",
+        "fr": "Collecte et analyse de preuves numériques après un incident de sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "log"
+        }
+      ]
+    },
+    {
+      "id": "hack",
+      "form": "HACK",
+      "display": "Hack",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Clever technical trick, or an unauthorized break-in to a computer system.",
+        "fr": "Astuce technique ingénieuse, ou intrusion non autorisée dans un système informatique."
+      },
+      "inflections": [
+        {
+          "form": "HACKED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "HACKING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "HACKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hacker"
+        },
+        {
+          "type": "related_to",
+          "target": "exploit"
+        }
+      ]
+    },
+    {
       "id": "hacker",
       "form": "HACKER",
       "display": "Hacker",
@@ -513,6 +1166,31 @@
       ]
     },
     {
+      "id": "hardening",
+      "form": "HARDENING",
+      "display": "Hardening",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Reducing a system's attack surface by removing or locking down unneeded features.",
+        "fr": "Réduction de la surface d'attaque d'un système en retirant ou verrouillant ce qui est inutile."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "attack-surface"
+        },
+        {
+          "type": "related_to",
+          "target": "patch"
+        }
+      ]
+    },
+    {
       "id": "hash",
       "form": "HASH",
       "display": "Hash",
@@ -528,8 +1206,16 @@
       },
       "inflections": [
         {
+          "form": "HASHED",
+          "kind": "verb_ed"
+        },
+        {
           "form": "HASHES",
           "kind": "plural"
+        },
+        {
+          "form": "HASHING",
+          "kind": "verb_ing"
         }
       ]
     },
@@ -585,6 +1271,27 @@
       ]
     },
     {
+      "id": "infosec",
+      "form": "INFOSEC",
+      "display": "InfoSec",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Information security: protecting information from unauthorized access or change.",
+        "fr": "Sécurité de l'information : protection de l'information contre l'accès ou la modification non autorisés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cybersecurity"
+        }
+      ]
+    },
+    {
       "id": "injection",
       "form": "INJECTION",
       "display": "Injection",
@@ -609,6 +1316,40 @@
           "type": "is_a",
           "target": "exploit"
         }
+      ]
+    },
+    {
+      "id": "jwt",
+      "form": "JWT",
+      "display": "JWT",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "JSON Web Token: signed token carrying claims, used to prove identity between services.",
+        "fr": "JSON Web Token : jeton signé contenant des affirmations, utilisé pour prouver une identité entre services."
+      },
+      "inflections": [
+        {
+          "form": "JWTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "json"
+        },
+        {
+          "type": "related_to",
+          "target": "oauth"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc7519"
       ]
     },
     {
@@ -670,6 +1411,35 @@
       ]
     },
     {
+      "id": "ldap",
+      "form": "LDAP",
+      "display": "LDAP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "cybersecurity",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Lightweight Directory Access Protocol: queries directories of users, groups and devices.",
+        "fr": "Lightweight Directory Access Protocol : interroge des annuaires d'utilisateurs, de groupes et d'appareils."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authentication"
+        },
+        {
+          "type": "related_to",
+          "target": "directory"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc4511"
+      ]
+    },
+    {
       "id": "login",
       "form": "LOGIN",
       "display": "Login",
@@ -714,6 +1484,34 @@
         "en": "Software designed to damage, spy on or take control of systems.",
         "fr": "Logiciel conçu pour endommager, espionner ou prendre le contrôle de systèmes."
       }
+    },
+    {
+      "id": "man-in-the-middle",
+      "form": "MANINTHEMIDDLE",
+      "display": "Man-in-the-middle attack",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Attack where someone secretly intercepts, and may alter, the messages between two parties.",
+        "fr": "Attaque où un tiers intercepte en secret, et peut modifier, les messages entre deux parties."
+      },
+      "aliases": [
+        "On-path attack"
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tls"
+        },
+        {
+          "type": "related_to",
+          "target": "spoofing"
+        }
+      ]
     },
     {
       "id": "mfa",
@@ -853,6 +1651,27 @@
       ]
     },
     {
+      "id": "passphrase",
+      "form": "PASSPHRASE",
+      "display": "Passphrase",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Password made of several words, longer and easier to remember.",
+        "fr": "Mot de passe composé de plusieurs mots, plus long et plus facile à retenir."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "password"
+        }
+      ]
+    },
+    {
       "id": "password",
       "form": "PASSWORD",
       "display": "Password",
@@ -880,6 +1699,31 @@
       ]
     },
     {
+      "id": "password-manager",
+      "form": "PASSWORDMANAGER",
+      "display": "Password manager",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "App that creates, stores and fills in strong passwords for you.",
+        "fr": "Application qui crée, conserve et saisit pour vous des mots de passe robustes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "password"
+        },
+        {
+          "type": "related_to",
+          "target": "passkey"
+        }
+      ]
+    },
+    {
       "id": "patch",
       "form": "PATCH",
       "display": "Patch",
@@ -896,8 +1740,16 @@
       },
       "inflections": [
         {
+          "form": "PATCHED",
+          "kind": "verb_ed"
+        },
+        {
           "form": "PATCHES",
           "kind": "plural"
+        },
+        {
+          "form": "PATCHING",
+          "kind": "verb_ing"
         }
       ],
       "relations": [
@@ -980,6 +1832,154 @@
       ]
     },
     {
+      "id": "pki",
+      "form": "PKI",
+      "display": "PKI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Public key infrastructure: system of certificates and authorities that vouches for public keys.",
+        "fr": "Public key infrastructure : système de certificats et d'autorités qui garantit les clés publiques."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "certificate"
+        },
+        {
+          "type": "uses",
+          "target": "public-key"
+        }
+      ]
+    },
+    {
+      "id": "plaintext",
+      "form": "PLAINTEXT",
+      "display": "Plaintext",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Readable data before it is encrypted or after it has been decrypted.",
+        "fr": "Données lisibles avant leur chiffrement ou après leur déchiffrement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "pretexting",
+      "form": "PRETEXTING",
+      "display": "Pretexting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Inventing a believable story to manipulate someone into revealing information.",
+        "fr": "Invention d'un scénario crédible pour pousser quelqu'un à révéler des informations."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        },
+        {
+          "type": "related_to",
+          "target": "scam"
+        }
+      ]
+    },
+    {
+      "id": "private-key",
+      "form": "PRIVATEKEY",
+      "display": "Private key",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Secret half of a key pair, used to decrypt data or to create signatures.",
+        "fr": "Moitié secrète d'une paire de clés, servant à déchiffrer ou à signer."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "key"
+        },
+        {
+          "type": "related_to",
+          "target": "public-key"
+        }
+      ]
+    },
+    {
+      "id": "public-key",
+      "form": "PUBLICKEY",
+      "display": "Public key",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Shareable half of a key pair, used to encrypt data or to check signatures.",
+        "fr": "Moitié partageable d'une paire de clés, servant à chiffrer ou à vérifier des signatures."
+      },
+      "inflections": [
+        {
+          "form": "PUBLICKEYS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "key"
+        }
+      ]
+    },
+    {
+      "id": "quarantine",
+      "form": "QUARANTINE",
+      "display": "Quarantine",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Isolating a suspicious file or device so that it cannot cause harm.",
+        "fr": "Isolement d'un fichier ou d'un appareil suspect pour qu'il ne puisse pas nuire."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "antivirus"
+        },
+        {
+          "type": "related_to",
+          "target": "malware"
+        }
+      ]
+    },
+    {
       "id": "ransomware",
       "form": "RANSOMWARE",
       "display": "Ransomware",
@@ -1001,6 +2001,89 @@
         {
           "type": "uses",
           "target": "encryption"
+        }
+      ]
+    },
+    {
+      "id": "rbac",
+      "form": "RBAC",
+      "display": "RBAC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Role-based access control: permissions granted through roles rather than to each user.",
+        "fr": "Role-based access control : droits accordés par le biais de rôles plutôt qu'à chaque utilisateur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "role"
+        },
+        {
+          "type": "related_to",
+          "target": "authorization"
+        }
+      ]
+    },
+    {
+      "id": "red-team",
+      "form": "REDTEAM",
+      "display": "Red team",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Group that plays the attacker to test an organization's defences.",
+        "fr": "Équipe qui joue le rôle de l'attaquant pour tester les défenses d'une organisation."
+      },
+      "inflections": [
+        {
+          "form": "REDTEAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pentest"
+        }
+      ]
+    },
+    {
+      "id": "role",
+      "form": "ROLE",
+      "display": "Role",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Named set of permissions that can be given to users or services.",
+        "fr": "Ensemble nommé de droits qu'on peut attribuer à des utilisateurs ou à des services."
+      },
+      "inflections": [
+        {
+          "form": "ROLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
+        },
+        {
+          "type": "related_to",
+          "target": "iam"
         }
       ]
     },
@@ -1033,6 +2116,34 @@
           "type": "related_to",
           "target": "root"
         }
+      ]
+    },
+    {
+      "id": "rsa",
+      "form": "RSA",
+      "display": "RSA",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Public-key algorithm named after Rivest, Shamir and Adleman, used for encryption and signatures.",
+        "fr": "Algorithme à clé publique nommé d'après Rivest, Shamir et Adleman, utilisé pour chiffrer et signer."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "public-key"
+        },
+        {
+          "type": "related_to",
+          "target": "cryptography"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc8017"
       ]
     },
     {
@@ -1115,6 +2226,31 @@
       ]
     },
     {
+      "id": "scareware",
+      "form": "SCAREWARE",
+      "display": "Scareware",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Fake alerts that frighten users into installing or paying for bogus software.",
+        "fr": "Fausses alertes qui effraient l'utilisateur pour qu'il installe ou paie un logiciel bidon."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "malware"
+        },
+        {
+          "type": "related_to",
+          "target": "scam"
+        }
+      ]
+    },
+    {
       "id": "secret",
       "form": "SECRET",
       "display": "Secret",
@@ -1147,6 +2283,59 @@
       ]
     },
     {
+      "id": "security-key",
+      "form": "SECURITYKEY",
+      "display": "Security key",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Small hardware device that proves your identity when you sign in.",
+        "fr": "Petit appareil matériel qui prouve votre identité lors de la connexion."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mfa"
+        },
+        {
+          "type": "related_to",
+          "target": "passkey"
+        }
+      ]
+    },
+    {
+      "id": "sha",
+      "form": "SHA",
+      "display": "SHA",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Secure Hash Algorithm: family of hash functions, such as SHA-256, standardized by NIST.",
+        "fr": "Secure Hash Algorithm : famille de fonctions de hachage, comme SHA-256, normalisée par le NIST."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "hash"
+        },
+        {
+          "type": "related_to",
+          "target": "checksum"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/projects/hash-functions"
+      ]
+    },
+    {
       "id": "siem",
       "form": "SIEM",
       "display": "SIEM",
@@ -1175,6 +2364,62 @@
       ]
     },
     {
+      "id": "signature",
+      "form": "SIGNATURE",
+      "display": "Signature",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Cryptographic proof that data comes from a key holder and has not been altered.",
+        "fr": "Preuve cryptographique que des données viennent du détenteur d'une clé et n'ont pas été modifiées."
+      },
+      "inflections": [
+        {
+          "form": "SIGNATURES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "private-key"
+        },
+        {
+          "type": "related_to",
+          "target": "certificate"
+        }
+      ]
+    },
+    {
+      "id": "smishing",
+      "form": "SMISHING",
+      "display": "Smishing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Phishing carried out through text messages.",
+        "fr": "Hameçonnage mené par SMS."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "phishing"
+        },
+        {
+          "type": "uses",
+          "target": "sms"
+        }
+      ]
+    },
+    {
       "id": "spam",
       "form": "SPAM",
       "display": "Spam",
@@ -1195,6 +2440,27 @@
         },
         {
           "type": "related_to",
+          "target": "phishing"
+        }
+      ]
+    },
+    {
+      "id": "spear-phishing",
+      "form": "SPEARPHISHING",
+      "display": "Spear phishing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Phishing aimed at one specific person or organization using tailored details.",
+        "fr": "Hameçonnage visant une personne ou une organisation précise avec des détails personnalisés."
+      },
+      "relations": [
+        {
+          "type": "is_a",
           "target": "phishing"
         }
       ]
@@ -1238,6 +2504,31 @@
         {
           "type": "is_a",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "sql-injection",
+      "form": "SQLINJECTION",
+      "display": "SQL injection",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Attack that slips SQL commands into input fields to read or change a database.",
+        "fr": "Attaque qui glisse des commandes SQL dans des champs de saisie pour lire ou modifier une base."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "injection"
+        },
+        {
+          "type": "related_to",
+          "target": "sql"
         }
       ]
     },
@@ -1297,6 +2588,59 @@
       ]
     },
     {
+      "id": "threat-model",
+      "form": "THREATMODEL",
+      "display": "Threat model",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Structured analysis of what could attack a system and how to defend it.",
+        "fr": "Analyse structurée de ce qui pourrait attaquer un système et de la manière de le défendre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "threat"
+        },
+        {
+          "type": "related_to",
+          "target": "attack-surface"
+        }
+      ]
+    },
+    {
+      "id": "totp",
+      "form": "TOTP",
+      "display": "TOTP",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Time-based one-time password: login code that changes every 30 seconds or so.",
+        "fr": "Time-based one-time password : code de connexion qui change environ toutes les 30 secondes."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "otp"
+        },
+        {
+          "type": "related_to",
+          "target": "mfa"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6238"
+      ]
+    },
+    {
       "id": "trojan",
       "form": "TROJAN",
       "display": "Trojan",
@@ -1320,6 +2664,59 @@
         {
           "type": "is_a",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "two-factor",
+      "form": "TWOFACTOR",
+      "display": "Two-factor authentication",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Sign-in check that asks for a second proof, such as a code, besides the password.",
+        "fr": "Vérification de connexion qui demande une seconde preuve, comme un code, en plus du mot de passe."
+      },
+      "aliases": [
+        "2FA"
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "mfa"
+        },
+        {
+          "type": "related_to",
+          "target": "otp"
+        }
+      ]
+    },
+    {
+      "id": "typosquatting",
+      "form": "TYPOSQUATTING",
+      "display": "Typosquatting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Registering look-alike domain names to catch users who mistype an address.",
+        "fr": "Enregistrement de noms de domaine ressemblants pour piéger les utilisateurs qui se trompent de frappe."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        },
+        {
+          "type": "related_to",
+          "target": "domain"
         }
       ]
     },
@@ -1351,6 +2748,27 @@
       ]
     },
     {
+      "id": "vishing",
+      "form": "VISHING",
+      "display": "Vishing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Phishing carried out through phone calls or voice messages.",
+        "fr": "Hameçonnage mené par appels téléphoniques ou messages vocaux."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "phishing"
+        }
+      ]
+    },
+    {
       "id": "vulnerability",
       "form": "VULNERABILITY",
       "display": "Vulnerability",
@@ -1374,6 +2792,62 @@
         {
           "type": "related_to",
           "target": "exploit"
+        }
+      ]
+    },
+    {
+      "id": "waf",
+      "form": "WAF",
+      "display": "WAF",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Web application firewall: filters HTTP traffic to block attacks on websites.",
+        "fr": "Web application firewall : filtre le trafic HTTP pour bloquer les attaques contre les sites web."
+      },
+      "inflections": [
+        {
+          "form": "WAFS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "firewall"
+        },
+        {
+          "type": "related_to",
+          "target": "xss"
+        }
+      ]
+    },
+    {
+      "id": "whaling",
+      "form": "WHALING",
+      "display": "Whaling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Phishing that targets senior executives.",
+        "fr": "Hameçonnage qui cible les hauts dirigeants."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "phishing"
+        },
+        {
+          "type": "related_to",
+          "target": "spear-phishing"
         }
       ]
     },

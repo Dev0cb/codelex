@@ -74,7 +74,7 @@ describe('observe (API note §10, P-GLOBAL-07, P-API-03)', () => {
     expect(observe(other, 'spectator')).toEqual(observe(START, 'spectator'));
   });
 
-  it('final racks and result are public once the match is over (Q-GD-5)', () => {
+  it('R-END-003 (Q-GD-5): final racks and result are public once the match is over', () => {
     const r = apply(START, { seat: 1, type: 'RESIGN' }, CTX);
     if (!r.ok) throw new Error('resign');
     const o = observe(r.value.state, 0);
@@ -243,5 +243,12 @@ describe('previewScore (R-SCORE-009, P-API-02)', () => {
     expect(previewScore(observe(s, 0), [{ row: 7, col: 7, tile: '?' as 'A' }])).toBeNull();
     expect(previewScore(observe(s, 'spectator'), AI.tiles)).toBeNull();
     expect(previewScore({ ...observe(s, 0), status: 'finished' }, AI.tiles)).toBeNull();
+    // n7: a viewer whose seat is no longer active gets no preview.
+    const o = observe(s, 0);
+    const resigned: Observation = {
+      ...o,
+      seats: o.seats.map((x) => (x.seat === 0 ? { ...x, status: 'resigned' as const } : x)),
+    };
+    expect(previewScore(resigned, AI.tiles)).toBeNull();
   });
 });

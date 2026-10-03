@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import gcDet01 from '../../test/golden/replays/v1/gc-det-01.json' with { type: 'json' };
 import gcDet01Log from '../../test/golden/replays/v1/gc-det-01.log.json' with { type: 'json' };
-import { SIM_CTX } from '../../test/support/play.js';
+import gcDet01Lexicon from '../../test/golden/replays/v1/gc-det-01.lexicon.json' with { type: 'json' };
+import { GC_DET_01_CTX, GC_DET_01_FORMS } from '../../test/support/gc-det-01-lexicon.js';
 import type { SMALL_VERSION } from '../../test/support/small-lexicon.js';
 import { CTX, config1v1, smallLexicon } from '../../test/support/small-lexicon.js';
 import type { Action, StateHash } from '../types.js';
@@ -44,11 +45,20 @@ describe('GC-DET-01 golden replay (ADR-0013 §D5; P-GLOBAL-02)', () => {
     if (!parsed.ok) throw new Error(JSON.stringify(parsed.error));
     expect(parsed.value.header.seed).toBe(gcDet01.seed);
     expect(parsed.value.actions).toHaveLength(gcDet01.actionCount);
-    const r = replay(parsed.value, SIM_CTX);
+    const r = replay(parsed.value, GC_DET_01_CTX);
     if (!r.ok) throw new Error(JSON.stringify(r.error));
     expect(r.value.finalHash).toBe(gcDet01.finalStateHash);
     expect(r.value.state.firstSeat).toBe(gcDet01.firstSeat);
     expect(r.value.state.result).toEqual(gcDet01.result);
+  });
+
+  it('n6: replays on the frozen term list stored next to the golden, not on the harness vocabulary', () => {
+    expect(GC_DET_01_FORMS).toHaveLength(gcDet01Lexicon.termCount);
+    expect(new Set(GC_DET_01_FORMS).size).toBe(gcDet01Lexicon.termCount);
+    expect(GC_DET_01_CTX.lexicon.version).toBe(gcDet01Lexicon.version);
+    expect(GC_DET_01_CTX.lexicon.profile.definitionHash).toBe(
+      gcDet01Lexicon.profile.definitionHash,
+    );
   });
 
   it('serialises the stored log byte for byte (JCS)', () => {
@@ -68,9 +78,18 @@ describe('parseActionLog (ADR-0013 §D2, P-API-06)', () => {
     expect(code(edit((d) => ((d['logVersion'] = 2), (d['x'] = 1))))).toBe(
       'LOG_VERSION_UNSUPPORTED',
     );
+    // n4: a non-numeric version is reported as -1, never NaN.
     expect(parseActionLog(edit((d) => (d['logVersion'] = '1')))).toMatchObject({
-      error: { details: { logVersion: Number.NaN } },
+      error: { details: { logVersion: -1 } },
     });
+    expect(parseActionLog(edit((d) => (d['logVersion'] = 1.5)))).toMatchObject({
+      error: { details: { logVersion: -1 } },
+    });
+    expect(
+      parseActionLog(
+        edit((d) => ((d['header'] as Record<string, unknown>)['engineRulesVersion'] = 'x')),
+      ),
+    ).toMatchObject({ error: { details: { engineRulesVersion: -1 } } });
     expect(
       code(
         edit(
@@ -93,6 +112,8 @@ describe('parseActionLog (ADR-0013 §D2, P-API-06)', () => {
 
   it.each<[string, (d: Record<string, unknown>) => void]>([
     ['extra', (d) => (d['extra'] = 1)],
+    // n1: the first unknown key in code-unit order, whatever the document order.
+    ['Zz', (d) => ((d['zz'] = 1), (d['Zz'] = 1), (d['z'] = 1))],
     ['header.seed', (d) => ((d['header'] as Record<string, unknown>)['seed'] = 'x')],
     ['actions', (d) => (d['actions'] = {})],
     ['actions[0]', (d) => ((d['actions'] as unknown[])[0] = { seat: 0, type: 'PASS', at: 1 })],
@@ -128,13 +149,31 @@ describe('replay (ADR-0013 §D2, P-API-07)', () => {
     expect(replay({ ...log, stateHashes: flipped }, CTX)).toMatchObject({
       error: { code: 'HASH_MISMATCH', details: { index: 1, expected: 'ffffffffffffffff' } },
     });
+    // A finished log (seat 0 resigns): its final checkpoint is verified.
+    const finished: ActionLog = { ...log, actions: [...log.actions, { seat: 0, type: 'RESIGN' }] };
+    const done = replay(finished, CTX);
+    if (!done.ok) throw new Error('replay');
+    expect(done.value.state.status).toBe('finished');
+    expect(
+      replay({ ...finished, final: { stateHash: done.value.finalHash, actionCount: 3 } }, CTX).ok,
+    ).toBe(true);
     expect(
       replay(
-        { ...log, final: { stateHash: 'ffffffffffffffff' as StateHash, actionCount: 2 } },
+        { ...finished, final: { stateHash: 'ffffffffffffffff' as StateHash, actionCount: 3 } },
         CTX,
       ),
     ).toMatchObject({ error: { code: 'HASH_MISMATCH', details: { index: 'final' } } });
     expect(replay(log, CTX)).not.toHaveProperty('value.stateHashes');
+  });
+
+  it('n5: a final checkpoint on an unfinished match is MALFORMED_LOG', () => {
+    const log = shortLog();
+    const r = replay(log, CTX);
+    if (!r.ok) throw new Error('replay');
+    expect(r.value.state.status).toBe('in_progress');
+    expect(
+      replay({ ...log, final: { stateHash: r.value.finalHash, actionCount: 2 } }, CTX),
+    ).toMatchObject({ error: { code: 'MALFORMED_LOG', details: { path: 'final' } } });
   });
 
   it('ACTION_REJECTED names the index and the rejection', () => {
@@ -170,6 +209,11 @@ describe('replay (ADR-0013 §D2, P-API-07)', () => {
       replay({ ...log, header: { ...log.header, engineRulesVersion: 2 as 1 } }, CTX),
     ).toMatchObject({
       error: { code: 'RULES_VERSION_UNSUPPORTED', details: { engineRulesVersion: 2 } },
+    });
+    expect(
+      replay({ ...log, header: { ...log.header, engineRulesVersion: Number.NaN as 1 } }, CTX),
+    ).toMatchObject({
+      error: { code: 'RULES_VERSION_UNSUPPORTED', details: { engineRulesVersion: -1 } },
     });
     expect(replay({ ...log, header: { ...log.header, profileId: '' } }, CTX)).toMatchObject({
       error: { code: 'MALFORMED_LOG', details: { path: 'header.profileId' } },

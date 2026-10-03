@@ -3,6 +3,31 @@
   "category": "networking",
   "terms": [
     {
+      "id": "anycast",
+      "form": "ANYCAST",
+      "display": "Anycast",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Sharing one IP address among many servers so each user reaches the nearest one.",
+        "fr": "Partage d'une même adresse IP entre plusieurs serveurs pour que chacun atteigne le plus proche."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cdn"
+        },
+        {
+          "type": "alternative_to",
+          "target": "unicast"
+        }
+      ]
+    },
+    {
       "id": "ap",
       "form": "AP",
       "display": "AP",
@@ -46,6 +71,34 @@
           "form": "APIS",
           "kind": "plural"
         }
+      ]
+    },
+    {
+      "id": "arp",
+      "form": "ARP",
+      "display": "ARP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Address Resolution Protocol: finds the MAC address behind an IP address on a local network.",
+        "fr": "Address Resolution Protocol : trouve l'adresse MAC derrière une adresse IP sur un réseau local."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mac-address"
+        },
+        {
+          "type": "related_to",
+          "target": "ip"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc826"
       ]
     },
     {
@@ -162,6 +215,37 @@
       ]
     },
     {
+      "id": "broadcast",
+      "form": "BROADCAST",
+      "display": "Broadcast",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Sending one message to every device on a network segment at once.",
+        "fr": "Envoi d'un même message à tous les appareils d'un segment de réseau en une fois."
+      },
+      "inflections": [
+        {
+          "form": "BROADCASTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "multicast"
+        },
+        {
+          "type": "related_to",
+          "target": "lan"
+        }
+      ]
+    },
+    {
       "id": "browser",
       "form": "BROWSER",
       "display": "Browser",
@@ -218,6 +302,96 @@
         {
           "type": "uses",
           "target": "cache"
+        }
+      ]
+    },
+    {
+      "id": "cidr",
+      "form": "CIDR",
+      "display": "CIDR",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Classless inter-domain routing: notation such as /24 that sets the size of a block of IP addresses.",
+        "fr": "Classless inter-domain routing : notation comme /24 qui fixe la taille d'un bloc d'adresses IP."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "subnet"
+        },
+        {
+          "type": "related_to",
+          "target": "routing"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc4632"
+      ]
+    },
+    {
+      "id": "client",
+      "form": "CLIENT",
+      "display": "Client",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Program or device that sends requests to a server and uses its answers.",
+        "fr": "Programme ou appareil qui envoie des requêtes à un serveur et utilise ses réponses."
+      },
+      "inflections": [
+        {
+          "form": "CLIENTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "server"
+        },
+        {
+          "type": "related_to",
+          "target": "browser"
+        }
+      ]
+    },
+    {
+      "id": "datagram",
+      "form": "DATAGRAM",
+      "display": "Datagram",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Self-contained packet sent without setting up a connection first, as in UDP.",
+        "fr": "Paquet autonome envoyé sans établir de connexion au préalable, comme avec UDP."
+      },
+      "inflections": [
+        {
+          "form": "DATAGRAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "packet"
+        },
+        {
+          "type": "related_to",
+          "target": "udp"
         }
       ]
     },
@@ -327,6 +501,37 @@
       ]
     },
     {
+      "id": "endpoint",
+      "form": "ENDPOINT",
+      "display": "Endpoint",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Address, usually a URL, where an API receives requests for one resource or action.",
+        "fr": "Adresse, souvent une URL, où une API reçoit les requêtes pour une ressource ou une action."
+      },
+      "inflections": [
+        {
+          "form": "ENDPOINTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "api"
+        },
+        {
+          "type": "related_to",
+          "target": "url"
+        }
+      ]
+    },
+    {
       "id": "ethernet",
       "form": "ETHERNET",
       "display": "Ethernet",
@@ -373,6 +578,37 @@
         {
           "type": "related_to",
           "target": "bandwidth"
+        }
+      ]
+    },
+    {
+      "id": "frame",
+      "form": "FRAME",
+      "display": "Frame",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Unit of data carried by the link layer, such as an Ethernet frame.",
+        "fr": "Unité de données transportée par la couche liaison, comme une trame Ethernet."
+      },
+      "inflections": [
+        {
+          "form": "FRAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ethernet"
+        },
+        {
+          "type": "related_to",
+          "target": "packet"
         }
       ]
     },
@@ -459,6 +695,64 @@
       ]
     },
     {
+      "id": "header",
+      "form": "HEADER",
+      "display": "Header",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Metadata at the start of a packet or HTTP message that describes its content.",
+        "fr": "Métadonnées au début d'un paquet ou d'un message HTTP qui décrivent son contenu."
+      },
+      "inflections": [
+        {
+          "form": "HEADERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "packet"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        }
+      ]
+    },
+    {
+      "id": "homepage",
+      "form": "HOMEPAGE",
+      "display": "Homepage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Main entry page of a website.",
+        "fr": "Page d'accueil principale d'un site web."
+      },
+      "inflections": [
+        {
+          "form": "HOMEPAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "website"
+        }
+      ]
+    },
+    {
       "id": "hop",
       "form": "HOP",
       "display": "Hop",
@@ -513,6 +807,37 @@
         {
           "type": "uses",
           "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "hostname",
+      "form": "HOSTNAME",
+      "display": "Hostname",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Human-readable name given to a device on a network.",
+        "fr": "Nom lisible donné à un appareil sur un réseau."
+      },
+      "inflections": [
+        {
+          "form": "HOSTNAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "host"
+        },
+        {
+          "type": "related_to",
+          "target": "dns"
         }
       ]
     },
@@ -625,6 +950,93 @@
       ]
     },
     {
+      "id": "hyperlink",
+      "form": "HYPERLINK",
+      "display": "Hyperlink",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Clickable reference that takes you to another page or resource.",
+        "fr": "Référence cliquable qui mène à une autre page ou ressource."
+      },
+      "inflections": [
+        {
+          "form": "HYPERLINKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "url"
+        },
+        {
+          "type": "related_to",
+          "target": "html"
+        }
+      ]
+    },
+    {
+      "id": "icmp",
+      "form": "ICMP",
+      "display": "ICMP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Internet Control Message Protocol: carries error and diagnostic messages, such as those used by ping.",
+        "fr": "Internet Control Message Protocol : transporte messages d'erreur et de diagnostic, comme ceux de ping."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ping"
+        },
+        {
+          "type": "related_to",
+          "target": "ip"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc792"
+      ]
+    },
+    {
+      "id": "imap",
+      "form": "IMAP",
+      "display": "IMAP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Internet Message Access Protocol: reads email kept on a server, in sync across devices.",
+        "fr": "Internet Message Access Protocol : lit les e-mails conservés sur un serveur, synchronisés entre appareils."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "email"
+        },
+        {
+          "type": "related_to",
+          "target": "smtp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9051"
+      ]
+    },
+    {
       "id": "internet",
       "form": "INTERNET",
       "display": "Internet",
@@ -650,6 +1062,37 @@
       ]
     },
     {
+      "id": "intranet",
+      "form": "INTRANET",
+      "display": "Intranet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Private network that works like the web but only inside one organization.",
+        "fr": "Réseau privé qui fonctionne comme le web, mais seulement à l'intérieur d'une organisation."
+      },
+      "inflections": [
+        {
+          "form": "INTRANETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        },
+        {
+          "type": "related_to",
+          "target": "lan"
+        }
+      ]
+    },
+    {
       "id": "ip",
       "form": "IP",
       "display": "IP",
@@ -665,6 +1108,31 @@
       },
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc791"
+      ]
+    },
+    {
+      "id": "ip-address",
+      "form": "IPADDRESS",
+      "display": "IP address",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Number that identifies a device on a network so that data can reach it.",
+        "fr": "Numéro qui identifie un appareil sur un réseau pour que les données puissent l'atteindre."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "ip"
+        },
+        {
+          "type": "related_to",
+          "target": "dns"
+        }
       ]
     },
     {
@@ -714,6 +1182,31 @@
         {
           "type": "related_to",
           "target": "internet"
+        }
+      ]
+    },
+    {
+      "id": "jitter",
+      "form": "JITTER",
+      "display": "Jitter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Variation in packet delay that makes calls and streams stutter.",
+        "fr": "Variation du délai des paquets qui fait hacher les appels et les flux."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "latency"
+        },
+        {
+          "type": "related_to",
+          "target": "packet"
         }
       ]
     },
@@ -803,6 +1296,56 @@
       ]
     },
     {
+      "id": "mac-address",
+      "form": "MACADDRESS",
+      "display": "MAC address",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hardware identifier of a network interface, unique on a local network.",
+        "fr": "Identifiant matériel d'une interface réseau, unique sur un réseau local."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ethernet"
+        },
+        {
+          "type": "related_to",
+          "target": "nic"
+        }
+      ]
+    },
+    {
+      "id": "mesh-network",
+      "form": "MESHNETWORK",
+      "display": "Mesh network",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Network where devices relay traffic for each other, with no single central hub.",
+        "fr": "Réseau où les appareils relaient le trafic les uns pour les autres, sans point central unique."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "network"
+        },
+        {
+          "type": "related_to",
+          "target": "topology"
+        }
+      ]
+    },
+    {
       "id": "modem",
       "form": "MODEM",
       "display": "Modem",
@@ -835,6 +1378,59 @@
       ]
     },
     {
+      "id": "mqtt",
+      "form": "MQTT",
+      "display": "MQTT",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Lightweight publish-subscribe messaging protocol widely used by connected devices.",
+        "fr": "Protocole de messagerie léger en publication-abonnement, très utilisé par les objets connectés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "iot"
+        },
+        {
+          "type": "related_to",
+          "target": "broker"
+        }
+      ],
+      "sources": [
+        "https://mqtt.org/"
+      ]
+    },
+    {
+      "id": "mtu",
+      "form": "MTU",
+      "display": "MTU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Maximum transmission unit: the largest packet a network link can carry in one piece.",
+        "fr": "Maximum transmission unit : plus grand paquet qu'un lien réseau peut transporter d'un seul tenant."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "packet"
+        },
+        {
+          "type": "related_to",
+          "target": "frame"
+        }
+      ]
+    },
+    {
       "id": "multicast",
       "form": "MULTICAST",
       "display": "Multicast",
@@ -852,6 +1448,31 @@
         {
           "type": "related_to",
           "target": "packet"
+        }
+      ]
+    },
+    {
+      "id": "nameserver",
+      "form": "NAMESERVER",
+      "display": "Name server",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Server that answers DNS questions for a domain.",
+        "fr": "Serveur qui répond aux requêtes DNS pour un domaine."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dns"
+        },
+        {
+          "type": "is_a",
+          "target": "server"
         }
       ]
     },
@@ -877,6 +1498,139 @@
       ]
     },
     {
+      "id": "network",
+      "form": "NETWORK",
+      "display": "Network",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Group of connected devices that exchange data.",
+        "fr": "Ensemble d'appareils reliés qui échangent des données."
+      },
+      "inflections": [
+        {
+          "form": "NETWORKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        },
+        {
+          "type": "related_to",
+          "target": "router"
+        }
+      ]
+    },
+    {
+      "id": "nic",
+      "form": "NIC",
+      "display": "NIC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Network interface card: hardware that connects a computer to a network.",
+        "fr": "Network interface card (carte réseau) : matériel qui relie un ordinateur à un réseau."
+      },
+      "inflections": [
+        {
+          "form": "NICS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ethernet"
+        },
+        {
+          "type": "related_to",
+          "target": "network"
+        }
+      ]
+    },
+    {
+      "id": "ntp",
+      "form": "NTP",
+      "display": "NTP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Network Time Protocol: keeps the clocks of computers in sync over a network.",
+        "fr": "Network Time Protocol : synchronise les horloges des ordinateurs à travers un réseau."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "clock"
+        },
+        {
+          "type": "related_to",
+          "target": "udp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc5905"
+      ]
+    },
+    {
+      "id": "offline",
+      "form": "OFFLINE",
+      "display": "Offline",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Not connected to a network or to the internet.",
+        "fr": "Qui n'est pas connecté à un réseau ni à Internet."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "online"
+        }
+      ]
+    },
+    {
+      "id": "online",
+      "form": "ONLINE",
+      "display": "Online",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Connected to a network or the internet, or available through it.",
+        "fr": "Connecté à un réseau ou à Internet, ou accessible par ce biais."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        }
+      ]
+    },
+    {
       "id": "packet",
       "form": "PACKET",
       "display": "Packet",
@@ -894,6 +1648,31 @@
         {
           "form": "PACKETS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "packet-loss",
+      "form": "PACKETLOSS",
+      "display": "Packet loss",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Share of data packets that never reach their destination.",
+        "fr": "Part des paquets de données qui n'arrivent jamais à destination."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "packet"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
         }
       ]
     },
@@ -930,6 +1709,34 @@
       ]
     },
     {
+      "id": "peer-to-peer",
+      "form": "PEERTOPEER",
+      "display": "Peer-to-peer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Network model where devices share resources directly, without a central server.",
+        "fr": "Modèle de réseau où les appareils partagent leurs ressources directement, sans serveur central."
+      },
+      "aliases": [
+        "P2P"
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "topology"
+        },
+        {
+          "type": "related_to",
+          "target": "client"
+        }
+      ]
+    },
+    {
       "id": "ping",
       "form": "PING",
       "display": "Ping",
@@ -944,6 +1751,14 @@
         "fr": "Utilitaire qui vérifie si un hôte répond et en combien de temps."
       },
       "inflections": [
+        {
+          "form": "PINGED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "PINGING",
+          "kind": "verb_ing"
+        },
         {
           "form": "PINGS",
           "kind": "plural"
@@ -1005,6 +1820,65 @@
       ]
     },
     {
+      "id": "quic",
+      "form": "QUIC",
+      "display": "QUIC",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Transport protocol over UDP that sets up encrypted connections quickly; it carries HTTP/3.",
+        "fr": "Protocole de transport sur UDP qui établit vite des connexions chiffrées ; il porte HTTP/3."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "udp"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        },
+        {
+          "type": "alternative_to",
+          "target": "tcp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9000"
+      ]
+    },
+    {
+      "id": "repeater",
+      "form": "REPEATER",
+      "display": "Repeater",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Device that receives a signal and sends it out again to extend its range.",
+        "fr": "Appareil qui reçoit un signal et le réémet pour en étendre la portée."
+      },
+      "inflections": [
+        {
+          "form": "REPEATERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wifi"
+        }
+      ]
+    },
+    {
       "id": "rest",
       "form": "REST",
       "display": "REST",
@@ -1023,6 +1897,41 @@
         {
           "type": "uses",
           "target": "http"
+        }
+      ]
+    },
+    {
+      "id": "route",
+      "form": "ROUTE",
+      "display": "Route",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Path that network traffic follows to reach its destination.",
+        "fr": "Chemin que suit le trafic réseau pour atteindre sa destination."
+      },
+      "inflections": [
+        {
+          "form": "ROUTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "ROUTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "router"
+        },
+        {
+          "type": "related_to",
+          "target": "hop"
         }
       ]
     },
@@ -1051,6 +1960,31 @@
         {
           "type": "uses",
           "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "routing",
+      "form": "ROUTING",
+      "display": "Routing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Choosing the paths that data packets take across networks.",
+        "fr": "Choix des chemins que prennent les paquets de données à travers les réseaux."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "router"
+        },
+        {
+          "type": "related_to",
+          "target": "bgp"
         }
       ]
     },
@@ -1103,6 +2037,34 @@
       ]
     },
     {
+      "id": "soap",
+      "form": "SOAP",
+      "display": "SOAP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "XML-based protocol for exchanging structured messages between services.",
+        "fr": "Protocole fondé sur XML pour échanger des messages structurés entre services."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "xml"
+        },
+        {
+          "type": "alternative_to",
+          "target": "rest"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/soap12/"
+      ]
+    },
+    {
       "id": "ssh",
       "form": "SSH",
       "display": "SSH",
@@ -1132,6 +2094,33 @@
       ]
     },
     {
+      "id": "ssid",
+      "form": "SSID",
+      "display": "SSID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Service set identifier: the name a Wi-Fi network broadcasts.",
+        "fr": "Service set identifier : nom qu'un réseau Wi-Fi diffuse."
+      },
+      "inflections": [
+        {
+          "form": "SSIDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wifi"
+        }
+      ]
+    },
+    {
       "id": "ssl",
       "form": "SSL",
       "display": "SSL",
@@ -1154,6 +2143,58 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc6101"
+      ]
+    },
+    {
+      "id": "status-code",
+      "form": "STATUSCODE",
+      "display": "Status code",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Three-digit number in an HTTP response that says whether the request worked, such as 404.",
+        "fr": "Nombre à trois chiffres dans une réponse HTTP qui indique si la requête a réussi, comme 404."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "http"
+        }
+      ]
+    },
+    {
+      "id": "subdomain",
+      "form": "SUBDOMAIN",
+      "display": "Subdomain",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Name under a main domain, like docs in docs.example.com.",
+        "fr": "Nom placé sous un domaine principal, comme docs dans docs.example.com."
+      },
+      "inflections": [
+        {
+          "form": "SUBDOMAINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "domain"
+        },
+        {
+          "type": "related_to",
+          "target": "dns"
+        }
       ]
     },
     {
@@ -1180,6 +2221,31 @@
         {
           "type": "part_of",
           "target": "ip"
+        }
+      ]
+    },
+    {
+      "id": "subnet-mask",
+      "form": "SUBNETMASK",
+      "display": "Subnet mask",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Number that splits an IP address into its network part and its host part.",
+        "fr": "Nombre qui sépare une adresse IP en partie réseau et partie hôte."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "subnet"
+        },
+        {
+          "type": "related_to",
+          "target": "cidr"
         }
       ]
     },
@@ -1240,6 +2306,59 @@
       ]
     },
     {
+      "id": "telnet",
+      "form": "TELNET",
+      "display": "Telnet",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Old protocol for remote text sessions that sends everything, passwords included, unencrypted.",
+        "fr": "Ancien protocole de session texte à distance qui transmet tout en clair, mots de passe compris."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "ssh"
+        },
+        {
+          "type": "related_to",
+          "target": "terminal"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc854"
+      ]
+    },
+    {
+      "id": "tethering",
+      "form": "TETHERING",
+      "display": "Tethering",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Sharing a phone's mobile data connection with other devices.",
+        "fr": "Partage de la connexion de données mobiles d'un téléphone avec d'autres appareils."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hotspot"
+        },
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
+      ]
+    },
+    {
       "id": "tls",
       "form": "TLS",
       "display": "TLS",
@@ -1290,6 +2409,56 @@
       ]
     },
     {
+      "id": "traceroute",
+      "form": "TRACEROUTE",
+      "display": "Traceroute",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tool that lists every router a packet passes through on its way to a host.",
+        "fr": "Outil qui liste chaque routeur traversé par un paquet en route vers un hôte."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hop"
+        },
+        {
+          "type": "related_to",
+          "target": "ping"
+        }
+      ]
+    },
+    {
+      "id": "ttl",
+      "form": "TTL",
+      "display": "TTL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Time to live: limit on how long data or a packet stays valid before it is discarded.",
+        "fr": "Time to live (durée de vie) : limite de validité d'une donnée ou d'un paquet avant son abandon."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dns"
+        },
+        {
+          "type": "related_to",
+          "target": "cache"
+        }
+      ]
+    },
+    {
       "id": "udp",
       "form": "UDP",
       "display": "UDP",
@@ -1311,6 +2480,31 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc768"
+      ]
+    },
+    {
+      "id": "unicast",
+      "form": "UNICAST",
+      "display": "Unicast",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Sending data from one sender to exactly one receiver.",
+        "fr": "Envoi de données d'un émetteur vers un seul destinataire."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "multicast"
+        },
+        {
+          "type": "alternative_to",
+          "target": "broadcast"
+        }
       ]
     },
     {
@@ -1372,6 +2566,31 @@
       ],
       "sources": [
         "https://www.ieee802.org/1/pages/802.1Q.html"
+      ]
+    },
+    {
+      "id": "voip",
+      "form": "VOIP",
+      "display": "VoIP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Voice over IP: phone calls carried over internet networks instead of phone lines.",
+        "fr": "Voice over IP (voix sur IP) : appels téléphoniques transportés par Internet plutôt que par le réseau téléphonique."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ip"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
       ]
     },
     {
@@ -1455,6 +2674,99 @@
       ],
       "sources": [
         "https://www.w3.org/standards/"
+      ]
+    },
+    {
+      "id": "web-server",
+      "form": "WEBSERVER",
+      "display": "Web server",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software or machine that serves web pages to browsers over HTTP.",
+        "fr": "Logiciel ou machine qui sert des pages web aux navigateurs via HTTP."
+      },
+      "inflections": [
+        {
+          "form": "WEBSERVERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "server"
+        },
+        {
+          "type": "uses",
+          "target": "http"
+        }
+      ]
+    },
+    {
+      "id": "webhook",
+      "form": "WEBHOOK",
+      "display": "Webhook",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "HTTP call that a service sends automatically to a chosen URL when an event happens.",
+        "fr": "Appel HTTP qu'un service envoie automatiquement à une URL choisie quand un événement survient."
+      },
+      "inflections": [
+        {
+          "form": "WEBHOOKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "http"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
+      "id": "webpage",
+      "form": "WEBPAGE",
+      "display": "Web page",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Single document on the web, displayed in a browser.",
+        "fr": "Document unique sur le web, affiché dans un navigateur."
+      },
+      "inflections": [
+        {
+          "form": "WEBPAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "website"
+        },
+        {
+          "type": "uses",
+          "target": "html"
+        }
       ]
     },
     {
@@ -1545,6 +2857,60 @@
       ],
       "sources": [
         "https://www.wi-fi.org/"
+      ]
+    },
+    {
+      "id": "wireless",
+      "form": "WIRELESS",
+      "display": "Wireless",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Connecting devices through radio waves instead of cables.",
+        "fr": "Connexion d'appareils par ondes radio plutôt que par câbles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wifi"
+        },
+        {
+          "type": "related_to",
+          "target": "bluetooth"
+        }
+      ]
+    },
+    {
+      "id": "wpa",
+      "form": "WPA",
+      "display": "WPA",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Wi-Fi Protected Access: security standard that encrypts Wi-Fi traffic with a password or keys.",
+        "fr": "Wi-Fi Protected Access : norme de sécurité qui chiffre le trafic Wi-Fi par mot de passe ou clés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wifi"
+        },
+        {
+          "type": "uses",
+          "target": "encryption"
+        }
+      ],
+      "sources": [
+        "https://www.wi-fi.org/discover-wi-fi/security"
       ]
     }
   ]

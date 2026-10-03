@@ -4,6 +4,7 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { engineError, lexiconMismatch, rulesVersionError } from '../errors.js';
+import { isJcsInteger } from '../hash/jcs.js';
 import { deriveRng } from '../rng/index.js';
 import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
 import { chars, EMPTY_SQUARE, initialBag, sortTiles } from '../tiles.js';
@@ -71,13 +72,16 @@ function teamsKey(teams: unknown): string | undefined {
   for (const team of teams as readonly unknown[]) {
     if (!Array.isArray(team)) return undefined;
     const seats = team as readonly unknown[];
-    if (!seats.every((s) => Number.isSafeInteger(s))) return undefined;
+    if (!seats.every(isJcsInteger)) return undefined;
     parts.push(`[${seats.join(',')}]`);
   }
   return `[${parts.join(',')}]`;
 }
 
-/** Returns the first invalid field of the config (shape and values of API note §6), or undefined. */
+/**
+ * Returns the first invalid field of the config (shape and values of API note §6), or undefined. Numbers must be
+ * safe integers other than `-0` (JCS subset, ADR-0013 §D3).
+ */
 export function configProblem(config: MatchConfig): string | undefined {
   if (!isPlainObject(config)) return '';
   const top = keyProblem(config, CONFIG_KEYS);
@@ -99,7 +103,7 @@ export function configProblem(config: MatchConfig): string | undefined {
   const format = setup['format'];
   if (format !== 'untimed-vs-bot' && format !== 'untimed') return 'config.format';
   const seats = setup['seats'];
-  if (typeof seats !== 'number' || !Number.isSafeInteger(seats) || seats < 2 || seats > 4) {
+  if (!isJcsInteger(seats) || seats < 2 || seats > 4) {
     return 'config.seats';
   }
   if (format === 'untimed-vs-bot' && seats !== 2) return 'config.seats';
@@ -108,7 +112,10 @@ export function configProblem(config: MatchConfig): string | undefined {
   if (setup['layout'] !== 'classic-v1') return 'config.layout';
   if (setup['letters'] !== 'letters-v1') return 'config.letters';
   const requireWinner = setup['requireWinner'];
-  if (requireWinner !== 0 && requireWinner !== 1) return 'config.requireWinner';
+  // `-0 === 0`: without the integer check a `-0` would pass and make the state unhashable (ADR-0013 §D3).
+  if (!isJcsInteger(requireWinner) || (requireWinner !== 0 && requireWinner !== 1)) {
+    return 'config.requireWinner';
+  }
   return undefined;
 }
 

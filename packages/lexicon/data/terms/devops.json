@@ -27,6 +27,37 @@
       ]
     },
     {
+      "id": "alert",
+      "form": "ALERT",
+      "display": "Alert",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Automatic message telling a team that something in a system needs attention.",
+        "fr": "Message automatique qui signale à une équipe qu'un élément du système demande son attention."
+      },
+      "inflections": [
+        {
+          "form": "ALERTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "monitoring"
+        },
+        {
+          "type": "related_to",
+          "target": "oncall"
+        }
+      ]
+    },
+    {
       "id": "ansible",
       "form": "ANSIBLE",
       "display": "Ansible",
@@ -110,6 +141,56 @@
       ]
     },
     {
+      "id": "backport",
+      "form": "BACKPORT",
+      "display": "Backport",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Applying a fix from a newer version of software to an older version that is still supported.",
+        "fr": "Report d'un correctif d'une version récente d'un logiciel vers une version plus ancienne encore maintenue."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "patch"
+        },
+        {
+          "type": "related_to",
+          "target": "release"
+        }
+      ]
+    },
+    {
+      "id": "blue-green",
+      "form": "BLUEGREEN",
+      "display": "Blue-green deployment",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Deployment with two identical environments, switching all traffic from the old one to the new one at once.",
+        "fr": "Déploiement avec deux environnements identiques, en basculant d'un coup tout le trafic de l'ancien au nouveau."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deploy"
+        },
+        {
+          "type": "alternative_to",
+          "target": "canary"
+        }
+      ]
+    },
+    {
       "id": "branch",
       "form": "BRANCH",
       "display": "Branch",
@@ -126,8 +207,16 @@
       },
       "inflections": [
         {
+          "form": "BRANCHED",
+          "kind": "verb_ed"
+        },
+        {
           "form": "BRANCHES",
           "kind": "plural"
+        },
+        {
+          "form": "BRANCHING",
+          "kind": "verb_ing"
         }
       ],
       "relations": [
@@ -152,6 +241,10 @@
         "fr": "Transformation du code source en programme ou paquet exécutable, ou le résultat obtenu."
       },
       "inflections": [
+        {
+          "form": "BUILDING",
+          "kind": "verb_ing"
+        },
         {
           "form": "BUILDS",
           "kind": "plural"
@@ -246,6 +339,31 @@
       ]
     },
     {
+      "id": "cherry-pick",
+      "form": "CHERRYPICK",
+      "display": "Cherry-pick",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Copying one chosen commit from one branch onto another.",
+        "fr": "Copie d'un commit choisi d'une branche vers une autre."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "commit"
+        },
+        {
+          "type": "related_to",
+          "target": "branch"
+        }
+      ]
+    },
+    {
       "id": "ci",
       "form": "CI",
       "display": "CI",
@@ -263,6 +381,41 @@
         {
           "type": "part_of",
           "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "clone",
+      "form": "CLONE",
+      "display": "Clone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Full copy of a repository, history included, made on your own machine.",
+        "fr": "Copie complète d'un dépôt, historique compris, faite sur sa propre machine."
+      },
+      "inflections": [
+        {
+          "form": "CLONED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "CLONES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "repo"
+        },
+        {
+          "type": "related_to",
+          "target": "git"
         }
       ]
     },
@@ -295,6 +448,56 @@
       ]
     },
     {
+      "id": "code-coverage",
+      "form": "CODECOVERAGE",
+      "display": "Code coverage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Share of the code that is actually run when the tests execute.",
+        "fr": "Part du code réellement exécutée quand les tests tournent."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "unit-test"
+        }
+      ]
+    },
+    {
+      "id": "code-review",
+      "form": "CODEREVIEW",
+      "display": "Code review",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Teammates reading proposed code changes before they are merged.",
+        "fr": "Relecture par des coéquipiers des modifications de code proposées avant leur fusion."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pr"
+        },
+        {
+          "type": "related_to",
+          "target": "merge"
+        }
+      ]
+    },
+    {
       "id": "commit",
       "form": "COMMIT",
       "display": "Commit",
@@ -313,12 +516,41 @@
         {
           "form": "COMMITS",
           "kind": "plural"
+        },
+        {
+          "form": "COMMITTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "COMMITTING",
+          "kind": "verb_ing"
         }
       ],
       "relations": [
         {
           "type": "part_of",
           "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "form": "CONFIGURATION",
+      "display": "Configuration",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Settings that control how software behaves, kept apart from its code.",
+        "fr": "Paramètres qui contrôlent le comportement d'un logiciel, séparés de son code."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "yaml"
         }
       ]
     },
@@ -354,6 +586,38 @@
       ]
     },
     {
+      "id": "cronjob",
+      "form": "CRONJOB",
+      "display": "Cron job",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Task scheduled to run automatically at set times.",
+        "fr": "Tâche planifiée pour s'exécuter automatiquement à heures fixes."
+      },
+      "inflections": [
+        {
+          "form": "CRONJOBS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "cron"
+        },
+        {
+          "type": "is_a",
+          "target": "task"
+        }
+      ]
+    },
+    {
       "id": "deploy",
       "form": "DEPLOY",
       "display": "Deploy",
@@ -371,6 +635,45 @@
         {
           "type": "part_of",
           "target": "pipeline"
+        }
+      ],
+      "inflections": [
+        {
+          "form": "DEPLOYED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "DEPLOYING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "DEPLOYS",
+          "kind": "verb_s"
+        }
+      ]
+    },
+    {
+      "id": "deprecation",
+      "form": "DEPRECATION",
+      "display": "Deprecation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Marking a feature as outdated and scheduled for removal.",
+        "fr": "Fait de marquer une fonctionnalité comme obsolète et vouée à disparaître."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
         }
       ]
     },
@@ -400,6 +703,63 @@
       ]
     },
     {
+      "id": "devsecops",
+      "form": "DEVSECOPS",
+      "display": "DevSecOps",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "DevOps practice that builds security checks into every step of software delivery.",
+        "fr": "Pratique DevOps qui intègre des contrôles de sécurité à chaque étape de la livraison logicielle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "devops"
+        },
+        {
+          "type": "related_to",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "diff",
+      "form": "DIFF",
+      "display": "Diff",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Line-by-line comparison showing what changed between two versions of a file.",
+        "fr": "Comparaison ligne à ligne qui montre ce qui a changé entre deux versions d'un fichier."
+      },
+      "inflections": [
+        {
+          "form": "DIFFS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "commit"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
       "id": "docker",
       "form": "DOCKER",
       "display": "Docker",
@@ -422,6 +782,195 @@
       ],
       "sources": [
         "https://docs.docker.com/"
+      ]
+    },
+    {
+      "id": "drift",
+      "form": "DRIFT",
+      "display": "Drift",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Gap that grows between the declared configuration and what is actually running.",
+        "fr": "Écart qui se creuse entre la configuration déclarée et ce qui tourne réellement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "configuration"
+        },
+        {
+          "type": "related_to",
+          "target": "terraform"
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "form": "ENVIRONMENT",
+      "display": "Environment",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Separate setup where software runs, such as development, staging or production.",
+        "fr": "Cadre d'exécution distinct d'un logiciel, comme le développement, la préproduction ou la production."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "staging"
+        },
+        {
+          "type": "related_to",
+          "target": "configuration"
+        }
+      ]
+    },
+    {
+      "id": "eol",
+      "form": "EOL",
+      "display": "EOL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "End of life: date after which a product no longer receives updates or support.",
+        "fr": "End of life (fin de vie) : date après laquelle un produit ne reçoit plus de mises à jour ni de support."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "version"
+        },
+        {
+          "type": "related_to",
+          "target": "lts"
+        }
+      ]
+    },
+    {
+      "id": "error-budget",
+      "form": "ERRORBUDGET",
+      "display": "Error budget",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Amount of unreliability a service may have before reliability work takes priority.",
+        "fr": "Quantité d'indisponibilité tolérée pour un service avant que la fiabilité ne devienne la priorité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "slo"
+        },
+        {
+          "type": "related_to",
+          "target": "sre"
+        }
+      ]
+    },
+    {
+      "id": "escalation",
+      "form": "ESCALATION",
+      "display": "Escalation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Handing an issue to a more senior or more specialized responder.",
+        "fr": "Transfert d'un problème à un intervenant plus expérimenté ou plus spécialisé."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "oncall"
+        }
+      ]
+    },
+    {
+      "id": "feature-flag",
+      "form": "FEATUREFLAG",
+      "display": "Feature flag",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Switch that turns a feature on or off at runtime without redeploying.",
+        "fr": "Interrupteur qui active ou désactive une fonctionnalité à l'exécution sans redéployer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "rollout"
+        }
+      ]
+    },
+    {
+      "id": "fetch",
+      "form": "FETCH",
+      "display": "Fetch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Download new commits from a remote repository without merging them yet.",
+        "fr": "Récupérer les nouveaux commits d'un dépôt distant sans encore les fusionner."
+      },
+      "inflections": [
+        {
+          "form": "FETCHED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "FETCHES",
+          "kind": "verb_s"
+        },
+        {
+          "form": "FETCHING",
+          "kind": "verb_ing"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "repo"
+        },
+        {
+          "type": "related_to",
+          "target": "merge"
+        }
       ]
     },
     {
@@ -527,6 +1076,31 @@
       ]
     },
     {
+      "id": "healthcheck",
+      "form": "HEALTHCHECK",
+      "display": "Health check",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Endpoint or probe that reports whether a service is working.",
+        "fr": "Point d'accès ou sonde qui indique si un service fonctionne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "monitoring"
+        },
+        {
+          "type": "related_to",
+          "target": "endpoint"
+        }
+      ]
+    },
+    {
       "id": "helm",
       "form": "HELM",
       "display": "Helm",
@@ -583,6 +1157,63 @@
       ]
     },
     {
+      "id": "idempotent",
+      "form": "IDEMPOTENT",
+      "display": "Idempotent",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Describes an operation that gives the same result however many times it is run.",
+        "fr": "Qualifie une opération qui donne le même résultat quel que soit le nombre de fois où on l'exécute."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deploy"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
+      "id": "image",
+      "form": "IMAGE",
+      "display": "Image",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Read-only package of an app and its dependencies, used to start containers.",
+        "fr": "Paquet en lecture seule d'une application et de ses dépendances, servant à lancer des conteneurs."
+      },
+      "inflections": [
+        {
+          "form": "IMAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "container"
+        },
+        {
+          "type": "related_to",
+          "target": "registry"
+        }
+      ]
+    },
+    {
       "id": "incident",
       "form": "INCIDENT",
       "display": "Incident",
@@ -628,6 +1259,37 @@
         {
           "type": "implements",
           "target": "ci"
+        }
+      ]
+    },
+    {
+      "id": "job",
+      "form": "JOB",
+      "display": "Job",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Unit of work run by a scheduler or a pipeline, such as a build or a backup.",
+        "fr": "Unité de travail lancée par un ordonnanceur ou un pipeline, comme une compilation ou une sauvegarde."
+      },
+      "inflections": [
+        {
+          "form": "JOBS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        },
+        {
+          "type": "related_to",
+          "target": "task"
         }
       ]
     },
@@ -693,6 +1355,37 @@
       ]
     },
     {
+      "id": "load-test",
+      "form": "LOADTEST",
+      "display": "Load test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Test that sends heavy traffic to a system to see how it behaves under stress.",
+        "fr": "Test qui envoie un trafic important à un système pour observer son comportement sous charge."
+      },
+      "inflections": [
+        {
+          "form": "LOADTESTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "scalability"
+        }
+      ]
+    },
+    {
       "id": "log",
       "form": "LOG",
       "display": "Log",
@@ -707,6 +1400,10 @@
         "fr": "Journal horodaté des événements écrit par un programme, utile au débogage et à l'audit."
       },
       "inflections": [
+        {
+          "form": "LOGGED",
+          "kind": "verb_ed"
+        },
         {
           "form": "LOGS",
           "kind": "plural"
@@ -735,6 +1432,31 @@
       }
     },
     {
+      "id": "lts",
+      "form": "LTS",
+      "display": "LTS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Long-term support: a release that receives fixes for an extended period.",
+        "fr": "Long-term support : version qui reçoit des correctifs pendant une période prolongée."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
       "id": "merge",
       "form": "MERGE",
       "display": "Merge",
@@ -750,6 +1472,41 @@
         "fr": "Fusion des changements d'une branche dans une autre."
       },
       "relations": [
+        {
+          "type": "related_to",
+          "target": "branch"
+        }
+      ],
+      "inflections": [
+        {
+          "form": "MERGED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "MERGES",
+          "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "merge-conflict",
+      "form": "MERGECONFLICT",
+      "display": "Merge conflict",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Clash that occurs when two branches change the same lines and Git cannot combine them alone.",
+        "fr": "Conflit qui survient quand deux branches modifient les mêmes lignes et que Git ne peut pas les combiner seul."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "merge"
+        },
         {
           "type": "related_to",
           "target": "branch"
@@ -781,6 +1538,33 @@
         {
           "type": "alternative_to",
           "target": "monolith"
+        }
+      ]
+    },
+    {
+      "id": "milestone",
+      "form": "MILESTONE",
+      "display": "Milestone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Key checkpoint in a project's plan.",
+        "fr": "Étape clé dans le plan d'un projet."
+      },
+      "inflections": [
+        {
+          "form": "MILESTONES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "roadmap"
         }
       ]
     },
@@ -845,6 +1629,62 @@
         {
           "type": "is_a",
           "target": "repo"
+        }
+      ]
+    },
+    {
+      "id": "mttr",
+      "form": "MTTR",
+      "display": "MTTR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Mean time to recovery: the average time needed to restore a service after a failure.",
+        "fr": "Mean time to recovery : temps moyen nécessaire pour rétablir un service après une panne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "sre"
+        }
+      ]
+    },
+    {
+      "id": "mvp",
+      "form": "MVP",
+      "display": "MVP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Minimum viable product: the simplest version that can be released to learn from real users.",
+        "fr": "Minimum viable product : version la plus simple qu'on peut publier pour apprendre des vrais utilisateurs."
+      },
+      "inflections": [
+        {
+          "form": "MVPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "agile"
+        },
+        {
+          "type": "related_to",
+          "target": "release"
         }
       ]
     },
@@ -970,6 +1810,64 @@
       ]
     },
     {
+      "id": "playbook",
+      "form": "PLAYBOOK",
+      "display": "Playbook",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Scripted set of steps, often run by an automation tool, to configure systems or handle incidents.",
+        "fr": "Suite d'étapes scriptée, souvent jouée par un outil d'automatisation, pour configurer ou gérer un incident."
+      },
+      "inflections": [
+        {
+          "form": "PLAYBOOKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ansible"
+        },
+        {
+          "type": "related_to",
+          "target": "runbook"
+        }
+      ]
+    },
+    {
+      "id": "poc",
+      "form": "POC",
+      "display": "POC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Proof of concept: a small experiment showing that an idea can work.",
+        "fr": "Proof of concept (preuve de concept) : petite expérience qui montre qu'une idée peut fonctionner."
+      },
+      "inflections": [
+        {
+          "form": "POCS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mvp"
+        }
+      ]
+    },
+    {
       "id": "pod",
       "form": "POD",
       "display": "Pod",
@@ -1066,6 +1964,31 @@
       ]
     },
     {
+      "id": "production",
+      "form": "PRODUCTION",
+      "display": "Production",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Live environment that real users rely on.",
+        "fr": "Environnement en service sur lequel s'appuient les vrais utilisateurs."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "environment"
+        },
+        {
+          "type": "related_to",
+          "target": "deploy"
+        }
+      ]
+    },
+    {
       "id": "prometheus",
       "form": "PROMETHEUS",
       "display": "Prometheus",
@@ -1112,6 +2035,66 @@
       ]
     },
     {
+      "id": "rca",
+      "form": "RCA",
+      "display": "RCA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Root cause analysis: finding the underlying reason why an incident happened.",
+        "fr": "Root cause analysis : recherche de la cause profonde d'un incident."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "postmortem"
+        },
+        {
+          "type": "related_to",
+          "target": "incident"
+        }
+      ]
+    },
+    {
+      "id": "rebase",
+      "form": "REBASE",
+      "display": "Rebase",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Git operation that replays commits on top of another branch to keep history linear.",
+        "fr": "Opération Git qui rejoue des commits au-dessus d'une autre branche pour garder un historique linéaire."
+      },
+      "inflections": [
+        {
+          "form": "REBASED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "REBASES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "merge"
+        },
+        {
+          "type": "uses",
+          "target": "commit"
+        }
+      ]
+    },
+    {
       "id": "registry",
       "form": "REGISTRY",
       "display": "Registry",
@@ -1147,6 +2130,10 @@
         "fr": "Version d'un logiciel mise à disposition des utilisateurs à un moment donné."
       },
       "inflections": [
+        {
+          "form": "RELEASED",
+          "kind": "verb_ed"
+        },
         {
           "form": "RELEASES",
           "kind": "plural"
@@ -1187,6 +2174,58 @@
         {
           "type": "uses",
           "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "retrospective",
+      "form": "RETROSPECTIVE",
+      "display": "Retrospective",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Team meeting after a sprint or project to decide what to keep and what to improve.",
+        "fr": "Réunion d'équipe après un sprint ou un projet pour décider quoi garder et quoi améliorer."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "scrum"
+        },
+        {
+          "type": "related_to",
+          "target": "sprint"
+        }
+      ]
+    },
+    {
+      "id": "roadmap",
+      "form": "ROADMAP",
+      "display": "Roadmap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Plan showing which features or goals come over the next months.",
+        "fr": "Plan qui montre les fonctionnalités ou objectifs prévus pour les mois à venir."
+      },
+      "inflections": [
+        {
+          "form": "ROADMAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backlog"
         }
       ]
     },
@@ -1300,6 +2339,37 @@
       ]
     },
     {
+      "id": "sli",
+      "form": "SLI",
+      "display": "SLI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Service level indicator: measured value, such as latency or error rate, used to track an SLO.",
+        "fr": "Service level indicator : valeur mesurée, comme la latence ou le taux d'erreur, qui sert à suivre un SLO."
+      },
+      "inflections": [
+        {
+          "form": "SLIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "slo"
+        },
+        {
+          "type": "related_to",
+          "target": "metric"
+        }
+      ]
+    },
+    {
       "id": "slo",
       "form": "SLO",
       "display": "SLO",
@@ -1328,6 +2398,37 @@
       ],
       "sources": [
         "https://sre.google/sre-book/service-level-objectives/"
+      ]
+    },
+    {
+      "id": "smoke-test",
+      "form": "SMOKETEST",
+      "display": "Smoke test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Quick check that the most important features still work after a build.",
+        "fr": "Vérification rapide que les fonctions essentielles marchent encore après une compilation."
+      },
+      "inflections": [
+        {
+          "form": "SMOKETESTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "build"
+        }
       ]
     },
     {
@@ -1404,6 +2505,154 @@
       ]
     },
     {
+      "id": "standup",
+      "form": "STANDUP",
+      "display": "Stand-up",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Short daily team meeting to share progress and blockers.",
+        "fr": "Courte réunion d'équipe quotidienne pour partager avancement et blocages."
+      },
+      "inflections": [
+        {
+          "form": "STANDUPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "scrum"
+        }
+      ]
+    },
+    {
+      "id": "stash",
+      "form": "STASH",
+      "display": "Stash",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Git feature that shelves uncommitted changes so they can be restored later.",
+        "fr": "Fonction Git qui met de côté des modifications non validées pour les restaurer plus tard."
+      },
+      "inflections": [
+        {
+          "form": "STASHES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "commit"
+        },
+        {
+          "type": "related_to",
+          "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "tag",
+      "form": "TAG",
+      "display": "Tag",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Label attached to a commit, resource or piece of content to find or group it.",
+        "fr": "Étiquette attachée à un commit, une ressource ou un contenu pour le retrouver ou le regrouper."
+      },
+      "inflections": [
+        {
+          "form": "TAGGED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "TAGGING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "TAGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "tdd",
+      "form": "TDD",
+      "display": "TDD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Test-driven development: writing a failing test first, then the code that makes it pass.",
+        "fr": "Test-driven development : écrire d'abord un test qui échoue, puis le code qui le fait passer."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "unit-test"
+        },
+        {
+          "type": "related_to",
+          "target": "refactor"
+        }
+      ]
+    },
+    {
+      "id": "telemetry",
+      "form": "TELEMETRY",
+      "display": "Telemetry",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data that software sends about its own behaviour and health.",
+        "fr": "Données qu'un logiciel envoie sur son propre fonctionnement et son état de santé."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "observability"
+        },
+        {
+          "type": "related_to",
+          "target": "metric"
+        }
+      ]
+    },
+    {
       "id": "terraform",
       "form": "TERRAFORM",
       "display": "Terraform",
@@ -1427,6 +2676,156 @@
       ],
       "sources": [
         "https://developer.hashicorp.com/terraform/docs"
+      ]
+    },
+    {
+      "id": "toolchain",
+      "form": "TOOLCHAIN",
+      "display": "Toolchain",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Set of tools used together to build, test and ship software.",
+        "fr": "Ensemble d'outils utilisés ensemble pour compiler, tester et livrer un logiciel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "compiler"
+        },
+        {
+          "type": "related_to",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "tracing",
+      "form": "TRACING",
+      "display": "Tracing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Following one request across services to see where its time is spent.",
+        "fr": "Suivi d'une requête à travers les services pour voir où son temps est passé."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "observability"
+        },
+        {
+          "type": "related_to",
+          "target": "microservice"
+        }
+      ]
+    },
+    {
+      "id": "triage",
+      "form": "TRIAGE",
+      "display": "Triage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Sorting incoming issues by urgency to decide what to handle first.",
+        "fr": "Tri des problèmes entrants par urgence pour décider quoi traiter en premier."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "backlog"
+        }
+      ]
+    },
+    {
+      "id": "trunk",
+      "form": "TRUNK",
+      "display": "Trunk",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Main shared branch into which all developers integrate their work often.",
+        "fr": "Branche principale partagée dans laquelle tous les développeurs intègrent souvent leur travail."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "branch"
+        },
+        {
+          "type": "related_to",
+          "target": "ci"
+        }
+      ]
+    },
+    {
+      "id": "upstream",
+      "form": "UPSTREAM",
+      "display": "Upstream",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Original repository or project from which a fork or a branch receives its changes.",
+        "fr": "Dépôt ou projet d'origine dont une copie ou une branche reçoit les modifications."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "fork"
+        },
+        {
+          "type": "related_to",
+          "target": "repo"
+        }
+      ]
+    },
+    {
+      "id": "user-story",
+      "form": "USERSTORY",
+      "display": "User story",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Short description of a feature written from the user's point of view.",
+        "fr": "Courte description d'une fonctionnalité rédigée du point de vue de l'utilisateur."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "backlog"
+        },
+        {
+          "type": "related_to",
+          "target": "agile"
+        }
       ]
     },
     {
@@ -1454,6 +2853,83 @@
         {
           "type": "related_to",
           "target": "commit"
+        }
+      ]
+    },
+    {
+      "id": "version-control",
+      "form": "VERSIONCONTROL",
+      "display": "Version control",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "System that records every change to files so versions can be compared and restored.",
+        "fr": "Système qui enregistre chaque modification de fichiers pour comparer et restaurer les versions."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "git"
+        },
+        {
+          "type": "related_to",
+          "target": "commit"
+        }
+      ]
+    },
+    {
+      "id": "waterfall",
+      "form": "WATERFALL",
+      "display": "Waterfall",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Project approach that runs phases one after another, each finished before the next starts.",
+        "fr": "Méthode de projet qui enchaîne les phases, chacune terminée avant le début de la suivante."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "agile"
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "form": "WORKFLOW",
+      "display": "Workflow",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Defined sequence of steps, often automated, for getting a task done.",
+        "fr": "Suite d'étapes définie, souvent automatisée, pour mener une tâche à bien."
+      },
+      "inflections": [
+        {
+          "form": "WORKFLOWS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pipeline"
+        },
+        {
+          "type": "related_to",
+          "target": "automation"
         }
       ]
     },

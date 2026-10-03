@@ -29,6 +29,31 @@
       ]
     },
     {
+      "id": "activation",
+      "form": "ACTIVATION",
+      "display": "Activation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Function applied to a neuron's output that lets a network learn non-linear patterns.",
+        "fr": "Fonction appliquée à la sortie d'un neurone, qui permet au réseau d'apprendre des motifs non linéaires."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "neuron"
+        },
+        {
+          "type": "related_to",
+          "target": "neural-network"
+        }
+      ]
+    },
+    {
       "id": "agent",
       "form": "AGENT",
       "display": "Agent",
@@ -51,6 +76,31 @@
       "relations": [
         {
           "type": "uses",
+          "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "agentic",
+      "form": "AGENTIC",
+      "display": "Agentic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes AI systems that plan and take actions on their own to reach a goal.",
+        "fr": "Qualifie des systèmes d'IA qui planifient et agissent d'eux-mêmes pour atteindre un but."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "agent"
+        },
+        {
+          "type": "related_to",
           "target": "llm"
         }
       ]
@@ -97,6 +147,31 @@
         {
           "type": "related_to",
           "target": "ml"
+        }
+      ]
+    },
+    {
+      "id": "alignment",
+      "form": "ALIGNMENT",
+      "display": "Alignment",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Making an AI system's goals and behaviour match human intentions and values.",
+        "fr": "Fait de faire correspondre les objectifs et le comportement d'une IA aux intentions et valeurs humaines."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "rlhf"
+        },
+        {
+          "type": "related_to",
+          "target": "guardrail"
         }
       ]
     },
@@ -150,6 +225,31 @@
         {
           "type": "part_of",
           "target": "transformer"
+        }
+      ]
+    },
+    {
+      "id": "augmentation",
+      "form": "AUGMENTATION",
+      "display": "Augmentation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Creating altered copies of training examples, such as rotated images, to make a model more robust.",
+        "fr": "Création de copies modifiées des exemples d'entraînement, comme des images pivotées, pour rendre un modèle plus robuste."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "training"
         }
       ]
     },
@@ -291,6 +391,62 @@
       ]
     },
     {
+      "id": "bot",
+      "form": "BOT",
+      "display": "Bot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Program that performs automated tasks, such as answering messages or crawling websites.",
+        "fr": "Programme qui effectue des tâches automatiques, comme répondre à des messages ou parcourir des sites."
+      },
+      "inflections": [
+        {
+          "form": "BOTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "chatbot"
+        },
+        {
+          "type": "related_to",
+          "target": "automation"
+        }
+      ]
+    },
+    {
+      "id": "chain-of-thought",
+      "form": "CHAINOFTHOUGHT",
+      "display": "Chain of thought",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Prompting a model to reason step by step before giving its answer.",
+        "fr": "Fait d'inciter un modèle à raisonner étape par étape avant de donner sa réponse."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "prompt"
+        },
+        {
+          "type": "related_to",
+          "target": "llm"
+        }
+      ]
+    },
+    {
       "id": "chatbot",
       "form": "CHATBOT",
       "display": "Chatbot",
@@ -414,6 +570,77 @@
       ]
     },
     {
+      "id": "computer-vision",
+      "form": "COMPUTERVISION",
+      "display": "Computer vision",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Field of AI that lets machines interpret images and video.",
+        "fr": "Domaine de l'IA qui permet aux machines d'interpréter images et vidéos."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "cnn"
+        },
+        {
+          "type": "related_to",
+          "target": "ocr"
+        }
+      ]
+    },
+    {
+      "id": "context-window",
+      "form": "CONTEXTWINDOW",
+      "display": "Context window",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Maximum amount of text, counted in tokens, that a language model can consider at once.",
+        "fr": "Quantité maximale de texte, comptée en jetons, qu'un modèle de langage peut prendre en compte à la fois."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "llm"
+        },
+        {
+          "type": "related_to",
+          "target": "token"
+        }
+      ]
+    },
+    {
+      "id": "convolution",
+      "form": "CONVOLUTION",
+      "display": "Convolution",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Operation that slides a small filter over data, such as an image, to detect features.",
+        "fr": "Opération qui fait glisser un petit filtre sur des données, comme une image, pour détecter des motifs."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cnn"
+        }
+      ]
+    },
+    {
       "id": "dataset",
       "form": "DATASET",
       "display": "Dataset",
@@ -432,6 +659,62 @@
         {
           "form": "DATASETS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "decision-tree",
+      "form": "DECISIONTREE",
+      "display": "Decision tree",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Model that predicts by following a series of yes-or-no questions.",
+        "fr": "Modèle qui prédit en suivant une série de questions à réponse oui ou non."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "decoder",
+      "form": "DECODER",
+      "display": "Decoder",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Part of a network that turns an internal representation into output, such as text.",
+        "fr": "Partie d'un réseau qui transforme une représentation interne en sortie, comme du texte."
+      },
+      "inflections": [
+        {
+          "form": "DECODERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "transformer"
+        },
+        {
+          "type": "related_to",
+          "target": "encoder"
         }
       ]
     },
@@ -485,6 +768,31 @@
         {
           "type": "is_a",
           "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "distillation",
+      "form": "DISTILLATION",
+      "display": "Distillation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Training a small model to imitate a larger one while keeping much of its skill.",
+        "fr": "Entraînement d'un petit modèle à imiter un plus grand en conservant une bonne part de ses capacités."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "training"
         }
       ]
     },
@@ -569,6 +877,37 @@
       ]
     },
     {
+      "id": "encoder",
+      "form": "ENCODER",
+      "display": "Encoder",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Part of a network that compresses its input into an internal representation.",
+        "fr": "Partie d'un réseau qui compresse son entrée en une représentation interne."
+      },
+      "inflections": [
+        {
+          "form": "ENCODERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "transformer"
+        },
+        {
+          "type": "related_to",
+          "target": "embedding"
+        }
+      ]
+    },
+    {
       "id": "epoch",
       "form": "EPOCH",
       "display": "Epoch",
@@ -596,6 +935,31 @@
       ]
     },
     {
+      "id": "few-shot",
+      "form": "FEWSHOT",
+      "display": "Few-shot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Prompting or training a model with only a handful of examples.",
+        "fr": "Fait de solliciter ou d'entraîner un modèle avec seulement quelques exemples."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "prompt"
+        },
+        {
+          "type": "alternative_to",
+          "target": "zero-shot"
+        }
+      ]
+    },
+    {
       "id": "finetuning",
       "form": "FINETUNING",
       "display": "Fine-tuning",
@@ -613,6 +977,31 @@
         {
           "type": "is_a",
           "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "foundation-model",
+      "form": "FOUNDATIONMODEL",
+      "display": "Foundation model",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Large model trained on broad data and then adapted to many different tasks.",
+        "fr": "Grand modèle entraîné sur des données variées puis adapté à de nombreuses tâches."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "finetuning"
         }
       ]
     },
@@ -640,6 +1029,31 @@
         {
           "type": "is_a",
           "target": "neural-network"
+        }
+      ]
+    },
+    {
+      "id": "generative-ai",
+      "form": "GENERATIVEAI",
+      "display": "Generative AI",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "AI that creates new text, images, audio or code from a prompt.",
+        "fr": "IA qui crée du texte, des images, du son ou du code à partir d'une consigne."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ai"
+        },
+        {
+          "type": "related_to",
+          "target": "llm"
         }
       ]
     },
@@ -693,6 +1107,37 @@
       ]
     },
     {
+      "id": "guardrail",
+      "form": "GUARDRAIL",
+      "display": "Guardrail",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Rule or filter that keeps an AI system's output safe and on topic.",
+        "fr": "Règle ou filtre qui garde la production d'un système d'IA sûre et dans le sujet."
+      },
+      "inflections": [
+        {
+          "form": "GUARDRAILS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "llm"
+        },
+        {
+          "type": "related_to",
+          "target": "alignment"
+        }
+      ]
+    },
+    {
       "id": "hallucination",
       "form": "HALLUCINATION",
       "display": "Hallucination",
@@ -720,6 +1165,31 @@
       ]
     },
     {
+      "id": "hyperparameter",
+      "form": "HYPERPARAMETER",
+      "display": "Hyperparameter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Setting chosen before training, such as the learning rate, that shapes how a model learns.",
+        "fr": "Réglage choisi avant l'entraînement, comme le taux d'apprentissage, qui oriente la façon dont un modèle apprend."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "training"
+        },
+        {
+          "type": "related_to",
+          "target": "learning-rate"
+        }
+      ]
+    },
+    {
       "id": "inference",
       "form": "INFERENCE",
       "display": "Inference",
@@ -741,6 +1211,38 @@
       ]
     },
     {
+      "id": "jailbreak",
+      "form": "JAILBREAK",
+      "display": "Jailbreak",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Prompt crafted to trick an AI model into ignoring its safety rules.",
+        "fr": "Consigne conçue pour pousser un modèle d'IA à ignorer ses règles de sécurité."
+      },
+      "inflections": [
+        {
+          "form": "JAILBREAKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "guardrail"
+        },
+        {
+          "type": "related_to",
+          "target": "prompt"
+        }
+      ]
+    },
+    {
       "id": "label",
       "form": "LABEL",
       "display": "Label",
@@ -757,6 +1259,14 @@
       },
       "inflections": [
         {
+          "form": "LABELED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "LABELING",
+          "kind": "verb_ing"
+        },
+        {
           "form": "LABELS",
           "kind": "plural"
         }
@@ -765,6 +1275,31 @@
         {
           "type": "part_of",
           "target": "dataset"
+        }
+      ]
+    },
+    {
+      "id": "learning-rate",
+      "form": "LEARNINGRATE",
+      "display": "Learning rate",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Size of the steps a model takes when it adjusts its weights during training.",
+        "fr": "Taille des pas qu'un modèle fait en ajustant ses poids pendant l'entraînement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "gradient"
+        },
+        {
+          "type": "related_to",
+          "target": "training"
         }
       ]
     },
@@ -800,6 +1335,52 @@
       ]
     },
     {
+      "id": "loss-function",
+      "form": "LOSSFUNCTION",
+      "display": "Loss function",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Formula measuring how far a model's predictions are from the right answers.",
+        "fr": "Formule qui mesure l'écart entre les prédictions d'un modèle et les bonnes réponses."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "training"
+        },
+        {
+          "type": "related_to",
+          "target": "gradient"
+        }
+      ]
+    },
+    {
+      "id": "lstm",
+      "form": "LSTM",
+      "display": "LSTM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Long short-term memory: recurrent network design that remembers information over long sequences.",
+        "fr": "Long short-term memory : réseau récurrent conçu pour retenir l'information sur de longues séquences."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "rnn"
+        }
+      ]
+    },
+    {
       "id": "ml",
       "form": "ML",
       "display": "ML",
@@ -821,6 +1402,32 @@
       ]
     },
     {
+      "id": "mlops",
+      "form": "MLOPS",
+      "display": "MLOps",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Practices for deploying, monitoring and updating machine learning models in production.",
+        "fr": "Pratiques pour déployer, surveiller et mettre à jour des modèles d'apprentissage automatique en production."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "devops"
+        },
+        {
+          "type": "related_to",
+          "target": "ml"
+        }
+      ]
+    },
+    {
       "id": "model",
       "form": "MODEL",
       "display": "Model",
@@ -838,6 +1445,31 @@
         {
           "form": "MODELS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "multimodal",
+      "form": "MULTIMODAL",
+      "display": "Multimodal",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Able to handle several kinds of input, such as text, images and audio.",
+        "fr": "Capable de traiter plusieurs types d'entrées, comme le texte, l'image et le son."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "llm"
         }
       ]
     },
@@ -1014,6 +1646,31 @@
       ]
     },
     {
+      "id": "perplexity",
+      "form": "PERPLEXITY",
+      "display": "Perplexity",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Measure of how surprised a language model is by a text; lower means better predictions.",
+        "fr": "Mesure de la surprise d'un modèle de langage face à un texte ; plus elle est basse, meilleures sont ses prédictions."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "llm"
+        },
+        {
+          "type": "related_to",
+          "target": "benchmark"
+        }
+      ]
+    },
+    {
       "id": "prediction",
       "form": "PREDICTION",
       "display": "Prediction",
@@ -1045,6 +1702,31 @@
       ]
     },
     {
+      "id": "pretraining",
+      "form": "PRETRAINING",
+      "display": "Pretraining",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "First large training stage that teaches a model general patterns before it is specialized.",
+        "fr": "Première grande phase d'entraînement qui apprend à un modèle des schémas généraux avant sa spécialisation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "finetuning"
+        },
+        {
+          "type": "related_to",
+          "target": "training"
+        }
+      ]
+    },
+    {
       "id": "prompt",
       "form": "PROMPT",
       "display": "Prompt",
@@ -1060,6 +1742,14 @@
       },
       "inflections": [
         {
+          "form": "PROMPTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "PROMPTING",
+          "kind": "verb_ing"
+        },
+        {
           "form": "PROMPTS",
           "kind": "plural"
         }
@@ -1068,6 +1758,57 @@
         {
           "type": "related_to",
           "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "prompt-injection",
+      "form": "PROMPTINJECTION",
+      "display": "Prompt injection",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Attack that hides instructions in content so that an AI model follows them.",
+        "fr": "Attaque qui cache des instructions dans un contenu pour qu'un modèle d'IA les suive."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "injection"
+        },
+        {
+          "type": "related_to",
+          "target": "prompt"
+        }
+      ]
+    },
+    {
+      "id": "pruning",
+      "form": "PRUNING",
+      "display": "Pruning",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Removing weights or neurons that matter little, to shrink a model.",
+        "fr": "Suppression des poids ou neurones peu utiles pour alléger un modèle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "neural-network"
+        },
+        {
+          "type": "related_to",
+          "target": "weight"
         }
       ]
     },
@@ -1098,6 +1839,31 @@
       ]
     },
     {
+      "id": "quantization",
+      "form": "QUANTIZATION",
+      "display": "Quantization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Storing model weights with fewer bits to save memory and speed up inference.",
+        "fr": "Stockage des poids d'un modèle sur moins de bits pour économiser la mémoire et accélérer l'inférence."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "weight"
+        },
+        {
+          "type": "related_to",
+          "target": "inference"
+        }
+      ]
+    },
+    {
       "id": "rag",
       "form": "RAG",
       "display": "RAG",
@@ -1119,6 +1885,56 @@
         {
           "type": "uses",
           "target": "embedding"
+        }
+      ]
+    },
+    {
+      "id": "random-forest",
+      "form": "RANDOMFOREST",
+      "display": "Random forest",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Model that combines many decision trees and takes a vote among them.",
+        "fr": "Modèle qui combine de nombreux arbres de décision et les fait voter."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "decision-tree"
+        },
+        {
+          "type": "is_a",
+          "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "recommender",
+      "form": "RECOMMENDER",
+      "display": "Recommender",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "System that suggests items, such as films or products, based on past behaviour.",
+        "fr": "Système qui suggère des éléments, comme des films ou des produits, d'après le comportement passé."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ml"
+        },
+        {
+          "type": "related_to",
+          "target": "prediction"
         }
       ]
     },
@@ -1222,6 +2038,37 @@
       ]
     },
     {
+      "id": "rnn",
+      "form": "RNN",
+      "display": "RNN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Recurrent neural network: network with loops that processes sequences one step at a time.",
+        "fr": "Recurrent neural network (réseau récurrent) : réseau à boucles qui traite les séquences pas à pas."
+      },
+      "inflections": [
+        {
+          "form": "RNNS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "neural-network"
+        },
+        {
+          "type": "alternative_to",
+          "target": "transformer"
+        }
+      ]
+    },
+    {
       "id": "robot",
       "form": "ROBOT",
       "display": "Robot",
@@ -1246,6 +2093,184 @@
         {
           "type": "uses",
           "target": "sensor"
+        }
+      ]
+    },
+    {
+      "id": "robotics",
+      "form": "ROBOTICS",
+      "display": "Robotics",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Field of designing, building and programming robots.",
+        "fr": "Domaine de la conception, de la fabrication et de la programmation des robots."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "robot"
+        },
+        {
+          "type": "related_to",
+          "target": "sensor"
+        }
+      ]
+    },
+    {
+      "id": "self-driving",
+      "form": "SELFDRIVING",
+      "display": "Self-driving",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Describes vehicles that steer and brake on their own using sensors and AI.",
+        "fr": "Qualifie les véhicules qui se dirigent et freinent seuls grâce à des capteurs et à l'IA."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "computer-vision"
+        },
+        {
+          "type": "uses",
+          "target": "sensor"
+        }
+      ]
+    },
+    {
+      "id": "semantic-search",
+      "form": "SEMANTICSEARCH",
+      "display": "Semantic search",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Search that matches the meaning of a query rather than its exact words.",
+        "fr": "Recherche qui s'appuie sur le sens d'une requête plutôt que sur ses mots exacts."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "embedding"
+        },
+        {
+          "type": "related_to",
+          "target": "vector-database"
+        }
+      ]
+    },
+    {
+      "id": "sentiment",
+      "form": "SENTIMENT",
+      "display": "Sentiment",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Emotional tone of a text, such as positive or negative, detected with NLP.",
+        "fr": "Tonalité émotionnelle d'un texte, positive ou négative par exemple, détectée par le TAL."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "nlp"
+        },
+        {
+          "type": "related_to",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "softmax",
+      "form": "SOFTMAX",
+      "display": "Softmax",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Function that turns a list of scores into probabilities that add up to one.",
+        "fr": "Fonction qui transforme une liste de scores en probabilités dont la somme vaut un."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "activation"
+        },
+        {
+          "type": "related_to",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "svm",
+      "form": "SVM",
+      "display": "SVM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Support vector machine: model that separates classes with the widest possible margin.",
+        "fr": "Support vector machine (machine à vecteurs de support) : modèle qui sépare les classes avec la plus large marge possible."
+      },
+      "inflections": [
+        {
+          "form": "SVMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "temperature",
+      "form": "TEMPERATURE",
+      "display": "Temperature",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Setting that controls how random or predictable a model's generated output is.",
+        "fr": "Réglage qui contrôle le degré d'aléa ou de prévisibilité du texte généré par un modèle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "llm"
+        },
+        {
+          "type": "related_to",
+          "target": "inference"
         }
       ]
     },
@@ -1299,6 +2324,34 @@
         {
           "type": "alternative_to",
           "target": "pytorch"
+        }
+      ]
+    },
+    {
+      "id": "text-to-speech",
+      "form": "TEXTTOSPEECH",
+      "display": "Text-to-speech",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Technology that reads written text aloud with a synthetic voice.",
+        "fr": "Technologie qui lit un texte à voix haute avec une voix de synthèse."
+      },
+      "aliases": [
+        "TTS"
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "nlp"
+        },
+        {
+          "type": "related_to",
+          "target": "voice-assistant"
         }
       ]
     },
@@ -1409,6 +2462,56 @@
       ]
     },
     {
+      "id": "turing-test",
+      "form": "TURINGTEST",
+      "display": "Turing test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Test of whether a machine's conversation can pass for a human's.",
+        "fr": "Test qui vérifie si la conversation d'une machine peut passer pour celle d'un humain."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ai"
+        },
+        {
+          "type": "related_to",
+          "target": "chatbot"
+        }
+      ]
+    },
+    {
+      "id": "underfitting",
+      "form": "UNDERFITTING",
+      "display": "Underfitting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "When a model is too simple to capture the patterns in its training data.",
+        "fr": "Situation où un modèle est trop simple pour saisir les régularités de ses données d'entraînement."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "overfitting"
+        },
+        {
+          "type": "related_to",
+          "target": "training"
+        }
+      ]
+    },
+    {
       "id": "vector",
       "form": "VECTOR",
       "display": "Vector",
@@ -1427,6 +2530,57 @@
         {
           "form": "VECTORS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "vector-database",
+      "form": "VECTORDATABASE",
+      "display": "Vector database",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Database built to store embeddings and quickly find the most similar ones.",
+        "fr": "Base de données conçue pour stocker des plongements et retrouver vite les plus proches."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        },
+        {
+          "type": "uses",
+          "target": "embedding"
+        }
+      ]
+    },
+    {
+      "id": "voice-assistant",
+      "form": "VOICEASSISTANT",
+      "display": "Voice assistant",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "App that answers spoken questions and carries out voice commands.",
+        "fr": "Application qui répond aux questions orales et exécute des commandes vocales."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "nlp"
+        },
+        {
+          "type": "related_to",
+          "target": "chatbot"
         }
       ]
     },
@@ -1454,6 +2608,31 @@
         {
           "type": "part_of",
           "target": "neural-network"
+        }
+      ]
+    },
+    {
+      "id": "zero-shot",
+      "form": "ZEROSHOT",
+      "display": "Zero-shot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Handling a task with no examples, using only instructions or prior knowledge.",
+        "fr": "Traitement d'une tâche sans aucun exemple, avec seulement des consignes ou des connaissances acquises."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "prompt"
+        },
+        {
+          "type": "related_to",
+          "target": "llm"
         }
       ]
     }
