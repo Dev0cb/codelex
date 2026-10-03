@@ -1,8 +1,9 @@
 # @codelex/mobile
 
 CODELEX for iOS and Android: React Native + Expo (ADR-0002), Expo Router, Hermes, New Architecture. Foundation
-only (sprint A1): one placeholder Home screen that shows the app name from the i18n catalog and the rules-engine
-version imported from `@codelex/game-engine`. Design note: `docs/architecture/notes/mobile-app-foundation.md`.
+only (sprint A1): one placeholder Home screen that shows the app name from the i18n catalog, the rules-engine
+version imported from `@codelex/game-engine` and the `lexiconVersion` of the bundled lexicon index, which is loaded
+and verified before any route mounts. Design note: `docs/architecture/notes/mobile-app-foundation.md`.
 
 - Owner: `mobile-engineer` (consult `ux-ui-designer` for visuals, `realtime-engineer` for the protocol)
 - Coverage: 80 % on lines, statements, functions and branches, read from `@codelex/config/vitest` `basePreset`
@@ -21,16 +22,21 @@ time, never to an SDK published less than 3 days ago (`minimumReleaseAge`).
 src/app/            Expo Router routes only (default exports allowed here, nowhere else)
 src/features/<f>/   screens and feature components
 src/i18n/           I18nProvider / useI18n over @codelex/i18n (device locale, EN fallback)
+src/lexicon/        .clxi loader (pure, injected platform source), LexiconGate / useLexicon, E-1.5 §5.10.1 error state
+src/linking/        deep-link guard used by src/app/+native-intent.ts (GHSA-vcc3-ghjq-m6fr)
 src/theme/          useTokens() over @codelex/design-system (OS appearance, dark default)
-scripts/            bundle-size budget and bundle-contents check (node:test)
+scripts/            prepare:lexicon, bundle-size budget and bundle-contents check (node:test)
+assets/lexicon/     lexicon.clxi + lexicon.json, written by prepare:lexicon (git-ignored, never edit)
+jest/               Jest-only stand-ins: .clxi transformer, Node versions of expo-asset/-file-system/-crypto
 metro.config.cjs    Expo defaults + `clxi` asset extension (lexicon index)
-bundle-budget.json  bytes per platform for the Hermes bundle and the bundled assets
+bundle-budget.json  bytes per platform for the Hermes bundle, the bundled code assets and the lexicon index
 bundle-forbidden-packages.json  toolchain packages that must never be bundled (audit exceptions)
 ```
 
 ## Commands
 
 ```bash
+pnpm turbo run prepare:lexicon --filter=@codelex/mobile  # build:index + copy the .clxi asset (once, before start)
 pnpm --filter @codelex/mobile start                  # Expo dev server (needs a dev build or Expo Go 57)
 pnpm turbo run lint typecheck format:check test --filter=@codelex/mobile
 pnpm turbo run bundle:check --filter=@codelex/mobile # expo export (Hermes bytecode + maps) + budget + contents
@@ -38,8 +44,9 @@ pnpm turbo run bundle:check --filter=@codelex/mobile # expo export (Hermes bytec
 
 `build` is `expo export --platform android --platform ios --source-maps`: Metro plus `hermesc -O -output-source-map`
 (the flags of a React Native release build) produce the Hermes bytecode bundles a store build embeds, on any Linux
-host, without Xcode or the Android SDK. `bundle:check` compares them and the bundled assets to `bundle-budget.json`,
-then fails if a package listed in `bundle-forbidden-packages.json` is a module in either source map: that is the
+host, without Xcode or the Android SDK. `bundle:check` compares them, the bundled code assets and the lexicon index to
+`bundle-budget.json`, checks that each platform bundles exactly the `.clxi` named by `assets/lexicon/lexicon.json`, then
+fails if a package listed in `bundle-forbidden-packages.json` is a module in either source map: that is the
 proof behind the toolchain audit exceptions in `docs/security/audit-exceptions.md`. Native binaries (EAS Build), cold-start and
 60 fps measurements need devices and are not part of CI yet (sprint task H1).
 
