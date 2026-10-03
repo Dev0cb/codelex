@@ -854,7 +854,7 @@ export interface ReplayOutcome {
 |---|---|---|
 | Q-GD-1 | R-TURN-004 in FFA after a resignation: is the limit 3 × `config.seats` or 3 × seats still active? | 3 × **active** seats, evaluated after each turn-ending action (keeps "every remaining player passed three times"). A RESIGN never triggers the check by itself. |
 | Q-GD-2 | R-SCORE-006 with a resigned FFA seat: does the goer add the retired rack; does the retired seat subtract it? | Retired racks are out of play: neither added nor subtracted. |
-| Q-GD-3 | R-END-002/003 FFA ranking of resigned seats. | Below every active team; among resigned, later resignation ranks higher. |
+| Q-GD-3 | R-END-002/003 FFA ranking of resigned seats. | Below every active team; among resigned, later resignation ranks higher. **E3 implementation (2026-10-03):** `MatchState` does not record the order of earlier resignations, so non-active teams currently **share** the place after the active teams. Keeping "later ranks higher" needs a hashed field (e.g. `SeatState.resignedAt`), i.e. a decision before the first published replay. |
 | Q-GD-4 | R-END-003 tie-break step 2 with ≥ 3 teams tied in FFA ("the seat that did not move first"). | Among tied teams, the one whose earliest seat moves **latest** in turn order from `firstSeat` wins. |
 | Q-GD-5 | Are final racks public when the match ends? | Yes (`MATCH_ENDED.finalRacks`, `Observation.finalRacks`); needed to explain R-SCORE-006 adjustments. |
 

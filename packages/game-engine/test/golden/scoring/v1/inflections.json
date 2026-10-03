@@ -1,0 +1,286 @@
+{
+  "source": "docs/game/RULE_PROPERTIES.md \u00a73.1/\u00a73.2 (transcribed verbatim; immutable once v1 is published)",
+  "engineRulesVersion": 1,
+  "layout": "classic-v1",
+  "letters": "letters-v1",
+  "lexiconStub": [
+    {
+      "form": "POD",
+      "difficulty": "advanced",
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "KUBERNETES"
+        }
+      ],
+      "inflections": [
+        {
+          "form": "PODS",
+          "kind": "plural",
+          "hypothetical": true
+        }
+      ]
+    },
+    {
+      "form": "SQL",
+      "difficulty": "intermediate"
+    },
+    {
+      "form": "CLOUD",
+      "difficulty": "novice"
+    },
+    {
+      "form": "KUBERNETES",
+      "difficulty": "expert"
+    }
+  ],
+  "scoringCases": [
+    {
+      "id": "GC-INF-01",
+      "title": "Plural as main word (first move): canonical POD bonus +8, letters as placed",
+      "rules": ["R-CORE-003", "R-CORE-006", "R-SCORE-003"],
+      "firstMove": true,
+      "board": [],
+      "place": [
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "P"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        },
+        {
+          "r": 7,
+          "c": 10,
+          "letter": "S"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "PODS",
+            "main": true,
+            "letterSum": 7,
+            "wordMult": 2,
+            "base": 14,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 22
+      }
+    },
+    {
+      "id": "GC-INF-02",
+      "title": "Hook: S added to POD re-scores PODS as a cross-word with its full bonus (C-GD-2)",
+      "rules": ["R-SCORE-002", "R-SCORE-003", "R-CORE-006"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "P"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "S"
+        },
+        {
+          "r": 8,
+          "c": 9,
+          "letter": "Q"
+        },
+        {
+          "r": 9,
+          "c": 9,
+          "letter": "L"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "SQL",
+            "main": true,
+            "letterSum": 11,
+            "wordMult": 1,
+            "base": 11,
+            "termBonus": 4
+          },
+          {
+            "form": "PODS",
+            "main": false,
+            "letterSum": 7,
+            "wordMult": 1,
+            "base": 7,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 30
+      }
+    },
+    {
+      "id": "GC-INF-03a",
+      "title": "POD then PODS: same canonical term, not a chain link; k resets",
+      "rules": ["R-SCORE-005", "R-CORE-006"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 7,
+          "letter": "P"
+        },
+        {
+          "r": 8,
+          "c": 7,
+          "letter": "D"
+        },
+        {
+          "r": 9,
+          "c": 7,
+          "letter": "S"
+        }
+      ],
+      "context": {
+        "prevMainTerm": "POD",
+        "chainK": 1
+      },
+      "expected": {
+        "words": [
+          {
+            "form": "PODS",
+            "main": true,
+            "letterSum": 7,
+            "wordMult": 1,
+            "base": 7,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "chainKAfter": 0,
+        "total": 15
+      }
+    },
+    {
+      "id": "GC-INF-03b",
+      "title": "KUBERNETES then PODS: PODS resolves to POD, part_of KUBERNETES, so it links",
+      "rules": ["R-SCORE-005", "R-CORE-006"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 7,
+          "letter": "P"
+        },
+        {
+          "r": 8,
+          "c": 7,
+          "letter": "D"
+        },
+        {
+          "r": 9,
+          "c": 7,
+          "letter": "S"
+        }
+      ],
+      "context": {
+        "prevMainTerm": "KUBERNETES",
+        "chainK": 0
+      },
+      "expected": {
+        "words": [
+          {
+            "form": "PODS",
+            "main": true,
+            "letterSum": 7,
+            "wordMult": 1,
+            "base": 7,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 5,
+        "chainKAfter": 1,
+        "total": 20
+      }
+    }
+  ]
+}

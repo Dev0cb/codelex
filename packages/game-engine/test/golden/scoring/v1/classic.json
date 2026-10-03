@@ -1,0 +1,1215 @@
+{
+  "source": "docs/game/RULE_PROPERTIES.md \u00a73.1/\u00a73.2 (transcribed verbatim; immutable once v1 is published)",
+  "engineRulesVersion": 1,
+  "layout": "classic-v1",
+  "letters": "letters-v1",
+  "scoringCases": [
+    {
+      "id": "GC-CL-01",
+      "title": "First move, start DW",
+      "rules": ["R-BOARD-004", "R-SCORE-001", "R-SCORE-003"],
+      "firstMove": true,
+      "board": [],
+      "place": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "CLOUD",
+            "main": true,
+            "letterSum": 10,
+            "wordMult": 2,
+            "base": 20,
+            "termBonus": 0
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 20
+      }
+    },
+    {
+      "id": "GC-CL-02",
+      "title": "First move reaching the row-7 DL with 6 tiles",
+      "rules": ["R-BOARD-004", "R-SCORE-001"],
+      "firstMove": true,
+      "board": [],
+      "place": [
+        {
+          "r": 7,
+          "c": 2,
+          "letter": "P"
+        },
+        {
+          "r": 7,
+          "c": 3,
+          "letter": "Y"
+        },
+        {
+          "r": 7,
+          "c": 4,
+          "letter": "T"
+        },
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "H"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "N"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "PYTHON",
+            "main": true,
+            "letterSum": 14,
+            "wordMult": 2,
+            "base": 28,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 32
+      }
+    },
+    {
+      "id": "GC-CL-03",
+      "title": "First move Full Stack, expert term, DL + start DW",
+      "rules": ["R-SCORE-004", "R-SCORE-008"],
+      "firstMove": true,
+      "board": [],
+      "place": [
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "Z"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "E"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "R"
+        },
+        {
+          "r": 7,
+          "c": 10,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 11,
+          "letter": "D"
+        },
+        {
+          "r": 7,
+          "c": 12,
+          "letter": "A"
+        },
+        {
+          "r": 7,
+          "c": 13,
+          "letter": "Y"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "ZERODAY",
+            "main": true,
+            "letterSum": 22,
+            "wordMult": 2,
+            "base": 44,
+            "termBonus": 16
+          }
+        ],
+        "fullStack": 50,
+        "chain": 0,
+        "total": 110
+      }
+    },
+    {
+      "id": "GC-CL-04",
+      "title": "Minimal first move: 2 tiles, vertical",
+      "rules": ["R-BOARD-004", "R-TURN-006"],
+      "firstMove": true,
+      "board": [],
+      "place": [
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "G"
+        },
+        {
+          "r": 8,
+          "c": 7,
+          "letter": "O"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "GO",
+            "main": true,
+            "letterSum": 4,
+            "wordMult": 2,
+            "base": 8,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 12
+      }
+    },
+    {
+      "id": "GC-CL-05",
+      "title": "Two TLs through an existing tile (no premium on the old T)",
+      "rules": ["R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 2,
+          "letter": "P"
+        },
+        {
+          "r": 7,
+          "c": 3,
+          "letter": "Y"
+        },
+        {
+          "r": 7,
+          "c": 4,
+          "letter": "T"
+        },
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "H"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "N"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 4,
+          "letter": "E"
+        },
+        {
+          "r": 8,
+          "c": 4,
+          "letter": "L"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "ETL",
+            "main": true,
+            "letterSum": 10,
+            "wordMult": 1,
+            "base": 10,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 18
+      }
+    },
+    {
+      "id": "GC-CL-06",
+      "title": "As GC-CL-05 with the L a blank on TL: blank scores 0",
+      "rules": ["R-BAG-006", "R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 2,
+          "letter": "P"
+        },
+        {
+          "r": 7,
+          "c": 3,
+          "letter": "Y"
+        },
+        {
+          "r": 7,
+          "c": 4,
+          "letter": "T"
+        },
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "H"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "N"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 4,
+          "letter": "E"
+        },
+        {
+          "r": 8,
+          "c": 4,
+          "letter": "L",
+          "blank": true
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "ETL",
+            "main": true,
+            "letterSum": 4,
+            "wordMult": 1,
+            "base": 4,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 12
+      }
+    },
+    {
+      "id": "GC-CL-07",
+      "title": "Main word + cross-word, TL in main word, term bonus on the cross-word",
+      "rules": ["R-SCORE-002", "R-SCORE-003", "R-TURN-006"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 8,
+          "c": 3,
+          "letter": "A"
+        },
+        {
+          "r": 8,
+          "c": 4,
+          "letter": "P"
+        },
+        {
+          "r": 8,
+          "c": 5,
+          "letter": "I"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "API",
+            "main": true,
+            "letterSum": 8,
+            "wordMult": 1,
+            "base": 8,
+            "termBonus": 0
+          },
+          {
+            "form": "CI",
+            "main": false,
+            "letterSum": 3,
+            "wordMult": 1,
+            "base": 3,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 15
+      }
+    },
+    {
+      "id": "GC-CL-08",
+      "title": "Extension through the already-covered start DW (not re-applied), two DLs",
+      "rules": ["R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 7,
+          "c": 10,
+          "letter": "F"
+        },
+        {
+          "r": 7,
+          "c": 11,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 12,
+          "letter": "A"
+        },
+        {
+          "r": 7,
+          "c": 13,
+          "letter": "R"
+        },
+        {
+          "r": 7,
+          "c": 14,
+          "letter": "E"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "CLOUDFLARE",
+            "main": true,
+            "letterSum": 21,
+            "wordMult": 1,
+            "base": 21,
+            "termBonus": 8
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 29
+      }
+    },
+    {
+      "id": "GC-CL-09a",
+      "title": "Chain link: same player's previous main word CLOUD (BUCKET relates to CLOUD)",
+      "rules": ["R-SCORE-005"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 8,
+          "letter": "B"
+        },
+        {
+          "r": 8,
+          "c": 8,
+          "letter": "C"
+        },
+        {
+          "r": 9,
+          "c": 8,
+          "letter": "K"
+        },
+        {
+          "r": 10,
+          "c": 8,
+          "letter": "E"
+        },
+        {
+          "r": 11,
+          "c": 8,
+          "letter": "T"
+        }
+      ],
+      "context": {
+        "prevMainTerm": "CLOUD",
+        "chainK": 0
+      },
+      "expected": {
+        "words": [
+          {
+            "form": "BUCKET",
+            "main": true,
+            "letterSum": 16,
+            "wordMult": 1,
+            "base": 16,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 5,
+        "chainKAfter": 1,
+        "total": 25
+      }
+    },
+    {
+      "id": "GC-CL-09b",
+      "title": "Same placement, previous main word PYTHON (unlinked): chain resets",
+      "rules": ["R-SCORE-005"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 8,
+          "letter": "B"
+        },
+        {
+          "r": 8,
+          "c": 8,
+          "letter": "C"
+        },
+        {
+          "r": 9,
+          "c": 8,
+          "letter": "K"
+        },
+        {
+          "r": 10,
+          "c": 8,
+          "letter": "E"
+        },
+        {
+          "r": 11,
+          "c": 8,
+          "letter": "T"
+        }
+      ],
+      "context": {
+        "prevMainTerm": "PYTHON",
+        "chainK": 2
+      },
+      "expected": {
+        "words": [
+          {
+            "form": "BUCKET",
+            "main": true,
+            "letterSum": 16,
+            "wordMult": 1,
+            "base": 16,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "chainKAfter": 0,
+        "total": 20
+      }
+    },
+    {
+      "id": "GC-CL-10",
+      "title": "DW x DW = x4 on row 1 through an existing tile (fixture)",
+      "rules": ["R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 1,
+          "c": 7,
+          "letter": "T"
+        },
+        {
+          "r": 2,
+          "c": 7,
+          "letter": "C"
+        },
+        {
+          "r": 3,
+          "c": 7,
+          "letter": "P"
+        }
+      ],
+      "place": [
+        {
+          "r": 1,
+          "c": 4,
+          "letter": "C"
+        },
+        {
+          "r": 1,
+          "c": 5,
+          "letter": "H"
+        },
+        {
+          "r": 1,
+          "c": 6,
+          "letter": "A"
+        },
+        {
+          "r": 1,
+          "c": 8,
+          "letter": "B"
+        },
+        {
+          "r": 1,
+          "c": 9,
+          "letter": "O"
+        },
+        {
+          "r": 1,
+          "c": 10,
+          "letter": "T"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "CHATBOT",
+            "main": true,
+            "letterSum": 12,
+            "wordMult": 4,
+            "base": 48,
+            "termBonus": 0
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 48
+      }
+    },
+    {
+      "id": "GC-CL-11a",
+      "title": "TW on the edge (fixture)",
+      "rules": ["R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 0,
+          "c": 6,
+          "letter": "N"
+        },
+        {
+          "r": 1,
+          "c": 6,
+          "letter": "A"
+        },
+        {
+          "r": 2,
+          "c": 6,
+          "letter": "T"
+        }
+      ],
+      "place": [
+        {
+          "r": 0,
+          "c": 3,
+          "letter": "J"
+        },
+        {
+          "r": 0,
+          "c": 4,
+          "letter": "S"
+        },
+        {
+          "r": 0,
+          "c": 5,
+          "letter": "O"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "JSON",
+            "main": true,
+            "letterSum": 11,
+            "wordMult": 3,
+            "base": 33,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 37
+      }
+    },
+    {
+      "id": "GC-CL-11b",
+      "title": "As GC-CL-11a with the J a blank on TW: word multiplier still applies",
+      "rules": ["R-BAG-006", "R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 0,
+          "c": 6,
+          "letter": "N"
+        },
+        {
+          "r": 1,
+          "c": 6,
+          "letter": "A"
+        },
+        {
+          "r": 2,
+          "c": 6,
+          "letter": "T"
+        }
+      ],
+      "place": [
+        {
+          "r": 0,
+          "c": 3,
+          "letter": "J",
+          "blank": true
+        },
+        {
+          "r": 0,
+          "c": 4,
+          "letter": "S"
+        },
+        {
+          "r": 0,
+          "c": 5,
+          "letter": "O"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "JSON",
+            "main": true,
+            "letterSum": 3,
+            "wordMult": 3,
+            "base": 9,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 13
+      }
+    },
+    {
+      "id": "GC-CL-12",
+      "title": "Single tile on TL forming two 2-letter words: TL counts in both; tie -> row is main (fixture)",
+      "rules": ["R-SCORE-002", "R-TURN-006"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 6,
+          "c": 3,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 3,
+          "letter": "P"
+        },
+        {
+          "r": 8,
+          "c": 3,
+          "letter": "U"
+        },
+        {
+          "r": 5,
+          "c": 4,
+          "letter": "A"
+        },
+        {
+          "r": 5,
+          "c": 5,
+          "letter": "P"
+        },
+        {
+          "r": 5,
+          "c": 6,
+          "letter": "I"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 4,
+          "letter": "I"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "CI",
+            "main": true,
+            "letterSum": 5,
+            "wordMult": 1,
+            "base": 5,
+            "termBonus": 4
+          },
+          {
+            "form": "AI",
+            "main": false,
+            "letterSum": 4,
+            "wordMult": 1,
+            "base": 4,
+            "termBonus": 0
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 13
+      }
+    },
+    {
+      "id": "GC-CL-13a",
+      "title": "Full Stack KUBERNETES through NET, DL + TL + DL, expert (fixture)",
+      "rules": ["R-SCORE-004", "R-SCORE-001", "R-SCORE-003"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 4,
+          "c": 7,
+          "letter": "N"
+        },
+        {
+          "r": 4,
+          "c": 8,
+          "letter": "E"
+        },
+        {
+          "r": 4,
+          "c": 9,
+          "letter": "T"
+        }
+      ],
+      "place": [
+        {
+          "r": 4,
+          "c": 2,
+          "letter": "K"
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "letter": "U"
+        },
+        {
+          "r": 4,
+          "c": 4,
+          "letter": "B"
+        },
+        {
+          "r": 4,
+          "c": 5,
+          "letter": "E"
+        },
+        {
+          "r": 4,
+          "c": 6,
+          "letter": "R"
+        },
+        {
+          "r": 4,
+          "c": 10,
+          "letter": "E"
+        },
+        {
+          "r": 4,
+          "c": 11,
+          "letter": "S"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "KUBERNETES",
+            "main": true,
+            "letterSum": 23,
+            "wordMult": 1,
+            "base": 23,
+            "termBonus": 16
+          }
+        ],
+        "fullStack": 50,
+        "chain": 0,
+        "total": 89
+      }
+    },
+    {
+      "id": "GC-CL-13b",
+      "title": "As GC-CL-13a with the K a blank (plain square)",
+      "rules": ["R-BAG-006", "R-SCORE-004"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 4,
+          "c": 7,
+          "letter": "N"
+        },
+        {
+          "r": 4,
+          "c": 8,
+          "letter": "E"
+        },
+        {
+          "r": 4,
+          "c": 9,
+          "letter": "T"
+        }
+      ],
+      "place": [
+        {
+          "r": 4,
+          "c": 2,
+          "letter": "K",
+          "blank": true
+        },
+        {
+          "r": 4,
+          "c": 3,
+          "letter": "U"
+        },
+        {
+          "r": 4,
+          "c": 4,
+          "letter": "B"
+        },
+        {
+          "r": 4,
+          "c": 5,
+          "letter": "E"
+        },
+        {
+          "r": 4,
+          "c": 6,
+          "letter": "R"
+        },
+        {
+          "r": 4,
+          "c": 10,
+          "letter": "E"
+        },
+        {
+          "r": 4,
+          "c": 11,
+          "letter": "S"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "KUBERNETES",
+            "main": true,
+            "letterSum": 18,
+            "wordMult": 1,
+            "base": 18,
+            "termBonus": 16
+          }
+        ],
+        "fullStack": 50,
+        "chain": 0,
+        "total": 84
+      }
+    },
+    {
+      "id": "GC-CL-14",
+      "title": "Single tile: only a vertical word forms; start DW already covered",
+      "rules": ["R-TURN-006", "R-SCORE-001"],
+      "firstMove": false,
+      "board": [
+        {
+          "r": 7,
+          "c": 5,
+          "letter": "C"
+        },
+        {
+          "r": 7,
+          "c": 6,
+          "letter": "L"
+        },
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "O"
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "U"
+        },
+        {
+          "r": 7,
+          "c": 9,
+          "letter": "D"
+        }
+      ],
+      "place": [
+        {
+          "r": 6,
+          "c": 7,
+          "letter": "G"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "GO",
+            "main": true,
+            "letterSum": 4,
+            "wordMult": 1,
+            "base": 4,
+            "termBonus": 4
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 8
+      }
+    },
+    {
+      "id": "GC-CL-15",
+      "title": "First move with a blank on the start DW",
+      "rules": ["R-BAG-006", "R-BOARD-004"],
+      "firstMove": true,
+      "board": [],
+      "place": [
+        {
+          "r": 7,
+          "c": 7,
+          "letter": "A",
+          "blank": true
+        },
+        {
+          "r": 7,
+          "c": 8,
+          "letter": "I"
+        }
+      ],
+      "expected": {
+        "words": [
+          {
+            "form": "AI",
+            "main": true,
+            "letterSum": 1,
+            "wordMult": 2,
+            "base": 2,
+            "termBonus": 0
+          }
+        ],
+        "fullStack": 0,
+        "chain": 0,
+        "total": 2
+      }
+    }
+  ],
+  "endCases": [
+    {
+      "id": "GC-CL-E1",
+      "title": "1v1 going out: goer adds, other subtracts (R-END-001, R-SCORE-006)",
+      "seats": 2,
+      "endReason": "going_out",
+      "wentOut": 0,
+      "scoresBefore": [200, 210],
+      "racks": [[], ["Q", "Z", "E"]],
+      "expected": {
+        "adjustments": [19, -19],
+        "final": [219, 191],
+        "result": "seat0_wins"
+      }
+    },
+    {
+      "id": "GC-CL-E2",
+      "title": "1v1 going out, opponent holds a blank (counts 0) and V",
+      "seats": 2,
+      "endReason": "going_out",
+      "wentOut": 0,
+      "scoresBefore": [180, 190],
+      "racks": [[], ["?", "V"]],
+      "expected": {
+        "adjustments": [6, -6],
+        "final": [186, 184],
+        "result": "seat0_wins"
+      }
+    },
+    {
+      "id": "GC-CL-E3",
+      "title": "Scoreless end (R-TURN-004): each subtracts own rack, nobody adds; equal scores draw",
+      "seats": 2,
+      "endReason": "scoreless_turns",
+      "wentOut": null,
+      "scoresBefore": [150, 154],
+      "racks": [["A", "B"], ["X"]],
+      "expected": {
+        "adjustments": [-4, -8],
+        "final": [146, 146],
+        "result": "draw"
+      }
+    },
+    {
+      "id": "GC-CL-E4",
+      "title": "2v2 (seats 0=A1, 1=B1, 2=A2, 3=B2): A2 goes out, A1 still holds L",
+      "seats": 4,
+      "teams": [
+        [0, 2],
+        [1, 3]
+      ],
+      "endReason": "going_out",
+      "wentOut": 2,
+      "scoresBefore": {
+        "teamA": 300,
+        "teamB": 290
+      },
+      "racks": [["L"], ["K"], [], ["Q"]],
+      "expected": {
+        "adjustmentsPerSeat": [-2, -5, 15, -8],
+        "final": {
+          "teamA": 313,
+          "teamB": 277
+        },
+        "result": "teamA_wins"
+      }
+    },
+    {
+      "id": "GC-CL-E5",
+      "title": "Resign: no rack adjustment, resigner loses despite leading (R-END-002)",
+      "seats": 2,
+      "endReason": "resign",
+      "resigned": 0,
+      "scoresBefore": [120, 80],
+      "racks": [["Q", "Z"], ["E"]],
+      "expected": {
+        "adjustments": [0, 0],
+        "final": [120, 80],
+        "result": "seat1_wins"
+      }
+    }
+  ]
+}

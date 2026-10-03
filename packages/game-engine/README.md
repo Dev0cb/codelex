@@ -5,8 +5,9 @@ placement, validation, scoring, powers, modes, replay). Contract: `docs/adr/0013
 
 - Owner: `game-engine-engineer` (rules questions go to `game-designer`)
 - Coverage preset: `strict`, 90 % on lines, statements, functions and branches (`@codelex/config/vitest`)
-- Status: sprint E2 — RNG, SHA-256, JCS (E1/E1b); rules constants, `createMatch`, action parsing, bag and
-  placement validation (E2). Scoring and end rules arrive in E3; `apply` / `observe` / `stateHash` / `replay` in E4.
+- Status: sprint E3 — RNG, SHA-256, JCS (E1/E1b); rules constants, `createMatch`, action parsing, bag and
+  placement validation (E2); scoring, preview and end of match (E3). `apply` / `observe` / `stateHash` / `replay`
+  arrive in E4.
 
 ## API
 
@@ -47,7 +48,9 @@ input (action logs) before it reaches the RNG.
 Internal (used by `apply`/`evaluateMove` in E4, not exported yet): `parseAction` (untrusted shape →
 canonical action or `malformed`), `validateAction` (full §8.3 precedence), `checkPlacementGeometry` /
 `checkPlacement` (R-TURN-002/003/006, R-BOARD-004; formed words, main first), `drawTiles` / `refillRack` /
-`exchangeTiles` (R-BAG-003/005). Tests use `test/support/small-lexicon.ts` (G-LEX-SMALL on the lexicon's
+`exchangeTiles` (R-BAG-003/005), `scorePlacement` / `chainAfter` / `previewPlacement` (R-SCORE-001…005, 008, 009),
+`finishMatch` / `endAdjustments` (R-SCORE-006, R-END-001…003; default readings of API note §16 Q-GD-2…4).
+Scoring golden cases live in `test/golden/scoring/v1/` (RULE_PROPERTIES §3.1/§3.2, transcribed verbatim). Tests use `test/support/small-lexicon.ts` (G-LEX-SMALL on the lexicon's
 reference index).
 
 ## Commands

@@ -458,6 +458,34 @@ export interface ScoreBreakdown {
   readonly total: number;
 }
 
+/** Lexicon-free projection (R-SCORE-009): premiums and Full Stack only; never reveals validity. */
+export interface PreviewScore {
+  readonly words: readonly {
+    readonly form: string;
+    readonly main: boolean;
+    readonly start: Square;
+    readonly direction: Direction;
+    readonly letterSum: number;
+    readonly wordMult: number;
+    readonly base: number;
+  }[];
+  readonly fullStack: number;
+  /** Σ base + fullStack (P-SCORE-009-b). */
+  readonly total: number;
+}
+
+/** evaluateMove output for bots. */
+export interface MoveEvaluation {
+  /** The canonical form of the evaluated action. */
+  readonly action: PlaceWordAction;
+  /** Identical to the WORD_PLACED breakdown apply would produce (P-API-01). */
+  readonly breakdown: ScoreBreakdown;
+  /** Rack after placing, before refill (sorted). */
+  readonly leave: TileString;
+  /** True if this move empties the rack while the bag is empty, ending the match (R-END-001). */
+  readonly goesOut: boolean;
+}
+
 // --- §12 result ---
 
 export type MatchEnd =
