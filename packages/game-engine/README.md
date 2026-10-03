@@ -61,6 +61,7 @@ lexicon, used by the full-match properties; `gc-det-01-lexicon.ts` = the frozen 
 
 ```bash
 pnpm turbo run build lint typecheck format:check test --filter=@codelex/game-engine
+pnpm --filter @codelex/game-engine bench   # non-gating timings over GC-DET-01 (API note §18)
 ```
 
 ## Invariants

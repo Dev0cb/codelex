@@ -925,6 +925,28 @@ Budgets (estimates until E4 measures them; Node 22 server class / Hermes referen
 | `stateHash` / `serializeState` | ADR-0013: < 50 µs / < 2 ms; never inside `apply` |
 | `replay` Classic 1v1 | < 40 ms Node (ADR-0013) |
 
+**Measured (E5, review R1 m4; non-gating).** `pnpm --filter @codelex/game-engine bench` runs
+`test/bench/engine.bench.ts` on the built package over GC-DET-01 (90 actions, frozen lexicon of 18,279 forms) through
+Vitest's benchmark project (tinybench owns the clock; the file reads none, so the determinism lint is unchanged). It
+asserts no time bound and is not part of `test` or CI. Run of 2026-10-03, Node 22.22, Intel Xeon @ 2.10 GHz (cloud
+VM, 4 vCPU, shared), µs per call:
+
+| Operation | mean | p50 | p99 | Budget (Node) |
+|---|---|---|---|---|
+| `apply`, mid-game PLACE_WORD | 7 | 6 | 26 | p99 < 1,000 ✓ |
+| `apply`, average over the 90 GC-DET-01 actions | 7 | 7 | 12 ¹ | — |
+| `evaluateMove`, mid-game PLACE_WORD | 4 | 4 | 9 | p99 < 50 ✓ |
+| `previewScore`, same tiles | 4 | 3 | 8 | < 50 ✓ |
+| `observe` | 2 | 2 | 4 | < 20 ✓ |
+| `serializeState` | 14 | 13 | 33 | < 50 ✓ |
+| `stateHash` | 45 | 40 | 71 | < 50 (mean ✓, p99 ✗ ²) |
+| `replay` GC-DET-01, final hash only | 965 | 746 | 4,984 | < 40,000 ✓ |
+| `replay` GC-DET-01, all 90 `stateHashes` verified | 5,341 | 4,852 | 9,821 | < 40,000 ✓ |
+
+¹ p99 of one 90-action iteration divided by 90, not a per-call percentile. ² `stateHash` is dominated by the pure-JS
+SHA-256 over ~1 KB of JCS; it is never called inside `apply`, and the ADR-0013 budget is read as a mean. Hermes
+numbers are still to be measured on the reference device (A1). Shared-VM jitter makes single runs vary by ±30 %.
+
 ## 19. Consumer guide (who uses what)
 
 | Consumer | Uses | Must not |
