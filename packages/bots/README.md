@@ -57,6 +57,10 @@ pnpm --filter @codelex/bots bench   # Q-A2 measurement (non-gating, several minu
 - `test/matches.test.ts`: full matches through `createMatch`/`apply` on the real lexicon, a 2,000-form synthetic
   lexicon and a tiny one (P-BOT-01, P-BOT-07). `test/golden.test.ts`: 20 positions × 3 personalities pinned per
   `BOT_VERSION` on the synthetic fixture. `test/purity.test.ts`: source scan backing the lint rule.
+- `test/real-lexicon-matches.test.ts`: 250 full matches (1v1, 2v2, FFA 3/4; all personalities) on the real
+  `global-ranked` index and the real `classic-v1` layout: every match ends, conserves tiles, replays to identical
+  hashes. `test/full/real-lexicon-1000.full.ts`: the same sequence at 1,000 matches, results pinned in
+  `test/full/results/` (`pnpm test:full`, about 40 s; `-u` re-records). Not part of `pnpm test`.
 - `test/support/gaddag.ts` builds a test-only GADDAG over any index's forms until L5 lands.
 - fast-check runs with a fixed global seed (`test/setup.ts`).
 
