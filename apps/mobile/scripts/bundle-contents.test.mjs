@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { checkContents, packagesInSources, readExportSources } from './bundle-contents.mjs';
 
+const appDir = join(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = join(appDir, '..', '..');
 const forbidden = [
   { name: 'node-forge', advisory: 'GHSA-86w9-cpqp-85rv' },
   { name: '@expo/code-signing-certificates', advisory: 'GHSA-86w9-cpqp-85rv' },
@@ -80,5 +83,28 @@ test('reads the source map next to each bundle of an export directory', () => {
     assert.equal(checkContents(sources, forbidden, ['android', 'ios']).ok, false);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the forbidden list matches the audit register and pnpm auditConfig (no drift)', () => {
+  const { packages } = JSON.parse(
+    readFileSync(join(appDir, 'bundle-forbidden-packages.json'), 'utf8'),
+  );
+  const register = readFileSync(join(repoRoot, 'docs/security/audit-exceptions.md'), 'utf8');
+  const workspace = readFileSync(join(repoRoot, 'pnpm-workspace.yaml'), 'utf8');
+  assert.ok(packages.length > 0);
+  for (const { name, advisory, expires } of packages) {
+    assert.match(advisory, /^GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}$/);
+    assert.ok(register.includes(advisory), `${advisory} missing from the register`);
+    assert.ok(register.includes(`\`${name}\``), `${name} missing from the register`);
+    assert.ok(
+      register.includes(expires),
+      `${advisory} expiry ${expires} differs from the register`,
+    );
+    assert.match(
+      workspace,
+      new RegExp(`^\\s+- ${advisory}\\s*$`, 'm'),
+      `${advisory} not in ignoreGhsas`,
+    );
   }
 });
