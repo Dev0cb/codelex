@@ -27,10 +27,10 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
+    "@codelex/config": "workspace:*",
     "@codelex/lexicon": "workspace:*"
   },
   "devDependencies": {
-    "@codelex/config": "workspace:*",
     "@types/node": "22.20.4",
     "@vitest/coverage-v8": "5.0.2",
     "fast-check": "4.10.2",

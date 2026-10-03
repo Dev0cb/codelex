@@ -62,7 +62,7 @@ decision below is reversible unless an ADR says otherwise.
 | L2 | Lexicon package to TypeScript and `@codelex/lexicon/index` types (`FormRef`/`TermRef`) | lexicon-engineer | D4 | Package builds with `@codelex/config` presets; `LexiconIndex`, `Gaddag`, errors and `decodeLexiconIndex` signatures exported; `pnpm lexicon:validate` unchanged | M | done |
 | L3 | Reference `LexiconIndex` (Set/Map) and its contract tests | lexicon-engineer | L1, L2 | `T-COMPLETE`, `T-SOUND`, `T-ORACLE` green on the seed; usable by engine tests | S | done |
 | E1 | Scaffold `packages/game-engine` and RNG with golden vectors | game-engine-engineer | D1 | Scaffolded with `/scaffold` (strict preset); xoshiro128** + stream derivation match ADR-0013 golden vectors; determinism lint green | S | done |
-| E2 | Board, bag, placement and validation (test-first) | game-engine-engineer | E1, D3, L3 | R-BOARD-*, R-BAG-*, R-TURN-* properties from RULE_PROPERTIES pass; rejection reasons typed | L | todo |
+| E2 | Board, bag, placement and validation (test-first) | game-engine-engineer | E1, D3, L3 | R-BOARD-*, R-BAG-*, R-TURN-* properties from RULE_PROPERTIES pass; rejection reasons typed | L | done |
 | E3 | Classic scoring and end rules (test-first) | game-engine-engineer | E2, D3 | R-SCORE-*, R-END-* properties and all golden cases pass; `ScoreBreakdown` matches the API note | M | todo |
 | E4 | `apply` / `observe` / `stateHash` / `replay` and full-match property | game-engine-engineer | E3 | ≥ 1,000 seeded matches replay to identical hashes; 0 conservation violations; `P-GLOBAL-01..08` green; coverage ≥ 90 % | M | todo |
 | C1 | Lexicon content batch 1 | lexicon-curator | L1 | ≥ 800 playable forms incl. ≥ 30 two-letter forms, EN/FR definitions, validator green | L | todo |

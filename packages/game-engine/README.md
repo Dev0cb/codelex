@@ -5,8 +5,8 @@ placement, validation, scoring, powers, modes, replay). Contract: `docs/adr/0013
 
 - Owner: `game-engine-engineer` (rules questions go to `game-designer`)
 - Coverage preset: `strict`, 90 % on lines, statements, functions and branches (`@codelex/config/vitest`)
-- Status: sprint E1 — deterministic RNG, SHA-256 and the JCS subset (E1b). Board, bag, placement and scoring arrive in E2/E3;
-  `apply` / `stateHash` / `replay` in E4.
+- Status: sprint E2 — RNG, SHA-256, JCS (E1/E1b); rules constants, `createMatch`, action parsing, bag and
+  placement validation (E2). Scoring and end rules arrive in E3; `apply` / `observe` / `stateHash` / `replay` in E4.
 
 ## API
 
@@ -37,6 +37,18 @@ input (action logs) before it reaches the RNG.
   units, nesting ≤ 64. Booleans, `null`, fractions and anything else throw (`TypeError` for a wrong kind of
   value, `RangeError` for a value out of range); the message gives the path, e.g. `$.seats[1].score`.
 - `hash16(value)` — `hex(SHA-256(JCS(value)))[0..16)`, the `stateHash` format of ADR-0013 §D3.
+- Types of `docs/architecture/notes/game-engine-api.md` §4–§12 (`MatchConfig`, `MatchState`, `Action`,
+  `Rejection`, `EngineError`, `MatchEvent`, `ScoreBreakdown`, `MatchResult`, `EngineLexicon`, …).
+- `getLayout('classic-v1')`, `getLetterTable('letters-v1')`, `RULES` — frozen `engineRulesVersion` 1 constants
+  (GAME_RULES §2.1, §3.1); snapshot-tested against the rules text.
+- `createMatch(config, ctx)` — API note §13.1: `RULES_VERSION_UNSUPPORTED` → `INVALID_CONFIG` →
+  `LEXICON_MISMATCH`, then first seat (`first-player` stream), shuffled bag (`bag` stream) and deal.
+
+Internal (used by `apply`/`evaluateMove` in E4, not exported yet): `parseAction` (untrusted shape →
+canonical action or `malformed`), `validateAction` (full §8.3 precedence), `checkPlacementGeometry` /
+`checkPlacement` (R-TURN-002/003/006, R-BOARD-004; formed words, main first), `drawTiles` / `refillRack` /
+`exchangeTiles` (R-BAG-003/005). Tests use `test/support/small-lexicon.ts` (G-LEX-SMALL on the lexicon's
+reference index).
 
 ## Commands
 
