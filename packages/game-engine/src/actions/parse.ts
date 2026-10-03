@@ -5,6 +5,7 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { malformed } from '../errors.js';
+import { isJcsInteger } from '../hash/jcs.js';
 import { isBoardTile, isRackTile, BLANK } from '../tiles.js';
 import type { Action, Placement, RackTile, Rejection } from '../types.js';
 
@@ -51,18 +52,20 @@ function parsePlacement(value: unknown, index: number): Result<Placement, Reject
   const extra = unknownKey(value, PLACEMENT_KEYS, `${path}.`);
   if (extra !== undefined) return err(extra);
   const { row, col, tile } = value;
-  if (!Number.isSafeInteger(row)) return err(malformed('bad_coordinate', `${path}.row`));
-  if (!Number.isSafeInteger(col)) return err(malformed('bad_coordinate', `${path}.col`));
+  // `-0` is a safe integer but outside the JCS subset (ADR-0013 §D3): it would make the log unhashable.
+  if (!isJcsInteger(row)) return err(malformed('bad_coordinate', `${path}.row`));
+  if (!isJcsInteger(col)) return err(malformed('bad_coordinate', `${path}.col`));
   if (tile === BLANK) return err(malformed('blank_undesignated', `${path}.tile`));
   if (!isBoardTile(tile)) return err(malformed('bad_tile', `${path}.tile`));
-  return ok({ row: row as number, col: col as number, tile });
+  return ok({ row, col, tile });
 }
 
 /**
  * Parses an untrusted action for a match with `seats` seats. Checks, in order: plain object with a known `type`
  * (`unknown_type`), no unknown key (`unknown_field`, first in sorted order), `seat` a safe integer in
- * `[0, seats)` (`seat_out_of_range`), then each tile in index order (`bad_coordinate`, `blank_undesignated`,
- * `bad_tile`). Returns the canonical action.
+ * `[0, seats)` other than `-0` (`seat_out_of_range`), then each tile in index order (`bad_coordinate` for a
+ * coordinate that is not a safe integer or is `-0`, `blank_undesignated`, `bad_tile`). Returns the canonical
+ * action.
  */
 export function parseAction(input: unknown, seats: number): Result<Action, Rejection> {
   if (!isPlainObject(input)) return err(malformed('unknown_type', ''));
@@ -71,7 +74,7 @@ export function parseAction(input: unknown, seats: number): Result<Action, Rejec
   const extra = unknownKey(input, ACTION_KEYS[type], '');
   if (extra !== undefined) return err(extra);
   const seat = input['seat'];
-  if (typeof seat !== 'number' || !Number.isSafeInteger(seat) || seat < 0 || seat >= seats) {
+  if (!isJcsInteger(seat) || seat < 0 || seat >= seats) {
     return err(malformed('seat_out_of_range', 'seat'));
   }
   if (type === 'PASS' || type === 'RESIGN') return ok({ seat, type });

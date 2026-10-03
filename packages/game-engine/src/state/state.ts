@@ -5,7 +5,7 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { engineError, rulesVersionError } from '../errors.js';
-import { canonicalJson, hash16 } from '../hash/jcs.js';
+import { canonicalJson, hash16, isJcsInteger } from '../hash/jcs.js';
 import { configProblem, isPlainObject, keyProblem } from '../match/create.js';
 import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
 import { countTiles, initialBag, isBlankOnBoard, sortTiles } from '../tiles.js';
@@ -49,8 +49,9 @@ const BOARD_ROW = /^[.A-Za-z]+$/;
 const FORM = /^[A-Z]{2,15}$/;
 const TWO_POW_32 = 0x1_0000_0000;
 
-const isCount = (x: unknown): x is number => Number.isSafeInteger(x) && (x as number) >= 0;
-const isInt = (x: unknown): x is number => Number.isSafeInteger(x);
+// `JSON.parse('-0')` is `-0`, which the JCS subset rejects (ADR-0013 §D3): never accept it.
+const isInt = (x: unknown): x is number => isJcsInteger(x);
+const isCount = (x: unknown): x is number => isInt(x) && x >= 0;
 const isU32 = (x: unknown): boolean => isCount(x) && x < TWO_POW_32;
 const intArray = (x: unknown, length: number): boolean =>
   Array.isArray(x) && x.length === length && (x as unknown[]).every(isInt);

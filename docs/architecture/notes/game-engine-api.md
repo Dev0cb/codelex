@@ -404,7 +404,7 @@ export type PlacementViolation =
 
 export type MalformedViolation =
   | 'unknown_type' | 'unknown_field' | 'seat_out_of_range'
-  | 'bad_coordinate'        // not a safe integer
+  | 'bad_coordinate'        // not a safe integer, or -0 (outside the JCS subset; E5, review R1 M1)
   | 'bad_tile'              // not a BoardTile / RackTile char
   | 'blank_undesignated';   // '?' in a PLACE_WORD (R-BAG-006 a)
 
@@ -754,6 +754,9 @@ returns a state deep-equal to the one serialised (P-GLOBAL-04). `stateHash` is c
 `apply`, ADR-0013 budget).
 
 ### 13.7 Input trust
+*(E5, review R1 M1)* Every number accepted at a boundary (`parseAction`, hence `apply`/`evaluateMove`/
+`previewScore`/`parseActionLog`; `createMatch`; `parseState`) is a safe integer **other than `-0`**: `-0` is outside
+the JCS subset, so accepting it would make `stateHash`, `serializeState`, `serializeActionLog` or `replay` throw later.
 Typed callers are trusted for state values produced by this package (`createMatch`, `apply`, `parseState`); a
 hand-built invalid `MatchState` is a programmer error (undefined result, never an infinite loop). **Actions are
 never trusted**: they come from players, bots and logs, so `apply`/`evaluateMove` check their runtime shape (§8.2

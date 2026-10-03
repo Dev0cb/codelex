@@ -10,6 +10,8 @@ import {
   type LexiconVersion,
   type ReferenceTermInput,
 } from '@codelex/lexicon/index';
+import { apply } from '../../src/match/apply.js';
+import { createMatch } from '../../src/match/create.js';
 import { evaluateMove, observe } from '../../src/match/observe.js';
 import { createRng, deriveStreamState, type Rng } from '../../src/rng/index.js';
 import type {
@@ -351,4 +353,38 @@ function singleTileMove(state: MatchState, rng: Rng): MoveEvaluation | undefined
     }
   }
   return undefined;
+}
+
+/** A seed for match `i` of a generated corpus (16 lowercase hex chars). */
+export function seedOf(i: number): string {
+  return (i * 0x9e3779b1 + 12345).toString(16).padStart(16, '0').slice(-16);
+}
+
+export interface Played {
+  readonly config: MatchConfig;
+  /** States after 0, 1, … accepted actions (`states[0]` is the initial state). */
+  readonly states: readonly MatchState[];
+  readonly actions: readonly Action[];
+}
+
+/**
+ * G-STATE (RULE_PROPERTIES §4): up to `steps` accepted random-legal actions from the initial state of `seed`.
+ * Stops early when the match ends. Every state is reachable through `apply`.
+ */
+export function playSteps(seed: string, seats: number, steps: number): Played {
+  const config = simConfig(seed, seats);
+  const created = createMatch(config, SIM_CTX);
+  if (!created.ok) throw new Error(created.error.code);
+  const rng = harnessRng(seed);
+  const states: MatchState[] = [created.value.state];
+  const actions: Action[] = [];
+  let state = created.value.state;
+  while (actions.length < steps && state.status === 'in_progress') {
+    const r = apply(state, chooseAction(state, rng), SIM_CTX);
+    if (!r.ok) throw new Error(`${seed}: legal action rejected: ${JSON.stringify(r.error)}`);
+    state = r.value.state;
+    states.push(state);
+    actions.push(r.value.action);
+  }
+  return { config, states, actions };
 }
