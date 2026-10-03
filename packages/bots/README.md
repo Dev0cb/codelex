@@ -50,7 +50,21 @@ DAWG path: the same candidates in a different order, so the same decision whenev
 ```bash
 pnpm turbo run build lint typecheck format:check test --filter=@codelex/bots
 pnpm --filter @codelex/bots bench   # Q-A2 measurement (non-gating, several minutes)
+pnpm --filter @codelex/bots simulate -- --mirror 1000 --pair 500   # B2 simulator (non-gating)
 ```
+
+## Simulator (B2)
+
+`sim/` holds the B2 simulator: seeded bot-vs-bot Classic matches on the real lexicon (`global-ranked`, built as a
+`.clxi` with the GADDAG section and decoded) plus the E-1.7 AC-20 variant without inflections. The simulator is
+the host (BOT-2): it owns the state and the seeds, gives each bot `observe(state, seat)` and
+`deriveRng(seed, "bot:<seat>:<n>")`, applies every decision and replays every match (`replay` with per-action
+state hashes). Match seeds derive from a master seed (`sim-match:<pairing>:<i>`); personalities swap seats every
+other match. Statistics are integers (basis points, tenths, Wilson 95 % intervals with an integer square root):
+the determinism lint covers `sim/` too, so no clock, no float, no `JSON.stringify` (an explicit JSON writer is
+used). `simulate` compiles `src` + `sim` with `tsconfig.sim.json` into `dist/simulator` and runs
+`dist/simulator/sim/cli.js`; outputs go to `sim-results/` (git-ignored) unless `--out`/`--markdown` say
+otherwise. Wall time is measured by the caller (`time pnpm … simulate`). Readouts: `docs/game/sim/`.
 
 ## Tests
 
@@ -61,6 +75,8 @@ pnpm --filter @codelex/bots bench   # Q-A2 measurement (non-gating, several minu
   `BOT_VERSION` on the synthetic fixture. `test/purity.test.ts`: source scan backing the lint rule.
 - `test/support/lexicons.ts`: fixtures use the index's own automata, from the reference index (tries) or a built
   and decoded `.clxi` artefact (minimal automata); `gaddag: false` selects the DAWG path.
+- `sim/simulate.test.ts`: simulator smoke test (statistics, JSON writer, options, an 8-match suite on the real
+  lexicon variants with replay and determinism checks). The ≥ 1,000-match run is never part of `pnpm test`.
 - fast-check runs with a fixed global seed (`test/setup.ts`).
 
 ## Invariants
