@@ -197,7 +197,7 @@ describe('rejection precedence (API note §8.3 step 5, P-API-08)', () => {
     expect(violation(EMPTY, [p(3, 3, 'A')])).toBe('start_not_covered');
   });
 
-  it('not_in_lexicon last, listing every non-playable word with its role (GC-SCORE-04)', () => {
+  it('R-TURN-003 / P-TURN-003-b: not_in_lexicon last, listing every non-playable word with its role (GC-SCORE-04)', () => {
     const ai = boardWith(spell('AI', 7, 6));
     expect(rejection(ai, [p(7, 8, 'M')])).toEqual({
       kind: 'rejection',

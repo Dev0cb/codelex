@@ -68,12 +68,42 @@ decision below is reversible unless an ADR says otherwise.
 | C1 | Lexicon content batch 1 | lexicon-curator | L1 | ≥ 800 playable forms incl. ≥ 30 two-letter forms, EN/FR definitions, validator green | L | done (843 forms, 554 canonical, 37 two-letter; 1b curator review pending) |
 | L4 | DAWG build and binary codec (T5), size gate; GADDAG (T6) if capacity | lexicon-engineer | L3 | Byte-identical builds; `has()` < 5 µs on Node; index size gate in CI; decoder fuzz test | L | done (GADDAG deferred to B1/E-1.3) |
 | U1 | E-1.5 design spec (flows, board, summary, Knowledge Card) | ux-ui-designer | — | `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md` covers every AC with screens, states, EN/FR copy, a11y | M | done |
-| B1 | Bots: random-legal + Beginner + simulator CLI (stretch) | ai-engineer | E4, L4 | `/scaffold packages/bots`; deterministic under seed; simulator reports the stretch metrics on the current lexicon | M | todo |
-| E1b | JCS (RFC 8785) serialiser in the engine + ADR-0013 `jcs.json` vector | game-engine-engineer | E1 | Pure-TS JCS subset, differential test vs a reference implementation, A.3 vector green; folded into E4 if simpler | S | todo |
-| T1 | Extend the determinism lint to every API ADR-0013 §D4 bans (BigInt, Intl, `localeCompare`, sort without comparator, `TextEncoder`, `Math.sqrt/exp/log`, async in engine) | devops-sre | E1 | `bad-*` fixtures fail for each; game-engine and bots lint stays green | S | todo |
-| Q1 | Sprint exit check | qa-engineer | E4, L4, C1 | Success indicators measured and recorded here; main green; `pnpm validate` passes | S | todo |
+| B1 | Bots: random-legal + Beginner + simulator CLI (stretch) | ai-engineer | E4, L4 | `/scaffold packages/bots`; deterministic under seed; simulator reports the stretch metrics on the current lexicon | M | deferred (next sprint, with the GADDAG section T6) |
+| E1b | JCS (RFC 8785) serialiser in the engine + ADR-0013 `jcs.json` vector | game-engine-engineer | E1 | Pure-TS JCS subset, differential test vs a reference implementation, A.3 vector green; folded into E4 if simpler | S | done |
+| T1 | Extend the determinism lint to every API ADR-0013 §D4 bans (BigInt, Intl, `localeCompare`, sort without comparator, `TextEncoder`, `Math.sqrt/exp/log`, async in engine) | devops-sre | E1 | `bad-*` fixtures fail for each; game-engine and bots lint stays green | S | done |
+| Q1 | Sprint exit check | qa-engineer | E4, L4, C1 | Success indicators measured and recorded here; main green; `pnpm validate` passes | S | done (see Exit check) |
 
 **Start in parallel:** D1 (ADR-0013), D2 (E-1.7 spec) and D3 (premium layout + letter table); U1 can run alongside.
+
+## Exit check (Q1, 2026-10-03)
+
+Measured on `main` after #29 (lexicon `78a3eda4146cc6f1`), with `pnpm turbo run build lint typecheck format:check test
+--force` green on all 20 tasks, `pnpm validate` green and `pnpm audit --audit-level=high` green (one time-boxed
+exception, `docs/security/audit-exceptions.md`). Q1 was run by the orchestrator (`qa-engineer` unavailable until
+2026-10-05); an independent QA pass is a carry-over.
+
+| Indicator | Target | Result | Status |
+|---|---|---|---|
+| Rule coverage | every non-power Phase-1 rule ID has ≥ 1 passing test | all cited and passing; not cited by design: R-POW-*, R-MODE-ARENA/BLITZ/DAILY/KNOWLEDGE (later epics), R-BOARD-003 (tech squares off in `classic-v1`); R-MODE-CLASSIC-001 b/c and R-MODE-CLASSIC-002 c/d need clocks and the `competitive` flag (Phase 2) | met |
+| Golden cases | all pass | 22 scoring (RULE_PROPERTIES §3.1/§3.2) + 5 end + GC-SCORE-02/03/04/05, GC-TURN-01..06, GC-BAG-01/02, GC-END-02..05, GC-DET-01 | met |
+| Engine coverage | ≥ 90 % (strict preset) | 99.5 % statements, 95.3 % branches, 100 % functions, 99.7 % lines | met |
+| P-GLOBAL-01..08 | green, recorded seeds | green (fast-check fixed seeds; P-GLOBAL-01/03 sampled in the full-match property) | met |
+| Full matches | ≥ 1,000 seeded matches replay to the same hash; 0 conservation violations; 0 illegal moves accepted | 1,000 matches (1v1, FFA, 2v2), identical replays and hashes, 0 violations; every accepted move re-validated by `evaluateMove` ≡ `apply` | met |
+| Index T-COMPLETE / T-SOUND / T-ORACLE | green | green on fixture and real data (binary ≡ reference on every form, term, relation, random query) | met |
+| `has()` | < 5 µs on Node | 0.27 µs median (compiled build, 843 forms + misses) | met |
+| Byte-identical builds | two builds identical | identical sha256 `4aff610e…` (52,440 B); determinism + round-trip tests in CI | met |
+| Lexicon | ≥ 800 forms, ≥ 30 two-letter, validator green | 843 forms (554 canonical + 289 plurals), 37 two-letter, 0 errors | met |
+| Stretch (reported, not gated) | bot metrics, engine games/s | engine ≈ 1,050 full-match replays/s (≈ 10.6 µs per action, GC-DET-01 log); bot metrics not measured (B1 deferred) | partial |
+
+**Carry-overs to the next sprint**
+- B1 (bots, simulator CLI) together with the GADDAG section (lexicon-index note T6) and the bot no-legal-word rate.
+- Independent reviews pending because the sub-agents hit their weekly limit: `code-reviewer` on #24–#28,
+  `lexicon-curator` second pass on batch 1b (#29), `qa-engineer` on this exit check, `security-engineer` on the
+  audit exception (#30).
+- Rules questions for `game-designer`: Q-GD-3 needs a hashed resignation order to keep "later resignation ranks
+  higher" (API note §16), to settle before the first published replay.
+- Lexicon steering: 2–4-letter share 27.2 % against the 20–25 % band; 6 irregular plurals still `NEEDS_REVIEW`.
+- Turborepo `build:index` task and CI benchmark trending (lexicon-index note T8/T9); Hermes timings (next sprint).
 
 ## Risks
 
@@ -95,3 +125,9 @@ decision below is reversible unless an ADR says otherwise.
 - 2026-10-02 — D3: GAME_RULES v0.3 = `engineRulesVersion` 1 — original `classic-v1` layout, `letters-v1` table (also
   used for lexicon game values), 18 Classic + 4 inflection golden cases, E-1.7 confirmations C-GD-1..5, R-CORE-006.
 - 2026-10-02 — E-1.5 open questions decided under delegation (see the spec's "Decisions" section).
+- 2026-10-03 — L3 (#24), E2 (#25), E3 (#26), E4 (#27), L4 (#28), C1 batch 1b (#29) merged; sub-agents unavailable,
+  so these PRs carry a self-review and a pending retroactive review. GC-DET-01 pinned on a frozen synthetic lexicon
+  (bundled content changes every batch); `has()` speed gate moved to an uninstrumented node test.
+- 2026-10-03 — Dependency audit: GHSA-vfj7-8cjw-p6xm (`braces`, dev-only, no fix) ignored until 2026-11-02 by product
+  owner decision (#30); register `docs/security/audit-exceptions.md`.
+- 2026-10-03 — Q1 exit check: all gated success indicators met; B1 deferred to the next sprint.

@@ -164,7 +164,7 @@ describe('createMatch — initial state (API note §7.2)', () => {
     }
   });
 
-  it('accepts every format and team structure of API note §6', () => {
+  it('P-CORE-001-a / P-MODE-CLASSIC-001-a / P-MODE-CLASSIC-002-a: accepts every untimed format and team structure of API note §6', () => {
     const setups: Partial<MatchSetup>[] = [
       { format: 'untimed', seats: 2, teams: [[0], [1]] },
       { format: 'untimed', seats: 3, teams: [[0], [1], [2]] },
