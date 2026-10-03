@@ -51,6 +51,31 @@ importers:
         specifier: 5.0.2
         version: 5.0.2(@types/node@22.20.4)(@vitest/coverage-v8@5.0.2)(vite@8.3.1(@types/node@22.20.4))
 
+  packages/bots:
+    dependencies:
+      '@codelex/config':
+        specifier: workspace:*
+        version: link:../config
+      '@codelex/game-engine':
+        specifier: workspace:*
+        version: link:../game-engine
+      '@codelex/lexicon':
+        specifier: workspace:*
+        version: link:../lexicon
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.4
+        version: 22.20.4
+      '@vitest/coverage-v8':
+        specifier: 5.0.2
+        version: 5.0.2(vitest@5.0.2)
+      fast-check:
+        specifier: 4.10.2
+        version: 4.10.2
+      vitest:
+        specifier: 5.0.2
+        version: 5.0.2(@types/node@22.20.4)(@vitest/coverage-v8@5.0.2)(vite@8.3.1(@types/node@22.20.4))
+
   packages/config:
     dependencies:
       eslint:
