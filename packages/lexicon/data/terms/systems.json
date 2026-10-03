@@ -35,6 +35,38 @@
       ]
     },
     {
+      "id": "admin",
+      "form": "ADMIN",
+      "display": "Admin",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Administrator: account or person with full rights to manage a system.",
+        "fr": "Administrateur : compte ou personne ayant tous les droits pour gérer un système."
+      },
+      "inflections": [
+        {
+          "form": "ADMINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
+        },
+        {
+          "type": "related_to",
+          "target": "root"
+        }
+      ]
+    },
+    {
       "id": "android",
       "form": "ANDROID",
       "display": "Android",
@@ -101,6 +133,34 @@
       }
     },
     {
+      "id": "checksum",
+      "form": "CHECKSUM",
+      "display": "Checksum",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Small value computed from data to detect accidental changes.",
+        "fr": "Petite valeur calculée à partir de données pour détecter des modifications accidentelles."
+      },
+      "inflections": [
+        {
+          "form": "CHECKSUMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hash"
+        }
+      ]
+    },
+    {
       "id": "concurrency",
       "form": "CONCURRENCY",
       "display": "Concurrency",
@@ -119,6 +179,33 @@
         {
           "type": "uses",
           "target": "thread"
+        }
+      ]
+    },
+    {
+      "id": "console",
+      "form": "CONSOLE",
+      "display": "Console",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Text window where you type commands and read their output.",
+        "fr": "Fenêtre texte où l'on tape des commandes et lit leurs résultats."
+      },
+      "inflections": [
+        {
+          "form": "CONSOLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "terminal"
         }
       ]
     },
@@ -433,6 +520,33 @@
         {
           "type": "implements",
           "target": "virtualization"
+        }
+      ]
+    },
+    {
+      "id": "inode",
+      "form": "INODE",
+      "display": "Inode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Filesystem record holding a file's metadata and the location of its data.",
+        "fr": "Enregistrement du système de fichiers qui contient les métadonnées d'un fichier et l'emplacement de ses données."
+      },
+      "inflections": [
+        {
+          "form": "INODES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "filesystem"
         }
       ]
     },
@@ -789,6 +903,37 @@
       ]
     },
     {
+      "id": "pipe",
+      "form": "PIPE",
+      "display": "Pipe",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Channel that sends one program's output to another program's input.",
+        "fr": "Canal qui envoie la sortie d'un programme vers l'entrée d'un autre."
+      },
+      "inflections": [
+        {
+          "form": "PIPES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shell"
+        },
+        {
+          "type": "related_to",
+          "target": "process"
+        }
+      ]
+    },
+    {
       "id": "process",
       "form": "PROCESS",
       "display": "Process",
@@ -896,6 +1041,37 @@
       ]
     },
     {
+      "id": "semaphore",
+      "form": "SEMAPHORE",
+      "display": "Semaphore",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Counter that limits how many threads may use a resource at once.",
+        "fr": "Compteur qui limite le nombre de threads utilisant une ressource en même temps."
+      },
+      "inflections": [
+        {
+          "form": "SEMAPHORES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "mutex"
+        },
+        {
+          "type": "related_to",
+          "target": "concurrency"
+        }
+      ]
+    },
+    {
       "id": "shell",
       "form": "SHELL",
       "display": "Shell",
@@ -913,6 +1089,37 @@
         {
           "form": "SHELLS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "signal",
+      "form": "SIGNAL",
+      "display": "Signal",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Notification the operating system sends to a process, for example to stop it.",
+        "fr": "Notification envoyée par le système d'exploitation à un processus, par exemple pour l'arrêter."
+      },
+      "inflections": [
+        {
+          "form": "SIGNALS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "process"
+        },
+        {
+          "type": "related_to",
+          "target": "interrupt"
         }
       ]
     },
@@ -1175,6 +1382,38 @@
         {
           "type": "related_to",
           "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "username",
+      "form": "USERNAME",
+      "display": "Username",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Name that identifies an account when logging in.",
+        "fr": "Nom qui identifie un compte lors de la connexion."
+      },
+      "inflections": [
+        {
+          "form": "USERNAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "login"
+        },
+        {
+          "type": "related_to",
+          "target": "account"
         }
       ]
     },

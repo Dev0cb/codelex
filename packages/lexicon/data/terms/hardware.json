@@ -223,6 +223,37 @@
       ]
     },
     {
+      "id": "cable",
+      "form": "CABLE",
+      "display": "Cable",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Wire that carries power or data between devices.",
+        "fr": "Fil qui transporte du courant ou des données entre appareils."
+      },
+      "inflections": [
+        {
+          "form": "CABLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "usb"
+        },
+        {
+          "type": "related_to",
+          "target": "ethernet"
+        }
+      ]
+    },
+    {
       "id": "cache",
       "form": "CACHE",
       "display": "Cache",
@@ -247,6 +278,33 @@
         {
           "type": "related_to",
           "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "charger",
+      "form": "CHARGER",
+      "display": "Charger",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that refills a battery with electricity.",
+        "fr": "Appareil qui recharge une batterie en électricité."
+      },
+      "inflections": [
+        {
+          "form": "CHARGERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "battery"
         }
       ]
     },
@@ -533,6 +591,91 @@
       ],
       "sources": [
         "https://www.hdmi.org/"
+      ]
+    },
+    {
+      "id": "headset",
+      "form": "HEADSET",
+      "display": "Headset",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Headphones combined with a microphone.",
+        "fr": "Casque audio combiné à un micro."
+      },
+      "inflections": [
+        {
+          "form": "HEADSETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "speaker"
+        }
+      ]
+    },
+    {
+      "id": "heatsink",
+      "form": "HEATSINK",
+      "display": "Heatsink",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Metal part that draws heat away from a chip.",
+        "fr": "Pièce métallique qui évacue la chaleur d'une puce."
+      },
+      "inflections": [
+        {
+          "form": "HEATSINKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        },
+        {
+          "type": "related_to",
+          "target": "chip"
+        }
+      ]
+    },
+    {
+      "id": "joystick",
+      "form": "JOYSTICK",
+      "display": "Joystick",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Lever used to control movement in games or machines.",
+        "fr": "Manette à levier pour contrôler les mouvements dans les jeux ou les machines."
+      },
+      "inflections": [
+        {
+          "form": "JOYSTICKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mouse"
+        }
       ]
     },
     {
@@ -898,6 +1041,32 @@
       ]
     },
     {
+      "id": "raid",
+      "form": "RAID",
+      "display": "RAID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware",
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Redundant array of independent disks: several disks combined for speed or safety.",
+        "fr": "Redundant array of independent disks : plusieurs disques combinés pour la vitesse ou la sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "disk"
+        },
+        {
+          "type": "related_to",
+          "target": "storage"
+        }
+      ]
+    },
+    {
       "id": "ram",
       "form": "RAM",
       "display": "RAM",
@@ -990,6 +1159,37 @@
         {
           "type": "is_a",
           "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "scanner",
+      "form": "SCANNER",
+      "display": "Scanner",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that turns paper documents or images into digital files.",
+        "fr": "Appareil qui transforme des documents papier ou des images en fichiers numériques."
+      },
+      "inflections": [
+        {
+          "form": "SCANNERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "printer"
+        },
+        {
+          "type": "related_to",
+          "target": "ocr"
         }
       ]
     },
@@ -1143,6 +1343,33 @@
         {
           "type": "uses",
           "target": "screen"
+        }
+      ]
+    },
+    {
+      "id": "speaker",
+      "form": "SPEAKER",
+      "display": "Speaker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Device that turns an electrical signal into sound.",
+        "fr": "Appareil qui transforme un signal électrique en son."
+      },
+      "inflections": [
+        {
+          "form": "SPEAKERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pc"
         }
       ]
     },

@@ -405,6 +405,11 @@ Decided 2026-10-02 by `lexicon-curator` under the product owner's delegation, wi
   inflection share at 32.5 % (cap 35 %), so new content skews novice/intermediate and canonical; every category is
   kept at 8–16 % per PR (today 10.1–13.4 %). Batches 2–3 (≈ +800 canonical over two sprints) need 4–5 PRs of
   ≤ 200 terms in parallel by category: feasible, R-1 stays the main schedule risk.
+  **1b (2026-10-03, authored by the orchestrator while the curator agent was unavailable; curator second-pass
+  review pending):** 70 new generic canonical terms (no products, no trademarks, every one related to an existing
+  term), 55 regular plurals. Result: 843 forms = 554 canonical + 289 inflections (34.3 %); difficulty 28.2 / 34.8 /
+  28.3 / 8.7 %; categories 10.3–13.5 %; 3–4 letters 192. The 2–4-letter share is 27.2 % (was 29.7 %), still above
+  the 20–25 % steering band: batch 2 adds longer canonical terms first.
 - **C-LC-3 Closed verb list for batch 2 (60 verbs; a verb form is authored only on an existing canonical term with
   that verb reading, regular -S/-ED/-ING only unless confirmed as NEEDS_REVIEW, noun reading wins on collisions per
   D-1, and a standalone term owns its string per D-5, e.g. LOGGING, STREAMING):** DEPLOY, COMMIT, MERGE, PUSH, PULL,

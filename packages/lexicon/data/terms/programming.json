@@ -160,6 +160,37 @@
       ]
     },
     {
+      "id": "callback",
+      "form": "CALLBACK",
+      "display": "Callback",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Function passed to other code and called when an event or task completes.",
+        "fr": "Fonction transmise à un autre code et appelée quand un événement ou une tâche se termine."
+      },
+      "inflections": [
+        {
+          "form": "CALLBACKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "function"
+        },
+        {
+          "type": "related_to",
+          "target": "event"
+        }
+      ]
+    },
+    {
       "id": "class",
       "form": "CLASS",
       "display": "Class",
@@ -416,6 +447,33 @@
       ]
     },
     {
+      "id": "enum",
+      "form": "ENUM",
+      "display": "Enum",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Type whose values come from a fixed list of named constants.",
+        "fr": "Type dont les valeurs viennent d'une liste fixe de constantes nommées."
+      },
+      "inflections": [
+        {
+          "form": "ENUMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "variable"
+        }
+      ]
+    },
+    {
       "id": "es",
       "form": "ES",
       "display": "ES",
@@ -617,6 +675,34 @@
       ]
     },
     {
+      "id": "graph",
+      "form": "GRAPH",
+      "display": "Graph",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data structure of nodes connected by edges.",
+        "fr": "Structure de données de nœuds reliés par des arêtes."
+      },
+      "inflections": [
+        {
+          "form": "GRAPHS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "tree"
+        }
+      ]
+    },
+    {
       "id": "haskell",
       "form": "HASKELL",
       "display": "Haskell",
@@ -634,6 +720,38 @@
         {
           "type": "is_a",
           "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "heap",
+      "form": "HEAP",
+      "display": "Heap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Memory area for objects allocated at run time, or a tree ordered by priority.",
+        "fr": "Zone mémoire des objets alloués à l'exécution, ou arbre ordonné par priorité."
+      },
+      "inflections": [
+        {
+          "form": "HEAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "memory"
+        },
+        {
+          "type": "alternative_to",
+          "target": "stack"
         }
       ]
     },
@@ -1026,6 +1144,60 @@
       ]
     },
     {
+      "id": "method",
+      "form": "METHOD",
+      "display": "Method",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Function attached to a class or object.",
+        "fr": "Fonction rattachée à une classe ou à un objet."
+      },
+      "inflections": [
+        {
+          "form": "METHODS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "class"
+        }
+      ]
+    },
+    {
+      "id": "module",
+      "form": "MODULE",
+      "display": "Module",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Self-contained file or unit of code that exports features to other code.",
+        "fr": "Fichier ou unité de code autonome qui expose des fonctionnalités au reste du code."
+      },
+      "inflections": [
+        {
+          "form": "MODULES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "library"
+        }
+      ]
+    },
+    {
       "id": "null",
       "form": "NULL",
       "display": "null",
@@ -1090,6 +1262,69 @@
       ],
       "sources": [
         "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR"
+      ]
+    },
+    {
+      "id": "package",
+      "form": "PACKAGE",
+      "display": "Package",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Bundle of code and metadata distributed and installed as one unit.",
+        "fr": "Ensemble de code et de métadonnées distribué et installé d'un seul bloc."
+      },
+      "inflections": [
+        {
+          "form": "PACKAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "library"
+        },
+        {
+          "type": "related_to",
+          "target": "registry"
+        }
+      ]
+    },
+    {
+      "id": "parser",
+      "form": "PARSER",
+      "display": "Parser",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Program that reads text and turns it into a structure following a grammar.",
+        "fr": "Programme qui lit un texte et le transforme en structure selon une grammaire."
+      },
+      "inflections": [
+        {
+          "form": "PARSERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "syntax"
+        },
+        {
+          "type": "part_of",
+          "target": "compiler"
+        }
       ]
     },
     {
@@ -1209,6 +1444,38 @@
       ]
     },
     {
+      "id": "queue",
+      "form": "QUEUE",
+      "display": "Queue",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Collection where the first item added is the first one removed.",
+        "fr": "Collection où le premier élément ajouté est le premier retiré."
+      },
+      "inflections": [
+        {
+          "form": "QUEUES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "stack"
+        },
+        {
+          "type": "related_to",
+          "target": "broker"
+        }
+      ]
+    },
+    {
       "id": "recursion",
       "form": "RECURSION",
       "display": "Recursion",
@@ -1290,6 +1557,28 @@
       ]
     },
     {
+      "id": "runtime",
+      "form": "RUNTIME",
+      "display": "Runtime",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Environment that runs a program and provides its services while it executes.",
+        "fr": "Environnement qui exécute un programme et lui fournit ses services pendant son exécution."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "process"
+        }
+      ]
+    },
+    {
       "id": "rust",
       "form": "RUST",
       "display": "Rust",
@@ -1316,6 +1605,37 @@
       ],
       "sources": [
         "https://www.rust-lang.org/learn"
+      ]
+    },
+    {
+      "id": "script",
+      "form": "SCRIPT",
+      "display": "Script",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Short program run directly, often to automate a task.",
+        "fr": "Petit programme exécuté directement, souvent pour automatiser une tâche."
+      },
+      "inflections": [
+        {
+          "form": "SCRIPTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shell"
+        },
+        {
+          "type": "related_to",
+          "target": "automation"
+        }
       ]
     },
     {
@@ -1471,6 +1791,34 @@
         {
           "type": "part_of",
           "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "tree",
+      "form": "TREE",
+      "display": "Tree",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Data structure of nodes linked from a root to children, without cycles.",
+        "fr": "Structure de données de nœuds reliés d'une racine vers des enfants, sans cycle."
+      },
+      "inflections": [
+        {
+          "form": "TREES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "recursion"
         }
       ]
     },

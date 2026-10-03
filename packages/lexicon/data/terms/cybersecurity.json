@@ -27,6 +27,37 @@
       ]
     },
     {
+      "id": "allowlist",
+      "form": "ALLOWLIST",
+      "display": "Allowlist",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "List of the only items that are permitted; everything else is refused.",
+        "fr": "Liste des seuls éléments autorisés ; tout le reste est refusé."
+      },
+      "inflections": [
+        {
+          "form": "ALLOWLISTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "firewall"
+        },
+        {
+          "type": "related_to",
+          "target": "permission"
+        }
+      ]
+    },
+    {
       "id": "antivirus",
       "form": "ANTIVIRUS",
       "display": "Antivirus",
@@ -44,6 +75,37 @@
         {
           "type": "related_to",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "audit",
+      "form": "AUDIT",
+      "display": "Audit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Systematic check of a system against security rules.",
+        "fr": "Contrôle méthodique d'un système au regard des règles de sécurité."
+      },
+      "inflections": [
+        {
+          "form": "AUDITS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "logging"
+        },
+        {
+          "type": "related_to",
+          "target": "permission"
         }
       ]
     },
@@ -144,6 +206,31 @@
         {
           "type": "uses",
           "target": "malware"
+        }
+      ]
+    },
+    {
+      "id": "breach",
+      "form": "BREACH",
+      "display": "Breach",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Incident in which data is accessed or stolen without permission.",
+        "fr": "Incident au cours duquel des données sont consultées ou volées sans autorisation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "exploit"
         }
       ]
     },
@@ -277,6 +364,37 @@
         "en": "Cross-site request forgery: tricking a browser into unwanted actions.",
         "fr": "Falsification de requête intersite : pousser un navigateur à des actions non voulues."
       }
+    },
+    {
+      "id": "cve",
+      "form": "CVE",
+      "display": "CVE",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Common Vulnerabilities and Exposures: public identifier of a known vulnerability.",
+        "fr": "Common Vulnerabilities and Exposures : identifiant public d'une vulnérabilité connue."
+      },
+      "inflections": [
+        {
+          "form": "CVES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        },
+        {
+          "type": "related_to",
+          "target": "patch"
+        }
+      ]
     },
     {
       "id": "ddos",
@@ -667,6 +785,37 @@
       ]
     },
     {
+      "id": "otp",
+      "form": "OTP",
+      "display": "OTP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One-time password: code valid for a single login, often sent by SMS or an app.",
+        "fr": "Mot de passe à usage unique : code valable pour une seule connexion, souvent envoyé par SMS ou une application."
+      },
+      "inflections": [
+        {
+          "form": "OTPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "mfa"
+        },
+        {
+          "type": "related_to",
+          "target": "password"
+        }
+      ]
+    },
+    {
       "id": "passkey",
       "form": "PASSKEY",
       "display": "Passkey",
@@ -936,6 +1085,33 @@
       ]
     },
     {
+      "id": "scam",
+      "form": "SCAM",
+      "display": "Scam",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Online trick to steal money or personal data.",
+        "fr": "Arnaque en ligne pour voler de l'argent ou des données personnelles."
+      },
+      "inflections": [
+        {
+          "form": "SCAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        }
+      ]
+    },
+    {
       "id": "secret",
       "form": "SECRET",
       "display": "Secret",
@@ -1091,6 +1267,33 @@
       ]
     },
     {
+      "id": "threat",
+      "form": "THREAT",
+      "display": "Threat",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Anything that could exploit a weakness and cause harm to a system.",
+        "fr": "Tout ce qui pourrait exploiter une faiblesse et nuire à un système."
+      },
+      "inflections": [
+        {
+          "form": "THREATS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        }
+      ]
+    },
+    {
       "id": "trojan",
       "form": "TROJAN",
       "display": "Trojan",
@@ -1243,6 +1446,32 @@
         {
           "type": "is_a",
           "target": "vulnerability"
+        }
+      ]
+    },
+    {
+      "id": "zerotrust",
+      "form": "ZEROTRUST",
+      "display": "Zero trust",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Security model that never trusts a request by default and checks every access.",
+        "fr": "Modèle de sécurité qui ne fait confiance à aucune requête par défaut et vérifie chaque accès."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authentication"
+        },
+        {
+          "type": "related_to",
+          "target": "iam"
         }
       ]
     }

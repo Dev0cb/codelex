@@ -160,6 +160,33 @@
       ]
     },
     {
+      "id": "chart",
+      "form": "CHART",
+      "display": "Chart",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Visual drawing of data, such as bars or lines.",
+        "fr": "Représentation visuelle de données, sous forme de barres ou de courbes."
+      },
+      "inflections": [
+        {
+          "form": "CHARTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dashboard"
+        }
+      ]
+    },
+    {
       "id": "column",
       "form": "COLUMN",
       "display": "Column",
@@ -259,6 +286,34 @@
       },
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc4180"
+      ]
+    },
+    {
+      "id": "cursor",
+      "form": "CURSOR",
+      "display": "Cursor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Pointer that walks through the rows of a query result one at a time.",
+        "fr": "Pointeur qui parcourt une à une les lignes du résultat d'une requête."
+      },
+      "inflections": [
+        {
+          "form": "CURSORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "query"
+        }
       ]
     },
     {
@@ -405,6 +460,31 @@
         {
           "type": "uses",
           "target": "index"
+        }
+      ]
+    },
+    {
+      "id": "entity",
+      "form": "ENTITY",
+      "display": "Entity",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Thing a data model describes, such as a customer or an order.",
+        "fr": "Élément décrit par un modèle de données, comme un client ou une commande."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "schema"
+        },
+        {
+          "type": "related_to",
+          "target": "table"
         }
       ]
     },
@@ -669,6 +749,37 @@
       ]
     },
     {
+      "id": "kpi",
+      "form": "KPI",
+      "display": "KPI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Key performance indicator: number that tracks progress toward a goal.",
+        "fr": "Indicateur clé de performance : chiffre qui suit les progrès vers un objectif."
+      },
+      "inflections": [
+        {
+          "form": "KPIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dashboard"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
       "id": "lakehouse",
       "form": "LAKEHOUSE",
       "display": "Lakehouse",
@@ -713,6 +824,38 @@
         {
           "type": "related_to",
           "target": "schema"
+        }
+      ]
+    },
+    {
+      "id": "metric",
+      "form": "METRIC",
+      "display": "Metric",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Measured value tracked over time, such as errors per minute.",
+        "fr": "Valeur mesurée suivie dans le temps, comme le nombre d'erreurs par minute."
+      },
+      "inflections": [
+        {
+          "form": "METRICS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "monitoring"
+        },
+        {
+          "type": "part_of",
+          "target": "dashboard"
         }
       ]
     },
@@ -841,6 +984,38 @@
       ]
     },
     {
+      "id": "outlier",
+      "form": "OUTLIER",
+      "display": "Outlier",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Value far from the others in a dataset.",
+        "fr": "Valeur très éloignée des autres dans un jeu de données."
+      },
+      "inflections": [
+        {
+          "form": "OUTLIERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
       "id": "parquet",
       "form": "PARQUET",
       "display": "Parquet",
@@ -890,6 +1065,37 @@
         {
           "type": "part_of",
           "target": "topic"
+        }
+      ]
+    },
+    {
+      "id": "pivot",
+      "form": "PIVOT",
+      "display": "Pivot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Table operation that turns row values into columns to summarise data.",
+        "fr": "Opération sur un tableau qui transforme des valeurs de lignes en colonnes pour résumer les données."
+      },
+      "inflections": [
+        {
+          "form": "PIVOTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "spreadsheet"
+        },
+        {
+          "type": "related_to",
+          "target": "table"
         }
       ]
     },
@@ -1359,6 +1565,37 @@
         {
           "type": "related_to",
           "target": "acid"
+        }
+      ]
+    },
+    {
+      "id": "trigger",
+      "form": "TRIGGER",
+      "display": "Trigger",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Code a database runs automatically when a row changes.",
+        "fr": "Code exécuté automatiquement par une base de données quand une ligne change."
+      },
+      "inflections": [
+        {
+          "form": "TRIGGERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "database"
+        },
+        {
+          "type": "related_to",
+          "target": "event"
         }
       ]
     },
