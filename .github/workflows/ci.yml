@@ -68,6 +68,21 @@ jobs:
           else
             pnpm turbo run bundle:check
           fi
+      # Lexicon index benchmarks (lexicon-index note §5, T8): JSON trend data, reporting only. The hard speed gates
+      # are in the lexicon tests above; this step never fails the job. It reuses the build:index output when the
+      # tests above built it (local turbo cache), otherwise builds it once (a few seconds).
+      - name: Lexicon index benchmarks (non-gating)
+        id: lexicon-bench
+        continue-on-error: true
+        run: pnpm turbo run bench:index --filter=@codelex/lexicon
+      - name: Upload lexicon index benchmarks
+        if: steps.lexicon-bench.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lexicon-index-bench
+          path: packages/lexicon/dist/bench/index-bench.json
+          if-no-files-found: ignore
+          retention-days: 90
 
   golden-path:
     # Phase 0 exit criterion: a package scaffolded with /scaffold is green in < 10 min. The probe package and

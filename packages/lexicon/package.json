@@ -15,7 +15,8 @@
     "./validate": "./scripts/validate.mjs",
     "./canonical": "./scripts/canonical.mjs",
     "./schema/term.schema.json": "./schema/term.schema.json",
-    "./data/*": "./data/*"
+    "./data/*": "./data/*",
+    "./indexes": "./scripts/indexes.mjs"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -24,7 +25,8 @@
     "format:check": "prettier --check .",
     "test": "node --test \"test/*.test.mjs\" && vitest run --coverage",
     "validate": "node scripts/validate.mjs",
-    "build:index": "node scripts/build-index.mjs"
+    "build:index": "node scripts/build-index.mjs",
+    "bench:index": "node scripts/bench-index.mjs"
   },
   "dependencies": {
     "@codelex/config": "workspace:*"
