@@ -1,0 +1,7 @@
+{
+  "app.name": "CODELEX",
+  "home.tagline": "Joue le langage de la technologie.",
+  "home.engine_version": "Moteur de règles v{version}",
+  "splash.loading": "Préparation du lexique…",
+  "a11y.tile.letter": "Lettre {letter}, {points, plural, one {# point} other {# points}}"
+}
