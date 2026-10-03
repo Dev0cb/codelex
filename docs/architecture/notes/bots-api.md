@@ -3,7 +3,8 @@
 - Status: Proposed · Date: 2026-10-03 · Owner/author: ai-engineer (contract proposed by solution-architect;
   Beginner design with game-designer reasoning, decisions delegated by the product owner)
 - Reviewed-by: pending solution-architect, game-designer; lexicon-engineer delivered the §4.3 DAWG accessor (L5, #47)
-- Updated 2026-10-03 (B2): §4.3 DAWG fallback implemented, §6 Q-A2 measured, §9 O-1 closed.
+- Updated 2026-10-03 (B2): §4.3 DAWG fallback implemented, §6 Q-A2 measured, §9 O-1 closed, §5.4 first
+  calibration readout (`docs/game/sim/2026-10-b2-readout.md`).
 - Sprint: `docs/sprints/2026-10-03-phase1-bots-app-foundation.md` — B0 (this note). Unblocks B1 (bots), B2
   (simulator), H1 (device timing), S1 (first playable slice).
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013,
@@ -201,6 +202,12 @@ RNG draws happen in a fixed order (sample, Full Stack check, pick), so the decis
 - **Tuning levers**, in order: `topWeights` (flatter = weaker), `maxDifficultyRank`, `skipFullStackPermille`,
   `budget.maxCandidates` (attention). A miss in the playtest (human win < 55 % or average loss margin > 100
   points, F-9 `score_margin`) is fixed by a data change and a `BOT_VERSION` bump.
+- **First readout (B2, 2026-10-03, batch 2: 1,501 forms; `docs/game/sim/2026-10-b2-readout.md`):** BG-1
+  64.5 % [61.4, 67.4] (miss), BG-2 98.8 % [97.9, 99.3] (miss), BG-3 63.6 % (ok), BG-4 87.7 % (slight miss),
+  BG-5 0 % (ok), over 22,000 replay-verified matches. Candidate sets are tiny at this lexicon size (Beginner
+  chooses among p50 3, p95 22 moves), and the vocabulary filter forgoes the advanced/expert term bonus, which is
+  37–44 % of all points. `BOT_VERSION` stays 1 until game-designer confirms or restates BG-1..BG-5 (O-2) for
+  batch 3.
 
 ## 6. Node budget ↔ device latency (toward E-1.5 AC-8)
 
