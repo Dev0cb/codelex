@@ -1,0 +1,58 @@
+{
+  "$comment": "Phase-1 scope for the traceability gate (tools/traceability/check.mjs). Every rule ID of GAME_RULES.md not listed under outOfScope needs a tagged assertion; every entry needs a reason; an entry for an unknown ID fails the gate.",
+  "outOfScope": {
+    "R-BOARD-003": {
+      "reason": "Tech squares are not part of classic-v1 and are off for the Phase 1 playtest (GAME_RULES section 2.1); positions and categories are open (A-02). Revisit with the first layout that has tech squares."
+    },
+    "R-MODE-BLITZ-001": {
+      "reason": "Blitz is not in Phase 1 (E-1.5 is Classic vs bot); needs the clock actions TIMEOUT and `at`, reserved in engineRulesVersion 1."
+    },
+    "R-MODE-ARENA-001": {
+      "reason": "Arena mode is a later epic (Phase 2+); the engine has no HP model in engineRulesVersion 1."
+    },
+    "R-MODE-ARENA-002": {
+      "reason": "Arena effects are a later epic (Phase 2+); depends on A-06 and on season config."
+    },
+    "R-MODE-DAILY-001": {
+      "reason": "Daily challenges are a later epic (Phase 2+); the generator and the server-side one-submission rule do not exist yet."
+    },
+    "R-MODE-KNOWLEDGE-001": {
+      "reason": "Knowledge challenges are untestable as written (A-08) and a later epic."
+    },
+    "R-POW-001": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5); tests are written with E-3.2."
+    },
+    "R-POW-002": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5); kill switches arrive with the powers."
+    },
+    "R-POW-AIASSIST": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5)."
+    },
+    "R-POW-CACHE": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5)."
+    },
+    "R-POW-COMPILE": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5)."
+    },
+    "R-POW-CONTAINER": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5); also ambiguous (A-09)."
+    },
+    "R-POW-DEBUG": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5); also breaks conservation as written (A-09)."
+    },
+    "R-POW-REFACTOR": {
+      "reason": "Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5)."
+    }
+  },
+  "partial": {
+    "R-CORE-002": {
+      "reason": "Asserted: (a) no client-supplied field (score, validity, timer, power) is read by apply. Not asserted: (b) offline vs-bot results carry `competitive: false` and ingestion rejects them; that is a progression/rating contract (Phase 2), the engine state has no such flag."
+    },
+    "R-MODE-CLASSIC-001": {
+      "reason": "Asserted: (a) 1v1, 2v2 and FFA 3/4 configs. Not asserted: (b) live clock and (c) 24 h correspondence deadline need clock actions (reserved, Phase 2); expiry behaviour is A-03."
+    },
+    "R-MODE-CLASSIC-002": {
+      "reason": "Asserted: (a) no clock fields, (b) powers rejected, (d) replay without delays gives the same hash. Not asserted: (c) `competitive: false` is a progression/rating ingestion contract (Phase 2); the engine state has no such flag."
+    }
+  }
+}

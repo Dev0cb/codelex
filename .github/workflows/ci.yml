@@ -41,6 +41,11 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Needs the installed TypeScript (it parses the tests), so it cannot sit in the zero-dependency job above.
+      - name: Rule traceability (every Phase-1 rule ID has a tagged assertion)
+        run: |
+          pnpm traceability:check
+          pnpm test:traceability
       - name: Affected tasks
         env:
           BASE_REF: ${{ github.base_ref }}

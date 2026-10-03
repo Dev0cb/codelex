@@ -1,0 +1,29 @@
+{
+  "lexiconVersion": "4fa5884050b4ea53",
+  "profile": "global-ranked",
+  "layout": "classic-v1",
+  "matches": 1000,
+  "byShape": {
+    "1v1": 400,
+    "2v2": 200,
+    "ffa3": 200,
+    "ffa4": 200
+  },
+  "byEndReason": {
+    "going_out": 31,
+    "scoreless_turns": 969
+  },
+  "personalitySeats": {
+    "random-legal": 1000,
+    "beginner": 1000,
+    "greedy": 1000
+  },
+  "notEnded": 0,
+  "conservationBreaks": 0,
+  "replayMismatches": 0,
+  "totalActions": 56462,
+  "placedWords": 43789,
+  "minActions": 9,
+  "maxActions": 83,
+  "finalHashesDigest": "c8b8b4655d859ce1"
+}
