@@ -1,0 +1,32 @@
+{
+  "name": "@codelex/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Message catalogs, ICU formatting",
+  "license": "UNLICENSED",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "format:check": "prettier --check .",
+    "test": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@codelex/config": "workspace:*",
+    "@types/node": "22.20.4",
+    "@vitest/coverage-v8": "5.0.2",
+    "fast-check": "4.10.2",
+    "vitest": "5.0.2"
+  }
+}
