@@ -8,7 +8,7 @@
   gallery, no illustration/icon-set authoring, no Coach marks, Segmented, ResultHeader, BreakdownList, BotAvatar
   (all deferred to the slice that needs them).
 - **Source of truth for every product decision is `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md`**
-  (cited as *E-1.5*). This document reuses its tokens (E-1.5 section 7), camera (5.5.2), a11y (9) and motion (8). It
+  (cited as _E-1.5_). This document reuses its tokens (E-1.5 section 7), camera (5.5.2), a11y (9) and motion (8). It
   adds only: light-theme values, the token file layout, the renderer contract and the S1 component states. Where a
   number differs inside E-1.5 itself, section 1.3 below picks one.
 - Assumptions are marked **[A-n]** and collected in section 9.
@@ -32,33 +32,33 @@ Settings theme picker is **not** in S1 (theme follows the OS; dark when unknown)
 (`pnpm --filter design-system contrast`) in A1: text >= 4.5:1, UI shapes >= 3:1 on the surface they sit on, in both
 modes; colour-blind simulation is a release check, not an S1 blocker.
 
-| Token | Role | Dark | Light **[A-2]** |
-|---|---|---|---|
-| `color.bg.base` | App background | #0B0F14 | #F6F8FA |
-| `color.bg.surface` | Cards, sheets | #121923 | #FFFFFF |
-| `color.bg.raised` | Raised or selected surface | #1A2330 | #EAEFF4 |
-| `color.border.subtle` | 1 dp borders | #2A3646 | #C9D3DE |
-| `color.text.primary` | Text | #E6EDF3 | #101820 |
-| `color.text.muted` | Secondary text | #9AA7B4 | #4A5764 |
-| `color.accent.primary` | Primary button, selection, pending border, focus ring | #22D3A6 | #00876A |
-| `color.accent.onPrimary` | Text/icon on primary | #04130F | #FFFFFF |
-| `color.feedback.error` | Rejection (icon + text always) | #FF7A7A | #B3261E |
-| `color.feedback.warning` | Scoreless warning, low storage | #FFC857 | #8A5A00 |
-| `color.feedback.info` | Notices | #6CB6FF | #0B63B8 |
-| `color.scrim` | Sheet scrim | rgba(0,0,0,.60) | rgba(16,24,32,.40) |
-| `color.board.bg` | Board background | #0F151D | #DDE4EB |
-| `color.board.grid` | Square borders | #1E2937 | #B8C4D0 |
-| `color.board.lastMove` | 2 dp ring on last-move tiles | #FFFFFF | #101820 |
-| `color.tile.face` | Tile face (all tile states) | #F1E9D2 | #F1E9D2 |
-| `color.tile.ink` | Tile letter | #121821 | #121821 |
-| `color.tile.value` | Tile value | #4A4F57 | #4A4F57 |
-| `color.tile.blankOutline` | Blank dotted outline | #8C8570 | #6E6753 |
-| `color.tile.pendingBorder` | = `accent.primary` | alias | alias |
-| `color.premium.dl` / `.tl` | Double / triple letter | #56B4E9 / #3D7DD9 | #1F7FB8 / #1F58B5 |
-| `color.premium.dw` / `.tw` | Double / triple word | #E69F00 / #E8590C | #A66A00 / #C2410C |
-| `color.premium.*.tint` | Square fill = colour at 22 % over `board.bg` | derived | derived |
-| `color.premium.label` | Premium text label | #E6EDF3 | #101820 |
-| `color.category.{programming,systems,networking,cloud,devops,data,ai,cybersecurity,hardware}` | Category hue (chips, badges) | E-1.5 7.1 | darkened 25 % **[A-2]** |
+| Token                                                                                         | Role                                                  | Dark              | Light **[A-2]**         |
+| --------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------- | ----------------------- |
+| `color.bg.base`                                                                               | App background                                        | #0B0F14           | #F6F8FA                 |
+| `color.bg.surface`                                                                            | Cards, sheets                                         | #121923           | #FFFFFF                 |
+| `color.bg.raised`                                                                             | Raised or selected surface                            | #1A2330           | #EAEFF4                 |
+| `color.border.subtle`                                                                         | 1 dp borders                                          | #2A3646           | #C9D3DE                 |
+| `color.text.primary`                                                                          | Text                                                  | #E6EDF3           | #101820                 |
+| `color.text.muted`                                                                            | Secondary text                                        | #9AA7B4           | #4A5764                 |
+| `color.accent.primary`                                                                        | Primary button, selection, pending border, focus ring | #22D3A6           | #00876A                 |
+| `color.accent.onPrimary`                                                                      | Text/icon on primary                                  | #04130F           | #FFFFFF                 |
+| `color.feedback.error`                                                                        | Rejection (icon + text always)                        | #FF7A7A           | #B3261E                 |
+| `color.feedback.warning`                                                                      | Scoreless warning, low storage                        | #FFC857           | #8A5A00                 |
+| `color.feedback.info`                                                                         | Notices                                               | #6CB6FF           | #0B63B8                 |
+| `color.scrim`                                                                                 | Sheet scrim                                           | rgba(0,0,0,.60)   | rgba(16,24,32,.40)      |
+| `color.board.bg`                                                                              | Board background                                      | #0F151D           | #DDE4EB                 |
+| `color.board.grid`                                                                            | Square borders                                        | #1E2937           | #B8C4D0                 |
+| `color.board.lastMove`                                                                        | 2 dp ring on last-move tiles                          | #FFFFFF           | #101820                 |
+| `color.tile.face`                                                                             | Tile face (all tile states)                           | #F1E9D2           | #F1E9D2                 |
+| `color.tile.ink`                                                                              | Tile letter                                           | #121821           | #121821                 |
+| `color.tile.value`                                                                            | Tile value                                            | #4A4F57           | #4A4F57                 |
+| `color.tile.blankOutline`                                                                     | Blank dotted outline                                  | #8C8570           | #6E6753                 |
+| `color.tile.pendingBorder`                                                                    | = `accent.primary`                                    | alias             | alias                   |
+| `color.premium.dl` / `.tl`                                                                    | Double / triple letter                                | #56B4E9 / #3D7DD9 | #1F7FB8 / #1F58B5       |
+| `color.premium.dw` / `.tw`                                                                    | Double / triple word                                  | #E69F00 / #E8590C | #A66A00 / #C2410C       |
+| `color.premium.*.tint`                                                                        | Square fill = colour at 22 % over `board.bg`          | derived           | derived                 |
+| `color.premium.label`                                                                         | Premium text label                                    | #E6EDF3           | #101820                 |
+| `color.category.{programming,systems,networking,cloud,devops,data,ai,cybersecurity,hardware}` | Category hue (chips, badges)                          | E-1.5 7.1         | darkened 25 % **[A-2]** |
 
 Tile faces are the same ivory in both modes (a tile is a physical object; it keeps >= 12:1 ink contrast and is
 instantly recognisable). Reserved, not rendered in S1: `color.tech.*` (tech squares are off in the playtest).
@@ -66,55 +66,55 @@ Category icons and shape badges are the E-1.5 7.1 table; hue never carries meani
 
 ### 1.3 Reconciling E-1.5 internal numbers (decision)
 
-| Item | E-1.5 says | **v1 uses** | Reason |
-|---|---|---|---|
-| Focus zoom | 2.1x (D-1) and 2.15 (4.1, 5.5.2, `layout.focus.zoom`) | **2.15** (`layout.focus.zoom`) | Guarantees >= 49 dp squares (48.1 at 2.1 breaks the 48 dp target) |
-| Overview cell | 23.5 dp (summary) and 22.9 dp (4.1) | **344 / 15 = 22.93 dp** | Board is 344 dp wide with 8 dp margins |
-| Zoom clamp | 1.0 to 2.5 | **1.0 to 2.5** | unchanged |
+| Item          | E-1.5 says                                            | **v1 uses**                    | Reason                                                            |
+| ------------- | ----------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------- |
+| Focus zoom    | 2.1x (D-1) and 2.15 (4.1, 5.5.2, `layout.focus.zoom`) | **2.15** (`layout.focus.zoom`) | Guarantees >= 49 dp squares (48.1 at 2.1 breaks the 48 dp target) |
+| Overview cell | 23.5 dp (summary) and 22.9 dp (4.1)                   | **344 / 15 = 22.93 dp**        | Board is 344 dp wide with 8 dp margins                            |
+| Zoom clamp    | 1.0 to 2.5                                            | **1.0 to 2.5**                 | unchanged                                                         |
 
 ### 1.4 Typography (E-1.5 7.2, unchanged)
 
 System UI font (SF / Roboto); JetBrains Mono 500 and 700, Latin subset, bundled (D-28). Sizes in sp, line height in dp.
 
-| Token | Family | Size / line | Weight |
-|---|---|---|---|
-| `type.display` | system | 32 / 40 | 700 |
-| `type.title` | system | 24 / 32 | 700 |
-| `type.heading` | system | 20 / 28 | 600 |
-| `type.body.l` / `type.body` / `type.body.s` | system | 18 / 26 · 16 / 24 · 14 / 20 | 400 |
-| `type.caption` | system | 12 / 16 | 500 |
-| `type.mono.score` | mono | 24 / 32 (top bar), 40 / 48 (Summary) | 700, tabular digits |
-| `type.mono.term` | mono | 24 / 32 | 700 |
-| `type.tile.letter.{overview,rack,focus}` | mono | 14 · 24 · 28 | 700 |
-| `type.tile.value.{overview,rack,focus}` | mono | 8 · 11 · 11 | 500 |
-| `type.premium.label.{overview,focus}` | mono | 9 · 12 | 700 |
+| Token                                       | Family | Size / line                          | Weight              |
+| ------------------------------------------- | ------ | ------------------------------------ | ------------------- |
+| `type.display`                              | system | 32 / 40                              | 700                 |
+| `type.title`                                | system | 24 / 32                              | 700                 |
+| `type.heading`                              | system | 20 / 28                              | 600                 |
+| `type.body.l` / `type.body` / `type.body.s` | system | 18 / 26 · 16 / 24 · 14 / 20          | 400                 |
+| `type.caption`                              | system | 12 / 16                              | 500                 |
+| `type.mono.score`                           | mono   | 24 / 32 (top bar), 40 / 48 (Summary) | 700, tabular digits |
+| `type.mono.term`                            | mono   | 24 / 32                              | 700                 |
+| `type.tile.letter.{overview,rack,focus}`    | mono   | 14 · 24 · 28                         | 700                 |
+| `type.tile.value.{overview,rack,focus}`     | mono   | 8 · 11 · 11                          | 500                 |
+| `type.premium.label.{overview,focus}`       | mono   | 9 · 12                               | 700                 |
 
 Scaling: `type.*` honours OS font scale up to 2.0; `type.tile.*` and `type.premium.label.*` cap at 1.3
 (`maxFontSizeMultiplier` is set by the token consumer, never ad hoc). For Skia text, size = token size x min(scale, 1.3).
 
 ### 1.5 Spacing, radii, elevation, layout (E-1.5 7.3, unchanged)
 
-| Group | Tokens (dp) |
-|---|---|
-| `space.0..8` | 0, 2, 4, 8, 12, 16, 24, 32, 48 (4 dp grid; `space.1` = 2 is the only off-grid step, used for rack gaps) |
-| `layout.*` | `margin.match` 8 · `margin.screen` 16 · `touch.min` 48 · `board.overview` 344 · `tile.rack` 48 x 56 · `rack.gap` 2 · `focus.zoom` 2.15 · `content.maxWidth` 480 |
-| `radius.*` | `tile` 6 · `square` 3 · `button` 14 · `card` 16 · `sheet` 20 · `chip` 999 |
-| `elevation.*` | `0` flat · `1` surface + 1 dp border, no shadow in dark · `2` pending tile: 4 dp lift, shadow rgba(0,0,0,.5) · `3` dragged tile: 8 dp lift · `sheet` scrim |
+| Group         | Tokens (dp)                                                                                                                                                     |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `space.0..8`  | 0, 2, 4, 8, 12, 16, 24, 32, 48 (4 dp grid; `space.1` = 2 is the only off-grid step, used for rack gaps)                                                         |
+| `layout.*`    | `margin.match` 8 · `margin.screen` 16 · `touch.min` 48 · `board.overview` 344 · `tile.rack` 48 x 56 · `rack.gap` 2 · `focus.zoom` 2.15 · `content.maxWidth` 480 |
+| `radius.*`    | `tile` 6 · `square` 3 · `button` 14 · `card` 16 · `sheet` 20 · `chip` 999                                                                                       |
+| `elevation.*` | `0` flat · `1` surface + 1 dp border, no shadow in dark · `2` pending tile: 4 dp lift, shadow rgba(0,0,0,.5) · `3` dragged tile: 8 dp lift · `sheet` scrim      |
 
 In light mode elevation 1 uses a 1 dp shadow rgba(16,24,32,.12) instead of border-only **[A-3]**.
 
 ### 1.6 Motion tokens (E-1.5 7.4, unchanged)
 
-| Token | Value |
-|---|---|
-| `motion.duration.instant` / `fast` / `base` / `camera` / `slow` | 0 / 120 / 200 / 240 / 320 ms |
-| `motion.duration.scoreCount` | 400 ms (top bar), 600 ms (Summary) |
-| `motion.duration.scorePop` | 600 ms |
-| `motion.duration.confirm` | 1500 ms (confirmations only; information never auto-dismisses) |
-| `motion.ease.standard` | cubic-bezier(0.2, 0, 0, 1) |
-| `motion.ease.decelerate` / `accelerate` | cubic-bezier(0.05, 0.7, 0.1, 1) / cubic-bezier(0.3, 0, 1, 1) |
-| `motion.spring.tile` | damping 18, stiffness 220, mass 1 (Reanimated `withSpring`) |
-| `motion.reduced.crossfade` | 150 ms |
+| Token                                                           | Value                                                          |
+| --------------------------------------------------------------- | -------------------------------------------------------------- |
+| `motion.duration.instant` / `fast` / `base` / `camera` / `slow` | 0 / 120 / 200 / 240 / 320 ms                                   |
+| `motion.duration.scoreCount`                                    | 400 ms (top bar), 600 ms (Summary)                             |
+| `motion.duration.scorePop`                                      | 600 ms                                                         |
+| `motion.duration.confirm`                                       | 1500 ms (confirmations only; information never auto-dismisses) |
+| `motion.ease.standard`                                          | cubic-bezier(0.2, 0, 0, 1)                                     |
+| `motion.ease.decelerate` / `accelerate`                         | cubic-bezier(0.05, 0.7, 0.1, 1) / cubic-bezier(0.3, 0, 1, 1)   |
+| `motion.spring.tile`                                            | damping 18, stiffness 220, mass 1 (Reanimated `withSpring`)    |
+| `motion.reduced.crossfade`                                      | 150 ms                                                         |
 
 ## 2. Board renderer contract (`react-native-skia`)
 
@@ -125,29 +125,52 @@ engine state to props; legality, scoring and previews come from the engine (prin
 ### 2.1 Inputs (props)
 
 ```ts
-type Premium = 'DL' | 'TL' | 'DW' | 'TW' | 'START';          // layout data, not computed here
-interface SquareView { row: number; col: number; premium?: Premium;   // 0-based, row 0 = top
-  tile?: { letter: string; value: number; isBlank: boolean; byPlayer: 'you' | 'opponent' } } // committed
-interface PendingView { row: number; col: number; letter: string; value: number; isBlank: boolean; rackIndex: number }
-interface Highlights {
-  lastMove?: ReadonlyArray<{ row: number; col: number }>;   // ring, first tile gets a notch
-  rejected?: ReadonlyArray<ReadonlyArray<{ row: number; col: number }>>; // dashed outline + "!" at word start
-  dropTarget?: { row: number; col: number } | null;          // while dragging: outline + corner chevron
+type Premium = "DL" | "TL" | "DW" | "TW" | "START"; // layout data, not computed here
+interface SquareView {
+  row: number;
+  col: number;
+  premium?: Premium; // 0-based, row 0 = top
+  tile?: {
+    letter: string;
+    value: number;
+    isBlank: boolean;
+    byPlayer: "you" | "opponent";
+  };
+} // committed
+interface PendingView {
+  row: number;
+  col: number;
+  letter: string;
+  value: number;
+  isBlank: boolean;
+  rackIndex: number;
 }
-interface CameraState { zoom: number; centre: { x: number; y: number } } // zoom 1.0..2.5, centre in board dp (0..344)
+interface Highlights {
+  lastMove?: ReadonlyArray<{ row: number; col: number }>; // ring, first tile gets a notch
+  rejected?: ReadonlyArray<ReadonlyArray<{ row: number; col: number }>>; // dashed outline + "!" at word start
+  dropTarget?: { row: number; col: number } | null; // while dragging: outline + corner chevron
+}
+interface CameraState {
+  zoom: number;
+  centre: { x: number; y: number };
+} // zoom 1.0..2.5, centre in board dp (0..344)
 interface BoardViewProps {
-  size: 15;                                  // fixed in v1; renderer asserts, no other board sizes
-  squares: ReadonlyArray<SquareView>;        // 225 entries, row-major; premium from layout `classic-v1`
+  size: 15; // fixed in v1; renderer asserts, no other board sizes
+  squares: ReadonlyArray<SquareView>; // 225 entries, row-major; premium from layout `classic-v1`
   pending: ReadonlyArray<PendingView>;
   highlights: Highlights;
-  camera: CameraState;                       // controlled; the app owns the smart-camera policy (E-1.5 5.5.2)
-  armedTile: boolean;                        // a rack tile is selected: taps target squares
-  dragging: { rackIndex: number | null; pendingAt: {row:number;col:number} | null; pointer: {x:number;y:number} } | null;
-  theme: 'dark' | 'light';
-  motion: 'full' | 'reduced';                // resolved by the app from OS + Settings (D-22)
-  a11yMode: 'off' | 'screenReader';          // app passes true when a screen reader or switch tool is active
-  labels: BoardA11yLabels;                   // pre-translated strings/formatters (section 2.5); no strings in the renderer
-  textScale: number;                         // already capped for Skia text (1.3)
+  camera: CameraState; // controlled; the app owns the smart-camera policy (E-1.5 5.5.2)
+  armedTile: boolean; // a rack tile is selected: taps target squares
+  dragging: {
+    rackIndex: number | null;
+    pendingAt: { row: number; col: number } | null;
+    pointer: { x: number; y: number };
+  } | null;
+  theme: "dark" | "light";
+  motion: "full" | "reduced"; // resolved by the app from OS + Settings (D-22)
+  a11yMode: "off" | "screenReader"; // app passes true when a screen reader or switch tool is active
+  labels: BoardA11yLabels; // pre-translated strings/formatters (section 2.5); no strings in the renderer
+  textScale: number; // already capped for Skia text (1.3)
 }
 ```
 
@@ -158,15 +181,15 @@ stays on the UI thread) and the "manual gesture suppresses auto-move for 2 s" ru
 
 ### 2.2 Outputs (callbacks)
 
-| Callback | Payload | Fired when |
-|---|---|---|
-| `onSquarePress` | `{ row, col, zoom }` | Tap on a square (empty or pending). The app decides: place armed tile, arm-and-zoom, or recall a pending tile |
-| `onSquareDoubleTap` | `{ row, col }` | Toggle Overview/Focus at that point |
-| `onDragStart` | `{ source: 'rack' \| 'pending', index/row/col }` | 8 dp slop exceeded (E-1.5 5.5.2) |
-| `onDragMove` | `{ target: {row,col} \| null, pointer }` | Target square changed (throttled to 20/s for haptics; pointer updates stay on the UI thread) |
-| `onDrop` | `{ target: {row,col} \| null, zone: 'board' \| 'rack' \| 'other' }` | Release. `null` target means the app returns the tile to its origin |
-| `onCameraGesture` | `{ zoom, centre, phase: 'start'\|'update'\|'end' }` | Pinch, pan or double-tap; the app clamps and may suppress auto-camera |
-| `onEdgePan` | `{ dx, dy }` | Held within 48 dp of a board edge in Focus: 240 dp/s |
+| Callback            | Payload                                                             | Fired when                                                                                                    |
+| ------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `onSquarePress`     | `{ row, col, zoom }`                                                | Tap on a square (empty or pending). The app decides: place armed tile, arm-and-zoom, or recall a pending tile |
+| `onSquareDoubleTap` | `{ row, col }`                                                      | Toggle Overview/Focus at that point                                                                           |
+| `onDragStart`       | `{ source: 'rack' \| 'pending', index/row/col }`                    | 8 dp slop exceeded (E-1.5 5.5.2)                                                                              |
+| `onDragMove`        | `{ target: {row,col} \| null, pointer }`                            | Target square changed (throttled to 20/s for haptics; pointer updates stay on the UI thread)                  |
+| `onDrop`            | `{ target: {row,col} \| null, zone: 'board' \| 'rack' \| 'other' }` | Release. `null` target means the app returns the tile to its origin                                           |
+| `onCameraGesture`   | `{ zoom, centre, phase: 'start'\|'update'\|'end' }`                 | Pinch, pan or double-tap; the app clamps and may suppress auto-camera                                         |
+| `onEdgePan`         | `{ dx, dy }`                                                        | Held within 48 dp of a board edge in Focus: 240 dp/s                                                          |
 
 The renderer never mutates state and never shows a tile the props do not contain. A drop that is illegal is the
 app's call (return to origin with `motion.spring.tile`); the renderer only draws the props it is handed.
@@ -201,12 +224,12 @@ Overview below zoom 1.6, Focus at 1.6 and above (switch on a threshold, no scali
 ### 2.5 Premium encoding: colour + shape + label (E-1.5 7.1)
 
 | Square | Colour token | Shape motif (stroke 1.5 dp, `premium.label` colour) | Label EN / FR (from catalogue) |
-|---|---|---|---|
-| DL | `premium.dl` | single ring (circle) | 2L / L2 |
-| TL | `premium.tl` | double ring | 3L / L3 |
-| DW | `premium.dw` | single diamond | 2W / M2 |
-| TW | `premium.tw` | double diamond | 3W / M3 |
-| START | `premium.dw` | star over diamond | star + 2W / M2 |
+| ------ | ------------ | --------------------------------------------------- | ------------------------------ |
+| DL     | `premium.dl` | single ring (circle)                                | 2L / L2                        |
+| TL     | `premium.tl` | double ring                                         | 3L / L3                        |
+| DW     | `premium.dw` | single diamond                                      | 2W / M2                        |
+| TW     | `premium.tw` | double diamond                                      | 3W / M3                        |
+| START  | `premium.dw` | star over diamond                                   | star + 2W / M2                 |
 
 Rules: the three cues are always drawn together (a unit test snapshots all five squares in both themes and in a
 greyscale filter, and asserts the shape differs pairwise). The label is mandatory in Overview (9 sp) and Focus (12 sp);
@@ -233,15 +256,15 @@ pending = accent border + lift shadow + pencil corner mark; last move = white ri
 
 ### 2.7 Performance budget (reference: low-end Android 10+, 2-3 GB RAM, 360 x 800 dp)
 
-| Metric | Budget |
-|---|---|
-| Drag, pan, pinch | 60 fps target, **never below 30 fps** on the reference device; 0 JS-thread work per pointer-move frame (worklets only) |
-| Static layer rebuild | <= 8 ms (only on committed-state change) |
-| Dynamic + drag layer frame | <= 4 ms GPU/UI per frame |
-| First board paint after PLAY NOW | <= 300 ms from navigation (board drawn from layout constants before the engine is ready) |
-| Memory | Board layers <= 20 MB; no per-frame allocations (preallocated `Skia.Paint`/`Path`, glyph atlas for 26 letters x 2 sizes + digits) |
-| Bundle | Fonts: JetBrains Mono 500 + 700 Latin subset only; no raster assets in the board |
-| Degrade below 3 GB RAM **[A-7]** | Shadows replaced by 1 dp border, particles off (D-27); layout and cues unchanged |
+| Metric                           | Budget                                                                                                                            |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Drag, pan, pinch                 | 60 fps target, **never below 30 fps** on the reference device; 0 JS-thread work per pointer-move frame (worklets only)            |
+| Static layer rebuild             | <= 8 ms (only on committed-state change)                                                                                          |
+| Dynamic + drag layer frame       | <= 4 ms GPU/UI per frame                                                                                                          |
+| First board paint after PLAY NOW | <= 300 ms from navigation (board drawn from layout constants before the engine is ready)                                          |
+| Memory                           | Board layers <= 20 MB; no per-frame allocations (preallocated `Skia.Paint`/`Path`, glyph atlas for 26 letters x 2 sizes + digits) |
+| Bundle                           | Fonts: JetBrains Mono 500 + 700 Latin subset only; no raster assets in the board                                                  |
+| Degrade below 3 GB RAM **[A-7]** | Shadows replaced by 1 dp border, particles off (D-27); layout and cues unchanged                                                  |
 
 Verification (S1 definition of done): a Maestro or manual perf run on the reference device recording fps during a
 scripted 10 s drag + pinch (Perfetto or Reanimated frame callback); results pasted into the slice PR. A render
@@ -264,23 +287,23 @@ never loops in an attention-seeking way, and nothing flashes more than 3 Hz.
 
 S1 registry (full values and twins are E-1.5 8.1 and 8.2, reproduced here as the contract):
 
-| id | Full | Reduced twin |
-|---|---|---|
-| `tile.pickup` | scale 1.15 + lift, `fast` | static accent border + lift shadow |
-| `tile.settle` | `motion.spring.tile` | instant |
-| `tile.return` / `rack.recall` | 200 ms `ease.standard` | instant |
-| `tile.reject` | shake 6 dp x 3, 240 ms | outlineFlash 150 ms |
-| `rack.deal` | 40 ms stagger, `base` | instant |
-| `rack.shuffle` | permutation, `base` | instant |
-| `camera.move` | `camera` 240 ms `ease.standard` | cut (0 ms) |
-| `score.pop` | rise 24 dp, `scorePop` | static "+N" 1.2 s beside the word |
-| `score.count` | `scoreCount` | instant |
-| `bot.dots` | three pulsing dots | static "..." |
-| `bot.drop` | 60 ms stagger | instant, ring shown |
-| `sheet.present` / `sheet.dismiss` | slide, `base` / `fast` | crossfade150 |
-| `toast.present` | fade + 8 dp translate, `fast` | crossfade150 |
-| `banner.fullstack` | 1.2 s banner + <= 16 particles | static banner 1.2 s, no particles |
-| `button.press` | scale .98, `fast` | background colour change only |
+| id                                | Full                            | Reduced twin                       |
+| --------------------------------- | ------------------------------- | ---------------------------------- |
+| `tile.pickup`                     | scale 1.15 + lift, `fast`       | static accent border + lift shadow |
+| `tile.settle`                     | `motion.spring.tile`            | instant                            |
+| `tile.return` / `rack.recall`     | 200 ms `ease.standard`          | instant                            |
+| `tile.reject`                     | shake 6 dp x 3, 240 ms          | outlineFlash 150 ms                |
+| `rack.deal`                       | 40 ms stagger, `base`           | instant                            |
+| `rack.shuffle`                    | permutation, `base`             | instant                            |
+| `camera.move`                     | `camera` 240 ms `ease.standard` | cut (0 ms)                         |
+| `score.pop`                       | rise 24 dp, `scorePop`          | static "+N" 1.2 s beside the word  |
+| `score.count`                     | `scoreCount`                    | instant                            |
+| `bot.dots`                        | three pulsing dots              | static "..."                       |
+| `bot.drop`                        | 60 ms stagger                   | instant, ring shown                |
+| `sheet.present` / `sheet.dismiss` | slide, `base` / `fast`          | crossfade150                       |
+| `toast.present`                   | fade + 8 dp translate, `fast`   | crossfade150                       |
+| `banner.fullstack`                | 1.2 s banner + <= 16 particles  | static banner 1.2 s, no particles  |
+| `button.press`                    | scale .98, `fast`               | background colour change only      |
 
 Haptics (E-1.5 8.1) are separate from motion and not disabled by reduced motion; they follow the Vibration setting
 only. Wrapper `haptic(kind)`, kinds: `light`, `selection`, `success`, `strongSuccess`, `error`.
@@ -291,13 +314,13 @@ Only these are in scope for S1 plus `Board`/`Tile`/`Rack` (section 2). Each comp
 text via props (never literals), min touch 48 x 48 dp (`layout.touch.min`) with `hitSlop` where the visual is smaller,
 focus ring 2 dp accent, role/state exposed to the a11y tree.
 
-| Component | Variants | States (all required) | Notes |
-|---|---|---|---|
-| `Button` | `primary` (PLAY, PLAY NOW: 56 dp, 72 dp "hero" size), `secondary`, `destructive`, `icon`, `text` | default, pressed, focused, disabled (still focusable, `accessibilityHint` states why), loading (spinner, label kept, width stable) | Radius `button`; min width, multi-line, never fixed width (FR +30 %); icon + label stacked for rack actions (caption) |
-| `RackTile` | `rack` (48 x 56), `pending`, `committed-small` (Summary rack) | rest, selected (raised 8 dp, accent border), dragging (elevation 3, scale 1.15), pending (border + shadow + pencil mark), blank (dotted outline, `_`), empty slot (dashed placeholder) | Letter `type.tile.letter.rack`, value bottom-end (logical end); a11y "Rack, tile 3 of 7: Letter P, 2 points" + custom actions Move left/right |
-| `ScoreChip` | `score` (name + mono score, turn marker), `bag` (icon + count), `delta` ("+N" breakdown chip with icon) | idle, active turn (underline + dot + text, not colour only), counting (value animating, a11y value set once at end) | Mono tabular digits; announces on commit only, never per frame |
-| `BottomSheet` | `standard` (<= 85 % height), `blankPicker`, `menu` | closed, presenting, open, dragging (grabber), dismissing; with scrim | Grabber + always-visible Close 48 dp; swipe-down, scrim tap and system back all close; traps focus, restores it to the invoker; bottom-anchored (thumb zone); content scrolls, header fixed |
-| `Toast` (snackbar) | `info`, `error`, `confirm` | entering, visible, exiting | Information/error toasts are persistent until dismissed or replaced (D-6); `confirm` auto-hides after `motion.duration.confirm`; optional single action; placed above the action row; polite live region (error: assertive) |
+| Component          | Variants                                                                                                | States (all required)                                                                                                                                                                  | Notes                                                                                                                                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`           | `primary` (PLAY, PLAY NOW: 56 dp, 72 dp "hero" size), `secondary`, `destructive`, `icon`, `text`        | default, pressed, focused, disabled (still focusable, `accessibilityHint` states why), loading (spinner, label kept, width stable)                                                     | Radius `button`; min width, multi-line, never fixed width (FR +30 %); icon + label stacked for rack actions (caption)                                                                                                       |
+| `RackTile`         | `rack` (48 x 56), `pending`, `committed-small` (Summary rack)                                           | rest, selected (raised 8 dp, accent border), dragging (elevation 3, scale 1.15), pending (border + shadow + pencil mark), blank (dotted outline, `_`), empty slot (dashed placeholder) | Letter `type.tile.letter.rack`, value bottom-end (logical end); a11y "Rack, tile 3 of 7: Letter P, 2 points" + custom actions Move left/right                                                                               |
+| `ScoreChip`        | `score` (name + mono score, turn marker), `bag` (icon + count), `delta` ("+N" breakdown chip with icon) | idle, active turn (underline + dot + text, not colour only), counting (value animating, a11y value set once at end)                                                                    | Mono tabular digits; announces on commit only, never per frame                                                                                                                                                              |
+| `BottomSheet`      | `standard` (<= 85 % height), `blankPicker`, `menu`                                                      | closed, presenting, open, dragging (grabber), dismissing; with scrim                                                                                                                   | Grabber + always-visible Close 48 dp; swipe-down, scrim tap and system back all close; traps focus, restores it to the invoker; bottom-anchored (thumb zone); content scrolls, header fixed                                 |
+| `Toast` (snackbar) | `info`, `error`, `confirm`                                                                              | entering, visible, exiting                                                                                                                                                             | Information/error toasts are persistent until dismissed or replaced (D-6); `confirm` auto-hides after `motion.duration.confirm`; optional single action; placed above the action row; polite live region (error: assertive) |
 
 Also needed by S1 but trivial wrappers (token-only, no extra states beyond default/pressed/disabled): `Banner`
 (status strip: idle, preview, rejection, breakdown; E-1.5 5.5), `Text` (variants = `type.*` tokens), `Icon`
@@ -358,14 +381,14 @@ landscape; sound engine (E-1.5 8.3); tech-square rendering; spectator/replay boa
 
 ## 9. Assumptions
 
-| # | Assumption | Reversal / check |
-|---|---|---|
-| A-1 | DTCG JSON with a typed TS build is acceptable to `mobile-engineer`; Style Dictionary may be used but is not mandated | Swap the builder, keep token names |
-| A-2 | Light-theme values (and darkened category hues) are first proposals, not designed with a full colour review | Contrast script decides; adjust values, names stay |
-| A-3 | Elevation 1 in light uses a 1 dp soft shadow | Cosmetic |
-| A-4 | The renderer lives in `packages/design-system` (shared by a future web canvas), not in `apps/mobile` | If Skia coupling makes the package heavy, move to `apps/mobile/src/board` and keep the contract |
-| A-5 | `react-native-gesture-handler` + Reanimated worklets are available in the Expo scaffold (ADR-0002 stack) | Confirm in A1 |
-| A-6 | Auto-switching to Focus when a screen reader focuses the board is acceptable | If TalkBack exploration by touch misbehaves, keep Overview and enlarge the a11y frames with an expanded accessible hit area |
-| A-7 | RAM is readable at runtime on both platforms (Android via device info; iOS treated as sufficient) | Use a coarse device-class heuristic |
-| A-8 | Latin digits in tiles and scores for all launch locales (EN, FR) | Revisit before an Arabic locale |
-| A-9 | Perf budget numbers (8 ms, 4 ms, 20 MB) are starting targets, not measured | Replace with measured values after the first reference-device run |
+| #   | Assumption                                                                                                           | Reversal / check                                                                                                            |
+| --- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| A-1 | DTCG JSON with a typed TS build is acceptable to `mobile-engineer`; Style Dictionary may be used but is not mandated | Swap the builder, keep token names                                                                                          |
+| A-2 | Light-theme values (and darkened category hues) are first proposals, not designed with a full colour review          | Contrast script decides; adjust values, names stay                                                                          |
+| A-3 | Elevation 1 in light uses a 1 dp soft shadow                                                                         | Cosmetic                                                                                                                    |
+| A-4 | The renderer lives in `packages/design-system` (shared by a future web canvas), not in `apps/mobile`                 | If Skia coupling makes the package heavy, move to `apps/mobile/src/board` and keep the contract                             |
+| A-5 | `react-native-gesture-handler` + Reanimated worklets are available in the Expo scaffold (ADR-0002 stack)             | Confirm in A1                                                                                                               |
+| A-6 | Auto-switching to Focus when a screen reader focuses the board is acceptable                                         | If TalkBack exploration by touch misbehaves, keep Overview and enlarge the a11y frames with an expanded accessible hit area |
+| A-7 | RAM is readable at runtime on both platforms (Android via device info; iOS treated as sufficient)                    | Use a coarse device-class heuristic                                                                                         |
+| A-8 | Latin digits in tiles and scores for all launch locales (EN, FR)                                                     | Revisit before an Arabic locale                                                                                             |
+| A-9 | Perf budget numbers (8 ms, 4 ms, 20 MB) are starting targets, not measured                                           | Replace with measured values after the first reference-device run                                                           |
