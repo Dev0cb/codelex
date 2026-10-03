@@ -341,7 +341,8 @@ export function analyze({ ruleIds, globalIds, letters, scope, tests }) {
 
 // ---------- rendering ----------
 
-const cell = (s) => s.replace(/\|/g, '\\|');
+// Markdown table cell: escape backslashes first, then pipes, so a `\|` in the input cannot close the cell.
+const cell = (s) => s.replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 
 export function renderTable(report) {
   const lines = [];

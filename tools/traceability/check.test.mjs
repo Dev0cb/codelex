@@ -317,3 +317,22 @@ test('this repository: the generated table in RULE_PROPERTIES.md is fresh', () =
   const r = run(REPO, []);
   assert.equal(r.code, 0, r.problems.join('\n'));
 });
+
+test('renderTable escapes backslashes before pipes, so a note cannot break out of its cell', () => {
+  const table = renderTable({
+    rows: [
+      {
+        id: 'R-X-001',
+        status: 'out-of-scope',
+        files: [],
+        defined: [],
+        cited: [],
+        uncited: [],
+        reason: 'a\\|b and c|d',
+      },
+    ],
+    globals: [],
+  });
+  const row = table.split('\n').find((l) => l.startsWith('| R-X-001 |'));
+  assert.equal(row, '| R-X-001 | out-of-scope | — | — | Out of scope: a\\\\\\|b and c\\|d |');
+});
