@@ -753,7 +753,12 @@ on any failure. For an accepted move, `committed.total − preview.total = Σ te
 `serializeState` emits the JCS text of the state (ASCII; ADR-0013 §D3 subset; throws on a value outside the subset —
 programmer error). `parseState` validates every field, invariant (tile conservation, sorted racks, row lengths,
 `result` present iff finished) and `engineRulesVersion` (`RULES_VERSION_UNSUPPORTED` before `MALFORMED_STATE`), and
-returns a state deep-equal to the one serialised (P-GLOBAL-04). `stateHash` is computed on demand only (not inside
+returns a state deep-equal to the one serialised (P-GLOBAL-04). *(E5, review R1 m2)* It also rejects wedged and
+inconsistent states: seat statuses other than `active`/`resigned`; `chainK > 0` with an empty `lastMainForm`;
+in progress, a `seatOnTurn` that is not active or fewer than 2 active teams; finished, an end reason the seats cannot
+produce (`resign` by an active seat or with ≥ 2 active teams; `going_out` by a seat with tiles or with a non-empty bag;
+`scoreless_turns` below the limit), or `adjustments`/`teamScores`/`places`/`decidedBy` that differ from what the end of
+match computes from the seats. `stateHash` is computed on demand only (not inside
 `apply`, ADR-0013 budget).
 
 ### 13.7 Input trust

@@ -8,8 +8,16 @@ import { engineError, rulesVersionError } from '../errors.js';
 import { canonicalJson, hash16, isJcsInteger } from '../hash/jcs.js';
 import { configProblem, isPlainObject, keyProblem } from '../match/create.js';
 import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
+import { finishMatch } from '../scoring/end.js';
 import { countTiles, initialBag, isBlankOnBoard, sortTiles } from '../tiles.js';
-import type { EngineError, MatchConfig, MatchState, StateHash } from '../types.js';
+import type {
+  EngineError,
+  MatchConfig,
+  MatchResult,
+  MatchState,
+  SeatState,
+  StateHash,
+} from '../types.js';
 import { ENGINE_RULES_VERSION } from '../version.js';
 
 /** The JCS text of the state: the hashed bytes. Throws on a value outside the ADR-0013 subset. */
@@ -42,7 +50,8 @@ const STATE_KEYS = [
 ];
 const SEAT_KEYS = ['bestTurnScore', 'chainK', 'lastMainForm', 'rack', 'score', 'status'];
 const RESULT_KEYS = ['adjustments', 'decidedBy', 'end', 'places', 'teamScores'];
-const SEAT_STATUSES = ['active', 'resigned', 'forfeited', 'eliminated'];
+/** v1 produces only these; 'forfeited' (Blitz) and 'eliminated' (Arena) are reserved (API note §7). */
+const SEAT_STATUSES = ['active', 'resigned'];
 const DECIDED_BY = ['score', 'resign', 'tiebreak_best_turn', 'tiebreak_second_mover'];
 const RACK = /^[?A-Z]*$/;
 const BOARD_ROW = /^[.A-Za-z]+$/;
@@ -75,6 +84,8 @@ function seatProblem(value: unknown, index: number): string | undefined {
   if (!isCount(chainK) || chainK > RULES.chainCap) return `${path}.chainK`;
   const form = value['lastMainForm'];
   if (typeof form !== 'string' || (form !== '' && !FORM.test(form))) return `${path}.lastMainForm`;
+  // R-SCORE-005: a chain extends a previous main word, so k > 0 needs one.
+  if (chainK > 0 && form === '') return `${path}.chainK`;
   if (!isCount(value['bestTurnScore'])) return `${path}.bestTurnScore`;
   if (!SEAT_STATUSES.includes(value['status'] as string)) return `${path}.status`;
   return undefined;
@@ -182,7 +193,54 @@ function stateProblem(doc: Readonly<Record<string, unknown>>): string | undefine
 
   const hasResult = Object.hasOwn(doc, 'result');
   if (hasResult !== (status === 'finished')) return 'result';
-  if (hasResult) return resultProblem(doc['result'], seatCount, setup.teams.length);
+  if (!hasResult) return progressProblem(doc as unknown as MatchState);
+  const shape = resultProblem(doc['result'], seatCount, setup.teams.length);
+  if (shape !== undefined) return shape;
+  const state = doc as unknown as MatchState;
+  return finishedProblem(state, doc['result'] as MatchResult);
+}
+
+const isActive = (seat: SeatState | undefined): boolean => seat?.status === 'active';
+
+function activeTeamCount(state: MatchState): number {
+  return state.config.teams.filter((team) => team.every((s) => isActive(state.seats[s]))).length;
+}
+
+/** In progress: the seat on turn can act and the match is not already over by R-END-002 (no wedged state). */
+function progressProblem(state: MatchState): string | undefined {
+  if (!isActive(state.seats[state.seatOnTurn])) return 'seatOnTurn';
+  if (activeTeamCount(state) < 2) return 'seats';
+  return undefined;
+}
+
+/**
+ * Finished: the end reason must be possible for these seats (R-END-001, R-END-002, R-TURN-004), and the rest of
+ * the result must be exactly what `finishMatch` computes from the seats (R-SCORE-006, R-END-003). Racks, statuses
+ * and best turns are final; scores before the end adjustments are `score − adjustment`.
+ */
+function finishedProblem(state: MatchState, result: MatchResult): string | undefined {
+  const { end } = result;
+  const activeTeams = activeTeamCount(state);
+  if (end.reason === 'resign') {
+    if (isActive(state.seats[end.seat]) || activeTeams >= 2) return 'result.end';
+  } else if (activeTeams < 2) {
+    return 'result.end';
+  } else if (end.reason === 'going_out') {
+    const seat = state.seats[end.seat];
+    if (!isActive(seat) || seat?.rack !== '' || state.bag !== '') return 'result.end';
+  } else {
+    const activeSeats = state.seats.filter(isActive).length;
+    if (state.scorelessTurns < RULES.scorelessTurnsPerSeat * activeSeats) return 'result.end';
+  }
+  const expected = finishMatch({
+    config: state.config,
+    firstSeat: state.firstSeat,
+    seats: state.seats.map((s, i) => ({ ...s, score: s.score - (result.adjustments[i] ?? 0) })),
+    end,
+  }).result;
+  for (const key of ['adjustments', 'teamScores', 'places', 'decidedBy'] as const) {
+    if (canonicalJson(expected[key]) !== canonicalJson(result[key])) return `result.${key}`;
+  }
   return undefined;
 }
 
