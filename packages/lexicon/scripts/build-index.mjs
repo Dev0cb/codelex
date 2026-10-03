@@ -4,11 +4,15 @@
 //   dist/indexes/<lexiconVersion>/<profileId>.f<flags>.clxi + dist/indexes/<lexiconVersion>/manifest.json
 // Both variants share (lexiconVersion, profile id, definitionHash) but not their bytes, so the file name and
 // the manifest entry carry the flags.
+//   dist/indexes/current.json — stable pointer for consumers that cannot know the version in advance (L6):
+//   { lexiconVersion, manifest: "<lexiconVersion>/manifest.json" }. Read it through `@codelex/lexicon/indexes`.
+// dist/indexes/ holds exactly one version: it is emptied before writing, so the Turborepo `build:index` outputs
+// (packages/lexicon/turbo.json) never cache a stale version next to the current one.
 // Refuses to build when the data cannot be loaded or `validateLexicon` reports any error, and refuses to write an
 // artefact that does not decode with the expected version and profile. Artefacts are reproducible and git-ignored.
 // Needs `pnpm --filter @codelex/lexicon build` first (imports the compiled builder from dist/).
 import { createHash } from 'node:crypto';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -51,8 +55,8 @@ if (errors.length > 0) {
 }
 const version = computeLexiconVersion(lex);
 const document = lexiconContentDocument(lex);
-const outDir = join(ROOT, 'dist', 'indexes', version);
-mkdirSync(outDir, { recursive: true });
+const indexesDir = join(ROOT, 'dist', 'indexes');
+const outDir = join(indexesDir, version);
 
 // Header flags bit 0 = GADDAG present (src/index/clxi/format.ts).
 const VARIANTS = [
@@ -61,6 +65,7 @@ const VARIANTS = [
 ];
 
 const profiles = [];
+const artefacts = [];
 for (const definition of [GLOBAL_PROFILE]) {
   for (const { flags, gaddag } of VARIANTS) {
     const definitionHash = profileDefinitionHash(definition);
@@ -88,7 +93,7 @@ for (const definition of [GLOBAL_PROFILE]) {
       process.exit(1);
     }
     const file = `${definition.id}.f${flags}.clxi`;
-    writeFileSync(join(outDir, file), built.value);
+    artefacts.push({ file, bytes: built.value });
     const sha256 = createHash('sha256').update(built.value).digest('hex');
     profiles.push({
       id: definition.id,
@@ -104,8 +109,19 @@ for (const definition of [GLOBAL_PROFILE]) {
     console.log(`${file}: ${built.value.length} bytes, sha256 ${sha256}`);
   }
 }
+// Every artefact passed its self-check: only now is the previous output replaced.
+rmSync(indexesDir, { recursive: true, force: true });
+mkdirSync(outDir, { recursive: true });
+for (const { file, bytes } of artefacts) writeFileSync(join(outDir, file), bytes);
 writeFileSync(
   join(outDir, 'manifest.json'),
   `${canonicalize({ lexiconVersion: version, profiles })}\n`,
 );
-console.log(`lexiconVersion ${version} → ${outDir}`);
+writeFileSync(
+  join(indexesDir, 'current.json'),
+  `${canonicalize({ lexiconVersion: version, manifest: `${version}/manifest.json` })}\n`,
+);
+// Package-relative: Turborepo replays this log on cache hits, possibly built on another machine.
+console.log(
+  `lexiconVersion ${version} → dist/indexes/${version} (pointer dist/indexes/current.json)`,
+);

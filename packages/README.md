@@ -1,3 +1,3 @@
 # packages
 
-Shared libraries. Exists today: `lexicon`, `config`, `observability`. Next: `protocol`, `game-engine`, `bots`, `design-system`, `i18n` — created with `/scaffold packages/<name>`.
+Shared libraries. Exists today: `config`, `observability`, `lexicon`, `game-engine`, `i18n`, `design-system`. Next: `protocol`, `bots` — created with `/scaffold packages/<name>`.

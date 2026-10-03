@@ -77,6 +77,10 @@ otherwise. Wall time is measured by the caller (`time pnpm … simulate`). Reado
   and decoded `.clxi` artefact (minimal automata); `gaddag: false` selects the DAWG path.
 - `sim/simulate.test.ts`: simulator smoke test (statistics, JSON writer, options, an 8-match suite on the real
   lexicon variants with replay and determinism checks). The ≥ 1,000-match run is never part of `pnpm test`.
+- `test/real-lexicon-matches.test.ts`: 250 full matches (1v1, 2v2, FFA 3/4; all personalities) on the real
+  `global-ranked` index and the real `classic-v1` layout: every match ends, conserves tiles, replays to identical
+  hashes. `test/full/real-lexicon-1000.full.ts`: the same sequence at 1,000 matches, results pinned in
+  `test/full/results/` (`pnpm test:full`, about 40 s; `-u` re-records). Not part of `pnpm test`.
 - fast-check runs with a fixed global seed (`test/setup.ts`).
 
 ## Invariants

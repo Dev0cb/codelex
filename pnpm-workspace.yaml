@@ -19,3 +19,6 @@ auditConfig:
   ignoreGhsas:
     # braces <= 3.0.3 (no patched version yet), dev-only via eslint-plugin-boundaries > micromatch. Expires 2026-11-02.
     - GHSA-vfj7-8cjw-p6xm
+    # node-forge <= 1.4.0 (no patched version yet), toolchain only via expo > @expo/cli (register class T); absence
+    # from the shipped bundles is proven by apps/mobile `bundle:check` (bundle-forbidden-packages.json). Expires 2026-11-02.
+    - GHSA-86w9-cpqp-85rv
