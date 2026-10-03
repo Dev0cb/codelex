@@ -170,8 +170,8 @@
       ],
       "difficulty": "novice",
       "definitions": {
-        "en": "Visual drawing of data, such as bars or lines.",
-        "fr": "Représentation visuelle de données, sous forme de barres ou de courbes."
+        "en": "Visual display of data, such as bars, lines or pie slices.",
+        "fr": "Représentation visuelle de données, sous forme de barres, de courbes ou de secteurs."
       },
       "inflections": [
         {
@@ -298,10 +298,10 @@
         "data",
         "programming"
       ],
-      "difficulty": "intermediate",
+      "difficulty": "novice",
       "definitions": {
-        "en": "Pointer that walks through the rows of a query result one at a time.",
-        "fr": "Pointeur qui parcourt une à une les lignes du résultat d'une requête."
+        "en": "Marker showing where you point or type on screen; in databases, a pointer that reads query results row by row.",
+        "fr": "Repère qui indique où l'on pointe ou écrit à l'écran ; en base de données, pointeur qui lit les résultats d'une requête ligne par ligne."
       },
       "inflections": [
         {
@@ -313,6 +313,10 @@
         {
           "type": "related_to",
           "target": "query"
+        },
+        {
+          "type": "related_to",
+          "target": "mouse"
         }
       ]
     },
@@ -757,7 +761,7 @@
       "categories": [
         "data"
       ],
-      "difficulty": "novice",
+      "difficulty": "intermediate",
       "definitions": {
         "en": "Key performance indicator: number that tracks progress toward a goal.",
         "fr": "Indicateur clé de performance : chiffre qui suit les progrès vers un objectif."
@@ -837,7 +841,7 @@
         "data",
         "devops"
       ],
-      "difficulty": "novice",
+      "difficulty": "intermediate",
       "definitions": {
         "en": "Measured value tracked over time, such as errors per minute.",
         "fr": "Valeur mesurée suivie dans le temps, comme le nombre d'erreurs par minute."
@@ -854,7 +858,7 @@
           "target": "monitoring"
         },
         {
-          "type": "part_of",
+          "type": "related_to",
           "target": "dashboard"
         }
       ]

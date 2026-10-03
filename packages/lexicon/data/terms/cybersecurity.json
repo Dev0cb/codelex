@@ -394,6 +394,9 @@
           "type": "related_to",
           "target": "patch"
         }
+      ],
+      "sources": [
+        "https://www.cve.org/"
       ]
     },
     {

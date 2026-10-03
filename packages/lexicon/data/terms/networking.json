@@ -608,8 +608,8 @@
       ],
       "difficulty": "novice",
       "definitions": {
-        "en": "Simple device that repeats network traffic to every connected port.",
-        "fr": "Appareil simple qui répète le trafic réseau vers tous les ports connectés."
+        "en": "Device linking several devices at one point; a network hub repeats all traffic to every port.",
+        "fr": "Boîtier qui relie plusieurs équipements en un point ; un hub réseau renvoie tout le trafic vers chaque port."
       },
       "inflections": [
         {
@@ -796,10 +796,6 @@
         "fr": "Interface virtuelle par laquelle une machine communique avec elle-même."
       },
       "relations": [
-        {
-          "type": "related_to",
-          "target": "interface"
-        },
         {
           "type": "related_to",
           "target": "ip"
