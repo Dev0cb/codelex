@@ -10,7 +10,7 @@
         "tsconfig.json",
         "tsconfig.build.json"
       ],
-      "outputs": ["dist/**", "!dist/indexes/**"]
+      "outputs": ["dist/**", "!dist/indexes/**", "!dist/bench/**"]
     },
     "build:index": {
       "dependsOn": ["build"],
@@ -25,6 +25,7 @@
       ],
       "outputs": ["dist/indexes/**"]
     },
+    "bench:index": { "dependsOn": ["build:index"], "cache": false },
     "lint": { "dependsOn": ["^build", "build"] },
     "format:check": { "dependsOn": ["^build", "build"] },
     "test": { "dependsOn": ["^build", "build", "build:index"], "outputs": [] }

@@ -343,7 +343,7 @@ array reads, which is what makes the < 5 µs budget plausible (§5).
     `formulas`), `package.json`, and through `dependsOn: ["build"]` the builder source (`build` inputs:
     `src/**` minus tests, `package.json`, `tsconfig*.json`). Tests, README and other docs do not invalidate it.
     **Outputs:** `dist/indexes/**`, so a cache hit restores the artefacts, the manifest and `current.json`;
-    `build` excludes `dist/indexes/**` from its own outputs so it never restores stale ones.
+    `build` excludes `dist/indexes/**` and `dist/bench/**` from its own outputs so it never restores stale ones.
   - **Consumers:** `@codelex/lexicon/indexes` (`scripts/indexes.mjs`, zero-dependency) —
     `resolveIndexArtefact({ profileId, flags })` follows `current.json`, finds the manifest entry and refuses
     (typed `IndexArtefactError`: `INDEX_NOT_BUILT`, `INDEX_MANIFEST_INVALID`, `INDEX_PROFILE_MISSING`,
@@ -469,10 +469,15 @@ by CDN instead of the bundle) and **Hermes lookup speed** (fallback: back `has`/
 FormRef>` built at load — ≈ 60–100 B/form heap, estimate — without changing the interface).
 
 How it is measured (task T8):
-- `vitest bench` in `packages/lexicon/bench/`: `has`/`lookupCodes` ns/op over all forms (hits) and 10,000
-  seeded non-forms (misses), `crossCheck`, `decodeLexiconIndex`, build time. Results exported as JSON CI
-  artefacts and trended. Hard gate at 2× budget (CI runners are noisy); breaches below that are reported, not
-  blocking.
+- **Done (sprint L6):** `pnpm turbo run bench:index --filter=@codelex/lexicon` (`scripts/bench-index.mjs`,
+  uncached task after `build:index`) measures the built artefacts of both flags variants — bytes, forms,
+  `decodeLexiconIndex` ms, `has` ns/op over all forms (hits) and form+`Q` (misses), `lookupCodes` ns/op, and
+  `crossCheck` ns/op on `f1` — median of 5 batches, written to `dist/bench/index-bench.json`. CI runs it after the
+  tests (non-gating step, a few seconds) and uploads it as the `lexicon-index-bench` artefact for trending. The
+  hard gates stay in `test/index-speed.test.mjs` (`has` 10 µs = 2× budget, `crossCheck` 50 µs); breaches below
+  that are reported, not blocking. *Measured* on `4fa5884050b4ea53` (1,501 forms, Node 22, dev container):
+  `f1` 283,672 B, decode 17.7 ms, `has` 258/288 ns hit/miss, `crossCheck` 881 ns; `f0` 100,160 B, decode 4.6 ms.
+- **Open:** build time in the JSON, 10,000 seeded non-forms instead of form+`Q`.
 - **Size gate** (exact, deterministic, hard): artefact bytes per profile against the budget column; size diff
   printed on every lexicon PR.
 - **Scale fixtures:** seeded synthetic corpora of 2,000 and 50,000 forms (letter-bigram model fitted on the real
@@ -538,7 +543,7 @@ fail.
 | T5 | DAWG build + minimisation + rank, encoder/decoder v1, CRC32 — done (sprint L4; normative layout in `src/index/clxi/format.ts`, adds TERM_FORM/FORM_TERM/FORM_KIND tables for the FormRef/TermRef split) | lexicon-engineer | code-reviewer | T3 | M |
 | T6 | GADDAG build + traversal + `crossCheck` — done (sprint L5: 15-section format 1, flags bit 0, `LexiconIndex.dawg`, T-GADDAG) | lexicon-engineer | ai-engineer | T5 | M |
 | T7 | Property/differential/fuzz tests, golden fixtures | lexicon-engineer | qa-engineer | T4–T6 | M |
-| T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring | lexicon-engineer | devops-sre | T5–T6 | S |
+| T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring — benchmark JSON and CI artefact done (sprint L6, non-gating, §5); size gate and scale corpora pending | lexicon-engineer | devops-sre | T5–T6 | S |
 | T9 | `build:index` CLI, Turborepo task, manifest — done (CLI and manifest sprint L4, global profile only; cached Turborepo task, `current.json` pointer and `@codelex/lexicon/indexes` resolver sprint L6, §3.4) | lexicon-engineer | devops-sre | T5 | S |
 | T10 | Mobile asset bundling + loader + corrupt-index state (E-1.5) | mobile-engineer | lexicon-engineer | T9 | S |
 | T11 | Server loader cache in `services/game` (Phase 2) | game-engine-engineer | lexicon-engineer | T9 | S |

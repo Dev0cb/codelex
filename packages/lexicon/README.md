@@ -50,6 +50,7 @@ node packages/lexicon/scripts/validate.mjs --report report.json   # same, plus t
 pnpm --filter @codelex/lexicon test        # node:test suites (scripts) then Vitest with coverage (src)
 pnpm turbo run build lint typecheck format:check test --filter=@codelex/lexicon
 pnpm turbo run build:index                 # cached; dist/indexes/current.json → <lexiconVersion>/{manifest.json,*.clxi}
+pnpm turbo run bench:index --filter=@codelex/lexicon   # dist/bench/index-bench.json (reporting only)
 ```
 
 ## Invariants (full list: LEXICON_SPEC §5)
@@ -90,7 +91,8 @@ per profile and flags: `flags`, `gaddag`, sha256, bytes, `definitionHash`). The 
 data and any artefact that does not decode as the expected version, profile and GADDAG presence (`--data <dir>`
 builds another data directory). Artefacts are reproducible and git-ignored. `dist/indexes/current.json` points at the only version directory;
 consumers read it through `@codelex/lexicon/indexes` (`resolveIndexArtefact({ profileId, flags })` checks size and
-sha256 against the manifest) and make their task depend on `@codelex/lexicon#build:index`.
+sha256 against the manifest) and make their task depend on `@codelex/lexicon#build:index`. `pnpm turbo run
+bench:index --filter=@codelex/lexicon` writes `dist/bench/index-bench.json` (reporting only; CI uploads it).
 Sizes on `ec9854cca6650c5c` (1,053 forms): 184,688 B with the GADDAG, 67,016 B without (GADDAG sections 4.50× the DAWG sections; gate ≤ 6×). The
-Turborepo task (T9) is done (sprint L6). Next (roadmap E-1.2): season/org
-profile files (T-PROFILE), CI benchmarks (T8).
+Turborepo task (T9) and benchmark JSON in CI (T8, part) are done (sprint L6). Next (roadmap E-1.2): season/org
+profile files (T-PROFILE), the size gate and scale corpora (T8).
