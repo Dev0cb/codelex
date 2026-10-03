@@ -331,9 +331,10 @@ describe('build determinism and round trip (T-DETERMINISM, T-ROUNDTRIP)', () => 
   });
 
   it('the DAWG is minimal and numbered root-first', () => {
+    const reference = referenceOf(REAL);
     const forms = Array.from(
-      { length: referenceOf(REAL).size },
-      (_, i) => referenceOf(REAL).formMeta(i as FormRef).form,
+      { length: reference.size },
+      (_, i) => reference.formMeta(i as FormRef).form,
     );
     const dawg = buildDawg(forms);
     const signatures = new Set<string>();
