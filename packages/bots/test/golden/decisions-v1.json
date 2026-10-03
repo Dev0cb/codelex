@@ -1,0 +1,546 @@
+{
+  "botVersion": 1,
+  "lexiconVersion": "000007d000000000",
+  "decisions": [
+    {
+      "seed": "00000000045a0ca1",
+      "actions": 0,
+      "personality": "random-legal",
+      "key": "P0706Z0707a",
+      "nodesUsed": 4908,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000045a0ca1",
+      "actions": 0,
+      "personality": "beginner",
+      "key": "P0507C0607S0707X0807A0907u",
+      "nodesUsed": 4908,
+      "candidatesEvaluated": 300,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000045a0ca1",
+      "actions": 0,
+      "personality": "greedy",
+      "key": "P0307n0407Z0507X0607A0707C",
+      "nodesUsed": 4908,
+      "candidatesEvaluated": 638,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000a2918652",
+      "actions": 2,
+      "personality": "random-legal",
+      "key": "P0508G",
+      "nodesUsed": 1785,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000a2918652",
+      "actions": 2,
+      "personality": "beginner",
+      "key": "P0306A0406N0506U",
+      "nodesUsed": 1785,
+      "candidatesEvaluated": 10,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000a2918652",
+      "actions": 2,
+      "personality": "greedy",
+      "key": "P0408A0508T",
+      "nodesUsed": 1785,
+      "candidatesEvaluated": 26,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000040c90003",
+      "actions": 4,
+      "personality": "random-legal",
+      "key": "P0205L0206N0207S",
+      "nodesUsed": 1682,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000040c90003",
+      "actions": 4,
+      "personality": "beginner",
+      "key": "P0504S0505L",
+      "nodesUsed": 1682,
+      "candidatesEvaluated": 21,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000040c90003",
+      "actions": 4,
+      "personality": "greedy",
+      "key": "P0107E0207S",
+      "nodesUsed": 1682,
+      "candidatesEvaluated": 40,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000df0079b4",
+      "actions": 6,
+      "personality": "random-legal",
+      "key": "P0312E0313E",
+      "nodesUsed": 823,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000df0079b4",
+      "actions": 6,
+      "personality": "beginner",
+      "key": "P0608N",
+      "nodesUsed": 823,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000df0079b4",
+      "actions": 6,
+      "personality": "greedy",
+      "key": "P0312P0412E",
+      "nodesUsed": 823,
+      "candidatesEvaluated": 7,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000007d37f365",
+      "actions": 8,
+      "personality": "random-legal",
+      "key": "P0611G0612I0613O",
+      "nodesUsed": 3083,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000007d37f365",
+      "actions": 8,
+      "personality": "beginner",
+      "key": "P0909I0910A0911R",
+      "nodesUsed": 3083,
+      "candidatesEvaluated": 19,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000007d37f365",
+      "actions": 8,
+      "personality": "greedy",
+      "key": "P1003D1004A1005A1006I",
+      "nodesUsed": 3083,
+      "candidatesEvaluated": 63,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000001b6f6d16",
+      "actions": 10,
+      "personality": "random-legal",
+      "key": "P0112E0212O0312T",
+      "nodesUsed": 2927,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000001b6f6d16",
+      "actions": 10,
+      "personality": "beginner",
+      "key": "P0111A0112O0113E",
+      "nodesUsed": 2927,
+      "candidatesEvaluated": 35,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000001b6f6d16",
+      "actions": 10,
+      "personality": "greedy",
+      "key": "P0111A0112T",
+      "nodesUsed": 2927,
+      "candidatesEvaluated": 76,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000b9a6e6c7",
+      "actions": 12,
+      "personality": "random-legal",
+      "key": "P0106A0206T",
+      "nodesUsed": 1423,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000b9a6e6c7",
+      "actions": 12,
+      "personality": "beginner",
+      "key": "P0910A1010F",
+      "nodesUsed": 1423,
+      "candidatesEvaluated": 19,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000b9a6e6c7",
+      "actions": 12,
+      "personality": "greedy",
+      "key": "P0308A0408F",
+      "nodesUsed": 1423,
+      "candidatesEvaluated": 41,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000057de6078",
+      "actions": 14,
+      "personality": "random-legal",
+      "key": "P0113O0213E",
+      "nodesUsed": 780,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000057de6078",
+      "actions": 14,
+      "personality": "beginner",
+      "key": "P0708A0808O0908E",
+      "nodesUsed": 780,
+      "candidatesEvaluated": 10,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000057de6078",
+      "actions": 14,
+      "personality": "greedy",
+      "key": "P0101C0201O0301I",
+      "nodesUsed": 780,
+      "candidatesEvaluated": 22,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000f615da29",
+      "actions": 16,
+      "personality": "random-legal",
+      "key": "P0704U0804R",
+      "nodesUsed": 2365,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000f615da29",
+      "actions": 16,
+      "personality": "beginner",
+      "key": "P1107U1207I1307R",
+      "nodesUsed": 2365,
+      "candidatesEvaluated": 8,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000f615da29",
+      "actions": 16,
+      "personality": "greedy",
+      "key": "P1410R1411I",
+      "nodesUsed": 2365,
+      "candidatesEvaluated": 20,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000944d53da",
+      "actions": 18,
+      "personality": "random-legal",
+      "key": "P0600O0700E",
+      "nodesUsed": 3511,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000944d53da",
+      "actions": 18,
+      "personality": "beginner",
+      "key": "P0900E1000R1100C",
+      "nodesUsed": 3511,
+      "candidatesEvaluated": 15,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000944d53da",
+      "actions": 18,
+      "personality": "greedy",
+      "key": "P0711K0712O",
+      "nodesUsed": 3511,
+      "candidatesEvaluated": 34,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000003284cd8b",
+      "actions": 0,
+      "personality": "random-legal",
+      "key": "P0707T0807T0907L",
+      "nodesUsed": 394,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000003284cd8b",
+      "actions": 0,
+      "personality": "beginner",
+      "key": "P0507I0607G0707T0807L",
+      "nodesUsed": 394,
+      "candidatesEvaluated": 26,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000003284cd8b",
+      "actions": 0,
+      "personality": "greedy",
+      "key": "P0407L0507T0607T0707G",
+      "nodesUsed": 394,
+      "candidatesEvaluated": 48,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000d0bc473c",
+      "actions": 2,
+      "personality": "random-legal",
+      "key": "P0907S0908d",
+      "nodesUsed": 18686,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000d0bc473c",
+      "actions": 2,
+      "personality": "beginner",
+      "key": "P0408C0508O0608n",
+      "nodesUsed": 18686,
+      "candidatesEvaluated": 178,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000d0bc473c",
+      "actions": 2,
+      "personality": "greedy",
+      "key": "P0308g0408C0508O0608I",
+      "nodesUsed": 18686,
+      "candidatesEvaluated": 388,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000006ef3c0ed",
+      "actions": 4,
+      "personality": "random-legal",
+      "key": "P0704A",
+      "nodesUsed": 1560,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000006ef3c0ed",
+      "actions": 4,
+      "personality": "beginner",
+      "key": "P1000Z1100A",
+      "nodesUsed": 1560,
+      "candidatesEvaluated": 22,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000006ef3c0ed",
+      "actions": 4,
+      "personality": "greedy",
+      "key": "P1100X1200N",
+      "nodesUsed": 1560,
+      "candidatesEvaluated": 42,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000000d2b3a9e",
+      "actions": 6,
+      "personality": "random-legal",
+      "key": "P0701L0702N",
+      "nodesUsed": 1077,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000000d2b3a9e",
+      "actions": 6,
+      "personality": "beginner",
+      "key": "P0701E0702N",
+      "nodesUsed": 1077,
+      "candidatesEvaluated": 13,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "000000000d2b3a9e",
+      "actions": 6,
+      "personality": "greedy",
+      "key": "P0700A0701E0702N",
+      "nodesUsed": 1077,
+      "candidatesEvaluated": 22,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000ab62b44f",
+      "actions": 8,
+      "personality": "random-legal",
+      "key": "P0611O",
+      "nodesUsed": 2545,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000ab62b44f",
+      "actions": 8,
+      "personality": "beginner",
+      "key": "P0511T0611O",
+      "nodesUsed": 2545,
+      "candidatesEvaluated": 24,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000ab62b44f",
+      "actions": 8,
+      "personality": "greedy",
+      "key": "P0609E0709Y",
+      "nodesUsed": 2545,
+      "candidatesEvaluated": 54,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000499a2e00",
+      "actions": 10,
+      "personality": "random-legal",
+      "key": "P0909R",
+      "nodesUsed": 2575,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000499a2e00",
+      "actions": 10,
+      "personality": "beginner",
+      "key": "P0409M0410S0411I0412R",
+      "nodesUsed": 2575,
+      "candidatesEvaluated": 9,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000499a2e00",
+      "actions": 10,
+      "personality": "greedy",
+      "key": "P0709S0809S0909M",
+      "nodesUsed": 2575,
+      "candidatesEvaluated": 32,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000e7d1a7b1",
+      "actions": 12,
+      "personality": "random-legal",
+      "key": "P0909E0910T",
+      "nodesUsed": 3989,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000e7d1a7b1",
+      "actions": 12,
+      "personality": "beginner",
+      "key": "P0504T0604I0704L0804D",
+      "nodesUsed": 3989,
+      "candidatesEvaluated": 30,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000e7d1a7b1",
+      "actions": 12,
+      "personality": "greedy",
+      "key": "P0804T1004I",
+      "nodesUsed": 3989,
+      "candidatesEvaluated": 55,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000086092162",
+      "actions": 14,
+      "personality": "random-legal",
+      "key": "P1213O1313P1413E",
+      "nodesUsed": 1905,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000086092162",
+      "actions": 14,
+      "personality": "beginner",
+      "key": "P0508R0510E0511R0512O",
+      "nodesUsed": 1905,
+      "candidatesEvaluated": 24,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000086092162",
+      "actions": 14,
+      "personality": "greedy",
+      "key": "P0800P0801H",
+      "nodesUsed": 1905,
+      "candidatesEvaluated": 38,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000024409b13",
+      "actions": 16,
+      "personality": "random-legal",
+      "key": "P0503G0603V",
+      "nodesUsed": 1972,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000024409b13",
+      "actions": 16,
+      "personality": "beginner",
+      "key": "P0503W0603S",
+      "nodesUsed": 1972,
+      "candidatesEvaluated": 9,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "0000000024409b13",
+      "actions": 16,
+      "personality": "greedy",
+      "key": "P0503W0603R",
+      "nodesUsed": 1972,
+      "candidatesEvaluated": 20,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000c27814c4",
+      "actions": 18,
+      "personality": "random-legal",
+      "key": "P0501C0502M",
+      "nodesUsed": 1933,
+      "candidatesEvaluated": 1,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000c27814c4",
+      "actions": 18,
+      "personality": "beginner",
+      "key": "P0910C0911D0912T",
+      "nodesUsed": 1933,
+      "candidatesEvaluated": 22,
+      "budgetExhausted": false
+    },
+    {
+      "seed": "00000000c27814c4",
+      "actions": 18,
+      "personality": "greedy",
+      "key": "P0910T0911D0912T",
+      "nodesUsed": 1933,
+      "candidatesEvaluated": 62,
+      "budgetExhausted": false
+    }
+  ]
+}

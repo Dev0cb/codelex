@@ -47,10 +47,15 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           if [ "$EVENT_NAME" = "pull_request" ]; then
-            pnpm turbo run lint typecheck format:check test --filter="...[origin/${BASE_REF}]"
+            FILTER="--filter=...[origin/${BASE_REF}]"
           else
-            pnpm turbo run lint typecheck format:check test
+            FILTER=""
           fi
+          pnpm turbo run lint typecheck format:check ${FILTER:+"$FILTER"}
+          # Test suites run one package at a time: each vitest --coverage run already spreads its own workers
+          # over every core, and timing-bound tests (spawned vitest runs, speed gates) time out when several
+          # suites share the 4-vCPU runner.
+          pnpm turbo run test --concurrency=1 ${FILTER:+"$FILTER"}
 
   golden-path:
     # Phase 0 exit criterion: a package scaffolded with /scaffold is green in < 10 min. The probe package and
