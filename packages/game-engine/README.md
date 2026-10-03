@@ -50,16 +50,18 @@ input (action logs) before it reaches the RNG.
 
 SHA-256 and the JCS subset (`src/hash/`) are internal since E4 (API note §3): callers hash states with
 `stateHash`. Internal rules modules: `actions/` (parse, validate), `placement/`, `bag/`, `scoring/` (score,
-end; default readings of API note §16 Q-GD-1…4), `state/`, `replay/`.
+end; rules decided in GAME_RULES v0.3.1, API note §16 Q-GD-1…5), `state/`, `replay/`.
 
 Tests: golden cases in `test/golden/` (RNG, SHA-256, JCS, scoring `v1`, replay `v1` GC-DET-01); lexicon fixtures
-in `test/support/` (`small-lexicon.ts` = G-LEX-SMALL; `play.ts` = seeded random-legal player on a frozen synthetic
-lexicon, used by the full-match property and GC-DET-01).
+in `test/support/` (`small-lexicon.ts` = G-LEX-SMALL; `play.ts` = seeded random-legal player on a synthetic
+lexicon, used by the full-match properties; `gc-det-01-lexicon.ts` = the frozen GC-DET-01 lexicon, built from
+`test/golden/replays/v1/gc-det-01.lexicon.json`). Decision tests for Q-GD-1…4: `src/match/decisions.test.ts`.
 
 ## Commands
 
 ```bash
 pnpm turbo run build lint typecheck format:check test --filter=@codelex/game-engine
+pnpm --filter @codelex/game-engine bench   # non-gating timings over GC-DET-01 (API note §18)
 ```
 
 ## Invariants

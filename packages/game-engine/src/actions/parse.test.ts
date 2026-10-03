@@ -150,6 +150,20 @@ describe('parseAction — canonical form (API note §8.1)', () => {
     if (r.ok && r.value.type === 'PLACE_WORD') expect(r.value.tiles[0]).not.toBe(input.tiles[2]);
   });
 
+  it('n2: the canonical order is total: tiles on one square are ordered by tile code unit', () => {
+    const tiles = [
+      { row: 7, col: 7, tile: 'b' },
+      { row: 7, col: 7, tile: 'B' },
+      { row: 7, col: 7, tile: 'A' },
+    ];
+    const canonical = (order: typeof tiles): unknown => {
+      const r = parseAction({ seat: 0, type: 'PLACE_WORD', tiles: order }, 2);
+      return r.ok && r.value.type === 'PLACE_WORD' ? r.value.tiles.map((t) => t.tile) : r;
+    };
+    expect(canonical(tiles)).toEqual(['A', 'B', 'b']);
+    expect(canonical([...tiles].reverse())).toEqual(['A', 'B', 'b']);
+  });
+
   it('leaves geometry to the placement check: empty, off-board and duplicate tiles parse', () => {
     expect(parseAction({ seat: 0, type: 'PLACE_WORD', tiles: [] }, 2).ok).toBe(true);
     expect(

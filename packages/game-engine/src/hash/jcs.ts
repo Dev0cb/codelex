@@ -131,6 +131,14 @@ function writeObject(record: object, depth: number, path: Path): string {
   return `${out}}`;
 }
 
+/**
+ * True for the only numbers of the subset: safe integers other than `-0`. Every trust boundary (actions, configs,
+ * persisted states and logs) checks numbers with this, so nothing it accepts can make `canonicalJson` throw.
+ */
+export function isJcsInteger(value: unknown): value is number {
+  return Number.isSafeInteger(value) && !Object.is(value, -0);
+}
+
 function write(value: unknown, depth: number, path: Path): string {
   switch (typeof value) {
     case 'string':

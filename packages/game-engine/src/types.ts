@@ -114,7 +114,7 @@ export interface Rules {
   readonly minFirstMoveTiles: 2;
   /** R-TURN-001 */
   readonly minBagForExchange: 7;
-  /** R-TURN-004 (limit = 3 × seats, see API note §16 Q-GD-1) */
+  /** R-TURN-004 (limit = 3 × active seats, GAME_RULES v0.3.1) */
   readonly scorelessTurnsPerSeat: 3;
   /** R-SCORE-004 */
   readonly fullStackTiles: 7;
@@ -405,7 +405,7 @@ export type MatchEvent =
   | { readonly type: 'PASSED'; readonly seat: Seat; readonly scorelessTurns: number }
   | { readonly type: 'RESIGNED'; readonly seat: Seat }
   | { readonly type: 'TURN_STARTED'; readonly seat: Seat; readonly turnNumber: number }
-  /** Final racks are public once the match is over (R-SCORE-006 needs them; API note §16 Q-GD-5). */
+  /** Final racks are public once the match is over, retired racks included (R-END-003, v0.3.1). */
   | {
       readonly type: 'MATCH_ENDED';
       readonly result: MatchResult;
@@ -450,7 +450,7 @@ export interface Observation {
   readonly teamScores: readonly number[];
 
   readonly result?: MatchResult;
-  /** Present iff finished: every seat's final rack (public at the end, API note §16 Q-GD-5). */
+  /** Present iff finished: every seat's final rack (public at the end, R-END-003 v0.3.1). */
   readonly finalRacks?: readonly TileString[];
 }
 
@@ -556,7 +556,8 @@ export interface MatchResult {
   readonly teamScores: readonly number[];
   /**
    * Per team: 1-based place, ties share a place ("1224" ranking). Exactly one team at place 1 = a win;
-   * several = a draw (R-END-003). Resigned teams rank below every active team (API note §16 Q-GD-3).
+   * several = a draw (R-END-003). Resigned teams rank below every active team and share that place
+   * (R-END-002 v0.3.1).
    */
   readonly places: readonly number[];
   /** How place 1 was decided (R-END-003). */

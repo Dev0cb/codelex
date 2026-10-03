@@ -1,4 +1,6 @@
+import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { playSteps, seedOf } from '../../test/support/play.js';
 import { CTX, config1v1 } from '../../test/support/small-lexicon.js';
 import { apply } from '../match/apply.js';
 import { createMatch } from '../match/create.js';
@@ -11,6 +13,25 @@ const START = created.value.state;
 const resigned = apply(START, { seat: 1, type: 'RESIGN' }, CTX);
 if (!resigned.ok) throw new Error('fixture');
 const FINISHED = resigned.value.state;
+
+/** Six passes from the start: R-TURN-004 in 1v1. */
+const SCORELESS = ((): MatchState => {
+  let s = START;
+  while (s.status === 'in_progress') {
+    const r = apply(s, { seat: s.seatOnTurn, type: 'PASS' }, CTX);
+    if (!r.ok) throw new Error('fixture');
+    s = r.value.state;
+  }
+  return s;
+})();
+
+/** The first 1v1 match of the generated corpus that ends by going out (R-END-001). */
+const GOING_OUT = ((): MatchState => {
+  for (let i = 0; ; i += 1) {
+    const s = playSteps(seedOf(i), 2, 500).states.at(-1);
+    if (s?.result?.end.reason === 'going_out') return s;
+  }
+})();
 
 /** Field reported for a state document mutated by `edit` (on a JSON copy). */
 function problem(edit: (doc: Record<string, unknown>) => void, base: MatchState = START): unknown {
@@ -58,6 +79,25 @@ describe('parseState (P-GLOBAL-04, API note §13.6)', () => {
     );
   });
 
+  it('m1: an unsupported engineRulesVersion of any JSON type is reported without stringifying it', () => {
+    const actual = (text: string): unknown => {
+      const r = parseState(text);
+      return r.ok
+        ? 'ok'
+        : r.error.code === 'RULES_VERSION_UNSUPPORTED' && r.error.details?.['actual'];
+    };
+    expect(actual('{"engineRulesVersion":{"toString":1}}')).toBe('object');
+    expect(actual('{"engineRulesVersion":{"toString":{},"valueOf":{}}}')).toBe('object');
+    expect(actual('{"engineRulesVersion":[1]}')).toBe('object');
+    expect(actual('{"engineRulesVersion":null}')).toBe('object');
+    expect(actual('{"engineRulesVersion":true}')).toBe('boolean');
+    expect(actual('{}')).toBe('undefined');
+    expect(actual('{"engineRulesVersion":"1"}')).toBe('1');
+    expect(actual('{"engineRulesVersion":2}')).toBe(2);
+    expect(actual('{"engineRulesVersion":1.5}')).toBe(1.5);
+    expect(actual('{"engineRulesVersion":1e400}')).toBe('number'); // Infinity: no non-finite number in details
+  });
+
   it.each([
     ['not JSON', null],
     ['not an object', null],
@@ -72,6 +112,8 @@ describe('parseState (P-GLOBAL-04, API note §13.6)', () => {
 
   it.each<[string, (d: Record<string, unknown>) => void]>([
     ['extra', (d) => (d['extra'] = 1)],
+    // n1: the first unknown key in code-unit order, whatever the document order.
+    ['Zz', (d) => ((d['zz'] = 1), (d['Zz'] = 1), (d['z'] = 1))],
     ['bag', (d) => delete d['bag']],
     ['seed', (d) => (d['seed'] = 'nope')],
     ['config.teams', (d) => ((d['config'] as Record<string, unknown>)['teams'] = [[1], [0]])],
@@ -130,6 +172,88 @@ describe('parseState (P-GLOBAL-04, API note §13.6)', () => {
   });
 
   it('accepts a scoreless_turns end without a seat', () => {
-    expect(problem((d) => (result(d)['end'] = { reason: 'scoreless_turns' }), FINISHED)).toBe('ok');
+    expect(SCORELESS.result?.end).toEqual({ reason: 'scoreless_turns' });
+    expect(problem(() => undefined, SCORELESS)).toBe('ok');
   });
+});
+
+describe('parseState rejects wedged or inconsistent states (review R1 m2)', () => {
+  it.each<[string, (d: Record<string, unknown>) => void]>([
+    // v1 produces only active and resigned seats.
+    ['seats[0].status', (d) => (seat0(d)['status'] = 'forfeited')],
+    ['seats[0].status', (d) => (seat0(d)['status'] = 'eliminated')],
+    // R-SCORE-005: a chain needs a previous main word.
+    ['seats[0].chainK', (d) => (seat0(d)['chainK'] = 1)],
+    // in_progress: the seat on turn is active and ≥ 2 teams are still active (R-END-002).
+    [
+      'seatOnTurn',
+      (d) => {
+        const seats = d['seats'] as Record<string, unknown>[];
+        (seats[d['seatOnTurn'] as number] as Record<string, unknown>)['status'] = 'resigned';
+      },
+    ],
+    [
+      'seats',
+      (d) => {
+        const seats = d['seats'] as Record<string, unknown>[];
+        (seats[1 - (d['seatOnTurn'] as number)] as Record<string, unknown>)['status'] = 'resigned';
+      },
+    ],
+  ])('in progress: MALFORMED_STATE at %s', (field, edit) => {
+    expect(problem(edit)).toBe(field);
+  });
+
+  it('accepts a chain with a previous main word', () => {
+    expect(problem((d) => ((seat0(d)['chainK'] = 1), (seat0(d)['lastMainForm'] = 'TCP')))).toBe(
+      'ok',
+    );
+  });
+
+  it.each<[string, MatchState, (d: Record<string, unknown>) => void]>([
+    // The end reason must match the seats.
+    ['result.end', FINISHED, (d) => (result(d)['end'] = { reason: 'scoreless_turns' })],
+    ['result.end', FINISHED, (d) => (result(d)['end'] = { reason: 'resign', seat: 0 })],
+    ['result.end', FINISHED, (d) => (result(d)['end'] = { reason: 'going_out', seat: 0 })],
+    ['result.end', SCORELESS, (d) => (d['scorelessTurns'] = 5)],
+    ['result.end', SCORELESS, (d) => (result(d)['end'] = { reason: 'resign', seat: 0 })],
+    ['result.end', SCORELESS, (d) => (result(d)['end'] = { reason: 'going_out', seat: 0 })],
+    // Adjustments, team scores, places and decidedBy are recomputed from the seats.
+    ['result.adjustments', SCORELESS, (d) => (result(d)['adjustments'] = [0, 0])],
+    ['result.adjustments', FINISHED, (d) => (result(d)['adjustments'] = [1, -1])],
+    ['result.teamScores', FINISHED, (d) => (result(d)['teamScores'] = [0, 1])],
+    ['result.teamScores', SCORELESS, (d) => (seat0(d)['score'] = 1000)],
+    ['result.places', FINISHED, (d) => (result(d)['places'] = [2, 1])],
+    ['result.decidedBy', FINISHED, (d) => (result(d)['decidedBy'] = 'score')],
+  ])('finished: MALFORMED_STATE at %s', (field, base, edit) => {
+    expect(problem(edit, base)).toBe(field);
+  });
+
+  it('going_out: the seat that went out has an empty rack and the bag is empty (R-END-001)', () => {
+    const out = GOING_OUT;
+    const goer = out.result?.end.reason === 'going_out' ? out.result.end.seat : -1;
+    expect(problem(() => undefined, out)).toBe('ok');
+    const other = 1 - goer;
+    expect(problem((d) => (result(d)['end'] = { reason: 'going_out', seat: other }), out)).toBe(
+      'result.end',
+    );
+  });
+
+  it(
+    'PBT: every reachable state parses (no over-rejection) and round-trips',
+    { timeout: 120_000 },
+    () => {
+      fc.assert(
+        fc.property(fc.nat(2000), fc.constantFrom(2, 3, 4), fc.nat(200), (i, seats, steps) => {
+          const played = playSteps(seedOf(i), seats, steps);
+          for (const s of [played.states.at(-1), played.states[played.states.length >> 1]]) {
+            if (s === undefined) continue;
+            const r = parseState(serializeState(s));
+            if (!r.ok) throw new Error(JSON.stringify(r.error));
+            expect(r.value).toEqual(s);
+          }
+        }),
+        { seed: 2610, numRuns: 60 },
+      );
+    },
+  );
 });

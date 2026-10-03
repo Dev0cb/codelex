@@ -24,7 +24,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "bench": "tsc -p tsconfig.build.json && vitest run --config vitest.bench.config.ts --silent=false"
   },
   "dependencies": {
     "@codelex/config": "workspace:*",

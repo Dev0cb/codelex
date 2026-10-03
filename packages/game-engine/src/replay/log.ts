@@ -85,6 +85,7 @@ export interface ReplayOutcome {
 
 const HEX16 = /^[0-9a-f]{16}$/;
 const LOG_KEYS = ['actions', 'final', 'header', 'logVersion', 'stateHashes'];
+const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
 const malformedLog = (path: string): ReplayError => ({
   kind: 'replay',
@@ -93,7 +94,8 @@ const malformedLog = (path: string): ReplayError => ({
   details: { path },
 });
 
-const numberOrNaN = (x: unknown): number => (typeof x === 'number' ? x : Number.NaN);
+/** A version number for error details: the value if it is a safe integer, else -1 (never NaN; review R1 n4). */
+const versionOrMinusOne = (x: unknown): number => (Number.isSafeInteger(x) ? (x as number) : -1);
 
 /** An empty log for a new match. */
 export function newActionLog(config: MatchConfig): ActionLog {
@@ -122,7 +124,7 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
       kind: 'replay',
       code: 'LOG_VERSION_UNSUPPORTED',
       message: 'unsupported logVersion',
-      details: { logVersion: numberOrNaN(doc['logVersion']) },
+      details: { logVersion: versionOrMinusOne(doc['logVersion']) },
     });
   }
   const header = doc['header'];
@@ -132,10 +134,13 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
       kind: 'replay',
       code: 'RULES_VERSION_UNSUPPORTED',
       message: 'unsupported engineRulesVersion',
-      details: { engineRulesVersion: numberOrNaN(version) },
+      details: { engineRulesVersion: versionOrMinusOne(version) },
     });
   }
-  const extra = Object.keys(doc).find((k) => !LOG_KEYS.includes(k));
+  // First unknown key in code-unit order, not in document order (deterministic reporting).
+  const extra = Object.keys(doc)
+    .sort(byCodeUnit)
+    .find((k) => !LOG_KEYS.includes(k));
   if (extra !== undefined) return err(malformedLog(extra));
   const headerProblem = configProblem(header as MatchConfig);
   if (headerProblem !== undefined) {
@@ -236,7 +241,7 @@ export function replay(
         kind: 'replay',
         code: 'RULES_VERSION_UNSUPPORTED',
         message: e.message,
-        details: { engineRulesVersion: numberOrNaN(log.header.engineRulesVersion) },
+        details: { engineRulesVersion: versionOrMinusOne(log.header.engineRulesVersion) },
       });
     }
     return err(malformedLog(`header.${String(e.details?.['field'] ?? '')}`));
@@ -269,6 +274,8 @@ export function replay(
       hashes.push(actual);
     }
   }
+  // A final checkpoint exists only once the match is over (ADR-0013 §D2; review R1 n5).
+  if (log.final !== undefined && state.status !== 'finished') return err(malformedLog('final'));
   const finalHash = stateHash(state);
   if (log.final !== undefined && log.final.stateHash !== finalHash) {
     return err(hashMismatch('final', log.final.stateHash, finalHash));

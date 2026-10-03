@@ -404,7 +404,7 @@ export type PlacementViolation =
 
 export type MalformedViolation =
   | 'unknown_type' | 'unknown_field' | 'seat_out_of_range'
-  | 'bad_coordinate'        // not a safe integer
+  | 'bad_coordinate'        // not a safe integer, or -0 (outside the JCS subset; E5, review R1 M1)
   | 'bad_tile'              // not a BoardTile / RackTile char
   | 'blank_undesignated';   // '?' in a PLACE_WORD (R-BAG-006 a)
 
@@ -466,7 +466,10 @@ export interface EngineError {
   readonly kind: 'engine';
   readonly code: EngineErrorCode;
   readonly message: string;
-  /** e.g. { field: 'config.teams' } or { expected: '<version>/<profile>/<hash>', actual: '…' }. */
+  /**
+   * e.g. { field: 'config.teams' } or { expected: '<version>/<profile>/<hash>', actual: '…' }.
+   * RULES_VERSION_UNSUPPORTED `actual`: the finite number or string found, else its `typeof` (never stringified).
+   */
   readonly details?: Readonly<Record<string, string | number>>;
 }
 
@@ -750,10 +753,18 @@ on any failure. For an accepted move, `committed.total − preview.total = Σ te
 `serializeState` emits the JCS text of the state (ASCII; ADR-0013 §D3 subset; throws on a value outside the subset —
 programmer error). `parseState` validates every field, invariant (tile conservation, sorted racks, row lengths,
 `result` present iff finished) and `engineRulesVersion` (`RULES_VERSION_UNSUPPORTED` before `MALFORMED_STATE`), and
-returns a state deep-equal to the one serialised (P-GLOBAL-04). `stateHash` is computed on demand only (not inside
+returns a state deep-equal to the one serialised (P-GLOBAL-04). *(E5, review R1 m2)* It also rejects wedged and
+inconsistent states: seat statuses other than `active`/`resigned`; `chainK > 0` with an empty `lastMainForm`;
+in progress, a `seatOnTurn` that is not active or fewer than 2 active teams; finished, an end reason the seats cannot
+produce (`resign` by an active seat or with ≥ 2 active teams; `going_out` by a seat with tiles or with a non-empty bag;
+`scoreless_turns` below the limit), or `adjustments`/`teamScores`/`places`/`decidedBy` that differ from what the end of
+match computes from the seats. `stateHash` is computed on demand only (not inside
 `apply`, ADR-0013 budget).
 
 ### 13.7 Input trust
+*(E5, review R1 M1)* Every number accepted at a boundary (`parseAction`, hence `apply`/`evaluateMove`/
+`previewScore`/`parseActionLog`; `createMatch`; `parseState`) is a safe integer **other than `-0`**: `-0` is outside
+the JCS subset, so accepting it would make `stateHash`, `serializeState`, `serializeActionLog` or `replay` throw later.
 Typed callers are trusted for state values produced by this package (`createMatch`, `apply`, `parseState`); a
 hand-built invalid `MatchState` is a programmer error (undefined result, never an infinite loop). **Actions are
 never trusted**: they come from players, bots and logs, so `apply`/`evaluateMove` check their runtime shape (§8.2
@@ -805,6 +816,7 @@ export interface ActionLog {
 }
 
 export type ReplayError =
+  /** E5 (review R1 n4): a logVersion / engineRulesVersion that is not a safe integer is reported as -1, never NaN. */
   | { readonly kind: 'replay'; readonly code: 'LOG_VERSION_UNSUPPORTED'; readonly message: string;
       readonly details: { readonly logVersion: number } }
   | { readonly kind: 'replay'; readonly code: 'RULES_VERSION_UNSUPPORTED'; readonly message: string;
@@ -848,9 +860,11 @@ export interface ReplayOutcome {
 - Golden files: `test/golden/{rng,sha256,jcs}.json`, `test/golden/replays/v1/*.json` (GC-DET-01 + seeded corpus),
   `test/golden/scoring/v1/*.json` (RULE_PROPERTIES §3.1/§3.2 transcribed). Immutable once `v1` is published.
 - **E4 implementation note (2026-10-03):** GC-DET-01 (`test/golden/replays/v1/gc-det-01*.json`, final hash
-  `59b0b2f2d2ca6c60`) is replayed on the frozen synthetic lexicon of `test/support/play.ts`, not on the bundled
-  lexicon: every content batch changes `lexiconVersion`, and a golden log must keep replaying. It moves to an
-  archived `.clxi` once L4 ships one. Its `firstSeat`, final hash and result are the regression pins.
+  `59b0b2f2d2ca6c60`) is replayed on a frozen synthetic lexicon, not on the bundled lexicon: every content batch
+  changes `lexiconVersion`, and a golden log must keep replaying. It moves to an archived `.clxi` once L4 ships one.
+  Its `firstSeat`, final hash and result are the regression pins. *(E5, review R1 n6)* The term list is frozen in
+  `test/golden/replays/v1/gc-det-01.lexicon.json` (built by `test/support/gc-det-01-lexicon.ts`), so the harness
+  vocabulary of `test/support/play.ts` can change without touching the golden.
 
 ## 16. Rules ambiguities surfaced by this API (decided by `game-designer`, GAME_RULES v0.3.1, 2026-10-03)
 
@@ -910,6 +924,28 @@ Budgets (estimates until E4 measures them; Node 22 server class / Hermes referen
 | `previewScore` | < 50 µs Node, < 2 ms Hermes (runs on every drag) |
 | `stateHash` / `serializeState` | ADR-0013: < 50 µs / < 2 ms; never inside `apply` |
 | `replay` Classic 1v1 | < 40 ms Node (ADR-0013) |
+
+**Measured (E5, review R1 m4; non-gating).** `pnpm --filter @codelex/game-engine bench` runs
+`test/bench/engine.bench.ts` on the built package over GC-DET-01 (90 actions, frozen lexicon of 18,279 forms) through
+Vitest's benchmark project (tinybench owns the clock; the file reads none, so the determinism lint is unchanged). It
+asserts no time bound and is not part of `test` or CI. Run of 2026-10-03, Node 22.22, Intel Xeon @ 2.10 GHz (cloud
+VM, 4 vCPU, shared), µs per call:
+
+| Operation | mean | p50 | p99 | Budget (Node) |
+|---|---|---|---|---|
+| `apply`, mid-game PLACE_WORD | 7 | 6 | 26 | p99 < 1,000 ✓ |
+| `apply`, average over the 90 GC-DET-01 actions | 7 | 7 | 12 ¹ | — |
+| `evaluateMove`, mid-game PLACE_WORD | 4 | 4 | 9 | p99 < 50 ✓ |
+| `previewScore`, same tiles | 4 | 3 | 8 | < 50 ✓ |
+| `observe` | 2 | 2 | 4 | < 20 ✓ |
+| `serializeState` | 14 | 13 | 33 | < 50 ✓ |
+| `stateHash` | 45 | 40 | 71 | < 50 (mean ✓, p99 ✗ ²) |
+| `replay` GC-DET-01, final hash only | 965 | 746 | 4,984 | < 40,000 ✓ |
+| `replay` GC-DET-01, all 90 `stateHashes` verified | 5,341 | 4,852 | 9,821 | < 40,000 ✓ |
+
+¹ p99 of one 90-action iteration divided by 90, not a per-call percentile. ² `stateHash` is dominated by the pure-JS
+SHA-256 over ~1 KB of JCS; it is never called inside `apply`, and the ADR-0013 budget is read as a mean. Hermes
+numbers are still to be measured on the reference device (A1). Shared-VM jitter makes single runs vary by ±30 %.
 
 ## 19. Consumer guide (who uses what)
 
