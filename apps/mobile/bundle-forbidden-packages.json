@@ -1,0 +1,11 @@
+{
+  "$comment": "Packages that must never be in a shipped Hermes bundle. `bundle:check` fails when one of them is a module in an `expo export` source map (android or ios). Every entry backs an audit exception of the class 'toolchain package in the prod dependency graph, proven absent from shipped artefacts' in docs/security/audit-exceptions.md; remove the entry only with the exception. Owner: security-engineer.",
+  "packages": [
+    { "name": "node-forge", "advisory": "GHSA-86w9-cpqp-85rv", "expires": "2026-11-02" },
+    {
+      "name": "@expo/code-signing-certificates",
+      "advisory": "GHSA-86w9-cpqp-85rv",
+      "expires": "2026-11-02"
+    }
+  ]
+}

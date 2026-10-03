@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "customConditions": ["react-native"],
+    "jsx": "react-jsx",
+    "lib": ["ES2023"],
+    "types": [],
+    "rootDir": ".",
+    "noEmit": true,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src", "scripts", "*.ts", "*.js"],
+  "exclude": ["dist", "coverage", "node_modules", ".expo"]
+}
