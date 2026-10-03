@@ -1,5 +1,5 @@
 {
-  "$comment": "Bytes per platform for `expo export` output (Hermes bytecode bundle, bundled assets). Raise only with a reason in the PR (mobile-engineer + devops-sre). Measured 2026-10-03 at SDK 57: android 3,822,094 B bundle + 989,294 B assets; ios 3,612,368 B bundle + 23,136 B assets. lexiconBytes is the .clxi lexicon index line: the lexicon-index note §5 size gate (0.55 MB with the GADDAG for up to 2,000 forms), enforced by prepare:lexicon.",
-  "android": { "bundleBytes": 4400000, "assetBytes": 1150000, "lexiconBytes": 550000 },
-  "ios": { "bundleBytes": 4200000, "assetBytes": 60000, "lexiconBytes": 550000 }
+  "$comment": "Bytes per platform for `expo export --source-maps` output: Hermes bytecode bundle, bundled code assets (fonts, images) and the .clxi lexicon index on its own line. Raise only with a reason in the PR (mobile-engineer + devops-sre). Baseline 2026-10-03 at SDK 57 with the lexicon loader: android 3,214,516 B bundle + 989,294 B assets; ios 3,030,524 B bundle + 23,136 B assets; lexicon global-ranked.f1 (1,501 forms) 283,672 B on both. Bundle and asset limits are about 15 % above the baseline; lexiconBytes is the lexicon-index note §5 size gate (0.55 MB with the GADDAG for up to 2,000 forms), which prepare:lexicon also enforces. Details: docs/architecture/notes/mobile-app-foundation.md §6.",
+  "android": { "bundleBytes": 3700000, "assetBytes": 1140000, "lexiconBytes": 550000 },
+  "ios": { "bundleBytes": 3490000, "assetBytes": 27000, "lexiconBytes": 550000 }
 }
