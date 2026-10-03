@@ -26,5 +26,5 @@ export interface Generation {
   readonly exhausted: boolean;
 }
 
-/** One move generator per automaton (BOT-8): the GADDAG path today, the DAWG path once L5 lands (O-1). */
+/** One move generator per automaton (BOT-8): GADDAG path, DAWG fallback (P-BOT-03: same move set). */
 export type MoveGenerator = (input: GenerationInput) => Generation;
