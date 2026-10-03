@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "CODELEX",
+    "slug": "codelex",
+    "scheme": "codelex",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": ["expo-router", "expo-localization"],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

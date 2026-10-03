@@ -51,6 +51,18 @@ jobs:
           else
             pnpm turbo run lint typecheck format:check test
           fi
+      # Mobile bundle budget (expo export + hermesc, no native build). A separate step so the CPU-heavy export does
+      # not compete with the timed test suites above.
+      - name: Bundle-size budget (affected)
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            pnpm turbo run bundle:check --filter="...[origin/${BASE_REF}]"
+          else
+            pnpm turbo run bundle:check
+          fi
 
   golden-path:
     # Phase 0 exit criterion: a package scaffolded with /scaffold is green in < 10 min. The probe package and
