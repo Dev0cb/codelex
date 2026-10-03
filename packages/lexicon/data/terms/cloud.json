@@ -3,6 +3,35 @@
   "category": "cloud",
   "terms": [
     {
+      "id": "api-gateway",
+      "form": "APIGATEWAY",
+      "display": "Api gateway",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Entry service that routes, secures and meters the calls made to a set of APIs.",
+        "fr": "Service d'entrée qui route, sécurise et mesure les appels faits à un ensemble d'API."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "gateway"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        },
+        {
+          "type": "related_to",
+          "target": "microservice"
+        }
+      ]
+    },
+    {
       "id": "autoscaling",
       "form": "AUTOSCALING",
       "display": "Autoscaling",
@@ -188,6 +217,31 @@
       ]
     },
     {
+      "id": "bare-metal",
+      "form": "BAREMETAL",
+      "display": "Bare metal",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Physical server rented whole, with no virtualization layer in between.",
+        "fr": "Serveur physique loué en entier, sans couche de virtualisation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "server"
+        },
+        {
+          "type": "alternative_to",
+          "target": "virtual-machine"
+        }
+      ]
+    },
+    {
       "id": "bigquery",
       "form": "BIGQUERY",
       "display": "BigQuery",
@@ -278,6 +332,31 @@
       ]
     },
     {
+      "id": "capacity",
+      "form": "CAPACITY",
+      "display": "Capacity",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Amount of compute, storage or traffic that a system can handle.",
+        "fr": "Quantité de calcul, de stockage ou de trafic qu'un système peut absorber."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "scalability"
+        },
+        {
+          "type": "related_to",
+          "target": "quota"
+        }
+      ]
+    },
+    {
       "id": "cloud",
       "form": "CLOUD",
       "display": "Cloud",
@@ -295,6 +374,56 @@
         {
           "form": "CLOUDS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "cloud-computing",
+      "form": "CLOUDCOMPUTING",
+      "display": "Cloud computing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Using computing power and storage over the internet on demand instead of owning machines.",
+        "fr": "Utilisation à la demande de puissance de calcul et de stockage via Internet, sans posséder les machines."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cloud"
+        },
+        {
+          "type": "related_to",
+          "target": "datacenter"
+        }
+      ]
+    },
+    {
+      "id": "cloud-gaming",
+      "form": "CLOUDGAMING",
+      "display": "Cloud gaming",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Playing games that run on remote servers and are streamed to your device as video.",
+        "fr": "Jeu vidéo exécuté sur des serveurs distants et diffusé en vidéo vers l'appareil du joueur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "streaming"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
         }
       ]
     },
@@ -327,6 +456,56 @@
       ]
     },
     {
+      "id": "cloud-provider",
+      "form": "CLOUDPROVIDER",
+      "display": "Cloud provider",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Company that rents computing, storage and services over the internet.",
+        "fr": "Entreprise qui loue du calcul, du stockage et des services via Internet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cloud"
+        },
+        {
+          "type": "related_to",
+          "target": "hyperscaler"
+        }
+      ]
+    },
+    {
+      "id": "cloud-storage",
+      "form": "CLOUDSTORAGE",
+      "display": "Cloud storage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Saving files on remote servers that you reach over the internet.",
+        "fr": "Enregistrement de fichiers sur des serveurs distants accessibles via Internet."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "storage"
+        },
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ]
+    },
+    {
       "id": "cloudflare",
       "form": "CLOUDFLARE",
       "display": "Cloudflare",
@@ -350,6 +529,56 @@
       ],
       "sources": [
         "https://developers.cloudflare.com/"
+      ]
+    },
+    {
+      "id": "cold-start",
+      "form": "COLDSTART",
+      "display": "Cold start",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Extra delay when a serverless function or service runs for the first time and must start up.",
+        "fr": "Délai supplémentaire quand une fonction serverless ou un service s'exécute pour la première fois et doit démarrer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "serverless"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
+      ]
+    },
+    {
+      "id": "colocation",
+      "form": "COLOCATION",
+      "display": "Colocation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Renting space, power and network in a shared data center for servers you own.",
+        "fr": "Location d'espace, d'énergie et de réseau dans un centre de données partagé pour ses propres serveurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "datacenter"
+        },
+        {
+          "type": "related_to",
+          "target": "server"
+        }
       ]
     },
     {
@@ -449,6 +678,14 @@
         "fr": "Copie d'un fichier depuis un serveur distant ou Internet vers votre appareil."
       },
       "inflections": [
+        {
+          "form": "DOWNLOADED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "DOWNLOADING",
+          "kind": "verb_ing"
+        },
         {
           "form": "DOWNLOADS",
           "kind": "plural"
@@ -559,6 +796,31 @@
         {
           "type": "related_to",
           "target": "cdn"
+        }
+      ]
+    },
+    {
+      "id": "edge-computing",
+      "form": "EDGECOMPUTING",
+      "display": "Edge computing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Processing data close to where it is produced instead of in a distant data center.",
+        "fr": "Traitement des données près de l'endroit où elles sont produites plutôt que dans un centre lointain."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "edge"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
         }
       ]
     },
@@ -687,6 +949,31 @@
       ]
     },
     {
+      "id": "finops",
+      "form": "FINOPS",
+      "display": "FinOps",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Practice of tracking, sharing and optimizing cloud spending across teams.",
+        "fr": "Pratique qui suit, répartit et optimise les dépenses cloud entre les équipes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cloud"
+        },
+        {
+          "type": "related_to",
+          "target": "metering"
+        }
+      ]
+    },
+    {
       "id": "firebase",
       "form": "FIREBASE",
       "display": "Firebase",
@@ -714,6 +1001,31 @@
       ],
       "sources": [
         "https://firebase.google.com/docs"
+      ]
+    },
+    {
+      "id": "free-tier",
+      "form": "FREETIER",
+      "display": "Free tier",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Limited amount of a cloud service offered at no charge.",
+        "fr": "Quantité limitée d'un service cloud proposée gratuitement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "quota"
+        },
+        {
+          "type": "related_to",
+          "target": "subscription"
+        }
       ]
     },
     {
@@ -958,6 +1270,31 @@
       ]
     },
     {
+      "id": "infrastructure",
+      "form": "INFRASTRUCTURE",
+      "display": "Infrastructure",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hardware, networks and base services that applications run on.",
+        "fr": "Matériel, réseaux et services de base sur lesquels tournent les applications."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "datacenter"
+        },
+        {
+          "type": "related_to",
+          "target": "iaas"
+        }
+      ]
+    },
+    {
       "id": "ingress",
       "form": "INGRESS",
       "display": "Ingress",
@@ -1007,6 +1344,56 @@
         {
           "type": "is_a",
           "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "managed-service",
+      "form": "MANAGEDSERVICE",
+      "display": "Managed service",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Cloud offering where the provider runs, patches and scales the software for you.",
+        "fr": "Offre cloud où le fournisseur exploite, corrige et dimensionne le logiciel à votre place."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "paas"
+        },
+        {
+          "type": "related_to",
+          "target": "saas"
+        }
+      ]
+    },
+    {
+      "id": "metering",
+      "form": "METERING",
+      "display": "Metering",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Measuring each customer's resource use so that it can be billed.",
+        "fr": "Mesure de la consommation de ressources de chaque client pour pouvoir la facturer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "quota"
+        },
+        {
+          "type": "related_to",
+          "target": "subscription"
         }
       ]
     },
@@ -1081,6 +1468,92 @@
         {
           "type": "related_to",
           "target": "saas"
+        }
+      ]
+    },
+    {
+      "id": "node",
+      "form": "NODE",
+      "display": "Node",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One machine, physical or virtual, that is part of a cluster or a network.",
+        "fr": "Machine, physique ou virtuelle, qui fait partie d'une grappe ou d'un réseau."
+      },
+      "inflections": [
+        {
+          "form": "NODES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cluster"
+        },
+        {
+          "type": "related_to",
+          "target": "server"
+        }
+      ]
+    },
+    {
+      "id": "object-storage",
+      "form": "OBJECTSTORAGE",
+      "display": "Object storage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Storage that keeps files as objects with metadata in flat buckets, reached over HTTP.",
+        "fr": "Stockage qui conserve les fichiers comme objets avec métadonnées dans des compartiments, accessibles via HTTP."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "storage"
+        },
+        {
+          "type": "uses",
+          "target": "bucket"
+        },
+        {
+          "type": "related_to",
+          "target": "blob"
+        }
+      ]
+    },
+    {
+      "id": "on-premises",
+      "form": "ONPREMISES",
+      "display": "On-premises",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Run in an organization's own buildings and hardware rather than in a cloud.",
+        "fr": "Exploité dans les locaux et sur le matériel de l'organisation plutôt que dans un cloud."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "cloud"
+        },
+        {
+          "type": "related_to",
+          "target": "datacenter"
         }
       ]
     },
@@ -1274,6 +1747,32 @@
       ]
     },
     {
+      "id": "rate-limiting",
+      "form": "RATELIMITING",
+      "display": "Rate limiting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Capping how many requests a client may send in a given period.",
+        "fr": "Plafonnement du nombre de requêtes qu'un client peut envoyer sur une période donnée."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "throttling"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
       "id": "rds",
       "form": "RDS",
       "display": "Amazon RDS",
@@ -1301,6 +1800,31 @@
       ],
       "sources": [
         "https://docs.aws.amazon.com/rds/"
+      ]
+    },
+    {
+      "id": "redundancy",
+      "form": "REDUNDANCY",
+      "display": "Redundancy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Spare copies of components kept ready so that one failure does not stop the service.",
+        "fr": "Copies de secours de composants tenues prêtes pour qu'une panne n'arrête pas le service."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "failover"
+        },
+        {
+          "type": "related_to",
+          "target": "replica"
+        }
       ]
     },
     {
@@ -1352,6 +1876,27 @@
       ]
     },
     {
+      "id": "san",
+      "form": "SAN",
+      "display": "SAN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Storage area network: dedicated network giving servers access to shared block storage.",
+        "fr": "Storage area network : réseau dédié qui donne aux serveurs l'accès à un stockage en blocs partagé."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "nas"
+        }
+      ]
+    },
+    {
       "id": "scalability",
       "form": "SCALABILITY",
       "display": "Scalability",
@@ -1377,6 +1922,56 @@
       ]
     },
     {
+      "id": "scaling",
+      "form": "SCALING",
+      "display": "Scaling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Adding or removing resources so that a system matches its demand.",
+        "fr": "Ajout ou retrait de ressources pour qu'un système suive la demande."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "autoscaling"
+        },
+        {
+          "type": "related_to",
+          "target": "scalability"
+        }
+      ]
+    },
+    {
+      "id": "server-farm",
+      "form": "SERVERFARM",
+      "display": "Server farm",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Large group of servers working together in one place.",
+        "fr": "Grand ensemble de serveurs qui travaillent ensemble au même endroit."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "datacenter"
+        },
+        {
+          "type": "related_to",
+          "target": "server"
+        }
+      ]
+    },
+    {
       "id": "serverless",
       "form": "SERVERLESS",
       "display": "Serverless",
@@ -1394,6 +1989,62 @@
         {
           "type": "related_to",
           "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "service-mesh",
+      "form": "SERVICEMESH",
+      "display": "Service mesh",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Infrastructure layer that handles traffic, security and telemetry between microservices.",
+        "fr": "Couche d'infrastructure qui gère trafic, sécurité et télémétrie entre microservices."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "microservice"
+        },
+        {
+          "type": "uses",
+          "target": "sidecar"
+        }
+      ]
+    },
+    {
+      "id": "sidecar",
+      "form": "SIDECAR",
+      "display": "Sidecar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Helper container running next to an application container in the same pod.",
+        "fr": "Conteneur auxiliaire qui tourne à côté du conteneur applicatif dans le même pod."
+      },
+      "inflections": [
+        {
+          "form": "SIDECARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pod"
+        },
+        {
+          "type": "is_a",
+          "target": "container"
         }
       ]
     },
@@ -1456,6 +2107,73 @@
       ]
     },
     {
+      "id": "spot-instance",
+      "form": "SPOTINSTANCE",
+      "display": "Spot instance",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Spare cloud capacity rented at a discount that the provider can reclaim at short notice.",
+        "fr": "Capacité cloud inutilisée louée à prix réduit, que le fournisseur peut reprendre à bref délai."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "instance"
+        }
+      ]
+    },
+    {
+      "id": "stateful",
+      "form": "STATEFUL",
+      "display": "Stateful",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes a service that remembers client data from one request to the next.",
+        "fr": "Qualifie un service qui garde les données d'un client d'une requête à l'autre."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "stateless"
+        }
+      ]
+    },
+    {
+      "id": "stateless",
+      "form": "STATELESS",
+      "display": "Stateless",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes a service that keeps no client data between requests, so any copy can answer.",
+        "fr": "Qualifie un service qui ne garde aucune donnée client entre les requêtes : n'importe quelle copie peut répondre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "scalability"
+        },
+        {
+          "type": "related_to",
+          "target": "serverless"
+        }
+      ]
+    },
+    {
       "id": "storage",
       "form": "STORAGE",
       "display": "Storage",
@@ -1507,6 +2225,27 @@
       ]
     },
     {
+      "id": "subscription",
+      "form": "SUBSCRIPTION",
+      "display": "Subscription",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Recurring payment for continued access to a software or cloud service.",
+        "fr": "Paiement récurrent pour garder l'accès à un logiciel ou à un service cloud."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "saas"
+        }
+      ]
+    },
+    {
       "id": "sync",
       "form": "SYNC",
       "display": "Sync",
@@ -1524,6 +2263,20 @@
         {
           "type": "related_to",
           "target": "storage"
+        }
+      ],
+      "inflections": [
+        {
+          "form": "SYNCED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "SYNCING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "SYNCS",
+          "kind": "verb_s"
         }
       ]
     },
@@ -1597,6 +2350,14 @@
       },
       "inflections": [
         {
+          "form": "UPLOADED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "UPLOADING",
+          "kind": "verb_ing"
+        },
+        {
           "form": "UPLOADS",
           "kind": "plural"
         }
@@ -1631,6 +2392,31 @@
         {
           "type": "related_to",
           "target": "sla"
+        }
+      ]
+    },
+    {
+      "id": "vendor-lock-in",
+      "form": "VENDORLOCKIN",
+      "display": "Vendor lock-in",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Dependence on one provider that makes switching to another costly.",
+        "fr": "Dépendance envers un fournisseur qui rend coûteux le passage à un autre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "multicloud"
+        },
+        {
+          "type": "related_to",
+          "target": "cloud-provider"
         }
       ]
     },
