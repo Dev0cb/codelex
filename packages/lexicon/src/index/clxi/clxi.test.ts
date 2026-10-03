@@ -222,7 +222,11 @@ function expectSameIndex(binary: LexiconIndex, reference: LexiconIndex): void {
   }
 }
 
-describe('binary index ≡ reference index (T-ORACLE, T-COMPLETE)', () => {
+// These groups build (and self-check) the full real lexicon several times per test, so their cost grows
+// with every content batch. CI runs them alongside other packages under coverage on slower runners.
+const REAL_DATA_BUILDS = { timeout: 30_000 };
+
+describe('binary index ≡ reference index (T-ORACLE, T-COMPLETE)', REAL_DATA_BUILDS, () => {
   it('fixture', () => {
     expectSameIndex(decoded(built(FIXTURE)), referenceOf(FIXTURE));
   });
@@ -397,7 +401,7 @@ function documentOf(index: LexiconIndex): LexiconBuildInput['document'] {
   return { terms };
 }
 
-describe('build determinism and round trip (T-DETERMINISM, T-ROUNDTRIP)', () => {
+describe('build determinism and round trip (T-DETERMINISM, T-ROUNDTRIP)', REAL_DATA_BUILDS, () => {
   it('same input ⇒ same bytes; term and array order do not matter', () => {
     const a = built(REAL);
     expect(built(REAL)).toEqual(a);
@@ -534,7 +538,7 @@ describe('buildLexiconIndex errors (T-BLOCKLIST, limits)', () => {
 
 // --- decoding: T-VERSION, T-CORRUPT ----------------------------------------------------------------------
 
-describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', () => {
+describe('decodeLexiconIndex format 1 (T-VERSION, T-CORRUPT)', REAL_DATA_BUILDS, () => {
   const bytes = built(FIXTURE);
   const errorOf = (b: Uint8Array): string => {
     const r = decodeLexiconIndex(b);
