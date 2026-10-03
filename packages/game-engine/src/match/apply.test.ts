@@ -216,7 +216,7 @@ describe('apply RESIGN (R-END-002)', () => {
     expect(r4.events.map((e) => e.type)).toEqual(['RESIGNED']);
   });
 
-  it('@ambiguous Q-GD-1: after a resignation the scoreless limit is 3 × active seats', () => {
+  it('R-TURN-004 (Q-GD-1): after a resignation the scoreless limit is 3 × active seats', () => {
     let s = run(fixture([], {}, FFA3), { seat: 0, type: 'RESIGN' }).value.state;
     for (let i = 0; i < 5; i += 1) s = run(s, { seat: s.seatOnTurn, type: 'PASS' }).value.state;
     expect(s.status).toBe('in_progress');

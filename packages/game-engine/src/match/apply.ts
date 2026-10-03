@@ -64,7 +64,7 @@ function finish(
   return { ...state, status: 'finished', seats: finished.seats, result: finished.result };
 }
 
-/** After a turn-ending action: end on R-TURN-004 (3 × active seats, Q-GD-1) or pass the turn. */
+/** After a turn-ending action: end on R-TURN-004 (3 × active seats) or pass the turn. */
 function endTurn(next: MatchState, events: MatchEvent[]): MatchState {
   const active = next.seats.filter(isActive).length;
   if (next.scorelessTurns >= RULES.scorelessTurnsPerSeat * active) {
@@ -180,7 +180,7 @@ export function apply(
       const seats = withSeat(state.seats, mover, { ...seat, status: 'resigned' });
       events.push({ type: 'RESIGNED', seat: mover });
       const next: MatchState = { ...base, seats };
-      // R-END-002: the match ends unless ≥ 2 sides remain (FFA); a RESIGN never triggers R-TURN-004 (Q-GD-1).
+      // R-END-002: the match ends unless ≥ 2 sides remain (FFA); a RESIGN never triggers R-TURN-004.
       if (activeTeamCount(state, seats) < 2) {
         return ok({
           state: finish(next, seats, { reason: 'resign', seat: mover }, events),

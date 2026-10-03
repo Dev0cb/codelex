@@ -74,7 +74,7 @@ describe('observe (API note §10, P-GLOBAL-07, P-API-03)', () => {
     expect(observe(other, 'spectator')).toEqual(observe(START, 'spectator'));
   });
 
-  it('final racks and result are public once the match is over (Q-GD-5)', () => {
+  it('R-END-003 (Q-GD-5): final racks and result are public once the match is over', () => {
     const r = apply(START, { seat: 1, type: 'RESIGN' }, CTX);
     if (!r.ok) throw new Error('resign');
     const o = observe(r.value.state, 0);

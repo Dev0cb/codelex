@@ -135,7 +135,7 @@ describe('R-SCORE-006 properties', () => {
     expect(rackValue('?QZ', SETUP_1V1)).toBe(18);
   });
 
-  it('@ambiguous Q-GD-2: retired racks are neither added nor subtracted', () => {
+  it('R-SCORE-006 (Q-GD-2): retired racks are neither added nor subtracted', () => {
     const seats = [seat(10, ''), seat(10, 'QZ', { status: 'resigned' }), seat(10, 'K')];
     expect(
       endAdjustments({
@@ -180,7 +180,7 @@ describe('R-END-003 result and tie-breaks (GC-END-05)', () => {
     expect(tie({ ...SETUP_1V1, requireWinner: 1 }, [80, 80], 1)).toMatchObject({ places: [1, 2] });
   });
 
-  it('@ambiguous Q-GD-4: FFA three-way tie → the team whose seat moves latest from firstSeat', () => {
+  it('R-END-003 (Q-GD-4): FFA three-way tie → the team whose seat moves latest from firstSeat', () => {
     // firstSeat 1 → order 1, 2, 0: seat 0 moves last.
     expect(tie({ ...SETUP_FFA3, requireWinner: 1 }, [50, 50, 50], 1).places).toEqual([1, 2, 2]);
   });
@@ -223,7 +223,7 @@ describe('R-END-003 result and tie-breaks (GC-END-05)', () => {
     expect(r.result).toMatchObject({ places: [2, 1], decidedBy: 'resign', adjustments: [0, 0] });
   });
 
-  it('@ambiguous Q-GD-3: FFA — resigned seats rank below active ones and share that place', () => {
+  it('R-END-002 (Q-GD-3): FFA — resigned seats rank below active ones and share that place', () => {
     const r = finishMatch({
       config: {
         ...SETUP_1V1,

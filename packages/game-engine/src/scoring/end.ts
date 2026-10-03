@@ -2,12 +2,12 @@
  * End of match (R-SCORE-006, R-END-001…003): rack adjustments, team scores, places and tie-breaks. Called by
  * `apply` (E4) once it has detected the end reason; pure over the seats it is given.
  *
- * Default readings of API note §16 (tests tagged `@ambiguous`):
- * - Q-GD-2: racks of non-active seats are out of play (neither added nor subtracted).
- * - Q-GD-3: non-active teams rank below every active team. The state does not record the order of earlier
- *   resignations, so non-active teams share that place (see the note's §16 update).
- * - Q-GD-4: among teams still tied after the best-turn tie-break, the team whose earliest seat in turn order
- *   (from `firstSeat`) moves latest wins.
+ * Rules decided in GAME_RULES v0.3.1 (API note §16):
+ * - R-SCORE-006 (Q-GD-2): racks of non-active seats are out of play (neither added nor subtracted).
+ * - R-END-002 (Q-GD-3): non-active teams rank below every active team and share that place; the order of
+ *   departure is not recorded and ranks nobody.
+ * - R-END-003 (Q-GD-4): among teams still tied after the best-turn tie-break, the team whose earliest seat in
+ *   turn order (from `firstSeat`) moves latest wins; the other tied teams share place 2.
  */
 import { getLetterTable } from '../rules/constants.js';
 import { tileValue } from '../tiles.js';
@@ -71,7 +71,7 @@ export function finishMatch(input: EndInput): Finished {
   const activeTeam = config.teams.map((team) => team.every((s) => seats[s]?.status === 'active'));
   const activeCount = activeTeam.filter(Boolean).length;
 
-  // "1224" ranking: active teams by score; non-active teams share the place after them (Q-GD-3).
+  // "1224" ranking: active teams by score; non-active teams share the place after them (R-END-002).
   const places = teamScores.map((score, t) => {
     if (!activeTeam[t]) return activeCount + 1;
     return 1 + teamScores.filter((other, u) => activeTeam[u] && other > score).length;
@@ -87,7 +87,7 @@ export function finishMatch(input: EndInput): Finished {
     let contenders = tied.filter((t) => best(t) === top);
     decidedBy = 'tiebreak_best_turn';
     if (contenders.length > 1) {
-      // (2) the team whose earliest-moving seat moves latest (Q-GD-4; 1v1: the seat that did not move first).
+      // (2) the team whose earliest-moving seat moves latest (R-END-003; 1v1: the seat that did not move first).
       const firstMover = (t: number): number =>
         Math.min(...(config.teams[t] ?? []).map((s) => turnPosition(s, firstSeat, config.seats)));
       const latest = Math.max(...contenders.map(firstMover));
