@@ -20,7 +20,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "contrast": "node scripts/contrast.mjs"
   },
   "devDependencies": {
     "@codelex/config": "workspace:*",
