@@ -2,7 +2,7 @@
 
 - Epic: E-1.7 (feeds E-1.5 playtest Stage 1, E-1.3 bots, E-1.6 balance; depends on E-1.2) · Vision refs: V-04, V-05,
   V-13 · Status: Ready for design
-- Owner: product-strategist · Last update: 2026-10-02
+- Owner: product-strategist · Last update: 2026-10-03
 - Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` task D2 (unblocks L1, L2, C1).
 - Next reviews: `game-designer` (scoring and rule amendments, confirmations C-GD-1..5), `lexicon-curator` (content
   plan, two-letter pool, confirmations C-LC-1..5), `lexicon-engineer` (schema v2, validator), `solution-architect`
@@ -411,6 +411,17 @@ Decided 2026-10-02 by `lexicon-curator` under the product owner's delegation, wi
   term), 56 regular plurals. Result: 843 forms = 554 canonical + 289 inflections (34.3 %); difficulty after review 27.3 / 35.7 /
   28.3 / 8.7 %; categories 10.3–13.5 %; 3–4 letters 192. The 2–4-letter share is 27.2 % (was 29.7 %), still above
   the 20–25 % steering band: batch 2 adds longer canonical terms first.
+  **Batch 2 (2026-10-03, sprint 2 C2, `feat/lexicon-batch-2`, one commit per category):** 434 new canonical terms
+  (no products or trademarks; every new term has ≥ 1 typed relation; 24 sourced `protocol`/`standard` terms),
+  151 regular plurals and the first 73 verb forms (7 `verb_s`, 38 `verb_ed`, 28 `verb_ing`), all on C-LC-3 verbs
+  and all prefixed by their canonical form (no new irregular warning). Result: **1,501 forms = 988 canonical +
+  513 inflections (34.2 %)**, `lexiconVersion` 4fa5884050b4ea53. Lengths 2 / 3 / 4 / 5–7 / 8–10 / 11–15 =
+  37 / 132 / 163 / 501 / 503 / 165: 2–4 letters 22.1 % (back inside 20–25 %), 3–4 letters 295, 11–15 letters
+  11.0 %. Difficulty 22.0 / 39.8 / 29.8 / 8.5 %; categories 9.8 % (cloud) to 13.0 % (hardware). No plural was
+  authored on a form of 11+ letters, to hold the 12 % cap. Steering for batch 3 (≥ 2,000 forms / ≥ 1,300
+  canonical): canonical-heavy (≥ 312 new canonical, ≤ 187 new inflections to stay ≤ 35 %), skew novice
+  (intermediate sits at the 40 % ceiling, advanced near 30 %), favour 5–7-letter terms (33.4 %, below the ≈ 35–45 %
+  target; 8–10 letters is 33.5 %, above ≈ 20–30 %), add ≥ 55 forms of 3–4 letters, prioritise cloud.
 - **C-LC-3 Closed verb list for batch 2 (60 verbs; a verb form is authored only on an existing canonical term with
   that verb reading, regular -S/-ED/-ING only unless confirmed as NEEDS_REVIEW, noun reading wins on collisions per
   D-1, and a standalone term owns its string per D-5, e.g. LOGGING, STREAMING):** DEPLOY, COMMIT, MERGE, PUSH, PULL,

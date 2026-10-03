@@ -18,6 +18,31 @@
       }
     },
     {
+      "id": "aggregation",
+      "form": "AGGREGATION",
+      "display": "Aggregation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Combining many values into one summary, such as a sum, a count or an average.",
+        "fr": "Regroupement de nombreuses valeurs en un résumé, comme une somme, un comptage ou une moyenne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "query"
+        },
+        {
+          "type": "related_to",
+          "target": "olap"
+        }
+      ]
+    },
+    {
       "id": "airflow",
       "form": "AIRFLOW",
       "display": "Airflow",
@@ -56,6 +81,112 @@
         "en": "Analysing data to find patterns and support decisions.",
         "fr": "Analyse de données pour dégager des tendances et éclairer les décisions."
       }
+    },
+    {
+      "id": "anonymization",
+      "form": "ANONYMIZATION",
+      "display": "Anonymization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Altering personal data so that individuals can no longer be identified.",
+        "fr": "Transformation de données personnelles pour que les personnes ne puissent plus être identifiées."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "data"
+        }
+      ]
+    },
+    {
+      "id": "ascii",
+      "form": "ASCII",
+      "display": "ASCII",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Early 128-character code for English letters, digits and symbols, still the base of most text.",
+        "fr": "Ancien code de 128 caractères pour lettres anglaises, chiffres et symboles, encore à la base de la plupart des textes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "unicode"
+        },
+        {
+          "type": "related_to",
+          "target": "encoding"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc20"
+      ]
+    },
+    {
+      "id": "backfill",
+      "form": "BACKFILL",
+      "display": "Backfill",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Loading or recomputing historical data after a pipeline is created or fixed.",
+        "fr": "Chargement ou recalcul de données historiques après la création ou la correction d'un pipeline."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "etl"
+        },
+        {
+          "type": "related_to",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "batch",
+      "form": "BATCH",
+      "display": "Batch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Group of records processed together in one go rather than one by one.",
+        "fr": "Groupe d'enregistrements traités ensemble en une fois plutôt qu'un par un."
+      },
+      "inflections": [
+        {
+          "form": "BATCHES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "stream"
+        },
+        {
+          "type": "related_to",
+          "target": "etl"
+        }
+      ]
     },
     {
       "id": "bi",
@@ -187,6 +318,31 @@
       ]
     },
     {
+      "id": "checkpoint",
+      "form": "CHECKPOINT",
+      "display": "Checkpoint",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Saved state that lets a long job or a database recover without starting over.",
+        "fr": "État sauvegardé qui permet à une longue tâche ou à une base de reprendre sans tout recommencer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        },
+        {
+          "type": "related_to",
+          "target": "snapshot"
+        }
+      ]
+    },
+    {
       "id": "column",
       "form": "COLUMN",
       "display": "Column",
@@ -241,6 +397,31 @@
         {
           "type": "related_to",
           "target": "producer"
+        }
+      ]
+    },
+    {
+      "id": "correlation",
+      "form": "CORRELATION",
+      "display": "Correlation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Measure of how strongly two variables move together.",
+        "fr": "Mesure de la force avec laquelle deux variables évoluent ensemble."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "regression"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
         }
       ]
     },
@@ -321,6 +502,37 @@
       ]
     },
     {
+      "id": "dag",
+      "form": "DAG",
+      "display": "DAG",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Directed acyclic graph: graph of one-way links with no loops, used to order pipeline steps.",
+        "fr": "Directed acyclic graph (graphe orienté acyclique) : liens à sens unique sans boucle, pour ordonner un pipeline."
+      },
+      "inflections": [
+        {
+          "form": "DAGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "graph"
+        },
+        {
+          "type": "related_to",
+          "target": "airflow"
+        }
+      ]
+    },
+    {
       "id": "dashboard",
       "form": "DASHBOARD",
       "display": "Dashboard",
@@ -369,6 +581,103 @@
       ]
     },
     {
+      "id": "data-cleaning",
+      "form": "DATACLEANING",
+      "display": "Data cleaning",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Fixing or removing wrong, duplicated or incomplete data before analysis.",
+        "fr": "Correction ou suppression des données erronées, en double ou incomplètes avant l'analyse."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "etl"
+        },
+        {
+          "type": "related_to",
+          "target": "outlier"
+        }
+      ]
+    },
+    {
+      "id": "data-engineer",
+      "form": "DATAENGINEER",
+      "display": "Data engineer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Person who builds the pipelines and storage that make data usable.",
+        "fr": "Personne qui construit les pipelines et le stockage qui rendent les données exploitables."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "etl"
+        },
+        {
+          "type": "related_to",
+          "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "data-science",
+      "form": "DATASCIENCE",
+      "display": "Data science",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Field combining statistics, programming and domain knowledge to learn from data.",
+        "fr": "Domaine qui combine statistiques, programmation et connaissance métier pour tirer des enseignements des données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ml"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
+      "id": "data-scientist",
+      "form": "DATASCIENTIST",
+      "display": "Data scientist",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Person who uses statistics, code and domain knowledge to extract insight from data.",
+        "fr": "Personne qui utilise statistiques, code et connaissance métier pour extraire des enseignements des données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "data-science"
+        }
+      ]
+    },
+    {
       "id": "database",
       "form": "DATABASE",
       "display": "Database",
@@ -386,6 +695,37 @@
         {
           "form": "DATABASES",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "dataframe",
+      "form": "DATAFRAME",
+      "display": "DataFrame",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Table-like structure with named columns, used for data analysis in Python and R.",
+        "fr": "Structure en forme de tableau à colonnes nommées, utilisée pour l'analyse de données en Python et R."
+      },
+      "inflections": [
+        {
+          "form": "DATAFRAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "table"
+        },
+        {
+          "type": "related_to",
+          "target": "python"
         }
       ]
     },
@@ -412,6 +752,38 @@
         {
           "type": "related_to",
           "target": "lakehouse"
+        }
+      ]
+    },
+    {
+      "id": "datatype",
+      "form": "DATATYPE",
+      "display": "Data type",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Kind of value a variable or column holds, such as text, number or date.",
+        "fr": "Nature de la valeur que contient une variable ou une colonne, comme du texte, un nombre ou une date."
+      },
+      "inflections": [
+        {
+          "form": "DATATYPES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "variable"
+        },
+        {
+          "type": "related_to",
+          "target": "column"
         }
       ]
     },
@@ -446,6 +818,62 @@
       ]
     },
     {
+      "id": "deduplication",
+      "form": "DEDUPLICATION",
+      "display": "Deduplication",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Detecting and removing repeated copies of the same data.",
+        "fr": "Détection et suppression des copies répétées des mêmes données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "data-cleaning"
+        },
+        {
+          "type": "related_to",
+          "target": "storage"
+        }
+      ]
+    },
+    {
+      "id": "dimension",
+      "form": "DIMENSION",
+      "display": "Dimension",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Descriptive attribute used to slice measures in analytics, such as date or region.",
+        "fr": "Attribut descriptif qui sert à découper les mesures en analytique, comme la date ou la région."
+      },
+      "inflections": [
+        {
+          "form": "DIMENSIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "olap"
+        },
+        {
+          "type": "related_to",
+          "target": "star-schema"
+        }
+      ]
+    },
+    {
       "id": "elasticsearch",
       "form": "ELASTICSEARCH",
       "display": "Elasticsearch",
@@ -464,6 +892,37 @@
         {
           "type": "uses",
           "target": "index"
+        }
+      ]
+    },
+    {
+      "id": "encoding",
+      "form": "ENCODING",
+      "display": "Encoding",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Rule for turning characters or data into bytes, such as UTF-8.",
+        "fr": "Règle qui transforme des caractères ou des données en octets, comme UTF-8."
+      },
+      "inflections": [
+        {
+          "form": "ENCODINGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "unicode"
+        },
+        {
+          "type": "related_to",
+          "target": "byte"
         }
       ]
     },
@@ -560,6 +1019,126 @@
       ]
     },
     {
+      "id": "field",
+      "form": "FIELD",
+      "display": "Field",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Single named item of data within a record, such as an email address.",
+        "fr": "Donnée nommée unique au sein d'un enregistrement, comme une adresse e-mail."
+      },
+      "inflections": [
+        {
+          "form": "FIELDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "record"
+        },
+        {
+          "type": "related_to",
+          "target": "column"
+        }
+      ]
+    },
+    {
+      "id": "filter",
+      "form": "FILTER",
+      "display": "Filter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Keep only the items that match a condition.",
+        "fr": "Ne garder que les éléments qui répondent à une condition."
+      },
+      "inflections": [
+        {
+          "form": "FILTERED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "FILTERING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "FILTERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "query"
+        },
+        {
+          "type": "related_to",
+          "target": "pivot"
+        }
+      ]
+    },
+    {
+      "id": "foreign-key",
+      "form": "FOREIGNKEY",
+      "display": "Foreign key",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Column that points to the primary key of another table to link their rows.",
+        "fr": "Colonne qui pointe vers la clé primaire d'une autre table pour relier leurs lignes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "primary-key"
+        },
+        {
+          "type": "related_to",
+          "target": "join"
+        }
+      ]
+    },
+    {
+      "id": "graph-database",
+      "form": "GRAPHDATABASE",
+      "display": "Graph database",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Database that stores nodes and the links between them, built for relationship queries.",
+        "fr": "Base de données qui stocke des nœuds et leurs liens, conçue pour les requêtes sur les relations."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "database"
+        },
+        {
+          "type": "related_to",
+          "target": "graph"
+        }
+      ]
+    },
+    {
       "id": "graphql",
       "form": "GRAPHQL",
       "display": "GraphQL",
@@ -613,6 +1192,33 @@
       ]
     },
     {
+      "id": "histogram",
+      "form": "HISTOGRAM",
+      "display": "Histogram",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Chart showing how many values fall into each range.",
+        "fr": "Graphique qui montre combien de valeurs tombent dans chaque intervalle."
+      },
+      "inflections": [
+        {
+          "form": "HISTOGRAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chart"
+        }
+      ]
+    },
+    {
       "id": "id",
       "form": "ID",
       "display": "ID",
@@ -652,8 +1258,16 @@
       },
       "inflections": [
         {
+          "form": "INDEXED",
+          "kind": "verb_ed"
+        },
+        {
           "form": "INDEXES",
           "kind": "plural"
+        },
+        {
+          "form": "INDEXING",
+          "kind": "verb_ing"
         },
         {
           "form": "INDICES",
@@ -682,6 +1296,14 @@
         "fr": "Opération SQL combinant les lignes de deux tables selon une clé commune."
       },
       "inflections": [
+        {
+          "form": "JOINED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "JOINING",
+          "kind": "verb_ing"
+        },
         {
           "form": "JOINS",
           "kind": "plural"
@@ -753,6 +1375,31 @@
       ]
     },
     {
+      "id": "key-value",
+      "form": "KEYVALUE",
+      "display": "Key-value store",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Database model storing each value under a unique key, like a giant dictionary.",
+        "fr": "Modèle de base de données qui range chaque valeur sous une clé unique, comme un grand dictionnaire."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "nosql"
+        },
+        {
+          "type": "related_to",
+          "target": "redis"
+        }
+      ]
+    },
+    {
       "id": "kpi",
       "form": "KPI",
       "display": "KPI",
@@ -807,6 +1454,37 @@
         {
           "type": "related_to",
           "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "median",
+      "form": "MEDIAN",
+      "display": "Median",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Middle value of a list of numbers once they are sorted.",
+        "fr": "Valeur du milieu d'une liste de nombres une fois triée."
+      },
+      "inflections": [
+        {
+          "form": "MEDIANS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "outlier"
+        },
+        {
+          "type": "related_to",
+          "target": "aggregation"
         }
       ]
     },
@@ -916,6 +1594,31 @@
       ]
     },
     {
+      "id": "normalization",
+      "form": "NORMALIZATION",
+      "display": "Normalization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Organizing tables to remove duplicated data and keep it consistent.",
+        "fr": "Organisation des tables pour supprimer les données en double et garder leur cohérence."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "schema"
+        },
+        {
+          "type": "related_to",
+          "target": "table"
+        }
+      ]
+    },
+    {
       "id": "nosql",
       "form": "NOSQL",
       "display": "NoSQL",
@@ -958,6 +1661,56 @@
         {
           "type": "related_to",
           "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "oltp",
+      "form": "OLTP",
+      "display": "OLTP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Online transaction processing: systems that handle many small, fast transactions.",
+        "fr": "Online transaction processing : systèmes qui traitent de nombreuses petites transactions rapides."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "olap"
+        },
+        {
+          "type": "related_to",
+          "target": "transaction"
+        }
+      ]
+    },
+    {
+      "id": "open-data",
+      "form": "OPENDATA",
+      "display": "Open data",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data published so that anyone may use, reuse and share it freely.",
+        "fr": "Données publiées pour que chacun puisse les utiliser, les réutiliser et les partager librement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "open-source"
         }
       ]
     },
@@ -1133,6 +1886,31 @@
       ]
     },
     {
+      "id": "primary-key",
+      "form": "PRIMARYKEY",
+      "display": "Primary key",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Column whose value uniquely identifies each row of a table.",
+        "fr": "Colonne dont la valeur identifie de façon unique chaque ligne d'une table."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "table"
+        },
+        {
+          "type": "related_to",
+          "target": "id"
+        }
+      ]
+    },
+    {
       "id": "producer",
       "form": "PRODUCER",
       "display": "Producer",
@@ -1177,6 +1955,10 @@
         {
           "form": "QUERIES",
           "kind": "plural"
+        },
+        {
+          "form": "QUERYING",
+          "kind": "verb_ing"
         }
       ],
       "relations": [
@@ -1315,6 +2097,56 @@
       ]
     },
     {
+      "id": "sampling",
+      "form": "SAMPLING",
+      "display": "Sampling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Selecting a subset of data to estimate the properties of the whole.",
+        "fr": "Sélection d'un sous-ensemble de données pour estimer les propriétés de l'ensemble."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
+      "id": "scatter-plot",
+      "form": "SCATTERPLOT",
+      "display": "Scatter plot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Chart of points showing the relationship between two variables.",
+        "fr": "Graphique de points qui montre la relation entre deux variables."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chart"
+        },
+        {
+          "type": "related_to",
+          "target": "correlation"
+        }
+      ]
+    },
+    {
       "id": "schema",
       "form": "SCHEMA",
       "display": "Schema",
@@ -1338,6 +2170,67 @@
         {
           "type": "part_of",
           "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "serialization",
+      "form": "SERIALIZATION",
+      "display": "Serialization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Turning an in-memory object into bytes or text so it can be stored or sent.",
+        "fr": "Transformation d'un objet en mémoire en octets ou en texte pour le stocker ou l'envoyer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "json"
+        },
+        {
+          "type": "related_to",
+          "target": "object"
+        }
+      ]
+    },
+    {
+      "id": "shard",
+      "form": "SHARD",
+      "display": "Shard",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "One horizontal slice of a database that holds part of its rows.",
+        "fr": "Tranche horizontale d'une base de données qui contient une partie de ses lignes."
+      },
+      "inflections": [
+        {
+          "form": "SHARDED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "SHARDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "sharding"
+        },
+        {
+          "type": "related_to",
+          "target": "partition"
         }
       ]
     },
@@ -1465,6 +2358,31 @@
       ]
     },
     {
+      "id": "star-schema",
+      "form": "STARSCHEMA",
+      "display": "Star schema",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Warehouse design with a central fact table linked to surrounding dimension tables.",
+        "fr": "Modèle d'entrepôt avec une table de faits centrale reliée à des tables de dimensions autour."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "schema"
+        },
+        {
+          "type": "related_to",
+          "target": "warehouse"
+        }
+      ]
+    },
+    {
       "id": "stream",
       "form": "STREAM",
       "display": "Stream",
@@ -1479,6 +2397,10 @@
         "fr": "Flux continu et illimité d'événements traités au fil de l'eau."
       },
       "inflections": [
+        {
+          "form": "STREAMED",
+          "kind": "verb_ed"
+        },
         {
           "form": "STREAMS",
           "kind": "plural"
@@ -1515,6 +2437,31 @@
         {
           "type": "part_of",
           "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "time-series",
+      "form": "TIMESERIES",
+      "display": "Time series",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Sequence of data points recorded in time order, such as sensor readings.",
+        "fr": "Suite de mesures enregistrées dans l'ordre du temps, comme les relevés d'un capteur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "metric"
+        },
+        {
+          "type": "related_to",
+          "target": "timestamp"
         }
       ]
     },
@@ -1600,6 +2547,146 @@
         {
           "type": "related_to",
           "target": "event"
+        }
+      ]
+    },
+    {
+      "id": "unicode",
+      "form": "UNICODE",
+      "display": "Unicode",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Standard that gives a unique number to every character of the world's writing systems.",
+        "fr": "Norme qui attribue un numéro unique à chaque caractère des systèmes d'écriture du monde."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "encoding"
+        }
+      ],
+      "sources": [
+        "https://home.unicode.org/"
+      ]
+    },
+    {
+      "id": "upsert",
+      "form": "UPSERT",
+      "display": "Upsert",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Database operation that inserts a row, or updates it if it already exists.",
+        "fr": "Opération de base de données qui insère une ligne, ou la met à jour si elle existe déjà."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "crud"
+        },
+        {
+          "type": "related_to",
+          "target": "row"
+        }
+      ]
+    },
+    {
+      "id": "uuid",
+      "form": "UUID",
+      "display": "UUID",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data",
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Universally unique identifier: 128-bit value generated so that it is practically never repeated.",
+        "fr": "Universally unique identifier : valeur de 128 bits générée pour ne pratiquement jamais se répéter."
+      },
+      "inflections": [
+        {
+          "form": "UUIDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "id"
+        },
+        {
+          "type": "related_to",
+          "target": "primary-key"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc9562"
+      ]
+    },
+    {
+      "id": "view",
+      "form": "VIEW",
+      "display": "View",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Saved query that can be used like a virtual table.",
+        "fr": "Requête enregistrée qu'on peut utiliser comme une table virtuelle."
+      },
+      "inflections": [
+        {
+          "form": "VIEWS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "query"
+        },
+        {
+          "type": "related_to",
+          "target": "table"
+        }
+      ]
+    },
+    {
+      "id": "visualization",
+      "form": "VISUALIZATION",
+      "display": "Visualization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Turning data into charts, maps or graphics that reveal patterns.",
+        "fr": "Transformation de données en graphiques, cartes ou images qui révèlent des tendances."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "chart"
+        },
+        {
+          "type": "related_to",
+          "target": "dashboard"
         }
       ]
     },
