@@ -263,3 +263,14 @@ intentional and reviewed). Bench (`vitest bench`): §6 tables, JSON artefact in 
   the guardrail trips more than once.
 - **O-4 (solution-architect):** confirm the §4.4 compact key as the reading of ADR-0013 §D4.7 "canonical action
   encoding" (same order as needed: total and deterministic; not byte-equal to JCS).
+
+### 9.1 Orchestrator decisions (2026-10-03, reversible)
+
+- **O-1:** folded into L5. The GADDAG task also exposes `LexiconIndex.dawg` (same arc shape minus the separator).
+  B1 starts on the GADDAG path and adds the DAWG fallback and P-BOT-03 once L5 lands.
+- **O-2:** provisionally accepted. A forced exchange when no word exists is not a strategic exchange, so it does
+  not breach F-8. BG-1..BG-5 are the B2 targets. game-designer confirms or adjusts them in the B2 readout.
+- **O-3:** proposal accepted. Tuning stays in code behind `BOT_VERSION` for the playtest. Remote overrides are
+  revisited only if the human-win guardrail trips more than once.
+- **O-4:** accepted. ADR-0013 §D4.7 requires a total, deterministic, documented order. It does not require byte
+  equality with JCS. The compact key meets that bar, and `JSON.stringify` stays banned for comparisons.
