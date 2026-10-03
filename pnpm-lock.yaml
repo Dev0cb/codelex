@@ -132,10 +132,11 @@ importers:
         version: 5.0.2(@types/node@22.20.4)(@vitest/coverage-v8@5.0.2)(vite@8.3.1(@types/node@22.20.4))
 
   packages/i18n:
-    devDependencies:
+    dependencies:
       '@codelex/config':
         specifier: workspace:*
         version: link:../config
+    devDependencies:
       '@types/node':
         specifier: 22.20.4
         version: 22.20.4
