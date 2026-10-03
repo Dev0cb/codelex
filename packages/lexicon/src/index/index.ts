@@ -25,3 +25,12 @@ export {
   type ReferenceIndexInput,
   type ReferenceTermInput,
 } from './reference.js';
+export {
+  buildDawg,
+  buildLexiconIndex,
+  type Dawg,
+  type LexiconBuildError,
+  type LexiconBuildErrorCode,
+  type LexiconBuildInput,
+  type LexiconBuildOptions,
+} from './clxi/build.js';

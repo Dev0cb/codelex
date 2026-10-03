@@ -45,3 +45,17 @@ export function lexiconContentDocument(lex: LexiconData): LexiconContentDocument
 export function cardsContentDocument(lex: LexiconData): unknown;
 export function computeLexiconVersion(lex: LexiconData): string;
 export function computeCardsVersion(lex: LexiconData): string;
+
+export interface LexiconProfileDefinition {
+  readonly id: string;
+  readonly kind: 'global' | 'season' | 'org';
+  readonly include: {
+    readonly all?: true;
+    readonly tags?: readonly string[];
+    readonly categories?: readonly string[];
+    readonly ids?: readonly string[];
+  };
+  readonly exclude?: { readonly tags?: readonly string[]; readonly ids?: readonly string[] };
+}
+export const GLOBAL_PROFILE: LexiconProfileDefinition;
+export function profileDefinitionHash(definition: LexiconProfileDefinition): string;

@@ -1,5 +1,8 @@
 import { err, type Result } from '@codelex/config/result';
 
+import { decodeFormat1 } from './clxi/decode.js';
+import { FORMAT_VERSION } from './clxi/format.js';
+
 import type {
   LexiconIndex,
   LexiconIndexError,
@@ -20,11 +23,8 @@ export type DecodeLexiconIndex = (
 /** `CLXI` in ASCII: the first four bytes of every artefact. */
 export const CLXI_MAGIC: readonly number[] = Object.freeze([0x43, 0x4c, 0x58, 0x49]);
 
-/**
- * `.clxi` format versions this decoder can read. Empty until sprint L4 ships format 1: every well-formed
- * header is answered with `UNSUPPORTED_FORMAT`, never with a partial index.
- */
-export const SUPPORTED_FORMAT_VERSIONS: readonly number[] = Object.freeze([]);
+/** `.clxi` format versions this decoder can read (sprint L4: format 1). */
+export const SUPPORTED_FORMAT_VERSIONS: readonly number[] = Object.freeze([FORMAT_VERSION]);
 
 /** Magic (4 bytes) + `formatVersion` (u16 little-endian): enough to identify the format. */
 const FORMAT_PREFIX_LENGTH = 6;
@@ -38,16 +38,10 @@ function indexError(
 }
 
 /**
- * Sprint L2 scope: the signature is the contract; only the format prefix is read (magic, `formatVersion`).
- * The section decoder (DAWG, TERMS, ADJ, LETTERS, GADDAG, CRC32) and the `expect` checks arrive with format 1
- * in sprint L4. Until then engine tests use the reference index (sprint L3).
- *
- * TODO(L4): before adding 1 to SUPPORTED_FORMAT_VERSIONS, implement and test the `expect` checks: a header
- * `lexiconVersion` different from `expect.version` must return `VERSION_MISMATCH`, a profile id different from
- * `expect.profileId` must return `PROFILE_MISMATCH` (lexicon-index note §7 T-VERSION). Supporting format 1
- * without them would make `expect` silently ignored.
+ * Reads the format prefix (magic, `formatVersion`), then hands supported formats to their decoder, which validates
+ * the whole artefact (CRC-32, sections, DAWG) and applies the `expect` checks (T-VERSION).
  */
-export const decodeLexiconIndex: DecodeLexiconIndex = (bytes) => {
+export const decodeLexiconIndex: DecodeLexiconIndex = (bytes, expect) => {
   if (bytes.length < FORMAT_PREFIX_LENGTH) {
     return err(
       indexError('TRUNCATED', 'artefact is shorter than the .clxi format prefix', {
@@ -65,6 +59,7 @@ export const decodeLexiconIndex: DecodeLexiconIndex = (bytes) => {
     4,
     true,
   );
+  if (formatVersion === FORMAT_VERSION) return decodeFormat1(bytes, expect);
   return err(
     indexError('UNSUPPORTED_FORMAT', 'this decoder does not support the .clxi format version', {
       formatVersion,

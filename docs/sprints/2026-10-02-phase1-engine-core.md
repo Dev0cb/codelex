@@ -66,7 +66,7 @@ decision below is reversible unless an ADR says otherwise.
 | E3 | Classic scoring and end rules (test-first) | game-engine-engineer | E2, D3 | R-SCORE-*, R-END-* properties and all golden cases pass; `ScoreBreakdown` matches the API note | M | done |
 | E4 | `apply` / `observe` / `stateHash` / `replay` and full-match property | game-engine-engineer | E3 | ≥ 1,000 seeded matches replay to identical hashes; 0 conservation violations; `P-GLOBAL-01..08` green; coverage ≥ 90 % | M | done |
 | C1 | Lexicon content batch 1 | lexicon-curator | L1 | ≥ 800 playable forms incl. ≥ 30 two-letter forms, EN/FR definitions, validator green | L | todo |
-| L4 | DAWG build and binary codec (T5), size gate; GADDAG (T6) if capacity | lexicon-engineer | L3 | Byte-identical builds; `has()` < 5 µs on Node; index size gate in CI; decoder fuzz test | L | todo |
+| L4 | DAWG build and binary codec (T5), size gate; GADDAG (T6) if capacity | lexicon-engineer | L3 | Byte-identical builds; `has()` < 5 µs on Node; index size gate in CI; decoder fuzz test | L | done (GADDAG deferred to B1/E-1.3) |
 | U1 | E-1.5 design spec (flows, board, summary, Knowledge Card) | ux-ui-designer | — | `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.design.md` covers every AC with screens, states, EN/FR copy, a11y | M | done |
 | B1 | Bots: random-legal + Beginner + simulator CLI (stretch) | ai-engineer | E4, L4 | `/scaffold packages/bots`; deterministic under seed; simulator reports the stretch metrics on the current lexicon | M | todo |
 | E1b | JCS (RFC 8785) serialiser in the engine + ADR-0013 `jcs.json` vector | game-engine-engineer | E1 | Pure-TS JCS subset, differential test vs a reference implementation, A.3 vector green; folded into E4 if simpler | S | todo |
