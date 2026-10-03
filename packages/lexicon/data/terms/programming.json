@@ -3,6 +3,27 @@
   "category": "programming",
   "terms": [
     {
+      "id": "abstraction",
+      "form": "ABSTRACTION",
+      "display": "Abstraction",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hiding details behind a simpler interface so code can be used without knowing how it works inside.",
+        "fr": "Masquer les détails derrière une interface plus simple pour utiliser du code sans savoir comment il fonctionne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "interface"
+        }
+      ]
+    },
+    {
       "id": "algorithm",
       "form": "ALGORITHM",
       "display": "Algorithm",
@@ -51,6 +72,37 @@
       ]
     },
     {
+      "id": "argument",
+      "form": "ARGUMENT",
+      "display": "Argument",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Value passed to a function when it is called.",
+        "fr": "Valeur transmise à une fonction au moment de son appel."
+      },
+      "inflections": [
+        {
+          "form": "ARGUMENTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "function"
+        },
+        {
+          "type": "related_to",
+          "target": "parameter"
+        }
+      ]
+    },
+    {
       "id": "array",
       "form": "ARRAY",
       "display": "Array",
@@ -68,6 +120,89 @@
         {
           "form": "ARRAYS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "assertion",
+      "form": "ASSERTION",
+      "display": "Assertion",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Statement in code or a test that checks a condition and fails loudly if it is false.",
+        "fr": "Instruction, dans le code ou un test, qui vérifie une condition et échoue clairement si elle est fausse."
+      },
+      "inflections": [
+        {
+          "form": "ASSERTIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "test"
+        }
+      ]
+    },
+    {
+      "id": "ast",
+      "form": "AST",
+      "display": "AST",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Abstract syntax tree: tree representation of source code that a parser builds before compiling it.",
+        "fr": "Abstract syntax tree (arbre syntaxique abstrait) : arbre représentant le code source, construit par un parseur."
+      },
+      "inflections": [
+        {
+          "form": "ASTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "tree"
+        },
+        {
+          "type": "related_to",
+          "target": "parser"
+        }
+      ]
+    },
+    {
+      "id": "async",
+      "form": "ASYNC",
+      "display": "Async",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Style where a task is started and the program keeps running instead of waiting for its result.",
+        "fr": "Style où une tâche est lancée et où le programme continue sans attendre son résultat."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "callback"
+        },
+        {
+          "type": "related_to",
+          "target": "concurrency"
         }
       ]
     },
@@ -135,6 +270,31 @@
         {
           "form": "BUGS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "bytecode",
+      "form": "BYTECODE",
+      "display": "Bytecode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Compact instructions produced by a compiler and run by a virtual machine rather than directly by the CPU.",
+        "fr": "Instructions compactes produites par un compilateur et exécutées par une machine virtuelle plutôt que par le processeur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "compiler"
+        },
+        {
+          "type": "related_to",
+          "target": "runtime"
         }
       ]
     },
@@ -266,6 +426,64 @@
       ]
     },
     {
+      "id": "comment",
+      "form": "COMMENT",
+      "display": "Comment",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Note in source code written for humans and ignored by the computer.",
+        "fr": "Note dans le code source destinée aux humains et ignorée par l'ordinateur."
+      },
+      "inflections": [
+        {
+          "form": "COMMENTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "code"
+        }
+      ]
+    },
+    {
+      "id": "compile",
+      "form": "COMPILE",
+      "display": "Compile",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Translate source code into a form that a machine can run.",
+        "fr": "Traduire du code source en une forme qu'une machine peut exécuter."
+      },
+      "inflections": [
+        {
+          "form": "COMPILED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "COMPILES",
+          "kind": "verb_s"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "compiler"
+        }
+      ]
+    },
+    {
       "id": "compiler",
       "form": "COMPILER",
       "display": "Compiler",
@@ -283,6 +501,89 @@
         {
           "form": "COMPILERS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "constant",
+      "form": "CONSTANT",
+      "display": "Constant",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Named value that cannot change while the program runs.",
+        "fr": "Valeur nommée qui ne peut pas changer pendant l'exécution du programme."
+      },
+      "inflections": [
+        {
+          "form": "CONSTANTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "variable"
+        }
+      ]
+    },
+    {
+      "id": "constructor",
+      "form": "CONSTRUCTOR",
+      "display": "Constructor",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Special method that sets up a new object when it is created.",
+        "fr": "Méthode spéciale qui initialise un nouvel objet au moment de sa création."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "method"
+        },
+        {
+          "type": "part_of",
+          "target": "class"
+        }
+      ]
+    },
+    {
+      "id": "coroutine",
+      "form": "COROUTINE",
+      "display": "Coroutine",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Function that can pause and resume later, letting tasks take turns without threads.",
+        "fr": "Fonction capable de se suspendre puis de reprendre, pour que des tâches alternent sans threads."
+      },
+      "inflections": [
+        {
+          "form": "COROUTINES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "async"
+        },
+        {
+          "type": "related_to",
+          "target": "thread"
         }
       ]
     },
@@ -356,6 +657,45 @@
       ]
     },
     {
+      "id": "debug",
+      "form": "DEBUG",
+      "display": "Debug",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Find and fix the errors in a program.",
+        "fr": "Trouver et corriger les erreurs d'un programme."
+      },
+      "inflections": [
+        {
+          "form": "DEBUGGED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "DEBUGGING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "DEBUGS",
+          "kind": "verb_s"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bug"
+        },
+        {
+          "type": "uses",
+          "target": "debugger"
+        }
+      ]
+    },
+    {
       "id": "debugger",
       "form": "DEBUGGER",
       "display": "Debugger",
@@ -417,6 +757,83 @@
       ]
     },
     {
+      "id": "dependency",
+      "form": "DEPENDENCY",
+      "display": "Dependency",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "External package that a project needs in order to build or run.",
+        "fr": "Paquet externe dont un projet a besoin pour être compilé ou exécuté."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "package"
+        },
+        {
+          "type": "related_to",
+          "target": "library"
+        }
+      ]
+    },
+    {
+      "id": "design-pattern",
+      "form": "DESIGNPATTERN",
+      "display": "Design pattern",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Reusable, named solution to a common software design problem.",
+        "fr": "Solution réutilisable et nommée à un problème courant de conception logicielle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "class"
+        },
+        {
+          "type": "related_to",
+          "target": "object"
+        }
+      ]
+    },
+    {
+      "id": "developer",
+      "form": "DEVELOPER",
+      "display": "Developer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Person who designs, writes and maintains software.",
+        "fr": "Personne qui conçoit, écrit et maintient des logiciels."
+      },
+      "inflections": [
+        {
+          "form": "DEVELOPERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "code"
+        }
+      ]
+    },
+    {
       "id": "dict",
       "form": "DICT",
       "display": "dict",
@@ -444,6 +861,64 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "dom",
+      "form": "DOM",
+      "display": "DOM",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "programming",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Document Object Model: tree of objects a browser builds from a web page so scripts can change it.",
+        "fr": "Document Object Model : arbre d'objets construit par un navigateur à partir d'une page web pour que les scripts la modifient."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "browser"
+        },
+        {
+          "type": "related_to",
+          "target": "html"
+        },
+        {
+          "type": "related_to",
+          "target": "javascript"
+        }
+      ],
+      "sources": [
+        "https://dom.spec.whatwg.org/"
+      ]
+    },
+    {
+      "id": "encapsulation",
+      "form": "ENCAPSULATION",
+      "display": "Encapsulation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Keeping an object's data private and exposing it only through its methods.",
+        "fr": "Garder les données d'un objet privées et ne les exposer que par ses méthodes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "object"
+        },
+        {
+          "type": "related_to",
+          "target": "class"
+        }
       ]
     },
     {
@@ -515,6 +990,54 @@
         {
           "form": "EXCEPTIONS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "expression",
+      "form": "EXPRESSION",
+      "display": "Expression",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Piece of code that produces a value, such as 2 + 3.",
+        "fr": "Fragment de code qui produit une valeur, comme 2 + 3."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "syntax"
+        }
+      ]
+    },
+    {
+      "id": "float",
+      "form": "FLOAT",
+      "display": "Float",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Number type that can hold fractions, stored with limited precision.",
+        "fr": "Type numérique capable de contenir des décimales, stocké avec une précision limitée."
+      },
+      "inflections": [
+        {
+          "form": "FLOATS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "integer"
         }
       ]
     },
@@ -630,6 +1153,62 @@
       ]
     },
     {
+      "id": "generics",
+      "form": "GENERICS",
+      "display": "Generics",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Language feature that lets one piece of code work with many types while staying type-safe.",
+        "fr": "Fonctionnalité de langage qui permet à un même code de servir pour plusieurs types en restant sûr."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "interface"
+        },
+        {
+          "type": "related_to",
+          "target": "typescript"
+        }
+      ]
+    },
+    {
+      "id": "getter",
+      "form": "GETTER",
+      "display": "Getter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Method that returns the value of an object's property.",
+        "fr": "Méthode qui renvoie la valeur d'une propriété d'un objet."
+      },
+      "inflections": [
+        {
+          "form": "GETTERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "method"
+        },
+        {
+          "type": "related_to",
+          "target": "encapsulation"
+        }
+      ]
+    },
+    {
       "id": "git",
       "form": "GIT",
       "display": "Git",
@@ -703,6 +1282,64 @@
       ]
     },
     {
+      "id": "hackathon",
+      "form": "HACKATHON",
+      "display": "Hackathon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Short event where teams build software prototypes against the clock.",
+        "fr": "Événement court où des équipes construisent des prototypes logiciels en temps limité."
+      },
+      "inflections": [
+        {
+          "form": "HACKATHONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "developer"
+        }
+      ]
+    },
+    {
+      "id": "hashmap",
+      "form": "HASHMAP",
+      "display": "Hash map",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Data structure storing key-value pairs so a value can be found quickly from its key.",
+        "fr": "Structure de données qui stocke des paires clé-valeur pour retrouver vite une valeur à partir de sa clé."
+      },
+      "inflections": [
+        {
+          "form": "HASHMAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "hash"
+        },
+        {
+          "type": "related_to",
+          "target": "dict"
+        }
+      ]
+    },
+    {
       "id": "haskell",
       "form": "HASKELL",
       "display": "Haskell",
@@ -752,6 +1389,37 @@
         {
           "type": "alternative_to",
           "target": "stack"
+        }
+      ]
+    },
+    {
+      "id": "hook",
+      "form": "HOOK",
+      "display": "Hook",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Point where custom code can be plugged into a program's normal flow.",
+        "fr": "Point où l'on peut brancher du code personnalisé dans le déroulement normal d'un programme."
+      },
+      "inflections": [
+        {
+          "form": "HOOKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "callback"
+        },
+        {
+          "type": "related_to",
+          "target": "function"
         }
       ]
     },
@@ -833,6 +1501,31 @@
       ],
       "sources": [
         "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else"
+      ]
+    },
+    {
+      "id": "immutable",
+      "form": "IMMUTABLE",
+      "display": "Immutable",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes data that cannot be changed after it has been created.",
+        "fr": "Qualifie une donnée qui ne peut plus être modifiée après sa création."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "constant"
+        },
+        {
+          "type": "related_to",
+          "target": "object"
+        }
       ]
     },
     {
@@ -989,6 +1682,31 @@
       ]
     },
     {
+      "id": "jit",
+      "form": "JIT",
+      "display": "JIT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Just-in-time compilation: turning code into machine code while the program is already running.",
+        "fr": "Just-in-time (compilation à la volée) : traduire le code en code machine pendant que le programme tourne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "compiler"
+        },
+        {
+          "type": "related_to",
+          "target": "bytecode"
+        }
+      ]
+    },
+    {
       "id": "js",
       "form": "JS",
       "display": "JS",
@@ -1010,6 +1728,33 @@
       ],
       "sources": [
         "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+      ]
+    },
+    {
+      "id": "keyword",
+      "form": "KEYWORD",
+      "display": "Keyword",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Word reserved by a programming language, such as if or return.",
+        "fr": "Mot réservé par un langage de programmation, comme if ou return."
+      },
+      "inflections": [
+        {
+          "form": "KEYWORDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "syntax"
+        }
       ]
     },
     {
@@ -1087,6 +1832,37 @@
       ]
     },
     {
+      "id": "linter",
+      "form": "LINTER",
+      "display": "Linter",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Tool that scans code without running it to flag style issues and likely mistakes.",
+        "fr": "Outil qui analyse le code sans l'exécuter pour signaler les écarts de style et les erreurs probables."
+      },
+      "inflections": [
+        {
+          "form": "LINTERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "syntax"
+        },
+        {
+          "type": "related_to",
+          "target": "bug"
+        }
+      ]
+    },
+    {
       "id": "list",
       "form": "LIST",
       "display": "list",
@@ -1144,6 +1920,87 @@
       ]
     },
     {
+      "id": "lowcode",
+      "form": "LOWCODE",
+      "display": "Low-code",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Approach to building apps mostly with visual tools and little hand-written code.",
+        "fr": "Approche de création d'applications surtout par outils visuels, avec peu de code écrit à la main."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "app"
+        },
+        {
+          "type": "related_to",
+          "target": "code"
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "form": "MAP",
+      "display": "Map",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Collection pairing each key with a value; also, applying a function to every item of a list.",
+        "fr": "Collection qui associe une valeur à chaque clé ; aussi, appliquer une fonction à chaque élément d'une liste."
+      },
+      "inflections": [
+        {
+          "form": "MAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dict"
+        },
+        {
+          "type": "related_to",
+          "target": "hashmap"
+        }
+      ]
+    },
+    {
+      "id": "memoization",
+      "form": "MEMOIZATION",
+      "display": "Memoization",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Storing a function's results so repeated calls with the same input return instantly.",
+        "fr": "Mémorisation des résultats d'une fonction pour que les appels répétés avec la même entrée répondent aussitôt."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "cache"
+        },
+        {
+          "type": "related_to",
+          "target": "function"
+        }
+      ]
+    },
+    {
       "id": "method",
       "form": "METHOD",
       "display": "Method",
@@ -1171,6 +2028,45 @@
       ]
     },
     {
+      "id": "mock",
+      "form": "MOCK",
+      "display": "Mock",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Fake object used in tests to stand in for a real dependency.",
+        "fr": "Faux objet utilisé dans les tests pour remplacer une vraie dépendance."
+      },
+      "inflections": [
+        {
+          "form": "MOCKED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "MOCKING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "MOCKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "dependency"
+        }
+      ]
+    },
+    {
       "id": "module",
       "form": "MODULE",
       "display": "Module",
@@ -1194,6 +2090,37 @@
         {
           "type": "related_to",
           "target": "library"
+        }
+      ]
+    },
+    {
+      "id": "namespace",
+      "form": "NAMESPACE",
+      "display": "Namespace",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Named scope that groups identifiers so the same name can be reused without clashes.",
+        "fr": "Portée nommée qui regroupe des identifiants pour réutiliser un même nom sans conflit."
+      },
+      "inflections": [
+        {
+          "form": "NAMESPACES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "module"
+        },
+        {
+          "type": "related_to",
+          "target": "scope"
         }
       ]
     },
@@ -1237,6 +2164,91 @@
         {
           "form": "OBJECTS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "oop",
+      "form": "OOP",
+      "display": "OOP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Object-oriented programming: organizing code around objects that bundle data and behaviour.",
+        "fr": "Object-oriented programming (programmation orientée objet) : code organisé en objets réunissant données et comportement."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "object"
+        },
+        {
+          "type": "uses",
+          "target": "class"
+        },
+        {
+          "type": "related_to",
+          "target": "inheritance"
+        }
+      ]
+    },
+    {
+      "id": "open-source",
+      "form": "OPENSOURCE",
+      "display": "Open source",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software whose source code anyone may read, change and share under its licence.",
+        "fr": "Logiciel dont chacun peut lire, modifier et partager le code source selon sa licence."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "code"
+        },
+        {
+          "type": "related_to",
+          "target": "software"
+        }
+      ]
+    },
+    {
+      "id": "operator",
+      "form": "OPERATOR",
+      "display": "Operator",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Symbol that acts on values, such as + or ==.",
+        "fr": "Symbole qui agit sur des valeurs, comme + ou ==."
+      },
+      "inflections": [
+        {
+          "form": "OPERATORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "syntax"
+        },
+        {
+          "type": "related_to",
+          "target": "expression"
         }
       ]
     },
@@ -1293,6 +2305,33 @@
         {
           "type": "related_to",
           "target": "registry"
+        }
+      ]
+    },
+    {
+      "id": "parameter",
+      "form": "PARAMETER",
+      "display": "Parameter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Named input declared by a function and filled by an argument at each call.",
+        "fr": "Entrée nommée déclarée par une fonction et remplie par un argument à chaque appel."
+      },
+      "inflections": [
+        {
+          "form": "PARAMETERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "function"
         }
       ]
     },
@@ -1416,6 +2455,58 @@
       }
     },
     {
+      "id": "promise",
+      "form": "PROMISE",
+      "display": "Promise",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Object standing for a result that an asynchronous task will deliver later.",
+        "fr": "Objet qui représente un résultat qu'une tâche asynchrone fournira plus tard."
+      },
+      "inflections": [
+        {
+          "form": "PROMISES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "async"
+        },
+        {
+          "type": "related_to",
+          "target": "callback"
+        }
+      ]
+    },
+    {
+      "id": "pseudocode",
+      "form": "PSEUDOCODE",
+      "display": "Pseudocode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Plain-language outline of an algorithm, written before the real code.",
+        "fr": "Description d'un algorithme en langage courant, rédigée avant le vrai code."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "algorithm"
+        }
+      ]
+    },
+    {
       "id": "python",
       "form": "PYTHON",
       "display": "Python",
@@ -1509,7 +2600,21 @@
       "definitions": {
         "en": "To restructure code without changing what it does.",
         "fr": "Restructurer du code sans changer ce qu'il fait."
-      }
+      },
+      "inflections": [
+        {
+          "form": "REFACTORED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "REFACTORING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "REFACTORS",
+          "kind": "verb_s"
+        }
+      ]
     },
     {
       "id": "regex",
@@ -1532,6 +2637,37 @@
         {
           "form": "REGEXES",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "repl",
+      "form": "REPL",
+      "display": "REPL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Read-eval-print loop: interactive prompt that runs code one line at a time and shows the result.",
+        "fr": "Read-eval-print loop : invite interactive qui exécute le code ligne par ligne et affiche le résultat."
+      },
+      "inflections": [
+        {
+          "form": "REPLS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shell"
+        },
+        {
+          "type": "related_to",
+          "target": "python"
         }
       ]
     },
@@ -1605,6 +2741,37 @@
       ],
       "sources": [
         "https://www.rust-lang.org/learn"
+      ]
+    },
+    {
+      "id": "scope",
+      "form": "SCOPE",
+      "display": "Scope",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Region of a program where a name, such as a variable, can be used.",
+        "fr": "Zone d'un programme où un nom, comme une variable, peut être utilisé."
+      },
+      "inflections": [
+        {
+          "form": "SCOPES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "variable"
+        },
+        {
+          "type": "related_to",
+          "target": "closure"
+        }
       ]
     },
     {
@@ -1700,6 +2867,120 @@
       ]
     },
     {
+      "id": "setter",
+      "form": "SETTER",
+      "display": "Setter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Method that changes the value of an object's property, often after checking it.",
+        "fr": "Méthode qui modifie la valeur d'une propriété d'un objet, souvent après l'avoir vérifiée."
+      },
+      "inflections": [
+        {
+          "form": "SETTERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "method"
+        },
+        {
+          "type": "related_to",
+          "target": "getter"
+        }
+      ]
+    },
+    {
+      "id": "singleton",
+      "form": "SINGLETON",
+      "display": "Singleton",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Design pattern that allows only one instance of a class in a program.",
+        "fr": "Patron de conception qui n'autorise qu'une seule instance d'une classe dans un programme."
+      },
+      "inflections": [
+        {
+          "form": "SINGLETONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "design-pattern"
+        },
+        {
+          "type": "related_to",
+          "target": "class"
+        }
+      ]
+    },
+    {
+      "id": "snippet",
+      "form": "SNIPPET",
+      "display": "Snippet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Small, reusable piece of code.",
+        "fr": "Petit morceau de code réutilisable."
+      },
+      "inflections": [
+        {
+          "form": "SNIPPETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "code"
+        }
+      ]
+    },
+    {
+      "id": "sorting",
+      "form": "SORTING",
+      "display": "Sorting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Arranging items in order, a classic family of algorithms such as quicksort.",
+        "fr": "Fait de ranger des éléments dans un ordre, famille classique d'algorithmes comme le tri rapide."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "related_to",
+          "target": "array"
+        }
+      ]
+    },
+    {
       "id": "stack",
       "form": "STACK",
       "display": "Stack",
@@ -1727,6 +3008,33 @@
         {
           "type": "related_to",
           "target": "list"
+        }
+      ]
+    },
+    {
+      "id": "statement",
+      "form": "STATEMENT",
+      "display": "Statement",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Single instruction in a program, such as an assignment or a return.",
+        "fr": "Instruction unique d'un programme, comme une affectation ou un retour."
+      },
+      "inflections": [
+        {
+          "form": "STATEMENTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "syntax"
         }
       ]
     },
@@ -1791,6 +3099,46 @@
         {
           "type": "part_of",
           "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "test",
+      "form": "TEST",
+      "display": "Test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Code that checks that other code behaves as expected.",
+        "fr": "Code qui vérifie qu'un autre code se comporte comme prévu."
+      },
+      "inflections": [
+        {
+          "form": "TESTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "TESTING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "TESTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "qa"
+        },
+        {
+          "type": "related_to",
+          "target": "bug"
         }
       ]
     },
@@ -1946,6 +3294,38 @@
       ]
     },
     {
+      "id": "unit-test",
+      "form": "UNITTEST",
+      "display": "Unit test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Small automated test that checks one function or class in isolation.",
+        "fr": "Petit test automatisé qui vérifie une seule fonction ou classe de façon isolée."
+      },
+      "inflections": [
+        {
+          "form": "UNITTESTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "function"
+        }
+      ]
+    },
+    {
       "id": "ux",
       "form": "UX",
       "display": "UX",
@@ -1988,6 +3368,41 @@
           "form": "VARIABLES",
           "kind": "plural"
         }
+      ]
+    },
+    {
+      "id": "webassembly",
+      "form": "WEBASSEMBLY",
+      "display": "WebAssembly",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Portable binary format that lets browsers and other hosts run compiled code at near-native speed.",
+        "fr": "Format binaire portable qui permet aux navigateurs et autres hôtes d'exécuter du code compilé presque à vitesse native."
+      },
+      "aliases": [
+        "WASM"
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bytecode"
+        },
+        {
+          "type": "related_to",
+          "target": "browser"
+        },
+        {
+          "type": "related_to",
+          "target": "javascript"
+        }
+      ],
+      "sources": [
+        "https://webassembly.org/"
       ]
     }
   ]

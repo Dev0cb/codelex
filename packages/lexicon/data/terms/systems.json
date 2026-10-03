@@ -130,7 +130,67 @@
       "definitions": {
         "en": "Process of starting a computer and loading its operating system.",
         "fr": "Démarrage d'un ordinateur et chargement de son système d'exploitation."
-      }
+      },
+      "inflections": [
+        {
+          "form": "BOOTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "BOOTING",
+          "kind": "verb_ing"
+        }
+      ]
+    },
+    {
+      "id": "bootloader",
+      "form": "BOOTLOADER",
+      "display": "Bootloader",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Small program that runs when a machine powers on and loads the operating system.",
+        "fr": "Petit programme lancé à la mise sous tension d'une machine, qui charge le système d'exploitation."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "boot"
+        },
+        {
+          "type": "related_to",
+          "target": "operating-system"
+        }
+      ]
+    },
+    {
+      "id": "bottleneck",
+      "form": "BOTTLENECK",
+      "display": "Bottleneck",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Single slow part that limits the speed of a whole system.",
+        "fr": "Élément lent qui limite à lui seul la vitesse de tout un système."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "throughput"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
+      ]
     },
     {
       "id": "checksum",
@@ -157,6 +217,87 @@
         {
           "type": "related_to",
           "target": "hash"
+        }
+      ]
+    },
+    {
+      "id": "chmod",
+      "form": "CHMOD",
+      "display": "Chmod",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Unix command that changes who may read, write or run a file.",
+        "fr": "Commande Unix qui modifie qui peut lire, écrire ou exécuter un fichier."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
+        },
+        {
+          "type": "runs_on",
+          "target": "unix"
+        }
+      ]
+    },
+    {
+      "id": "cli",
+      "form": "CLI",
+      "display": "CLI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Command-line interface: a way to control a program by typing text commands.",
+        "fr": "Command-line interface (interface en ligne de commande) : piloter un programme en tapant des commandes texte."
+      },
+      "inflections": [
+        {
+          "form": "CLIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "terminal"
+        },
+        {
+          "type": "related_to",
+          "target": "shell"
+        },
+        {
+          "type": "alternative_to",
+          "target": "gui"
+        }
+      ]
+    },
+    {
+      "id": "clipboard",
+      "form": "CLIPBOARD",
+      "display": "Clipboard",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Temporary storage holding what you last copied, ready to be pasted.",
+        "fr": "Zone de stockage temporaire qui garde ce que l'on vient de copier, prêt à être collé."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "operating-system"
         }
       ]
     },
@@ -206,6 +347,70 @@
         {
           "type": "related_to",
           "target": "terminal"
+        }
+      ]
+    },
+    {
+      "id": "context-switch",
+      "form": "CONTEXTSWITCH",
+      "display": "Context switch",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Processor switching from one thread or process to another, saving and restoring its state.",
+        "fr": "Passage du processeur d'un thread ou processus à un autre, en sauvegardant puis restaurant son état."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "scheduler"
+        },
+        {
+          "type": "related_to",
+          "target": "thread"
+        }
+      ]
+    },
+    {
+      "id": "crash",
+      "form": "CRASH",
+      "display": "Crash",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Sudden failure that makes a program or a computer stop working.",
+        "fr": "Panne soudaine qui fait s'arrêter un programme ou un ordinateur."
+      },
+      "inflections": [
+        {
+          "form": "CRASHED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "CRASHES",
+          "kind": "plural"
+        },
+        {
+          "form": "CRASHING",
+          "kind": "verb_ing"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bug"
+        },
+        {
+          "type": "related_to",
+          "target": "reboot"
         }
       ]
     },
@@ -286,6 +491,31 @@
       ]
     },
     {
+      "id": "defrag",
+      "form": "DEFRAG",
+      "display": "Defrag",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Defragmentation: regrouping the scattered pieces of files on a hard disk so they load faster.",
+        "fr": "Défragmentation : regrouper les morceaux éparpillés des fichiers sur un disque dur pour les lire plus vite."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hdd"
+        },
+        {
+          "type": "related_to",
+          "target": "filesystem"
+        }
+      ]
+    },
+    {
       "id": "desktop",
       "form": "DESKTOP",
       "display": "Desktop",
@@ -335,6 +565,37 @@
       ]
     },
     {
+      "id": "distro",
+      "form": "DISTRO",
+      "display": "Distro",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Distribution: an operating system built from the Linux kernel plus a chosen set of software.",
+        "fr": "Distribution : système d'exploitation formé du noyau Linux et d'un ensemble choisi de logiciels."
+      },
+      "inflections": [
+        {
+          "form": "DISTROS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "linux"
+        },
+        {
+          "type": "is_a",
+          "target": "operating-system"
+        }
+      ]
+    },
+    {
       "id": "driver",
       "form": "DRIVER",
       "display": "Driver",
@@ -359,6 +620,62 @@
         {
           "type": "part_of",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "dual-boot",
+      "form": "DUALBOOT",
+      "display": "Dual boot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Setup where one computer can start either of two installed operating systems.",
+        "fr": "Configuration où un ordinateur peut démarrer l'un ou l'autre de deux systèmes installés."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "bootloader"
+        },
+        {
+          "type": "related_to",
+          "target": "operating-system"
+        }
+      ]
+    },
+    {
+      "id": "emulator",
+      "form": "EMULATOR",
+      "display": "Emulator",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software that imitates another machine so its programs can run elsewhere.",
+        "fr": "Logiciel qui imite une autre machine pour que ses programmes puissent tourner ailleurs."
+      },
+      "inflections": [
+        {
+          "form": "EMULATORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "virtualization"
+        },
+        {
+          "type": "related_to",
+          "target": "virtual-machine"
         }
       ]
     },
@@ -442,6 +759,33 @@
       ]
     },
     {
+      "id": "font",
+      "form": "FONT",
+      "display": "Font",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Set of characters sharing one design, used to display text on screen or in print.",
+        "fr": "Ensemble de caractères partageant un même dessin, utilisé pour afficher du texte à l'écran ou à l'impression."
+      },
+      "inflections": [
+        {
+          "form": "FONTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ui"
+        }
+      ]
+    },
+    {
       "id": "fork",
       "form": "FORK",
       "display": "Fork",
@@ -458,6 +802,14 @@
       },
       "inflections": [
         {
+          "form": "FORKED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "FORKING",
+          "kind": "verb_ing"
+        },
+        {
           "form": "FORKS",
           "kind": "plural"
         }
@@ -470,6 +822,46 @@
         {
           "type": "related_to",
           "target": "repo"
+        }
+      ]
+    },
+    {
+      "id": "format",
+      "form": "FORMAT",
+      "display": "Format",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Layout of data in a file or on a disk; formatting a disk erases it and creates an empty file system.",
+        "fr": "Organisation des données d'un fichier ou d'un disque ; formater un disque l'efface et crée un système de fichiers vide."
+      },
+      "inflections": [
+        {
+          "form": "FORMATS",
+          "kind": "plural"
+        },
+        {
+          "form": "FORMATTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "FORMATTING",
+          "kind": "verb_ing"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "filesystem"
+        },
+        {
+          "type": "related_to",
+          "target": "disk"
         }
       ]
     },
@@ -499,6 +891,62 @@
       ],
       "sources": [
         "https://www.gnu.org/software/grep/manual/"
+      ]
+    },
+    {
+      "id": "gui",
+      "form": "GUI",
+      "display": "GUI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Graphical user interface: windows, icons and menus used with a pointer or touch.",
+        "fr": "Graphical user interface (interface graphique) : fenêtres, icônes et menus pilotés au pointeur ou au toucher."
+      },
+      "inflections": [
+        {
+          "form": "GUIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ui"
+        },
+        {
+          "type": "related_to",
+          "target": "desktop"
+        }
+      ]
+    },
+    {
+      "id": "hibernation",
+      "form": "HIBERNATION",
+      "display": "Hibernation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Power-off state that saves memory to disk so work resumes exactly where it stopped.",
+        "fr": "État d'arrêt qui enregistre la mémoire sur le disque pour reprendre le travail là où il s'était arrêté."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        },
+        {
+          "type": "related_to",
+          "target": "shutdown"
+        }
       ]
     },
     {
@@ -547,6 +995,37 @@
         {
           "type": "part_of",
           "target": "filesystem"
+        }
+      ]
+    },
+    {
+      "id": "installer",
+      "form": "INSTALLER",
+      "display": "Installer",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Program that copies software onto a computer and sets it up.",
+        "fr": "Programme qui copie un logiciel sur un ordinateur et le configure."
+      },
+      "inflections": [
+        {
+          "form": "INSTALLERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "software"
+        },
+        {
+          "type": "related_to",
+          "target": "package"
         }
       ]
     },
@@ -683,6 +1162,31 @@
       ]
     },
     {
+      "id": "kernel-panic",
+      "form": "KERNELPANIC",
+      "display": "Kernel panic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Fatal error from which the operating system kernel cannot safely recover, forcing a restart.",
+        "fr": "Erreur fatale dont le noyau du système ne peut pas se remettre sans risque, ce qui force un redémarrage."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kernel"
+        },
+        {
+          "type": "related_to",
+          "target": "crash"
+        }
+      ]
+    },
+    {
       "id": "linux",
       "form": "LINUX",
       "display": "Linux",
@@ -705,6 +1209,38 @@
       ],
       "sources": [
         "https://www.kernel.org/doc/html/latest/"
+      ]
+    },
+    {
+      "id": "logout",
+      "form": "LOGOUT",
+      "display": "Logout",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Ending a session so the account is no longer signed in on that device.",
+        "fr": "Fin d'une session : le compte n'est plus connecté sur cet appareil."
+      },
+      "inflections": [
+        {
+          "form": "LOGOUTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "login"
+        },
+        {
+          "type": "part_of",
+          "target": "session"
+        }
       ]
     },
     {
@@ -753,6 +1289,77 @@
       }
     },
     {
+      "id": "microkernel",
+      "form": "MICROKERNEL",
+      "display": "Microkernel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Kernel design that keeps only the essentials in kernel mode and runs drivers and services outside it.",
+        "fr": "Conception de noyau qui ne garde que l'essentiel en mode noyau et exécute pilotes et services à l'extérieur."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "multitasking",
+      "form": "MULTITASKING",
+      "display": "Multitasking",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Running several programs at once by sharing the processor between them.",
+        "fr": "Exécution de plusieurs programmes en même temps en partageant le processeur entre eux."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "scheduler"
+        },
+        {
+          "type": "related_to",
+          "target": "process"
+        }
+      ]
+    },
+    {
+      "id": "multithreading",
+      "form": "MULTITHREADING",
+      "display": "Multithreading",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Running several threads inside one process so that work happens in parallel.",
+        "fr": "Exécution de plusieurs threads dans un même processus pour que le travail avance en parallèle."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "thread"
+        },
+        {
+          "type": "related_to",
+          "target": "concurrency"
+        }
+      ]
+    },
+    {
       "id": "mutex",
       "form": "MUTEX",
       "display": "Mutex",
@@ -781,6 +1388,27 @@
       ]
     },
     {
+      "id": "notification",
+      "form": "NOTIFICATION",
+      "display": "Notification",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Alert from an app or the system that pops up to tell the user something.",
+        "fr": "Alerte d'une application ou du système qui s'affiche pour informer l'utilisateur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "app"
+        }
+      ]
+    },
+    {
       "id": "operating-system",
       "form": "OS",
       "display": "Operating system",
@@ -796,6 +1424,31 @@
       },
       "sources": [
         "https://docs.kernel.org/"
+      ]
+    },
+    {
+      "id": "page-fault",
+      "form": "PAGEFAULT",
+      "display": "Page fault",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Event raised when a program touches memory that is not currently loaded in RAM.",
+        "fr": "Événement déclenché quand un programme accède à une zone mémoire qui n'est pas chargée en RAM."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "paging"
+        },
+        {
+          "type": "related_to",
+          "target": "virtual-memory"
+        }
       ]
     },
     {
@@ -934,6 +1587,118 @@
       ]
     },
     {
+      "id": "plugin",
+      "form": "PLUGIN",
+      "display": "Plug-in",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Add-on that extends a program with extra features.",
+        "fr": "Module complémentaire qui ajoute des fonctionnalités à un programme."
+      },
+      "inflections": [
+        {
+          "form": "PLUGINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "app"
+        },
+        {
+          "type": "related_to",
+          "target": "module"
+        }
+      ]
+    },
+    {
+      "id": "polling",
+      "form": "POLLING",
+      "display": "Polling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Checking again and again whether something is ready instead of waiting to be notified.",
+        "fr": "Vérifier à répétition si quelque chose est prêt au lieu d'attendre d'être prévenu."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "interrupt"
+        }
+      ]
+    },
+    {
+      "id": "posix",
+      "form": "POSIX",
+      "display": "POSIX",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Family of IEEE standards defining a common Unix-like interface for operating systems.",
+        "fr": "Famille de normes IEEE qui définit une interface commune, de type Unix, pour les systèmes d'exploitation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "unix"
+        },
+        {
+          "type": "related_to",
+          "target": "linux"
+        }
+      ],
+      "sources": [
+        "https://pubs.opengroup.org/onlinepubs/9699919799/"
+      ]
+    },
+    {
+      "id": "privilege",
+      "form": "PRIVILEGE",
+      "display": "Privilege",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Right granted to a user or process to perform certain actions on a system.",
+        "fr": "Droit accordé à un utilisateur ou à un processus pour effectuer certaines actions sur un système."
+      },
+      "inflections": [
+        {
+          "form": "PRIVILEGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "permission"
+        },
+        {
+          "type": "related_to",
+          "target": "root"
+        }
+      ]
+    },
+    {
       "id": "process",
       "form": "PROCESS",
       "display": "Process",
@@ -957,6 +1722,99 @@
         {
           "type": "runs_on",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "race-condition",
+      "form": "RACECONDITION",
+      "display": "Race condition",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Bug where the result depends on the unpredictable timing of tasks running at the same time.",
+        "fr": "Bogue dont le résultat dépend de l'ordre imprévisible de tâches qui s'exécutent en même temps."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "bug"
+        },
+        {
+          "type": "related_to",
+          "target": "concurrency"
+        },
+        {
+          "type": "related_to",
+          "target": "mutex"
+        }
+      ]
+    },
+    {
+      "id": "realtime",
+      "form": "REALTIME",
+      "display": "Real-time",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Describes systems that must respond within a strict, guaranteed time.",
+        "fr": "Qualifie un système qui doit répondre dans un délai strict et garanti."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "latency"
+        },
+        {
+          "type": "related_to",
+          "target": "scheduler"
+        }
+      ]
+    },
+    {
+      "id": "reboot",
+      "form": "REBOOT",
+      "display": "Reboot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Restart a computer or device by shutting it down and starting it again.",
+        "fr": "Redémarrer un ordinateur ou un appareil en l'arrêtant puis en le relançant."
+      },
+      "inflections": [
+        {
+          "form": "REBOOTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "REBOOTING",
+          "kind": "verb_ing"
+        },
+        {
+          "form": "REBOOTS",
+          "kind": "verb_s"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "boot"
+        },
+        {
+          "type": "related_to",
+          "target": "shutdown"
         }
       ]
     },
@@ -1006,6 +1864,27 @@
         {
           "type": "part_of",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "screenshot",
+      "form": "SCREENSHOT",
+      "display": "Screenshot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Image capturing exactly what a screen shows at one moment.",
+        "fr": "Image qui capture exactement ce qu'affiche un écran à un instant donné."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "screen"
         }
       ]
     },
@@ -1072,6 +1951,37 @@
       ]
     },
     {
+      "id": "session",
+      "form": "SESSION",
+      "display": "Session",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Period during which a user or program stays connected to a system.",
+        "fr": "Période pendant laquelle un utilisateur ou un programme reste connecté à un système."
+      },
+      "inflections": [
+        {
+          "form": "SESSIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "login"
+        },
+        {
+          "type": "related_to",
+          "target": "cookie"
+        }
+      ]
+    },
+    {
       "id": "shell",
       "form": "SHELL",
       "display": "Shell",
@@ -1089,6 +1999,64 @@
         {
           "form": "SHELLS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "shortcut",
+      "form": "SHORTCUT",
+      "display": "Shortcut",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Key combination or link that reaches an action or a file faster.",
+        "fr": "Combinaison de touches ou lien qui mène plus vite à une action ou à un fichier."
+      },
+      "inflections": [
+        {
+          "form": "SHORTCUTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "keyboard"
+        },
+        {
+          "type": "related_to",
+          "target": "file"
+        }
+      ]
+    },
+    {
+      "id": "shutdown",
+      "form": "SHUTDOWN",
+      "display": "Shutdown",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Orderly power-off of a computer that closes programs first.",
+        "fr": "Arrêt ordonné d'un ordinateur qui ferme d'abord les programmes."
+      },
+      "inflections": [
+        {
+          "form": "SHUTDOWNS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "operating-system"
         }
       ]
     },
@@ -1173,6 +2141,31 @@
       ]
     },
     {
+      "id": "spinlock",
+      "form": "SPINLOCK",
+      "display": "Spinlock",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Lock that makes a waiting thread loop until it is free, instead of sleeping.",
+        "fr": "Verrou qui fait boucler un thread en attente jusqu'à ce qu'il se libère, au lieu de l'endormir."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "mutex"
+        },
+        {
+          "type": "related_to",
+          "target": "thread"
+        }
+      ]
+    },
+    {
       "id": "sudo",
       "form": "SUDO",
       "display": "sudo",
@@ -1201,6 +2194,37 @@
       ]
     },
     {
+      "id": "superuser",
+      "form": "SUPERUSER",
+      "display": "Superuser",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Account with unrestricted rights on a system, such as root on Unix.",
+        "fr": "Compte disposant de tous les droits sur un système, comme root sous Unix."
+      },
+      "inflections": [
+        {
+          "form": "SUPERUSERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "root"
+        },
+        {
+          "type": "related_to",
+          "target": "sudo"
+        }
+      ]
+    },
+    {
       "id": "swap",
       "form": "SWAP",
       "display": "Swap",
@@ -1218,6 +2242,68 @@
         {
           "type": "related_to",
           "target": "memory"
+        }
+      ]
+    },
+    {
+      "id": "symlink",
+      "form": "SYMLINK",
+      "display": "Symlink",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Symbolic link: a special file that points to another file or folder by its path.",
+        "fr": "Lien symbolique : fichier spécial qui pointe vers un autre fichier ou dossier par son chemin."
+      },
+      "inflections": [
+        {
+          "form": "SYMLINKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "filesystem"
+        },
+        {
+          "type": "related_to",
+          "target": "path"
+        }
+      ]
+    },
+    {
+      "id": "sysadmin",
+      "form": "SYSADMIN",
+      "display": "Sysadmin",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "System administrator: person who runs and maintains computers and servers.",
+        "fr": "Administrateur système : personne qui gère et entretient ordinateurs et serveurs."
+      },
+      "inflections": [
+        {
+          "form": "SYSADMINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "admin"
+        },
+        {
+          "type": "related_to",
+          "target": "server"
         }
       ]
     },
@@ -1245,6 +2331,37 @@
         {
           "type": "uses",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "task",
+      "form": "TASK",
+      "display": "Task",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Unit of work that a program, a scheduler or a person has to complete.",
+        "fr": "Unité de travail qu'un programme, un ordonnanceur ou une personne doit accomplir."
+      },
+      "inflections": [
+        {
+          "form": "TASKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "process"
+        },
+        {
+          "type": "related_to",
+          "target": "scheduler"
         }
       ]
     },
@@ -1300,6 +2417,64 @@
         {
           "type": "part_of",
           "target": "process"
+        }
+      ]
+    },
+    {
+      "id": "throughput",
+      "form": "THROUGHPUT",
+      "display": "Throughput",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Amount of work or data a system handles per unit of time.",
+        "fr": "Quantité de travail ou de données qu'un système traite par unité de temps."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "latency"
+        },
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ]
+    },
+    {
+      "id": "timestamp",
+      "form": "TIMESTAMP",
+      "display": "Timestamp",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Recorded date and time at which an event happened.",
+        "fr": "Date et heure enregistrées auxquelles un événement s'est produit."
+      },
+      "inflections": [
+        {
+          "form": "TIMESTAMPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "log"
+        },
+        {
+          "type": "related_to",
+          "target": "event"
         }
       ]
     },
@@ -1370,6 +2545,10 @@
       },
       "inflections": [
         {
+          "form": "UPDATED",
+          "kind": "verb_ed"
+        },
+        {
           "form": "UPDATES",
           "kind": "plural"
         }
@@ -1382,6 +2561,72 @@
         {
           "type": "related_to",
           "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "upgrade",
+      "form": "UPGRADE",
+      "display": "Upgrade",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Move to a newer or more capable version of software or hardware.",
+        "fr": "Passage à une version plus récente ou plus performante d'un logiciel ou d'un matériel."
+      },
+      "inflections": [
+        {
+          "form": "UPGRADED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "UPGRADES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "update"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "user",
+      "form": "USER",
+      "display": "User",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Person or program that uses a computer system, usually through an account.",
+        "fr": "Personne ou programme qui utilise un système informatique, généralement via un compte."
+      },
+      "inflections": [
+        {
+          "form": "USERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "account"
+        },
+        {
+          "type": "related_to",
+          "target": "username"
         }
       ]
     },
@@ -1418,6 +2663,31 @@
       ]
     },
     {
+      "id": "userspace",
+      "form": "USERSPACE",
+      "display": "Userspace",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Memory and privilege area where ordinary programs run, kept apart from the kernel.",
+        "fr": "Zone de mémoire et de privilèges où tournent les programmes ordinaires, séparée du noyau."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kernel"
+        },
+        {
+          "type": "related_to",
+          "target": "syscall"
+        }
+      ]
+    },
+    {
       "id": "vim",
       "form": "VIM",
       "display": "Vim",
@@ -1442,6 +2712,35 @@
       ]
     },
     {
+      "id": "virtual-memory",
+      "form": "VIRTUALMEMORY",
+      "display": "Virtual memory",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Technique giving each program its own large address space, backed by RAM and disk.",
+        "fr": "Technique qui donne à chaque programme un grand espace d'adresses, adossé à la RAM et au disque."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "paging"
+        },
+        {
+          "type": "related_to",
+          "target": "memory"
+        },
+        {
+          "type": "related_to",
+          "target": "swap"
+        }
+      ]
+    },
+    {
       "id": "virtualization",
       "form": "VIRTUALIZATION",
       "display": "Virtualization",
@@ -1460,6 +2759,62 @@
         {
           "type": "related_to",
           "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "watchdog",
+      "form": "WATCHDOG",
+      "display": "Watchdog",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Timer or process that restarts a system automatically when it stops responding.",
+        "fr": "Minuterie ou processus qui redémarre automatiquement un système quand il ne répond plus."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "reboot"
+        },
+        {
+          "type": "related_to",
+          "target": "daemon"
+        }
+      ]
+    },
+    {
+      "id": "widget",
+      "form": "WIDGET",
+      "display": "Widget",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Small interface element or mini-app that shows information at a glance.",
+        "fr": "Petit élément d'interface ou mini-application qui affiche une information d'un coup d'œil."
+      },
+      "inflections": [
+        {
+          "form": "WIDGETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "ui"
+        },
+        {
+          "type": "related_to",
+          "target": "app"
         }
       ]
     },
