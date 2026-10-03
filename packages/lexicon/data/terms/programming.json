@@ -687,7 +687,7 @@
       "difficulty": "intermediate",
       "definitions": {
         "en": "Data structure of nodes connected by edges.",
-        "fr": "Structure de données de nœuds reliés par des arêtes."
+        "fr": "Structure de données faite de nœuds reliés par des arêtes."
       },
       "inflections": [
         {
@@ -697,8 +697,8 @@
       ],
       "relations": [
         {
-          "type": "alternative_to",
-          "target": "tree"
+          "type": "related_to",
+          "target": "topology"
         }
       ]
     },
@@ -1152,7 +1152,7 @@
       "categories": [
         "programming"
       ],
-      "difficulty": "novice",
+      "difficulty": "intermediate",
       "definitions": {
         "en": "Function attached to a class or object.",
         "fr": "Fonction rattachée à une classe ou à un objet."
@@ -1804,10 +1804,10 @@
         "programming",
         "data"
       ],
-      "difficulty": "novice",
+      "difficulty": "intermediate",
       "definitions": {
         "en": "Data structure of nodes linked from a root to children, without cycles.",
-        "fr": "Structure de données de nœuds reliés d'une racine vers des enfants, sans cycle."
+        "fr": "Structure de données dont les nœuds partent d'une racine et se ramifient, sans cycle."
       },
       "inflections": [
         {
@@ -1816,6 +1816,10 @@
         }
       ],
       "relations": [
+        {
+          "type": "is_a",
+          "target": "graph"
+        },
         {
           "type": "related_to",
           "target": "recursion"

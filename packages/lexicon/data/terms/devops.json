@@ -223,7 +223,7 @@
       "categories": [
         "devops"
       ],
-      "difficulty": "novice",
+      "difficulty": "intermediate",
       "definitions": {
         "en": "File listing the notable changes of each release.",
         "fr": "Fichier qui liste les changements notables de chaque version."
@@ -640,7 +640,7 @@
       "categories": [
         "devops"
       ],
-      "difficulty": "novice",
+      "difficulty": "intermediate",
       "definitions": {
         "en": "Method that tracks work as cards moving across columns of a board.",
         "fr": "Méthode qui suit le travail sous forme de cartes déplacées entre les colonnes d'un tableau."
@@ -908,7 +908,7 @@
       "difficulty": "intermediate",
       "definitions": {
         "en": "Rota of engineers ready to respond to production alerts.",
-        "fr": "Astreinte des ingénieurs prêts à répondre aux alertes de production."
+        "fr": "Astreinte : roulement d'ingénieurs prêts à répondre aux alertes de production."
       },
       "relations": [
         {

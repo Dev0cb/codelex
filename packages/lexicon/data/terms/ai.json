@@ -112,8 +112,8 @@
       ],
       "difficulty": "intermediate",
       "definitions": {
-        "en": "Label added by people to data so that models can learn from it.",
-        "fr": "Étiquette ajoutée par des personnes aux données pour que les modèles apprennent."
+        "en": "Label added to data, often by people, so that models can learn from it.",
+        "fr": "Étiquette ajoutée à des données, souvent à la main, pour que des modèles puissent en apprendre."
       },
       "inflections": [
         {
