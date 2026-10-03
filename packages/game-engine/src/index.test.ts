@@ -3,15 +3,37 @@ import { describe, expect, it } from 'vitest';
 import * as engine from './index.js';
 import * as rng from './rng/index.js';
 
-describe('public API', () => {
-  it('exports ENGINE_RULES_VERSION = 1 (ADR-0013 §D5)', () => {
+describe('public API (API note §3, §13)', () => {
+  it('exports ENGINE_RULES_VERSION = 1 and LOG_VERSION = 1 (ADR-0013 §D2, §D5)', () => {
     expect(engine.ENGINE_RULES_VERSION).toBe(1);
+    expect(engine.LOG_VERSION).toBe(1);
   });
 
-  it('exports the JCS subset serialiser and hash16 (ADR-0013 §D3, Appendix A.3)', () => {
-    const input = { z: { k: -7 }, b: 0, a: [3, '?AE'] };
-    expect(engine.canonicalJson(input)).toBe('{"a":[3,"?AE"],"b":0,"z":{"k":-7}}');
-    expect(engine.hash16(input)).toBe('29cb9747b6a72241');
+  it('exports exactly the functions of the API note; hashing stays internal', () => {
+    const functions = Object.entries(engine)
+      .filter(([, v]) => typeof v === 'function')
+      .map(([k]) => k)
+      .filter((k) => !(k in rng))
+      .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    expect(functions).toEqual([
+      'apply',
+      'createMatch',
+      'evaluateMove',
+      'eventsFor',
+      'getLayout',
+      'getLetterTable',
+      'newActionLog',
+      'observe',
+      'parseActionLog',
+      'parseState',
+      'previewScore',
+      'replay',
+      'serializeActionLog',
+      'serializeState',
+      'stateHash',
+    ]);
+    expect(engine).not.toHaveProperty('sha256');
+    expect(engine).not.toHaveProperty('canonicalJson');
   });
 
   it('re-exports the @codelex/game-engine/rng subpath from the root', () => {
