@@ -137,6 +137,31 @@
       ]
     },
     {
+      "id": "broadband",
+      "form": "BROADBAND",
+      "display": "Broadband",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "High-speed Internet access that stays always on.",
+        "fr": "Accès à Internet à haut débit, connecté en permanence."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        },
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ]
+    },
+    {
       "id": "browser",
       "form": "BROWSER",
       "display": "Browser",
@@ -403,6 +428,68 @@
       ]
     },
     {
+      "id": "handshake",
+      "form": "HANDSHAKE",
+      "display": "Handshake",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Exchange of messages that sets up a connection before data flows.",
+        "fr": "Échange de messages qui établit une connexion avant l'envoi des données."
+      },
+      "inflections": [
+        {
+          "form": "HANDSHAKES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "tcp"
+        },
+        {
+          "type": "part_of",
+          "target": "tls"
+        }
+      ]
+    },
+    {
+      "id": "hop",
+      "form": "HOP",
+      "display": "Hop",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One step of a packet's journey from one router to the next.",
+        "fr": "Une étape du trajet d'un paquet, d'un routeur au suivant."
+      },
+      "inflections": [
+        {
+          "form": "HOPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "router"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
+      ]
+    },
+    {
       "id": "host",
       "form": "HOST",
       "display": "Host",
@@ -507,6 +594,34 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc9110"
+      ]
+    },
+    {
+      "id": "hub",
+      "form": "HUB",
+      "display": "Hub",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Simple device that repeats network traffic to every connected port.",
+        "fr": "Appareil simple qui répète le trafic réseau vers tous les ports connectés."
+      },
+      "inflections": [
+        {
+          "form": "HUBS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "switch"
+        }
       ]
     },
     {
@@ -667,6 +782,31 @@
       ]
     },
     {
+      "id": "loopback",
+      "form": "LOOPBACK",
+      "display": "Loopback",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Virtual interface through which a machine talks to itself.",
+        "fr": "Interface virtuelle par laquelle une machine communique avec elle-même."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "interface"
+        },
+        {
+          "type": "related_to",
+          "target": "ip"
+        }
+      ]
+    },
+    {
       "id": "modem",
       "form": "MODEM",
       "display": "Modem",
@@ -695,6 +835,27 @@
         {
           "type": "related_to",
           "target": "isp"
+        }
+      ]
+    },
+    {
+      "id": "multicast",
+      "form": "MULTICAST",
+      "display": "Multicast",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Sending one stream of packets to a chosen group of receivers.",
+        "fr": "Envoi d'un même flux de paquets à un groupe choisi de destinataires."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "packet"
         }
       ]
     },
@@ -737,6 +898,38 @@
         {
           "form": "PACKETS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "form": "PAYLOAD",
+      "display": "Payload",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Useful content carried by a packet or message, or delivered by malware.",
+        "fr": "Contenu utile transporté par un paquet ou un message, ou livré par un logiciel malveillant."
+      },
+      "inflections": [
+        {
+          "form": "PAYLOADS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "packet"
+        },
+        {
+          "type": "related_to",
+          "target": "exploit"
         }
       ]
     },
@@ -1077,6 +1270,27 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc8446"
+      ]
+    },
+    {
+      "id": "topology",
+      "form": "TOPOLOGY",
+      "display": "Topology",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Layout of how the devices of a network are connected.",
+        "fr": "Organisation des connexions entre les appareils d'un réseau."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "lan"
+        }
       ]
     },
     {

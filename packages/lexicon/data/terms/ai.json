@@ -3,6 +3,32 @@
   "category": "ai",
   "terms": [
     {
+      "id": "accuracy",
+      "form": "ACCURACY",
+      "display": "Accuracy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Share of a model's answers that are correct.",
+        "fr": "Proportion des réponses d'un modèle qui sont correctes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
       "id": "agent",
       "form": "AGENT",
       "display": "Agent",
@@ -75,6 +101,38 @@
       ]
     },
     {
+      "id": "annotation",
+      "form": "ANNOTATION",
+      "display": "Annotation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Label added by people to data so that models can learn from it.",
+        "fr": "Étiquette ajoutée par des personnes aux données pour que les modèles apprennent."
+      },
+      "inflections": [
+        {
+          "form": "ANNOTATIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "label"
+        },
+        {
+          "type": "related_to",
+          "target": "dataset"
+        }
+      ]
+    },
+    {
       "id": "attention",
       "form": "ATTENTION",
       "display": "Attention",
@@ -92,6 +150,37 @@
         {
           "type": "part_of",
           "target": "transformer"
+        }
+      ]
+    },
+    {
+      "id": "autoencoder",
+      "form": "AUTOENCODER",
+      "display": "Autoencoder",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Neural network trained to compress its input and rebuild it.",
+        "fr": "Réseau de neurones entraîné à compresser son entrée puis à la reconstruire."
+      },
+      "inflections": [
+        {
+          "form": "AUTOENCODERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "neural-network"
+        },
+        {
+          "type": "related_to",
+          "target": "embedding"
         }
       ]
     },
@@ -143,6 +232,34 @@
         {
           "type": "part_of",
           "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "benchmark",
+      "form": "BENCHMARK",
+      "display": "Benchmark",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Standard test used to compare the performance of models or machines.",
+        "fr": "Test standard qui sert à comparer les performances de modèles ou de machines."
+      },
+      "inflections": [
+        {
+          "form": "BENCHMARKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
         }
       ]
     },
@@ -397,6 +514,31 @@
       ],
       "sources": [
         "https://www.deeplearningbook.org/"
+      ]
+    },
+    {
+      "id": "dropout",
+      "form": "DROPOUT",
+      "display": "Dropout",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Training trick that randomly switches off neurons to reduce overfitting.",
+        "fr": "Astuce d'entraînement qui désactive des neurones au hasard pour limiter le surapprentissage."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "overfitting"
+        },
+        {
+          "type": "part_of",
+          "target": "training"
+        }
       ]
     },
     {
@@ -727,6 +869,37 @@
       ]
     },
     {
+      "id": "neuron",
+      "form": "NEURON",
+      "display": "Neuron",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Basic unit of a neural network that weighs its inputs and passes a signal on.",
+        "fr": "Unité de base d'un réseau de neurones qui pondère ses entrées et transmet un signal."
+      },
+      "inflections": [
+        {
+          "form": "NEURONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "neural-network"
+        },
+        {
+          "type": "related_to",
+          "target": "weight"
+        }
+      ]
+    },
+    {
       "id": "nlp",
       "form": "NLP",
       "display": "NLP",
@@ -837,6 +1010,37 @@
         {
           "type": "part_of",
           "target": "neural-network"
+        }
+      ]
+    },
+    {
+      "id": "prediction",
+      "form": "PREDICTION",
+      "display": "Prediction",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Output a trained model gives for new input.",
+        "fr": "Résultat qu'un modèle entraîné donne pour une nouvelle entrée."
+      },
+      "inflections": [
+        {
+          "form": "PREDICTIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "inference"
+        },
+        {
+          "type": "related_to",
+          "target": "model"
         }
       ]
     },
@@ -1119,6 +1323,37 @@
         }
       ],
       "relations": [
+        {
+          "type": "part_of",
+          "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "tokenizer",
+      "form": "TOKENIZER",
+      "display": "Tokenizer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Tool that splits text into the tokens a language model reads.",
+        "fr": "Outil qui découpe un texte en jetons lus par un modèle de langage."
+      },
+      "inflections": [
+        {
+          "form": "TOKENIZERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "token"
+        },
         {
           "type": "part_of",
           "target": "llm"

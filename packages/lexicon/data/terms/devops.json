@@ -79,6 +79,37 @@
       ]
     },
     {
+      "id": "backlog",
+      "form": "BACKLOG",
+      "display": "Backlog",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Ordered list of work still to be done by a team.",
+        "fr": "Liste ordonnée du travail qu'une équipe doit encore réaliser."
+      },
+      "inflections": [
+        {
+          "form": "BACKLOGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "scrum"
+        },
+        {
+          "type": "related_to",
+          "target": "agile"
+        }
+      ]
+    },
+    {
       "id": "branch",
       "form": "BRANCH",
       "display": "Branch",
@@ -180,6 +211,37 @@
         {
           "type": "related_to",
           "target": "deploy"
+        }
+      ]
+    },
+    {
+      "id": "changelog",
+      "form": "CHANGELOG",
+      "display": "Changelog",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "File listing the notable changes of each release.",
+        "fr": "Fichier qui liste les changements notables de chaque version."
+      },
+      "inflections": [
+        {
+          "form": "CHANGELOGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
         }
       ]
     },
@@ -570,6 +632,31 @@
       ]
     },
     {
+      "id": "kanban",
+      "form": "KANBAN",
+      "display": "Kanban",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Method that tracks work as cards moving across columns of a board.",
+        "fr": "Méthode qui suit le travail sous forme de cartes déplacées entre les colonnes d'un tableau."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "scrum"
+        },
+        {
+          "type": "related_to",
+          "target": "agile"
+        }
+      ]
+    },
+    {
       "id": "kubernetes",
       "form": "KUBERNETES",
       "display": "Kubernetes",
@@ -734,6 +821,34 @@
       ]
     },
     {
+      "id": "monorepo",
+      "form": "MONOREPO",
+      "display": "Monorepo",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Single repository holding the code of many projects.",
+        "fr": "Dépôt unique qui contient le code de nombreux projets."
+      },
+      "inflections": [
+        {
+          "form": "MONOREPOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "repo"
+        }
+      ]
+    },
+    {
       "id": "nginx",
       "form": "NGINX",
       "display": "NGINX",
@@ -778,6 +893,31 @@
         {
           "type": "uses",
           "target": "logging"
+        }
+      ]
+    },
+    {
+      "id": "oncall",
+      "form": "ONCALL",
+      "display": "On-call",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Rota of engineers ready to respond to production alerts.",
+        "fr": "Astreinte des ingénieurs prêts à répondre aux alertes de production."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "sre"
         }
       ]
     },
@@ -857,6 +997,37 @@
         {
           "type": "uses",
           "target": "container"
+        }
+      ]
+    },
+    {
+      "id": "postmortem",
+      "form": "POSTMORTEM",
+      "display": "Postmortem",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Blameless review written after an incident to learn and prevent repeats.",
+        "fr": "Analyse sans recherche de coupable rédigée après un incident pour apprendre et éviter qu'il se répète."
+      },
+      "inflections": [
+        {
+          "form": "POSTMORTEMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "incident"
+        },
+        {
+          "type": "related_to",
+          "target": "outage"
         }
       ]
     },
@@ -1047,6 +1218,37 @@
       ]
     },
     {
+      "id": "rollout",
+      "form": "ROLLOUT",
+      "display": "Rollout",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Gradual deployment of a new version to users.",
+        "fr": "Déploiement progressif d'une nouvelle version auprès des utilisateurs."
+      },
+      "inflections": [
+        {
+          "form": "ROLLOUTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deploy"
+        },
+        {
+          "type": "related_to",
+          "target": "canary"
+        }
+      ]
+    },
+    {
       "id": "runbook",
       "form": "RUNBOOK",
       "display": "Runbook",
@@ -1126,6 +1328,33 @@
       ],
       "sources": [
         "https://sre.google/sre-book/service-level-objectives/"
+      ]
+    },
+    {
+      "id": "sprint",
+      "form": "SPRINT",
+      "display": "Sprint",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Short fixed period in which a team delivers planned work.",
+        "fr": "Courte période fixe pendant laquelle une équipe livre le travail prévu."
+      },
+      "inflections": [
+        {
+          "form": "SPRINTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "scrum"
+        }
       ]
     },
     {

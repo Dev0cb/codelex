@@ -1060,6 +1060,31 @@
       ]
     },
     {
+      "id": "multitenancy",
+      "form": "MULTITENANCY",
+      "display": "Multitenancy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "One software instance serving several customers while keeping their data apart.",
+        "fr": "Une seule instance logicielle qui sert plusieurs clients en isolant leurs données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tenant"
+        },
+        {
+          "type": "related_to",
+          "target": "saas"
+        }
+      ]
+    },
+    {
       "id": "onedrive",
       "form": "ONEDRIVE",
       "display": "OneDrive",
@@ -1776,6 +1801,37 @@
         {
           "type": "is_a",
           "target": "app"
+        }
+      ]
+    },
+    {
+      "id": "workload",
+      "form": "WORKLOAD",
+      "display": "Workload",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Application or job and the computing resources it uses.",
+        "fr": "Application ou tâche et les ressources de calcul qu'elle consomme."
+      },
+      "inflections": [
+        {
+          "form": "WORKLOADS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "instance"
+        },
+        {
+          "type": "related_to",
+          "target": "scalability"
         }
       ]
     }
