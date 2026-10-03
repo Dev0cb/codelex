@@ -6,6 +6,6 @@
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["src", "test", "*.ts", "*.js"],
+  "include": ["src", "test", "sim", "*.ts", "*.js"],
   "exclude": ["dist", "coverage", "node_modules"]
 }

@@ -206,7 +206,7 @@ describe('P-BOT-05 budgets', () => {
 describe('P-BOT-06 fallback', () => {
   // No tiny-lexicon word uses a Q, V, W, X, Y or Z: with one blank at most, nothing is playable here.
   const dead = boardWith(spell('QQQQQQQQQQQQQQQ', 0, 7, 'col'));
-  const plain = Object.freeze({ ...TINY, gaddag: undefined });
+  const plain = tinyIndex(false);
 
   it('exchanges the rack minus blanks when no word exists and the bag holds ≥ 7', () => {
     for (const personality of PERSONALITY_IDS) {
@@ -241,19 +241,32 @@ describe('P-BOT-06 fallback', () => {
     });
   });
 
-  it('never resigns, and without a GADDAG always plays the rule-correct fallback (DAWG seam, O-1)', () => {
-    const plain = Object.freeze({ ...REAL, gaddag: undefined });
-    const state = midGame(31, 4);
-    const obs = observeOnTurn(state);
-    for (const personality of PERSONALITY_IDS) {
-      const result = chooseAction(
-        obs,
-        contextFor(plain, personality, botRng(seedOf(31), obs.seatOnTurn, obs.actionCount)),
-      );
-      if (!result.ok) throw new Error(result.error.code);
-      expect(result.value.action.type).toBe(obs.bagCount >= 7 ? 'EXCHANGE' : 'PASS');
-      expect(result.value.nodesUsed).toBe(0);
-      expect(apply(state, result.value.action, { lexicon: REAL }).ok).toBe(true);
+  it('never resigns; without a GADDAG the DAWG fallback decides like the GADDAG path (BOT-8)', () => {
+    const plain = realIndex({ gaddag: false });
+    const kinds = new Set<string>();
+    for (const [seed, actions] of [
+      [31, 4],
+      [32, 6],
+    ] as const) {
+      const state = midGame(seed, actions);
+      const obs = observeOnTurn(state);
+      for (const personality of PERSONALITY_IDS) {
+        const decide = (lexicon: typeof REAL) => {
+          const rng = botRng(seedOf(seed), obs.seatOnTurn, obs.actionCount);
+          const result = chooseAction(obs, contextFor(lexicon, personality, rng));
+          if (!result.ok) throw new Error(result.error.code);
+          return result.value;
+        };
+        const viaDawg = decide(plain);
+        const viaGaddag = decide(REAL);
+        // Node counts differ by automaton (BOT-3); the decision does not (P-BOT-03).
+        expect(viaDawg.action).toEqual(viaGaddag.action);
+        expect(viaDawg.candidatesEvaluated).toBe(viaGaddag.candidatesEvaluated);
+        expect(viaDawg.action.type).not.toBe('RESIGN');
+        expect(apply(state, viaDawg.action, { lexicon: REAL }).ok).toBe(true);
+        kinds.add(viaDawg.action.type);
+      }
     }
+    expect(kinds).toContain('PLACE_WORD');
   });
 });

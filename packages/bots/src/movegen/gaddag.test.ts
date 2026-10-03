@@ -69,11 +69,9 @@ describe('extending a board', () => {
     for (const k of bruteForceKeys(obs, TINY, 3)) expect(generated).toContain(k);
   });
 
-  it('yields nothing without a GADDAG (DAWG seam, O-1)', () => {
-    const obs = craftedObservation(TINY, board, 'SAPICTE');
-    const plain = Object.freeze({ ...TINY, gaddag: undefined });
-    expect(selectGenerator(plain).kind).toBe('none');
-    expect(generateFor(obs, plain)).toEqual({ candidates: [], nodesUsed: 0, exhausted: false });
+  it('selects the GADDAG when the index has one, the DAWG otherwise (BOT-8)', () => {
+    expect(selectGenerator(TINY).kind).toBe('gaddag');
+    expect(selectGenerator(tinyIndex(false)).kind).toBe('dawg');
   });
 });
 

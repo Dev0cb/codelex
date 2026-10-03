@@ -22,7 +22,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run --coverage",
     "test:full": "vitest run --config vitest.full.config.ts",
-    "bench": "vitest bench --run --config vitest.bench.config.ts"
+    "bench": "vitest bench --run --config vitest.bench.config.ts",
+    "simulate": "tsc -p tsconfig.sim.json && node dist/simulator/sim/cli.js"
   },
   "dependencies": {
     "@codelex/config": "workspace:*",

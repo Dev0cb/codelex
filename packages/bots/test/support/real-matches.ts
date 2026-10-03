@@ -27,7 +27,7 @@ import {
 import type { LexiconIndex } from '@codelex/lexicon/index';
 import { chooseAction } from '../../src/index.js';
 import type { BotPersonalityId } from '../../src/index.js';
-import { realIndexWithoutGaddag } from './lexicons.js';
+import { realIndex } from './lexicons.js';
 import { botRng, contextFor, seedOf } from './match.js';
 
 export type Shape = '1v1' | '2v2' | 'ffa3' | 'ffa4';
@@ -50,7 +50,7 @@ const PERSONALITY_IDS: readonly BotPersonalityId[] = ['random-legal', 'beginner'
 
 /** The real lexicon through `createReferenceIndex`, with L5's native GADDAG (asserted by the caller). */
 export function realRankedIndex(): LexiconIndex {
-  return realIndexWithoutGaddag();
+  return realIndex();
 }
 
 export function shapeOf(i: number): Shape {
