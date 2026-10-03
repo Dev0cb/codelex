@@ -1,0 +1,11 @@
+# Dependency audit exceptions
+
+`pnpm audit --audit-level=high` blocks CI (`.github/workflows/ci.yml`, job "Dependency audit"). An advisory may
+be ignored only when **no fix exists** and the vulnerable code is not reachable by untrusted input. Every entry
+needs a justification, an owner, an expiry date (≤ 30 days, renewable after review) and a `security-engineer`
+review (CLAUDE.md §7). Entries live in `pnpm-workspace.yaml` → `auditConfig.ignoreGhsas`; remove them as soon as a
+patched version is published (then upgrade or override). Expired entries are a CI-hygiene defect.
+
+| Advisory | Package / path | Severity | Why it is not exploitable here | Decided | Expires | Review |
+|---|---|---|---|---|---|---|
+| [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) | `braces` 3.0.3 via `eslint-plugin-boundaries` > `micromatch` 4.0.8 | high (stack-exhaustion DoS on deeply nested brace patterns) | Dev dependency only (ESLint at lint time); patterns come from our own ESLint config, never from users or network input; never shipped in an app, service or artefact. No patched version exists (published 2026-10-03). | 2026-10-03, product owner (option "targeted exception") | 2026-11-02 | `security-engineer` pending (agent unavailable until 2026-10-05) |

@@ -12,3 +12,10 @@ ignoredBuiltDependencies:
   - unrs-resolver
 # Fail the install when any other dependency wants to run a build script that is not reviewed.
 strictDepBuilds: true
+
+# Audit exceptions: each one needs a written justification, an expiry date and a security-engineer review
+# (CLAUDE.md §7). Register: docs/security/audit-exceptions.md. Remove an entry as soon as a fix is published.
+auditConfig:
+  ignoreGhsas:
+    # braces <= 3.0.3 (no patched version yet), dev-only via eslint-plugin-boundaries > micromatch. Expires 2026-11-02.
+    - GHSA-vfj7-8cjw-p6xm
