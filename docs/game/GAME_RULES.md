@@ -1,7 +1,7 @@
 # CODELEX — Game Rules
 
 Owner: `game-designer` · Implementation: `packages/game-engine` · Every rule has a stable ID cited by tests.
-Version: **0.3 (2026-10-02, decided by `game-designer` under product-owner delegation, pre-simulation)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
+Version: **0.3.1 (2026-10-03, decided by `game-designer` under product-owner delegation, pre-simulation; still `engineRulesVersion` 1)** — values marked ⚙ are tunable and will be calibrated by `/balance-check`.
 Rule constants that change replay outcomes (layouts, letter table, bag, rack size) are frozen per
 `engineRulesVersion` (ADR-0013, in progress); this document defines **`engineRulesVersion` 1**.
 Testable properties and golden cases for every rule ID: `docs/game/RULE_PROPERTIES.md`.
@@ -197,6 +197,10 @@ placed later as category tags on existing or plain squares in a new layout id (e
   A scoreless turn is a turn that ends with Pass, Exchange or a timeout-Pass (R-MODE-BLITZ-001). Any accepted
   PlaceWord resets the counter, whatever its points. Rejected attempts are not turns and never count (R-TURN-005).
   UsePower does not affect the counter.
+  *(v0.3.1, Q-GD-1)* "nSeats" means the seats still **active** (FFA after R-END-002), evaluated after each
+  turn-ending action. A Resign never ends the match by this rule on its own and does not reset the counter; if the
+  counter already reaches the lowered limit, the match ends at the next scoreless turn (an accepted PlaceWord still
+  resets it).
 - **R-TURN-005** *(new v0.2)* **Rejected attempts (rejection policy).** A rejected action returns a rejection and
   leaves the match state byte-identical (no counter, no clock adjustment inside the engine). In every mode in v0.2,
   including casual vs bot, rejections are unlimited and free: the player keeps the turn and may retry. In timed
@@ -237,7 +241,9 @@ placed later as category tags on existing or plain squares in a new layout id (e
 - **R-SCORE-006** End of match: each player subtracts the value of their remaining rack; if a player went out,
   they add the sum of all other racks. *(v0.2)* Applies to endings by R-END-001 and R-TURN-004 only (on
   R-TURN-004 nobody went out, so nobody adds). Not applied on Resign/forfeit. In 2v2 the team score is adjusted by
-  both teammates' racks. Final scores may be negative. *(v0.3 clarification, no behaviour change)* The rule is
+  both teammates' racks. Final scores may be negative. *(v0.3.1, Q-GD-2)* Racks of seats that resigned or
+  forfeited earlier in an FFA (retired racks, R-END-002) are out of play: the retired seat does not subtract its
+  rack and a player who goes out does not add it. *(v0.3 clarification, no behaviour change)* The rule is
   applied per player and summed per team: in 2v2, the teammate of the player who went out subtracts their own rack
   and the player who went out adds every other rack (teammate included), so the teammate's rack cancels out and the
   team nets `+Σ opponents' racks` while the opposing team nets `−Σ` of the same racks (zero-sum, GC-END-03).
@@ -284,11 +290,22 @@ placed later as category tags on existing or plain squares in a new layout id (e
   ends the match for that seat with a loss regardless of score; R-SCORE-006 is not applied. In 1v1 and 2v2 the
   match ends and the other side wins. In FFA the seat is eliminated, keeps its tiles out of play (they still count
   for R-BAG-004 as "retired rack"), its turns are skipped, and the match continues while ≥ 2 seats remain.
+  *(v0.3.1, Q-GD-3)* Its score is frozen at the moment it leaves. When the match ends, every seat (team) that
+  resigned or forfeited ranks below every seat still active, and all of them **share** that place, whatever their
+  scores and whatever the order in which they left (e.g. 4-seat FFA, two left: places 1, 2, 3, 3). The order of
+  departure is not recorded and never ranks anyone (no incentive to stall, no ordering by network arrival of
+  near-simultaneous out-of-turn resigns). Rated play treats the shared place as a draw between those seats.
 - **R-END-003** *(new v0.2)* **Result and ties.** The match ends by exactly one of: R-END-001, R-TURN-004,
   R-END-002 (or a mode-specific ending, e.g. Arena HP 0). The winner is the highest final score (Arena: HP). Equal
   final scores are a **draw** in casual and rated play (Glicko-2 supports draws). Only where a single winner is
   mandatory (tournament elimination) ⚙: (1) higher best single-turn score, (2) then the seat that did **not** move
   first wins (offsets first-move advantage).
+  *(v0.3.1, Q-GD-4)* With ≥ 3 teams still tied after step (1) (FFA), step (2) generalises as: the team whose
+  earliest seat in turn order from the first seat moves **latest** wins (in 1v1 and 2v2 this is exactly "did not
+  move first"). Only the winner is singled out; the other tied teams share the next place (e.g. 1, 2, 2, 4).
+  Places are counted as in standard competition ranking ("1224") in every case.
+  *(v0.3.1, Q-GD-5)* **Final racks are public** once the match is over (all seats, retired racks included), so
+  every R-SCORE-006 adjustment can be explained on the result screen and in replays.
 
 ## 8. Tech Powers (Arena, casual Classic; disabled in ranked Classic by default ⚙)
 | ID | Power | Effect | Charge |
@@ -307,6 +324,13 @@ Powers are out of scope for Phase 1 (E-1.5). Their open questions (tile conserva
 Container targets, Compile timing) are listed in `docs/game/RULE_PROPERTIES.md` and must be resolved before E-3.2.
 
 ## 9. Changelog
+- 0.3.1 — 2026-10-03 · `game-designer` (decided under product-owner delegation; sprint task G1) · Still
+  `engineRulesVersion` 1: every decision matches what the engine implements, no outcome changes for any log.
+  - Decided API note §16 Q-GD-1..5: R-TURN-004 (limit counts active seats; Resign never triggers it), R-SCORE-006
+    (retired racks neither added nor subtracted), R-END-002 (resigned/forfeited seats share the place below every
+    active seat; departure order is **not** recorded — the earlier "later resignation ranks higher" reading is
+    dropped, so no hashed `resignedAt` field), R-END-003 (FFA tie-break step 2 for ≥ 3 tied teams; final racks
+    public).
 - 0.3 — 2026-10-02 · `game-designer` (decided under product-owner delegation; sprint task D3; pre-simulation,
   E-1.6 validates) · Defines `engineRulesVersion` 1.
   - New normative content: §2.1 Classic layout `classic-v1` (TW 8, DW 13 incl. start, TL 12, DL 28; closes A-02
