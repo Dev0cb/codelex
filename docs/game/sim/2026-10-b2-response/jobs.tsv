@@ -1,0 +1,92 @@
+lex_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real"}
+lex_realsub_50	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realsub:50"}
+lex_realsub_75	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realsub:75"}
+lex_realplus_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realplus:2000"}
+lex_realplus_3000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realplus:3000"}
+lex_synth_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "synth:2000"}
+lex_synth_5000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "synth:5000"}
+lex_enable_20000	{"a": "beginner", "b": "beginner", "matches": 3000, "lex": "enable:20000"}
+lex_enable_60000	{"a": "beginner", "b": "beginner", "matches": 3000, "lex": "enable:60000"}
+rule_K4_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real", "sim": {"limitUnits": 4}}
+rule_K6_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real", "sim": {"limitUnits": 6}}
+rule_K10_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real", "sim": {"limitUnits": 10}}
+rule_XH_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real", "sim": {"limitUnits": 6, "passUnits": 2, "exchangeUnits": 1}}
+rule_X0_real	{"a": "beginner", "b": "beginner", "matches": 2000, "lex": "real", "sim": {"exchangeUnits": 0}, "maxActions": 400}
+rule_K4_realplus_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realplus:2000", "sim": {"limitUnits": 4}}
+rule_K6_realplus_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realplus:2000", "sim": {"limitUnits": 6}}
+rule_K10_realplus_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realplus:2000", "sim": {"limitUnits": 10}}
+rule_XH_realplus_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realplus:2000", "sim": {"limitUnits": 6, "passUnits": 2, "exchangeUnits": 1}}
+rule_X0_realplus_2000	{"a": "beginner", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "sim": {"exchangeUnits": 0}, "maxActions": 400}
+gmirror_real	{"a": "greedy", "b": "greedy", "matches": 10000, "lex": "real"}
+bg1_base_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "pairingIndex": 1}
+bg2_base_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "pairingIndex": 2}
+bg1_mdr2_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "dataA": {"maxDifficultyRank": 2}, "pairingIndex": 1}
+bg2_mdr2_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "dataB": {"maxDifficultyRank": 2}, "pairingIndex": 2}
+bg1_mdr3_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "dataA": {"maxDifficultyRank": 3}, "pairingIndex": 1}
+bg2_mdr3_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "dataB": {"maxDifficultyRank": 3}, "pairingIndex": 2}
+bg1_sharp_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "dataA": {"topWeights": [16, 6, 2, 1]}, "pairingIndex": 1}
+bg2_sharp_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "dataB": {"topWeights": [16, 6, 2, 1]}, "pairingIndex": 2}
+bg1_mdr2sharp_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "dataA": {"maxDifficultyRank": 2, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 1}
+bg2_mdr2sharp_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "dataB": {"maxDifficultyRank": 2, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 2}
+bg1_mdr3sharp_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "dataA": {"maxDifficultyRank": 3, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 1}
+bg2_mdr3sharp_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "dataB": {"maxDifficultyRank": 3, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 2}
+gmirror_realplus_2000	{"a": "greedy", "b": "greedy", "matches": 10000, "lex": "realplus:2000"}
+bg1_base_realplus_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realplus:2000", "pairingIndex": 1}
+bg2_base_realplus_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "pairingIndex": 2}
+bg1_mdr2_realplus_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realplus:2000", "dataA": {"maxDifficultyRank": 2}, "pairingIndex": 1}
+bg2_mdr2_realplus_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "dataB": {"maxDifficultyRank": 2}, "pairingIndex": 2}
+bg1_mdr3_realplus_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realplus:2000", "dataA": {"maxDifficultyRank": 3}, "pairingIndex": 1}
+bg2_mdr3_realplus_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "dataB": {"maxDifficultyRank": 3}, "pairingIndex": 2}
+bg1_sharp_realplus_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realplus:2000", "dataA": {"topWeights": [16, 6, 2, 1]}, "pairingIndex": 1}
+bg2_sharp_realplus_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "dataB": {"topWeights": [16, 6, 2, 1]}, "pairingIndex": 2}
+bg1_mdr2sharp_realplus_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realplus:2000", "dataA": {"maxDifficultyRank": 2, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 1}
+bg2_mdr2sharp_realplus_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "dataB": {"maxDifficultyRank": 2, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 2}
+bg1_mdr3sharp_realplus_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realplus:2000", "dataA": {"maxDifficultyRank": 3, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 1}
+bg2_mdr3sharp_realplus_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realplus:2000", "dataB": {"maxDifficultyRank": 3, "topWeights": [16, 6, 2, 1]}, "pairingIndex": 2}
+tb75_mirror_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}}
+tb75_gmirror_real	{"a": "greedy", "b": "greedy", "matches": 2000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}}
+tb75_bg2_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}, "pairingIndex": 2}
+tb75_bg1_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}, "pairingIndex": 1}
+tb50_mirror_real	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}}
+tb50_gmirror_real	{"a": "greedy", "b": "greedy", "matches": 2000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}}
+tb50_bg2_real	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}, "pairingIndex": 2}
+tb50_bg1_real	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "real", "sim": {"termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}, "pairingIndex": 1}
+lex_realb3_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realb3:2000"}
+lex_realb3_2500	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realb3:2500"}
+rule_K6_realb3_2000	{"a": "beginner", "b": "beginner", "matches": 10000, "lex": "realb3:2000", "sim": {"limitUnits": 6}}
+gmirror_realb3_2000	{"a": "greedy", "b": "greedy", "matches": 10000, "lex": "realb3:2000"}
+gmirror_enable_60000	{"a": "greedy", "b": "greedy", "matches": 2000, "lex": "enable:60000"}
+bg1_base_realb3_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 1}
+bg2_base_realb3_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 2}
+bg1_mdr2_realb3_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 1, "dataA": {"maxDifficultyRank": 2}}
+bg2_mdr2_realb3_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 2, "dataB": {"maxDifficultyRank": 2}}
+bg1_mdr2sharp_realb3_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 1, "dataA": {"maxDifficultyRank": 2, "topWeights": [16, 6, 2, 1]}}
+bg2_mdr2sharp_realb3_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 2, "dataB": {"maxDifficultyRank": 2, "topWeights": [16, 6, 2, 1]}}
+bg1_mdr3sharp_realb3_2000	{"a": "beginner", "b": "random-legal", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 1, "dataA": {"maxDifficultyRank": 3, "topWeights": [16, 6, 2, 1]}}
+bg2_mdr3sharp_realb3_2000	{"a": "greedy", "b": "beginner", "matches": 2000, "lex": "realb3:2000", "pairingIndex": 2, "dataB": {"maxDifficultyRank": 3, "topWeights": [16, 6, 2, 1]}}
+b01_plainstart_mirror_real	{"lex": "real", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"plainStart": true}}
+b01_plainstart_mirror_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"plainStart": true}}
+b01_plainstart_gmirror_real	{"lex": "real", "a": "greedy", "b": "greedy", "matches": 10000, "sim": {"plainStart": true}}
+bg1_sharp_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "random-legal", "pairingIndex": 1, "matches": 2000, "dataA": {"topWeights": [16, 6, 2, 1]}}
+bg2_sharp_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "dataB": {"topWeights": [16, 6, 2, 1]}}
+bg2v_base_real	{"lex": "real", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "dataA": {"maxDifficultyRank": 1}}
+bg2v_sharp_real	{"lex": "real", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "dataA": {"maxDifficultyRank": 1}, "dataB": {"topWeights": [16, 6, 2, 1]}}
+bg2v_base_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "dataA": {"maxDifficultyRank": 1}}
+bg2v_sharp_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "dataA": {"maxDifficultyRank": 1}, "dataB": {"topWeights": [16, 6, 2, 1]}}
+sharp_mirror_vs_base_real	{"lex": "real", "a": "beginner", "b": "beginner", "pairingIndex": 3, "matches": 2000, "dataA": {"topWeights": [16, 6, 2, 1]}}
+tb50_gmirror_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "greedy", "matches": 2000, "sim": {"termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}}
+tb75_gmirror_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "greedy", "matches": 2000, "sim": {"termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}}
+b01_plainstart_gmirror_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "greedy", "matches": 10000, "sim": {"plainStart": true}}
+tbmain_mirror_real	{"lex": "real", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"tbMainOnly": true}}
+tbmain_gmirror_real	{"lex": "real", "a": "greedy", "b": "greedy", "matches": 2000, "sim": {"tbMainOnly": true}}
+tbmain_gmirror_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "greedy", "matches": 2000, "sim": {"tbMainOnly": true}}
+tbmain_bg2_real	{"lex": "real", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "sim": {"tbMainOnly": true}}
+tb50_mirror_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}}
+ps_tb75_mirror_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"plainStart": true, "termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}}
+ps_tb50_mirror_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"plainStart": true, "termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}}
+ps_tb75_gmirror_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "greedy", "matches": 10000, "sim": {"plainStart": true, "termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}}
+ps_tb50_gmirror_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "greedy", "matches": 10000, "sim": {"plainStart": true, "termBonus": {"novice": 0, "intermediate": 2, "advanced": 4, "expert": 8}}}
+tb75_mirror_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "beginner", "matches": 10000, "sim": {"termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}}
+ps_tb75_bg2_realb3_2000	{"lex": "realb3:2000", "a": "greedy", "b": "beginner", "pairingIndex": 2, "matches": 2000, "sim": {"plainStart": true, "termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}, "dataB": {"topWeights": [16, 6, 2, 1]}}
+ps_tb75_bg1_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "random-legal", "pairingIndex": 1, "matches": 2000, "sim": {"plainStart": true, "termBonus": {"novice": 0, "intermediate": 3, "advanced": 6, "expert": 12}}, "dataA": {"topWeights": [16, 6, 2, 1]}}
+ps_bg1_sharp_realb3_2000	{"lex": "realb3:2000", "a": "beginner", "b": "random-legal", "pairingIndex": 1, "matches": 2000, "sim": {"plainStart": true}, "dataA": {"topWeights": [16, 6, 2, 1]}}
