@@ -14,7 +14,7 @@ describe('shipped catalogs', () => {
 
   it('format every key in every locale without reporting an error', () => {
     const onError = vi.fn();
-    const params = { version: 1, letter: 'A', points: 2 };
+    const params = { version: 1, letter: 'A', points: 2, code: 'LEXICON_INDEX_CORRUPT' };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });
       for (const key of Object.keys(CATALOGS.en) as MessageKey[]) {
