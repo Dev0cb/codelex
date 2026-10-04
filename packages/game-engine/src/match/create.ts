@@ -3,10 +3,11 @@
  * Same config ⇒ deep-equal state (P-CORE-001-c).
  */
 import { err, ok, type Result } from '@codelex/config/result';
-import { engineError, lexiconMismatch, rulesVersionError } from '../errors.js';
+import { engineError, lexiconMismatch } from '../errors.js';
 import { isJcsInteger } from '../hash/jcs.js';
 import { deriveRng } from '../rng/index.js';
-import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
+import { getLayout, getLetterTable } from '../rules/constants.js';
+import { resolveRules } from '../rules/registry.js';
 import { chars, EMPTY_SQUARE, initialBag, sortTiles } from '../tiles.js';
 import type {
   BoardRow,
@@ -16,9 +17,9 @@ import type {
   MatchEvent,
   MatchSetup,
   MatchState,
+  RulesSet,
   SeatState,
 } from '../types.js';
-import { ENGINE_RULES_VERSION } from '../version.js';
 
 /** RNG stream names of ADR-0013 §D1. */
 export const BAG_STREAM = 'bag';
@@ -80,9 +81,10 @@ function teamsKey(teams: unknown): string | undefined {
 
 /**
  * Returns the first invalid field of the config (shape and values of API note §6), or undefined. Numbers must be
- * safe integers other than `-0` (JCS subset, ADR-0013 §D3).
+ * safe integers other than `-0` (JCS subset, ADR-0013 §D3). `layout` and `letters` must be in the lists of `set`,
+ * the `RulesSet` of the config's version, already resolved by the caller (ADR-0014 §D2).
  */
-export function configProblem(config: MatchConfig): string | undefined {
+export function configProblem(config: MatchConfig, set: RulesSet): string | undefined {
   if (!isPlainObject(config)) return '';
   const top = keyProblem(config, CONFIG_KEYS);
   if (top !== undefined) return top;
@@ -109,8 +111,10 @@ export function configProblem(config: MatchConfig): string | undefined {
   if (format === 'untimed-vs-bot' && seats !== 2) return 'config.seats';
   const key = teamsKey(setup['teams']);
   if (key === undefined || !(CANONICAL_TEAMS[seats] ?? []).includes(key)) return 'config.teams';
-  if (setup['layout'] !== 'classic-v1') return 'config.layout';
-  if (setup['letters'] !== 'letters-v1') return 'config.letters';
+  if (!(set.layouts as readonly unknown[]).includes(setup['layout'])) return 'config.layout';
+  if (!(set.letterTables as readonly unknown[]).includes(setup['letters'])) {
+    return 'config.letters';
+  }
   const requireWinner = setup['requireWinner'];
   // `-0 === 0`: without the integer check a `-0` would pass and make the state unhashable (ADR-0013 §D3).
   if (!isJcsInteger(requireWinner) || (requireWinner !== 0 && requireWinner !== 1)) {
@@ -133,18 +137,22 @@ function copySetup(setup: MatchSetup): MatchSetup {
 }
 
 /**
- * Creates a match. Checks, in order: `engineRulesVersion` (`RULES_VERSION_UNSUPPORTED`), shape and values of
- * the config (`INVALID_CONFIG`, `details.field`), lexicon identity (`LEXICON_MISMATCH`). Then: first seat from
- * the `first-player` stream (R-CORE-004), bag = `letters-v1` multiset in ascending order shuffled with the `bag`
- * stream, 7 tiles dealt per seat from the head, seat 0 first (R-BAG-005), racks sorted.
+ * Creates a match. Checks, in order: `engineRulesVersion` (`RULES_VERSION_UNSUPPORTED`: not registered, a draft
+ * without `ctx.draft` opt-in, or an unknown candidate; ADR-0014 §D4), shape and values of the config
+ * (`INVALID_CONFIG`, `details.field`; layout and letters per version), lexicon identity (`LEXICON_MISMATCH`).
+ * Then: first seat from the `first-player` stream (R-CORE-004), bag = the letter-table multiset in ascending order
+ * shuffled with the `bag` stream, `rackSize` tiles dealt per seat from the head, seat 0 first (R-BAG-005), racks
+ * sorted.
  */
 export function createMatch(
   config: MatchConfig,
   ctx: EngineContext,
 ): Result<{ readonly state: MatchState; readonly events: readonly MatchEvent[] }, EngineError> {
   const version: unknown = isPlainObject(config) ? config.engineRulesVersion : undefined;
-  if (version !== ENGINE_RULES_VERSION) return err(rulesVersionError(version));
-  const problem = configProblem(config);
+  const resolved = resolveRules(version, ctx.draft);
+  if (!resolved.ok) return resolved;
+  const { set, rules } = resolved.value;
+  const problem = configProblem(config, set);
   if (problem !== undefined) return err(invalid(problem));
   const mismatch = lexiconMismatch(config, ctx);
   if (mismatch !== undefined) return err(mismatch);
@@ -161,8 +169,8 @@ export function createMatch(
   const events: MatchEvent[] = [{ type: 'MATCH_STARTED', firstSeat, bagCount: fullBag.length }];
   const seats: SeatState[] = [];
   for (let seat = 0; seat < setup.seats; seat += 1) {
-    const drawn = bag.slice(0, RULES.rackSize);
-    bag = bag.slice(RULES.rackSize);
+    const drawn = bag.slice(0, rules.rackSize);
+    bag = bag.slice(rules.rackSize);
     const rack = sortTiles(drawn);
     seats.push({ rack, score: 0, chainK: 0, lastMainForm: '', bestTurnScore: 0, status: 'active' });
     events.push({
@@ -179,7 +187,7 @@ export function createMatch(
   const layout = getLayout(setup.layout);
   const emptyRow: BoardRow = EMPTY_SQUARE.repeat(layout.size);
   const state: MatchState = {
-    engineRulesVersion: ENGINE_RULES_VERSION,
+    engineRulesVersion: set.engineRulesVersion,
     seed,
     lexiconVersion: config.lexiconVersion,
     profileId: config.profileId,

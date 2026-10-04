@@ -9,6 +9,11 @@ const lex = loadLexicon();
 const { terms } = lexiconContentDocument(lex);
 const formsOf = (list) =>
   list.filter((t) => t.playable).flatMap((t) => [t.form, ...t.inflections.map((i) => i.form)]);
+// Sizes derive from the real lexicon: a real+synthetic corpus can never be smaller than the real one.
+const realForms = formsOf(terms).length;
+const realCanonical = terms.filter((t) => t.playable).length;
+const sizesOf = (kind) =>
+  kind === 'synthetic' ? [1_600, 2_000] : [realForms + 100, realForms + 500];
 
 test('seededRandom is deterministic and in [0, 1)', () => {
   const a = seededRandom(7);
@@ -28,14 +33,14 @@ test('fitFormModel reads the real rates (plurals, relations) and refuses an empt
   assert.ok(model.relationsPerTerm > 1 && model.relationsPerTerm < 3);
   assert.equal(
     model.lengths.reduce((a, b) => a + b, 0),
-    988,
+    realCanonical,
   );
   assert.throws(() => fitFormModel([]), RangeError);
 });
 
 for (const kind of ['synthetic', 'real+synthetic']) {
   test(`${kind}: exactly N unique, valid, non-blocklisted forms; deterministic per seed`, () => {
-    for (const forms of [1_600, 2_000]) {
+    for (const forms of sizesOf(kind)) {
       const corpus = scaleCorpus({ terms, blocklist: lex.blocklist, kind, forms, seed: 3 });
       const all = formsOf(corpus);
       assert.equal(all.length, forms);
@@ -53,14 +58,14 @@ for (const kind of ['synthetic', 'real+synthetic']) {
       );
     }
     assert.notDeepEqual(
-      scaleCorpus({ terms, kind, forms: 1_600, seed: 1 }),
-      scaleCorpus({ terms, kind, forms: 1_600, seed: 2 }),
+      scaleCorpus({ terms, kind, forms: sizesOf(kind)[0], seed: 1 }),
+      scaleCorpus({ terms, kind, forms: sizesOf(kind)[0], seed: 2 }),
     );
   });
 }
 
 test('real+synthetic keeps every real term and refuses a size below the real lexicon', () => {
-  const corpus = scaleCorpus({ terms, kind: 'real+synthetic', forms: 2_000 });
+  const corpus = scaleCorpus({ terms, kind: 'real+synthetic', forms: realForms + 500 });
   const real = new Set(formsOf(terms));
   const all = new Set(formsOf(corpus));
   for (const f of real) assert.ok(all.has(f), f);

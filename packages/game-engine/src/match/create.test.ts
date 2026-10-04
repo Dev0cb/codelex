@@ -194,10 +194,17 @@ describe('createMatch — failures (API note §13.1, P-CORE-001-a)', () => {
   };
 
   it('RULES_VERSION_UNSUPPORTED comes first', () => {
+    // ADR-0014 §D6 details: { actual, supported: <frozen versions> } (+ status 'draft' for a refused draft).
+    expect(fail({ ...config1v1(), engineRulesVersion: 3 as 1, seed: 'bad' })).toEqual({
+      kind: 'engine',
+      code: 'RULES_VERSION_UNSUPPORTED',
+      message: 'unsupported engineRulesVersion',
+      details: { actual: 3, supported: '1' },
+    });
     expect(fail({ ...config1v1(), engineRulesVersion: 2, seed: 'bad' })).toMatchObject({
       kind: 'engine',
       code: 'RULES_VERSION_UNSUPPORTED',
-      details: { expected: 1, actual: 2 },
+      details: { actual: 2, supported: '1', status: 'draft' },
     });
     expect(fail(null)).toMatchObject({
       code: 'RULES_VERSION_UNSUPPORTED',

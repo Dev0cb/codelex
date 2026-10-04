@@ -1,12 +1,16 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { deriveStreamState } from '../rng/index.js';
+import { rulesFor } from '../rules/registry.js';
 import { countTiles, sortTiles } from '../tiles.js';
 import type { RackTile } from '../types.js';
 import { drawTiles, exchangeTiles, refillRack, type BagRngState } from './bag.js';
 
 const RNG: BagRngState = deriveStreamState('00c0de1e00000001', 'bag');
 const BAG = 'QWERTYUIOPASDFGHJKLZ';
+
+/** ADR-0014 §D1: internal modules take the match's rules; these unit tests run rules version 1. */
+const R1 = rulesFor(1).rules;
 
 describe('draws (R-BAG-003, R-BAG-005 b)', () => {
   it('takes tiles from the head', () => {
@@ -19,13 +23,13 @@ describe('draws (R-BAG-003, R-BAG-005 b)', () => {
   });
 
   it('GC-BAG-01: bag 2, rack of 2 after placing 5 → draws 2, rack 4, bag 0', () => {
-    expect(refillRack('AE', 'XZ')).toEqual({ rack: 'AEXZ', drawn: 'XZ', bag: '' });
+    expect(refillRack('AE', 'XZ', R1)).toEqual({ rack: 'AEXZ', drawn: 'XZ', bag: '' });
   });
 
   it('P-BAG-003-a: refill reaches min(7, rack + bag)', () => {
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 7 }), fc.integer({ min: 0, max: 20 }), (r, b) => {
-        const out = refillRack('A'.repeat(r), BAG.slice(0, b));
+        const out = refillRack('A'.repeat(r), BAG.slice(0, b), R1);
         expect(out.rack).toHaveLength(Math.min(7, r + b));
         expect(out.drawn + out.bag).toBe(BAG.slice(0, b));
       }),
@@ -37,7 +41,7 @@ describe('draws (R-BAG-003, R-BAG-005 b)', () => {
 describe('exchange (R-BAG-005)', () => {
   it('P-BAG-005-d: rejects 0 or > 7 tiles, a bag under 7, then tiles not on the rack', () => {
     const fail = (rack: string, bag: string, tiles: RackTile[]): unknown => {
-      const r = exchangeTiles(rack, bag, RNG, tiles);
+      const r = exchangeTiles(rack, bag, RNG, tiles, R1);
       return r.ok ? undefined : r.error;
     };
     expect(fail('AEINRST', BAG, [])).toMatchObject({
@@ -60,7 +64,7 @@ describe('exchange (R-BAG-005)', () => {
   });
 
   it('accepts a bag of exactly 7', () => {
-    expect(exchangeTiles('AEINRST', 'BCDFGHJ', RNG, ['A']).ok).toBe(true);
+    expect(exchangeTiles('AEINRST', 'BCDFGHJ', RNG, ['A'], R1).ok).toBe(true);
   });
 
   it('P-BAG-005-c/e: same rack size, same bag size, returned tiles not redrawn, deterministic', () => {
@@ -72,7 +76,7 @@ describe('exchange (R-BAG-005)', () => {
           const rack = 'AEINRS?';
           const tiles = positions.map((i) => rack.charAt(i) as RackTile);
           const bag = BAG.slice(0, bagSize);
-          const r = exchangeTiles(sortTiles(rack), bag, RNG, tiles);
+          const r = exchangeTiles(sortTiles(rack), bag, RNG, tiles, R1);
           if (!r.ok) throw new Error('expected ok');
           const out = r.value;
           expect(out.rack).toHaveLength(7);
@@ -82,7 +86,7 @@ describe('exchange (R-BAG-005)', () => {
           // Conservation: rack + bag before = rack + bag after (as multisets).
           expect(countTiles(out.rack + out.bag)).toEqual(countTiles(rack + bag));
           expect(out.rng).not.toEqual(RNG);
-          expect(exchangeTiles(sortTiles(rack), bag, RNG, tiles)).toEqual(r);
+          expect(exchangeTiles(sortTiles(rack), bag, RNG, tiles, R1)).toEqual(r);
         },
       ),
       { seed: 11, numRuns: 200 },
@@ -92,7 +96,7 @@ describe('exchange (R-BAG-005)', () => {
   it('does not modify its inputs', () => {
     const rng = Object.freeze([...RNG]) as unknown as BagRngState;
     const tiles = Object.freeze(['A']) as readonly RackTile[];
-    expect(() => exchangeTiles('AEINRST', BAG, rng, tiles)).not.toThrow();
+    expect(() => exchangeTiles('AEINRST', BAG, rng, tiles, R1)).not.toThrow();
     expect(rng).toEqual(RNG);
   });
 });

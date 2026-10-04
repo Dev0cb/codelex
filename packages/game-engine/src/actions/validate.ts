@@ -5,15 +5,10 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { exchangeTiles, type Exchanged } from '../bag/bag.js';
-import {
-  assertNever,
-  lexiconMismatch,
-  matchOver,
-  notYourTurn,
-  rulesVersionError,
-} from '../errors.js';
+import { assertNever, lexiconMismatch, matchOver, notYourTurn } from '../errors.js';
 import { checkPlacement, type CheckedPlacement } from '../placement/check.js';
 import { getLayout } from '../rules/constants.js';
+import { resolveSetup } from '../rules/registry.js';
 import type {
   ApplyFailure,
   EngineContext,
@@ -22,11 +17,14 @@ import type {
   PassAction,
   PlaceWordAction,
   ResignAction,
+  Rules,
 } from '../types.js';
-import { ENGINE_RULES_VERSION } from '../version.js';
 import { parseAction } from './parse.js';
 
-export type ValidatedAction =
+/** A validated action, with the match's rules resolved once for `apply` (ADR-0014 §D1). */
+export type ValidatedAction = ValidatedKind & { readonly rules: Rules };
+
+type ValidatedKind =
   | {
       readonly type: 'PLACE_WORD';
       readonly action: PlaceWordAction;
@@ -38,7 +36,8 @@ export type ValidatedAction =
 
 /**
  * Checks `input` against `state` in the order of API note §8.3:
- * 1. `RULES_VERSION_UNSUPPORTED`, `LEXICON_MISMATCH`; 2. `match_over`; 3. `malformed`; 4. `not_your_turn`
+ * 1. `RULES_VERSION_UNSUPPORTED` (unregistered version, draft without `ctx.draft`, unknown candidate),
+ *    `INVALID_CONFIG` (layout or letters outside the version's lists), `LEXICON_MISMATCH`; 2. `match_over`; 3. `malformed`; 4. `not_your_turn`
  * (skipped for RESIGN from an active seat; a resigned seat gets it with `seatInactive: true` for every action);
  * 5. PLACE_WORD placement/rack/lexicon checks, EXCHANGE exchange/rack checks.
  */
@@ -47,10 +46,10 @@ export function validateAction(
   input: unknown,
   ctx: EngineContext,
 ): Result<ValidatedAction, ApplyFailure> {
-  // Typed as 1, but a hand-built or future state may carry another version (ADR-0013 §D6).
-  if ((state.engineRulesVersion as number) !== ENGINE_RULES_VERSION) {
-    return err(rulesVersionError(state.engineRulesVersion));
-  }
+  // Typed, but a hand-built or future state may carry another version, or tables outside it (ADR-0014 §D2).
+  const resolved = resolveSetup(state.engineRulesVersion, state.config, ctx.draft);
+  if (!resolved.ok) return resolved;
+  const { rules } = resolved.value;
   const mismatch = lexiconMismatch(state, ctx);
   if (mismatch !== undefined) return err(mismatch);
   if (state.status === 'finished') return err(matchOver());
@@ -63,15 +62,17 @@ export function validateAction(
   if (seat === undefined || seat.status !== 'active') {
     return err(notYourTurn(state.seatOnTurn, true));
   }
-  if (action.type === 'RESIGN') return ok({ type: 'RESIGN', action });
+  if (action.type === 'RESIGN') return ok({ type: 'RESIGN', action, rules });
   if (action.seat !== state.seatOnTurn) return err(notYourTurn(state.seatOnTurn, false));
 
   switch (action.type) {
     case 'PASS':
-      return ok({ type: 'PASS', action });
+      return ok({ type: 'PASS', action, rules });
     case 'EXCHANGE': {
-      const exchange = exchangeTiles(seat.rack, state.bag, state.rng.bag, action.tiles);
-      return exchange.ok ? ok({ type: 'EXCHANGE', action, exchange: exchange.value }) : exchange;
+      const exchange = exchangeTiles(seat.rack, state.bag, state.rng.bag, action.tiles, rules);
+      return exchange.ok
+        ? ok({ type: 'EXCHANGE', action, exchange: exchange.value, rules })
+        : exchange;
     }
     case 'PLACE_WORD': {
       const placement = checkPlacement(
@@ -80,11 +81,12 @@ export function validateAction(
           layout: getLayout(state.config.layout),
           rack: seat.rack,
           tiles: action.tiles,
+          rules,
         },
         ctx.lexicon,
       );
       return placement.ok
-        ? ok({ type: 'PLACE_WORD', action, placement: placement.value })
+        ? ok({ type: 'PLACE_WORD', action, placement: placement.value, rules })
         : placement;
     }
     default:

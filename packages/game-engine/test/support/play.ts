@@ -18,6 +18,9 @@ import type {
   Action,
   BoardTile,
   EngineContext,
+  EngineRulesVersion,
+  LayoutId,
+  LetterTableId,
   MatchConfig,
   MatchState,
   MoveEvaluation,
@@ -205,7 +208,27 @@ export function simLexicon(): LexiconIndex {
 export const SIM_CTX: EngineContext = { lexicon: simLexicon() };
 const ALL_FORMS = [...FORMS, ...Object.values(PLURALS)];
 
-export function simConfig(seed: string, seats = 2): MatchConfig {
+/**
+ * A rules variant the harness plays (ADR-0014): the context (draft opt-in and candidate included) and the header
+ * values. `V1` is the default everywhere, so every v1 caller is unchanged; draft variants live in `variants.ts`.
+ */
+export interface Variant {
+  readonly id: string;
+  readonly ctx: EngineContext;
+  readonly engineRulesVersion: EngineRulesVersion;
+  readonly layout: LayoutId;
+  readonly letters: LetterTableId;
+}
+
+export const V1: Variant = {
+  id: 'v1',
+  ctx: SIM_CTX,
+  engineRulesVersion: 1,
+  layout: 'classic-v1',
+  letters: 'letters-v1',
+};
+
+export function simConfig(seed: string, seats = 2, variant: Variant = V1): MatchConfig {
   const teams =
     seats === 2
       ? [[0], [1]]
@@ -217,7 +240,7 @@ export function simConfig(seed: string, seats = 2): MatchConfig {
         : Array.from({ length: seats }, (_, i) => [i]);
   return {
     seed: seed as SeedHex,
-    engineRulesVersion: 1,
+    engineRulesVersion: variant.engineRulesVersion,
     lexiconVersion: SIM_VERSION,
     profileId: 'global-ranked',
     definitionHash: SIM_HASH,
@@ -226,8 +249,8 @@ export function simConfig(seed: string, seats = 2): MatchConfig {
       format: seats === 2 ? 'untimed-vs-bot' : 'untimed',
       seats,
       teams,
-      layout: 'classic-v1',
-      letters: 'letters-v1',
+      layout: variant.layout,
+      letters: variant.letters,
       requireWinner: seed.endsWith('1') ? 1 : 0,
     },
   };
@@ -239,7 +262,12 @@ export function harnessRng(seed: string): Rng {
 }
 
 /** Up to `limit` legal PLACE_WORD evaluations for the seat on turn, found in an RNG-chosen anchor order. */
-export function legalMoves(state: MatchState, rng: Rng, limit: number): MoveEvaluation[] {
+export function legalMoves(
+  state: MatchState,
+  rng: Rng,
+  limit: number,
+  ctx: EngineContext = SIM_CTX,
+): MoveEvaluation[] {
   const seat = state.seatOnTurn;
   const observation = observe(state, seat);
   const board = state.board;
@@ -266,7 +294,7 @@ export function legalMoves(state: MatchState, rng: Rng, limit: number): MoveEval
           const key = JSON.stringify(tiles);
           if (seen.has(key)) continue;
           seen.add(key);
-          const r = evaluateMove(observation, { seat, type: 'PLACE_WORD', tiles }, SIM_CTX);
+          const r = evaluateMove(observation, { seat, type: 'PLACE_WORD', tiles }, ctx);
           if (r.ok) {
             found.push(r.value);
             if (found.length >= limit) return found;
@@ -313,14 +341,14 @@ function buildPlacement(
 }
 
 /** The next action of a random-legal player (sometimes resigns, exchanges or passes). */
-export function chooseAction(state: MatchState, rng: Rng): Action {
+export function chooseAction(state: MatchState, rng: Rng, ctx: EngineContext = SIM_CTX): Action {
   const seat = state.seatOnTurn;
   const roll = rng.int(0, 1000);
   if (roll < 3) return { seat, type: 'RESIGN' };
   if (roll < 985) {
-    const moves = legalMoves(state, rng, 2);
+    const moves = legalMoves(state, rng, 2, ctx);
     if (moves.length > 0) return (moves[rng.int(0, moves.length)] as MoveEvaluation).action;
-    const single = singleTileMove(state, rng);
+    const single = singleTileMove(state, rng, ctx);
     if (single !== undefined) return single.action;
   }
   const rack = state.seats[seat]?.rack ?? '';
@@ -336,7 +364,11 @@ export function chooseAction(state: MatchState, rng: Rng): Action {
 }
 
 /** Fallback: one rack tile on an empty square next to the board (first legal one in an RNG order). */
-function singleTileMove(state: MatchState, rng: Rng): MoveEvaluation | undefined {
+function singleTileMove(
+  state: MatchState,
+  rng: Rng,
+  ctx: EngineContext,
+): MoveEvaluation | undefined {
   const seat = state.seatOnTurn;
   const observation = observe(state, seat);
   const board = state.board;
@@ -360,7 +392,7 @@ function singleTileMove(state: MatchState, rng: Rng): MoveEvaluation | undefined
       const r = evaluateMove(
         observation,
         { seat, type: 'PLACE_WORD', tiles: [{ row, col, tile: placed }] },
-        SIM_CTX,
+        ctx,
       );
       if (r.ok) return r.value;
     }
@@ -384,16 +416,22 @@ export interface Played {
  * G-STATE (RULE_PROPERTIES §4): up to `steps` accepted random-legal actions from the initial state of `seed`.
  * Stops early when the match ends. Every state is reachable through `apply`.
  */
-export function playSteps(seed: string, seats: number, steps: number): Played {
-  const config = simConfig(seed, seats);
-  const created = createMatch(config, SIM_CTX);
+export function playSteps(
+  seed: string,
+  seats: number,
+  steps: number,
+  variant: Variant = V1,
+): Played {
+  const { ctx } = variant;
+  const config = simConfig(seed, seats, variant);
+  const created = createMatch(config, ctx);
   if (!created.ok) throw new Error(created.error.code);
   const rng = harnessRng(seed);
   const states: MatchState[] = [created.value.state];
   const actions: Action[] = [];
   let state = created.value.state;
   while (actions.length < steps && state.status === 'in_progress') {
-    const r = apply(state, chooseAction(state, rng), SIM_CTX);
+    const r = apply(state, chooseAction(state, rng, ctx), ctx);
     if (!r.ok) throw new Error(`${seed}: legal action rejected: ${JSON.stringify(r.error)}`);
     state = r.value.state;
     states.push(state);

@@ -8,7 +8,7 @@ import { validateAction } from '../actions/validate.js';
 import { assertNever } from '../errors.js';
 import { refillRack } from '../bag/bag.js';
 import { placeTiles } from '../placement/check.js';
-import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
+import { getLayout, getLetterTable } from '../rules/constants.js';
 import { finishMatch } from '../scoring/end.js';
 import { scorePlacement } from '../scoring/score.js';
 import { sortTiles } from '../tiles.js';
@@ -19,6 +19,7 @@ import type {
   MatchEnd,
   MatchEvent,
   MatchState,
+  Rules,
   Seat,
   SeatState,
 } from '../types.js';
@@ -66,9 +67,9 @@ function finish(
 }
 
 /** After a turn-ending action: end on R-TURN-004 (3 × active seats) or pass the turn. */
-function endTurn(next: MatchState, events: MatchEvent[]): MatchState {
+function endTurn(next: MatchState, events: MatchEvent[], rules: Rules): MatchState {
   const active = next.seats.filter(isActive).length;
-  if (next.scorelessTurns >= RULES.scorelessTurnsPerSeat * active) {
+  if (next.scorelessTurns >= rules.scorelessTurnsPerSeat * active) {
     return finish(next, next.seats, { reason: 'scoreless_turns' }, events);
   }
   const seatOnTurn = nextActiveSeat(next.seats, next.seatOnTurn);
@@ -85,6 +86,7 @@ export function apply(
   const validated = validateAction(state, input, ctx);
   if (!validated.ok) return validated;
   const v = validated.value;
+  const { rules } = v;
   const mover = v.action.seat;
   const seat = state.seats[mover] as SeatState;
   const events: MatchEvent[] = [];
@@ -98,8 +100,9 @@ export function apply(
         getLetterTable(state.config.letters),
         seat,
         ctx.lexicon,
+        rules,
       );
-      const refill = refillRack(v.placement.rackAfter, state.bag);
+      const refill = refillRack(v.placement.rackAfter, state.bag, rules);
       const main = v.placement.words[0];
       const updated: SeatState = {
         ...seat,
@@ -143,7 +146,7 @@ export function apply(
           action: v.action,
         });
       }
-      return ok({ state: endTurn(next, events), events, action: v.action });
+      return ok({ state: endTurn(next, events, rules), events, action: v.action });
     }
     case 'EXCHANGE': {
       const x = v.exchange;
@@ -169,13 +172,13 @@ export function apply(
         turnNumber: state.turnNumber + 1,
         scorelessTurns: state.scorelessTurns + 1,
       };
-      return ok({ state: endTurn(next, events), events, action: v.action });
+      return ok({ state: endTurn(next, events, rules), events, action: v.action });
     }
     case 'PASS': {
       const scorelessTurns = state.scorelessTurns + 1;
       events.push({ type: 'PASSED', seat: mover, scorelessTurns });
       const next: MatchState = { ...base, turnNumber: state.turnNumber + 1, scorelessTurns };
-      return ok({ state: endTurn(next, events), events, action: v.action });
+      return ok({ state: endTurn(next, events, rules), events, action: v.action });
     }
     case 'RESIGN': {
       const seats = withSeat(state.seats, mover, { ...seat, status: 'resigned' });

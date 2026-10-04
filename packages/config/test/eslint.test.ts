@@ -51,6 +51,10 @@ beforeAll(() => {
       dir: 'packages/lexicon',
       exports: { '.': './src/index.ts', './index': './src/index.ts' },
     },
+    'game-engine': {
+      dir: 'packages/game-engine',
+      exports: { '.': './src/clean.ts', './draft': './src/draft.ts' },
+    },
     config: {
       dir: 'packages/config',
       exports: { './result': './src/result/index.ts', './eslint': './src/eslint/index.ts' },
@@ -152,6 +156,11 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       'services/svc-a/src/clean-game-engine.ts',
       'apps/web/src/clean.ts',
       'apps/web/src/clean-game-engine.ts',
+      'apps/web/src/clean-game-engine-root.ts',
+      'packages/other/src/clean-draft-import.ts',
+      'packages/game-engine/src/rules/registry.ts',
+      'packages/game-engine/src/clean-version-lookup.ts',
+      'packages/game-engine/src/clean-version-compare.test.ts',
     ])('%s has no problems', async (file) => {
       expect(await ruleIds(file)).toEqual([]);
     });
@@ -366,6 +375,78 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
         `${B}bad-performance-now-timeorigin.ts`,
         GLOBALS,
         "'performance'",
+      ],
+    ])('%s FAILS', async (_name, file, rule, text) => {
+      const messages = await messagesIn(mode, file);
+      expect(
+        messages.some((m) => m.ruleId === rule && m.message.includes(text)),
+        JSON.stringify(messages),
+      ).toBe(true);
+    });
+  });
+
+  describe('ADR-0014 rules versions (engine) and draft entry (apps, services)', () => {
+    const E = 'packages/game-engine/src/';
+    it.each([
+      [
+        'x.engineRulesVersion === 1',
+        `${E}bad-version-literal.ts`,
+        'no-restricted-syntax',
+        'ADR-0014',
+      ],
+      [
+        '2 !== x.engineRulesVersion',
+        `${E}bad-version-literal-left.ts`,
+        'no-restricted-syntax',
+        'ADR-0014',
+      ],
+      [
+        '(x.engineRulesVersion as number) >= 2',
+        `${E}bad-version-cast.ts`,
+        'no-restricted-syntax',
+        'ADR-0014',
+      ],
+      [
+        "x['engineRulesVersion'] !== 2",
+        `${E}bad-version-computed.ts`,
+        'no-restricted-syntax',
+        'ADR-0014',
+      ],
+      [
+        'x.engineRulesVersion !== ENGINE_RULES_VERSION',
+        `${E}bad-version-legacy.ts`,
+        'no-restricted-syntax',
+        'ADR-0014',
+      ],
+      [
+        'switch (x.engineRulesVersion)',
+        `${E}bad-version-switch.ts`,
+        'no-restricted-syntax',
+        'ADR-0014',
+      ],
+      [
+        'shipped bans still apply next to the version ban',
+        `${E}bad-version-and-fraction.ts`,
+        'no-restricted-syntax',
+        'Fractional',
+      ],
+      [
+        'draft entry imported by an app',
+        'apps/web/src/bad-draft-import.ts',
+        'no-restricted-imports',
+        'ADR-0014 §D4',
+      ],
+      [
+        'draft entry re-exported by an app',
+        'apps/web/src/bad-draft-reexport.ts',
+        'no-restricted-imports',
+        'ADR-0014 §D4',
+      ],
+      [
+        'draft entry imported by a service',
+        'services/svc-a/src/bad-draft-import.ts',
+        'no-restricted-imports',
+        'ADR-0014 §D4',
       ],
     ])('%s FAILS', async (_name, file, rule, text) => {
       const messages = await messagesIn(mode, file);

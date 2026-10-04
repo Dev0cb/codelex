@@ -32,6 +32,37 @@
       ]
     },
     {
+      "id": "archive",
+      "form": "ARCHIVE",
+      "display": "Archive",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A long-term copy of files kept for safekeeping, or a single file that bundles many files together.",
+        "fr": "Copie de fichiers conservée à long terme, ou fichier unique qui regroupe de nombreux fichiers."
+      },
+      "inflections": [
+        {
+          "form": "ARCHIVES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        },
+        {
+          "type": "related_to",
+          "target": "cloud-storage"
+        }
+      ]
+    },
+    {
       "id": "autoscaling",
       "form": "AUTOSCALING",
       "display": "Autoscaling",
@@ -195,6 +226,57 @@
       ]
     },
     {
+      "id": "baas",
+      "form": "BAAS",
+      "display": "BaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Backend as a service: a cloud offer giving apps ready-made storage, login and APIs so developers write less server code.",
+        "fr": "Backend as a service : offre cloud qui fournit stockage, connexion et API prêts à l'emploi pour écrire moins de code serveur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backend"
+        },
+        {
+          "type": "related_to",
+          "target": "paas"
+        }
+      ]
+    },
+    {
+      "id": "backoff",
+      "form": "BACKOFF",
+      "display": "Backoff",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Waiting longer and longer between retries after errors, so an overloaded service gets time to recover.",
+        "fr": "Attente de plus en plus longue entre deux tentatives après des erreurs, pour laisser un service surchargé récupérer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "throttling"
+        },
+        {
+          "type": "related_to",
+          "target": "rate-limiting"
+        }
+      ]
+    },
+    {
       "id": "backup",
       "form": "BACKUP",
       "display": "Backup",
@@ -242,6 +324,41 @@
       ]
     },
     {
+      "id": "bastion",
+      "form": "BASTION",
+      "display": "Bastion host",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A hardened server that is the single entry point for administrators into a private network.",
+        "fr": "Serveur durci servant de point d'entrée unique aux administrateurs vers un réseau privé."
+      },
+      "inflections": [
+        {
+          "form": "BASTIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ssh"
+        },
+        {
+          "type": "related_to",
+          "target": "vpc"
+        },
+        {
+          "type": "related_to",
+          "target": "hardening"
+        }
+      ]
+    },
+    {
       "id": "bigquery",
       "form": "BIGQUERY",
       "display": "BigQuery",
@@ -276,6 +393,31 @@
       ]
     },
     {
+      "id": "billing",
+      "form": "BILLING",
+      "display": "Billing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "How a cloud or online service measures your use and charges you for it.",
+        "fr": "Manière dont un service cloud ou en ligne mesure l'utilisation et la facture."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "metering"
+        },
+        {
+          "type": "related_to",
+          "target": "subscription"
+        }
+      ]
+    },
+    {
       "id": "blob",
       "form": "BLOB",
       "display": "Blob",
@@ -304,6 +446,58 @@
       ]
     },
     {
+      "id": "blueprint",
+      "form": "BLUEPRINT",
+      "display": "Blueprint",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A reusable reference design that describes how to build a system or cloud environment.",
+        "fr": "Modèle de référence réutilisable qui décrit comment construire un système ou un environnement cloud."
+      },
+      "inflections": [
+        {
+          "form": "BLUEPRINTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "template"
+        }
+      ]
+    },
+    {
+      "id": "brownfield",
+      "form": "BROWNFIELD",
+      "display": "Brownfield",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A project that must build on or alongside existing systems and their constraints.",
+        "fr": "Projet qui doit s'appuyer sur des systèmes existants, ou cohabiter avec eux et leurs contraintes."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "greenfield"
+        },
+        {
+          "type": "related_to",
+          "target": "migration"
+        }
+      ]
+    },
+    {
       "id": "bucket",
       "form": "BUCKET",
       "display": "Bucket",
@@ -328,6 +522,37 @@
         {
           "type": "part_of",
           "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "burst",
+      "form": "BURST",
+      "display": "Burst",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A short spike of traffic or CPU use above the normal level, which some cloud instances can absorb for a while.",
+        "fr": "Pic bref de trafic ou d'usage processeur au-dessus du niveau normal, que certaines instances cloud absorbent un temps."
+      },
+      "inflections": [
+        {
+          "form": "BURSTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "autoscaling"
+        },
+        {
+          "type": "related_to",
+          "target": "instance"
         }
       ]
     },
@@ -481,6 +706,37 @@
       ]
     },
     {
+      "id": "cloud-resource",
+      "form": "RESOURCE",
+      "display": "Resource",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Anything you create and pay for in a cloud account, such as a server, database, bucket or network.",
+        "fr": "Tout ce qu'on crée et paie dans un compte cloud, comme un serveur, une base de données, un bucket ou un réseau."
+      },
+      "inflections": [
+        {
+          "form": "RESOURCES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "cloud"
+        },
+        {
+          "type": "related_to",
+          "target": "quota"
+        }
+      ]
+    },
+    {
       "id": "cloud-storage",
       "form": "CLOUDSTORAGE",
       "display": "Cloud storage",
@@ -557,6 +813,31 @@
       ]
     },
     {
+      "id": "cold-storage",
+      "form": "COLDSTORAGE",
+      "display": "Cold storage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Cheap storage for data that is rarely read, such as old backups, where retrieval may take minutes or hours.",
+        "fr": "Stockage bon marché pour des données rarement lues, comme de vieilles sauvegardes, avec une récupération parfois lente."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud-storage"
+        },
+        {
+          "type": "related_to",
+          "target": "archive"
+        }
+      ]
+    },
+    {
       "id": "colocation",
       "form": "COLOCATION",
       "display": "Colocation",
@@ -578,6 +859,102 @@
         {
           "type": "related_to",
           "target": "server"
+        }
+      ]
+    },
+    {
+      "id": "control-plane",
+      "form": "CONTROLPLANE",
+      "display": "Control plane",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The part of a system that makes decisions and holds configuration, as opposed to the part that moves the traffic.",
+        "fr": "Partie d'un système qui prend les décisions et porte la configuration, par opposition à celle qui fait passer le trafic."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kubernetes"
+        },
+        {
+          "type": "related_to",
+          "target": "routing"
+        }
+      ]
+    },
+    {
+      "id": "daas",
+      "form": "DAAS",
+      "display": "DaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Desktop as a service: a cloud offer that rents ready-to-use virtual desktops, billed per user.",
+        "fr": "Desktop as a service : offre cloud qui loue des postes de travail virtuels prêts à l'emploi, facturés par utilisateur."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "saas"
+        },
+        {
+          "type": "related_to",
+          "target": "vdi"
+        }
+      ]
+    },
+    {
+      "id": "data-plane",
+      "form": "DATAPLANE",
+      "display": "Data plane",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The part of a system that actually forwards packets or requests, following rules set by the control plane.",
+        "fr": "Partie d'un système qui achemine réellement paquets ou requêtes, selon les règles fixées par le plan de contrôle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "control-plane"
+        },
+        {
+          "type": "related_to",
+          "target": "packet"
+        }
+      ]
+    },
+    {
+      "id": "data-residency",
+      "form": "DATARESIDENCY",
+      "display": "Data residency",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A requirement that data be stored and processed within a given country or region.",
+        "fr": "Exigence que les données soient stockées et traitées dans un pays ou une région donnés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "region"
         }
       ]
     },
@@ -606,6 +983,31 @@
         {
           "type": "part_of",
           "target": "region"
+        }
+      ]
+    },
+    {
+      "id": "dbaas",
+      "form": "DBAAS",
+      "display": "DBaaS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Database as a service: a managed database rented from a cloud provider, which handles setup, backups and updates.",
+        "fr": "Database as a service : base de données gérée louée à un fournisseur cloud, qui assure installation, sauvegardes et mises à jour."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "managed-service"
+        },
+        {
+          "type": "related_to",
+          "target": "database"
         }
       ]
     },
@@ -660,6 +1062,38 @@
       ],
       "sources": [
         "https://docs.digitalocean.com/"
+      ]
+    },
+    {
+      "id": "disaster-recovery",
+      "form": "DR",
+      "display": "DR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "DR: disaster recovery, the plans and copies that let a service restart elsewhere after a major outage or data loss.",
+        "fr": "DR (disaster recovery) : reprise après sinistre, plans et copies qui permettent de relancer un service ailleurs après une panne majeure."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        },
+        {
+          "type": "related_to",
+          "target": "failover"
+        },
+        {
+          "type": "related_to",
+          "target": "outage"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/disaster_recovery_plan"
       ]
     },
     {
@@ -902,6 +1336,31 @@
       ]
     },
     {
+      "id": "ephemeral-storage",
+      "form": "EPHEMERAL",
+      "display": "Ephemeral",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes storage or containers that disappear when their instance stops, so nothing on them is kept.",
+        "fr": "Qualifie un stockage ou un conteneur qui disparaît à l'arrêt de son instance : rien n'y est conservé."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "stateless"
+        },
+        {
+          "type": "related_to",
+          "target": "container"
+        }
+      ]
+    },
+    {
       "id": "faas",
       "form": "FAAS",
       "display": "FaaS",
@@ -923,6 +1382,31 @@
         {
           "type": "related_to",
           "target": "paas"
+        }
+      ]
+    },
+    {
+      "id": "failback",
+      "form": "FAILBACK",
+      "display": "Failback",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Returning work to the original system once it is repaired, after a failover moved it elsewhere.",
+        "fr": "Retour de la charge vers le système d'origine une fois réparé, après une bascule ailleurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "failover"
+        },
+        {
+          "type": "part_of",
+          "target": "disaster-recovery"
         }
       ]
     },
@@ -1004,6 +1488,31 @@
       ]
     },
     {
+      "id": "fog-computing",
+      "form": "FOG",
+      "display": "Fog computing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Fog computing: processing data on local devices and gateways between sensors and the cloud, to cut delay.",
+        "fr": "Fog computing : traitement des données sur des équipements locaux entre capteurs et cloud, pour réduire le délai."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "edge-computing"
+        },
+        {
+          "type": "related_to",
+          "target": "iot"
+        }
+      ]
+    },
+    {
       "id": "free-tier",
       "form": "FREETIER",
       "display": "Free tier",
@@ -1021,6 +1530,31 @@
         {
           "type": "related_to",
           "target": "quota"
+        },
+        {
+          "type": "related_to",
+          "target": "subscription"
+        }
+      ]
+    },
+    {
+      "id": "freemium",
+      "form": "FREEMIUM",
+      "display": "Freemium",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A model where a basic service is free and extra features or capacity are paid.",
+        "fr": "Modèle où un service de base est gratuit et où les fonctions ou capacités supplémentaires sont payantes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "free-tier"
         },
         {
           "type": "related_to",
@@ -1058,6 +1592,35 @@
       ]
     },
     {
+      "id": "general-availability",
+      "form": "GA",
+      "display": "GA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "GA: general availability, the release stage where a product or cloud feature is open to all customers and fully supported.",
+        "fr": "GA (general availability) : disponibilité générale, étape où un produit ou un service cloud est ouvert à tous et pleinement supporté."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "sla"
+        }
+      ],
+      "sources": [
+        "https://cloud.google.com/products/product-launch-stages"
+      ]
+    },
+    {
       "id": "gke",
       "form": "GKE",
       "display": "Google Kubernetes Engine",
@@ -1092,6 +1655,52 @@
       ]
     },
     {
+      "id": "golden-image",
+      "form": "GOLDENIMAGE",
+      "display": "Golden image",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A tested, pre-configured machine image used as the standard starting point for new servers.",
+        "fr": "Image machine testée et préconfigurée, utilisée comme point de départ standard pour de nouveaux serveurs."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "image"
+        },
+        {
+          "type": "related_to",
+          "target": "virtual-machine"
+        }
+      ]
+    },
+    {
+      "id": "greenfield",
+      "form": "GREENFIELD",
+      "display": "Greenfield",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A project built from scratch, with no existing systems to keep compatible with.",
+        "fr": "Projet construit de zéro, sans système existant avec lequel rester compatible."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "migration"
+        }
+      ]
+    },
+    {
       "id": "heroku",
       "form": "HEROKU",
       "display": "Heroku",
@@ -1117,6 +1726,38 @@
       ]
     },
     {
+      "id": "high-availability",
+      "form": "HA",
+      "display": "HA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "HA: high availability, designing a service so it keeps running through failures, usually with redundant parts.",
+        "fr": "HA (high availability) : haute disponibilité, conception d'un service qui continue de tourner malgré les pannes, grâce à la redondance."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "redundancy"
+        },
+        {
+          "type": "related_to",
+          "target": "failover"
+        },
+        {
+          "type": "related_to",
+          "target": "uptime"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+      ]
+    },
+    {
       "id": "hosting",
       "form": "HOSTING",
       "display": "Hosting",
@@ -1138,6 +1779,31 @@
         {
           "type": "related_to",
           "target": "website"
+        }
+      ]
+    },
+    {
+      "id": "hpc",
+      "form": "HPC",
+      "display": "HPC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "High-performance computing: running very large calculations on many processors working together, as in supercomputers.",
+        "fr": "Calcul haute performance : exécution de très gros calculs sur de nombreux processeurs travaillant ensemble, comme les supercalculateurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "supercomputer"
+        },
+        {
+          "type": "uses",
+          "target": "cluster"
         }
       ]
     },
@@ -1215,6 +1881,36 @@
         {
           "type": "is_a",
           "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "iac",
+      "form": "IAC",
+      "display": "IaC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud",
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Infrastructure as code: describing servers, networks and cloud resources in versioned files that tools apply automatically.",
+        "fr": "Infrastructure as code : décrire serveurs, réseaux et ressources cloud dans des fichiers versionnés que des outils appliquent."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "terraform"
+        },
+        {
+          "type": "related_to",
+          "target": "provisioning"
+        },
+        {
+          "type": "related_to",
+          "target": "version-control"
         }
       ]
     },
@@ -1348,6 +2044,103 @@
       ]
     },
     {
+      "id": "interconnect",
+      "form": "INTERCONNECT",
+      "display": "Interconnect",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A private, dedicated network link between a company site and a cloud provider or between data centres.",
+        "fr": "Lien réseau privé et dédié entre le site d'une entreprise et un fournisseur cloud, ou entre centres de données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "datacenter"
+        },
+        {
+          "type": "related_to",
+          "target": "peering"
+        }
+      ]
+    },
+    {
+      "id": "iops",
+      "form": "IOPS",
+      "display": "IOPS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Input/output operations per second: a measure of how many reads and writes a disk or storage volume can handle.",
+        "fr": "Input/output operations per second : mesure du nombre de lectures et d'écritures qu'un disque ou un volume peut traiter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "volume"
+        },
+        {
+          "type": "related_to",
+          "target": "ssd"
+        }
+      ]
+    },
+    {
+      "id": "landing-zone",
+      "form": "LANDINGZONE",
+      "display": "Landing zone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A ready-made cloud setup with accounts, network and security rules, prepared before teams move workloads in.",
+        "fr": "Environnement cloud préconfiguré, avec comptes, réseau et règles de sécurité, prêt avant l'arrivée des charges."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "iac"
+        },
+        {
+          "type": "related_to",
+          "target": "iam"
+        }
+      ]
+    },
+    {
+      "id": "lift-and-shift",
+      "form": "LIFTANDSHIFT",
+      "display": "Lift and shift",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Moving an application to the cloud largely unchanged, rather than redesigning it for cloud services.",
+        "fr": "Migration d'une application vers le cloud quasiment sans modification, plutôt que de la repenser pour le cloud."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "migration"
+        }
+      ]
+    },
+    {
       "id": "managed-service",
       "form": "MANAGEDSERVICE",
       "display": "Managed service",
@@ -1422,6 +2215,62 @@
         {
           "type": "related_to",
           "target": "cloud"
+        }
+      ]
+    },
+    {
+      "id": "msp",
+      "form": "MSP",
+      "display": "MSP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Managed service provider: a company that runs and monitors IT systems or cloud accounts on behalf of its clients.",
+        "fr": "Managed service provider : entreprise qui exploite et surveille les systèmes ou comptes cloud de ses clients."
+      },
+      "inflections": [
+        {
+          "form": "MSPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "managed-service"
+        },
+        {
+          "type": "related_to",
+          "target": "cloud-provider"
+        }
+      ]
+    },
+    {
+      "id": "multi-region",
+      "form": "MULTIREGION",
+      "display": "Multi-region",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Running a service in several cloud regions at once so it survives the loss of a whole region.",
+        "fr": "Faire tourner un service dans plusieurs régions cloud à la fois pour qu'il survive à la perte d'une région entière."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "region"
+        },
+        {
+          "type": "related_to",
+          "target": "high-availability"
         }
       ]
     },
@@ -1533,6 +2382,31 @@
       ]
     },
     {
+      "id": "on-demand",
+      "form": "ONDEMAND",
+      "display": "On-demand",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Available whenever requested and paid per use, like on-demand cloud servers or streamed videos.",
+        "fr": "Disponible à tout moment sur demande et payé à l'usage, comme les serveurs cloud ou les vidéos en streaming."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "payg"
+        },
+        {
+          "type": "related_to",
+          "target": "streaming"
+        }
+      ]
+    },
+    {
       "id": "on-premises",
       "form": "ONPREMISES",
       "display": "On-premises",
@@ -1609,6 +2483,37 @@
       ]
     },
     {
+      "id": "origin-server",
+      "form": "ORIGIN",
+      "display": "Origin",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The server holding the original content that a CDN copies and caches; on the web, also the site a page comes from.",
+        "fr": "Serveur qui détient le contenu original qu'un CDN copie en cache ; sur le web, aussi le site d'où vient une page."
+      },
+      "inflections": [
+        {
+          "form": "ORIGINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cdn"
+        },
+        {
+          "type": "related_to",
+          "target": "cors"
+        }
+      ]
+    },
+    {
       "id": "outage",
       "form": "OUTAGE",
       "display": "Outage",
@@ -1658,6 +2563,144 @@
       ]
     },
     {
+      "id": "paxos",
+      "form": "PAXOS",
+      "display": "Paxos",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Paxos: a classic family of consensus algorithms for agreeing on a value among unreliable machines.",
+        "fr": "Paxos : famille classique d'algorithmes de consensus pour s'accorder sur une valeur entre machines peu fiables."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "alternative_to",
+          "target": "raft"
+        }
+      ],
+      "sources": [
+        "https://lamport.azurewebsites.net/pubs/paxos-simple.pdf"
+      ]
+    },
+    {
+      "id": "payg",
+      "form": "PAYG",
+      "display": "PAYG",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Pay as you go: a billing model where you pay only for the computing resources you actually use.",
+        "fr": "Pay as you go : modèle de facturation où l'on ne paie que les ressources informatiques réellement utilisées."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "metering"
+        },
+        {
+          "type": "related_to",
+          "target": "billing"
+        }
+      ]
+    },
+    {
+      "id": "peering",
+      "form": "PEERING",
+      "display": "Peering",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A direct link between two networks, such as two cloud VPCs or two ISPs, so traffic flows without a middleman.",
+        "fr": "Lien direct entre deux réseaux, comme deux VPC ou deux FAI, pour que le trafic passe sans intermédiaire."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vpc"
+        },
+        {
+          "type": "related_to",
+          "target": "isp"
+        }
+      ]
+    },
+    {
+      "id": "pool",
+      "form": "POOL",
+      "display": "Pool",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A set of ready resources, such as connections, threads or servers, shared and reused instead of created each time.",
+        "fr": "Ensemble de ressources prêtes, comme connexions, threads ou serveurs, partagées et réutilisées au lieu d'être recréées."
+      },
+      "inflections": [
+        {
+          "form": "POOLS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "thread"
+        },
+        {
+          "type": "related_to",
+          "target": "cluster"
+        }
+      ]
+    },
+    {
+      "id": "portal",
+      "form": "PORTAL",
+      "display": "Portal",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A website that gathers services in one place, such as a cloud console or a company intranet home.",
+        "fr": "Site web qui rassemble des services en un seul endroit, comme une console cloud ou l'accueil d'un intranet."
+      },
+      "inflections": [
+        {
+          "form": "PORTALS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "website"
+        }
+      ]
+    },
+    {
       "id": "private-cloud",
       "form": "PRIVATECLOUD",
       "display": "Private cloud",
@@ -1679,6 +2722,37 @@
         {
           "type": "alternative_to",
           "target": "public-cloud"
+        }
+      ]
+    },
+    {
+      "id": "probe",
+      "form": "PROBE",
+      "display": "Probe",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A regular automatic check, such as a health or readiness probe, that tells a platform whether a service works.",
+        "fr": "Vérification automatique régulière, comme une sonde de santé, qui indique à une plateforme si un service fonctionne."
+      },
+      "inflections": [
+        {
+          "form": "PROBES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "healthcheck"
+        },
+        {
+          "type": "related_to",
+          "target": "monitoring"
         }
       ]
     },
@@ -1726,6 +2800,64 @@
       ]
     },
     {
+      "id": "pubsub",
+      "form": "PUBSUB",
+      "display": "Pub/sub",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Publish-subscribe: a messaging pattern where senders post to topics and every subscriber of a topic gets a copy.",
+        "fr": "Publication-abonnement : modèle de messagerie où les émetteurs publient sur des sujets reçus par chaque abonné."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "topic"
+        },
+        {
+          "type": "related_to",
+          "target": "broker"
+        }
+      ]
+    },
+    {
+      "id": "quorum",
+      "form": "QUORUM",
+      "display": "Quorum",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The minimum number of nodes in a cluster that must agree before a decision or write counts.",
+        "fr": "Nombre minimal de nœuds d'un cluster qui doivent être d'accord pour qu'une décision ou une écriture compte."
+      },
+      "inflections": [
+        {
+          "form": "QUORUMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cluster"
+        },
+        {
+          "type": "related_to",
+          "target": "replication"
+        }
+      ]
+    },
+    {
       "id": "quota",
       "form": "QUOTA",
       "display": "Quota",
@@ -1744,6 +2876,35 @@
           "form": "QUOTAS",
           "kind": "plural"
         }
+      ]
+    },
+    {
+      "id": "raft",
+      "form": "RAFT",
+      "display": "Raft",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud",
+        "systems"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Raft: a consensus algorithm that lets a cluster elect a leader and keep one agreed log of changes.",
+        "fr": "Raft : algorithme de consensus qui permet à un cluster d'élire un leader et de tenir un journal commun."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "uses",
+          "target": "quorum"
+        }
+      ],
+      "sources": [
+        "https://raft.github.io/"
       ]
     },
     {
@@ -1855,6 +3016,122 @@
       ]
     },
     {
+      "id": "restore",
+      "form": "RESTORE",
+      "display": "Restore",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Bringing back files, a database or a whole system from a backup copy.",
+        "fr": "Récupération de fichiers, d'une base de données ou d'un système entier à partir d'une sauvegarde."
+      },
+      "inflections": [
+        {
+          "form": "RESTORED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "RESTORES",
+          "kind": "verb_s"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        },
+        {
+          "type": "related_to",
+          "target": "snapshot"
+        }
+      ]
+    },
+    {
+      "id": "rightsizing",
+      "form": "RIGHTSIZING",
+      "display": "Rightsizing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Matching the size of cloud instances to real usage so you stop paying for idle capacity.",
+        "fr": "Ajuster la taille des instances cloud à l'usage réel pour cesser de payer de la capacité inutilisée."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "finops"
+        },
+        {
+          "type": "related_to",
+          "target": "instance"
+        }
+      ]
+    },
+    {
+      "id": "rpo",
+      "form": "RPO",
+      "display": "RPO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Recovery point objective: how much recent data, measured in time, a service can afford to lose after an incident.",
+        "fr": "Recovery point objective : quantité de données récentes, exprimée en temps, qu'un service peut se permettre de perdre après un incident."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "disaster-recovery"
+        },
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/recovery_point_objective"
+      ]
+    },
+    {
+      "id": "rto",
+      "form": "RTO",
+      "display": "RTO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Recovery time objective: the longest time a service may stay down after an incident before the impact is unacceptable.",
+        "fr": "Recovery time objective : durée maximale d'interruption d'un service après un incident avant que l'impact devienne inacceptable."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "disaster-recovery"
+        },
+        {
+          "type": "related_to",
+          "target": "downtime"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/recovery_time_objective"
+      ]
+    },
+    {
       "id": "saas",
       "form": "SAAS",
       "display": "SaaS",
@@ -1876,6 +3153,37 @@
       ]
     },
     {
+      "id": "saga",
+      "form": "SAGA",
+      "display": "Saga",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A pattern that splits a long business transaction across services into steps, each with an undo step if a later one fails.",
+        "fr": "Modèle qui découpe une longue transaction entre services en étapes, chacune avec son annulation si une suite échoue."
+      },
+      "inflections": [
+        {
+          "form": "SAGAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "microservice"
+        },
+        {
+          "type": "related_to",
+          "target": "transaction"
+        }
+      ]
+    },
+    {
       "id": "san",
       "form": "SAN",
       "display": "SAN",
@@ -1889,6 +3197,12 @@
         "en": "Storage area network: dedicated network giving servers access to shared block storage.",
         "fr": "Storage area network : réseau dédié qui donne aux serveurs l'accès à un stockage en blocs partagé."
       },
+      "inflections": [
+        {
+          "form": "SANS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "alternative_to",
@@ -1943,6 +3257,31 @@
         {
           "type": "related_to",
           "target": "scalability"
+        }
+      ]
+    },
+    {
+      "id": "self-healing",
+      "form": "SELFHEALING",
+      "display": "Self-healing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes a system that detects failed parts and replaces or restarts them on its own.",
+        "fr": "Qualifie un système qui détecte ses éléments en panne et les remplace ou les redémarre seul."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kubernetes"
+        },
+        {
+          "type": "related_to",
+          "target": "healthcheck"
         }
       ]
     },
@@ -2103,6 +3442,56 @@
         {
           "type": "related_to",
           "target": "backup"
+        }
+      ]
+    },
+    {
+      "id": "soa",
+      "form": "SOA",
+      "display": "SOA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Service-oriented architecture: building software as a set of networked services with defined interfaces.",
+        "fr": "Service-oriented architecture : conception d'un logiciel comme ensemble de services en réseau aux interfaces définies."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "microservice"
+        },
+        {
+          "type": "related_to",
+          "target": "api"
+        }
+      ]
+    },
+    {
+      "id": "sovereign-cloud",
+      "form": "SOVEREIGNCLOUD",
+      "display": "Sovereign cloud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A cloud offer that keeps data and operations under the laws and control of one country or region.",
+        "fr": "Offre cloud qui maintient données et exploitation sous les lois et le contrôle d'un pays ou d'une région."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cloud-computing"
+        },
+        {
+          "type": "related_to",
+          "target": "data-residency"
         }
       ]
     },
@@ -2281,6 +3670,54 @@
       ]
     },
     {
+      "id": "tco",
+      "form": "TCO",
+      "display": "TCO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Total cost of ownership: the full cost of a system over its life, including running, staff and maintenance, not just purchase.",
+        "fr": "Total cost of ownership : coût complet d'un système sur sa durée de vie, exploitation et maintenance comprises, pas seulement l'achat."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "finops"
+        }
+      ]
+    },
+    {
+      "id": "template",
+      "form": "TEMPLATE",
+      "display": "Template",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A file or pattern with blanks filled in later, used to create documents, pages or cloud resources the same way.",
+        "fr": "Fichier ou modèle à compléter, utilisé pour créer documents, pages ou ressources cloud de façon identique."
+      },
+      "inflections": [
+        {
+          "form": "TEMPLATES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "iac"
+        }
+      ]
+    },
+    {
       "id": "tenant",
       "form": "TENANT",
       "display": "Tenant",
@@ -2330,6 +3767,37 @@
         {
           "type": "related_to",
           "target": "api"
+        }
+      ]
+    },
+    {
+      "id": "tier",
+      "form": "TIER",
+      "display": "Tier",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A level of service or storage class, such as hot or archive, each with its own price and performance.",
+        "fr": "Niveau de service ou classe de stockage, comme chaud ou archive, chacun avec son prix et ses performances."
+      },
+      "inflections": [
+        {
+          "form": "TIERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "object-storage"
+        },
+        {
+          "type": "related_to",
+          "target": "free-tier"
         }
       ]
     },
@@ -2392,6 +3860,62 @@
         {
           "type": "related_to",
           "target": "sla"
+        }
+      ]
+    },
+    {
+      "id": "vcpu",
+      "form": "VCPU",
+      "display": "vCPU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Virtual CPU: a share of a physical processor assigned to a virtual machine or cloud instance.",
+        "fr": "CPU virtuel : part d'un processeur physique attribuée à une machine virtuelle ou à une instance cloud."
+      },
+      "inflections": [
+        {
+          "form": "VCPUS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        },
+        {
+          "type": "part_of",
+          "target": "instance"
+        }
+      ]
+    },
+    {
+      "id": "vdi",
+      "form": "VDI",
+      "display": "VDI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Virtual desktop infrastructure: desktops that run as virtual machines in a data centre and are shown on the user's device.",
+        "fr": "Virtual desktop infrastructure : postes de travail exécutés comme machines virtuelles en centre de données et affichés sur l'appareil."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "virtual-machine"
+        },
+        {
+          "type": "related_to",
+          "target": "desktop"
         }
       ]
     },
@@ -2587,6 +4111,37 @@
         {
           "type": "is_a",
           "target": "app"
+        }
+      ]
+    },
+    {
+      "id": "worker",
+      "form": "WORKER",
+      "display": "Worker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cloud"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A process or machine that takes jobs from a queue and runs them in the background.",
+        "fr": "Processus ou machine qui prend des tâches dans une file et les exécute en arrière-plan."
+      },
+      "inflections": [
+        {
+          "form": "WORKERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "queue"
+        },
+        {
+          "type": "related_to",
+          "target": "job"
         }
       ]
     },

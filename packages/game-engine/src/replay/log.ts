@@ -1,22 +1,25 @@
 /**
  * Action log and replay (ADR-0013 §D2, API note §14.2). A log is the match header (`MatchConfig`) plus the
- * accepted actions in canonical form; replaying it from the header reproduces every state bit for bit.
+ * accepted actions in canonical form; replaying it from the header reproduces every state bit for bit. The rules
+ * version comes from `header.engineRulesVersion` (ADR-0014 §D3): logs of every registered version share this code.
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { parseAction } from '../actions/parse.js';
 import { canonicalJson } from '../hash/jcs.js';
 import { apply } from '../match/apply.js';
 import { configProblem, createMatch, isPlainObject } from '../match/create.js';
+import { resolveRules, type RulesVersionError } from '../rules/registry.js';
 import { stateHash } from '../state/state.js';
 import type {
   Action,
+  DraftContext,
   EngineContext,
   MatchConfig,
   MatchState,
   Rejection,
+  RulesVersionDetails,
   StateHash,
 } from '../types.js';
-import { ENGINE_RULES_VERSION } from '../version.js';
 
 /** Action-log envelope version this build writes (ADR-0013 §D2). */
 export const LOG_VERSION = 1;
@@ -39,11 +42,12 @@ export type ReplayError =
       readonly message: string;
       readonly details: { readonly logVersion: number };
     }
+  /** Same details as the engine error (ADR-0014 §D6; API note §20 Q3 item 1). */
   | {
       readonly kind: 'replay';
       readonly code: 'RULES_VERSION_UNSUPPORTED';
       readonly message: string;
-      readonly details: { readonly engineRulesVersion: number };
+      readonly details: RulesVersionDetails;
     }
   | {
       readonly kind: 'replay';
@@ -51,7 +55,11 @@ export type ReplayError =
       readonly message: string;
       readonly details: { readonly expected: string; readonly actual: string };
     }
-  /** Schema violation, unknown key, non-canonical action, INVALID_CONFIG header, length mismatches. */
+  /**
+   * Schema violation, unknown key, non-canonical action, INVALID_CONFIG header, length mismatches; `from` that no
+   * checkpoint of the log can verify (`from.actionCount` out of range, or no `stateHashes`) or that cannot be
+   * hashed (a value outside the JCS subset: path `from`).
+   */
   | {
       readonly kind: 'replay';
       readonly code: 'MALFORMED_LOG';
@@ -64,13 +72,16 @@ export type ReplayError =
       readonly message: string;
       readonly details: { readonly index: number; readonly rejection: Rejection };
     }
-  /** index = action index; 'final' when the final checkpoint differs. */
+  /**
+   * index = action index; 'final' when the final checkpoint differs; 'from' when the `from` snapshot differs from
+   * the log's checkpoint at `from.actionCount` (a tampered or foreign snapshot, API note §20 Q7).
+   */
   | {
       readonly kind: 'replay';
       readonly code: 'HASH_MISMATCH';
       readonly message: string;
       readonly details: {
-        readonly index: number | 'final';
+        readonly index: number | 'final' | 'from';
         readonly expected: StateHash;
         readonly actual: StateHash;
       };
@@ -79,8 +90,36 @@ export type ReplayError =
 export interface ReplayOutcome {
   readonly state: MatchState;
   readonly finalHash: StateHash;
-  /** Present iff options.recordHashes: hash after each action (to write stateHashes into a log). */
+  /**
+   * Present iff options.recordHashes: hash after each action (to write stateHashes into a log). With `from`, the
+   * hashes before `from.actionCount − 1` are copied from the log WITHOUT being recomputed; only the checkpoint at
+   * `from.actionCount − 1` is checked (against the snapshot), and every hash from there on is recomputed.
+   */
   readonly stateHashes?: readonly StateHash[];
+}
+
+/** Options of `replay` (API note §14.2, §20 Q7). */
+export interface ReplayOptions {
+  /** Return the hash after each action in `stateHashes`. */
+  readonly recordHashes?: boolean;
+  /**
+   * Resume from a snapshot (a state from `parseState`) instead of the initial state. It is used only if
+   * `stateHash(from)` equals the log's checkpoint at `from.actionCount` (`stateHashes[from.actionCount − 1]`,
+   * or the initial state's hash for 0); otherwise `HASH_MISMATCH` with `index: 'from'`. Then only the tail
+   * `actions[from.actionCount…]` is applied.
+   */
+  readonly from?: MatchState;
+  /**
+   * Which stored checkpoints are verified: 'all' (default) every `stateHashes[i]` that is applied; 'final' only
+   * the last action's stored hash, plus `final` (the fast resume path; on a mismatch, replay again with 'all' to
+   * locate the first divergent index).
+   */
+  readonly verify?: 'all' | 'final';
+}
+
+/** Options of `parseActionLog`. `draft` opts in to a draft rules version (ADR-0014 §D4). */
+export interface ParseLogOptions {
+  readonly draft?: DraftContext;
 }
 
 const HEX16 = /^[0-9a-f]{16}$/;
@@ -107,11 +146,23 @@ export function serializeActionLog(log: ActionLog): string {
   return canonicalJson(log);
 }
 
+/** The replay form of an engine `RULES_VERSION_UNSUPPORTED`: same message and details. */
+const replayVersionError = (e: RulesVersionError): ReplayError => ({
+  kind: 'replay',
+  code: 'RULES_VERSION_UNSUPPORTED',
+  message: e.message,
+  details: e.details,
+});
+
 /**
- * Parses a log. Order: JSON → `logVersion` → `header.engineRulesVersion` → strict schema (unknown keys rejected)
- * → canonical form of every action → `stateHashes.length === actions.length` → `final.actionCount`.
+ * Parses a log. Order: JSON → `logVersion` → `header.engineRulesVersion` (registered; a draft needs
+ * `options.draft`, ADR-0014 §D4) → strict schema (unknown keys rejected; layout and letters per version) →
+ * canonical form of every action → `stateHashes.length === actions.length` → `final.actionCount`.
  */
-export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
+export function parseActionLog(
+  text: string,
+  options?: ParseLogOptions,
+): Result<ActionLog, ReplayError> {
   let doc: unknown;
   try {
     doc = JSON.parse(text);
@@ -129,20 +180,14 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
   }
   const header = doc['header'];
   const version = isPlainObject(header) ? header['engineRulesVersion'] : undefined;
-  if (version !== ENGINE_RULES_VERSION) {
-    return err({
-      kind: 'replay',
-      code: 'RULES_VERSION_UNSUPPORTED',
-      message: 'unsupported engineRulesVersion',
-      details: { engineRulesVersion: versionOrMinusOne(version) },
-    });
-  }
+  const resolved = resolveRules(version, options?.draft);
+  if (!resolved.ok) return err(replayVersionError(resolved.error));
   // First unknown key in code-unit order, not in document order (deterministic reporting).
   const extra = Object.keys(doc)
     .sort(byCodeUnit)
     .find((k) => !LOG_KEYS.includes(k));
   if (extra !== undefined) return err(malformedLog(extra));
-  const headerProblem = configProblem(header as MatchConfig);
+  const headerProblem = configProblem(header as MatchConfig, resolved.value.set);
   if (headerProblem !== undefined) {
     return err(malformedLog(headerProblem === '' ? 'header' : `header.${headerProblem}`));
   }
@@ -201,7 +246,7 @@ function sameJson(a: unknown, b: unknown): boolean {
 }
 
 function hashMismatch(
-  index: number | 'final',
+  index: number | 'final' | 'from',
   expected: StateHash,
   actual: StateHash,
 ): ReplayError {
@@ -214,14 +259,19 @@ function hashMismatch(
 }
 
 /**
- * `createMatch(header)`, then `apply` per action, verifying each `stateHashes[i]` (first divergence wins) and
- * `final.stateHash`. The lexicon is checked once, before the first action.
+ * `createMatch(header)`, then `apply` per action, verifying the stored checkpoints (first divergence wins) and
+ * `final.stateHash`. The rules version (draft opt-in and candidate from `ctx.draft`) and the lexicon are checked
+ * once, before the first action. With `options.from`, the snapshot is verified against the log's checkpoint and
+ * only the tail is applied (API note §20 Q7): resuming from any verified snapshot reaches the same final state and
+ * hash as a full replay.
  */
 export function replay(
   log: ActionLog,
   ctx: EngineContext,
-  options?: { readonly recordHashes?: boolean },
+  options?: ReplayOptions,
 ): Result<ReplayOutcome, ReplayError> {
+  const resolved = resolveRules(log.header.engineRulesVersion, ctx.draft);
+  if (!resolved.ok) return err(replayVersionError(resolved.error));
   const created = createMatch(log.header, ctx);
   if (!created.ok) {
     const e = created.error;
@@ -236,21 +286,39 @@ export function replay(
         },
       });
     }
-    if (e.code === 'RULES_VERSION_UNSUPPORTED') {
-      return err({
-        kind: 'replay',
-        code: 'RULES_VERSION_UNSUPPORTED',
-        message: e.message,
-        details: { engineRulesVersion: versionOrMinusOne(log.header.engineRulesVersion) },
-      });
-    }
     return err(malformedLog(`header.${String(e.details?.['field'] ?? '')}`));
   }
   const record = options?.recordHashes === true;
-  const verify = log.stateHashes;
+  const stored = log.stateHashes;
+  const verifyAll = options?.verify !== 'final';
+  const last = log.actions.length - 1;
   const hashes: StateHash[] = [];
   let state = created.value.state;
-  for (let i = 0; i < log.actions.length; i += 1) {
+  let start = 0;
+
+  const from = options?.from;
+  if (from !== undefined) {
+    const k = from.actionCount;
+    if (!Number.isSafeInteger(k) || k < 0 || k > log.actions.length) {
+      return err(malformedLog('from.actionCount'));
+    }
+    const expected = k === 0 ? stateHash(state) : stored?.[k - 1];
+    if (expected === undefined) return err(malformedLog('stateHashes'));
+    // A hand-built snapshot may hold values outside the JCS subset (NaN, -0, booleans): never throw.
+    let actual: StateHash;
+    try {
+      actual = stateHash(from);
+    } catch {
+      return err(malformedLog('from'));
+    }
+    if (actual !== expected) return err(hashMismatch('from', expected, actual));
+    if (record) hashes.push(...(stored ?? []).slice(0, k));
+    state = from;
+    start = k;
+  }
+
+  let finalHash: StateHash | undefined;
+  for (let i = start; i <= last; i += 1) {
     const action = log.actions[i] as Action;
     const applied = apply(state, action, ctx);
     if (!applied.ok) {
@@ -266,17 +334,18 @@ export function replay(
       return err(malformedLog(`actions[${String(i)}]`));
     }
     state = applied.value.state;
-    if (record || verify !== undefined) {
+    const expected = verifyAll || i === last ? stored?.[i] : undefined;
+    if (record || expected !== undefined) {
       const actual = stateHash(state);
-      const expected = verify?.[i];
       if (expected !== undefined && expected !== actual)
         return err(hashMismatch(i, expected, actual));
       hashes.push(actual);
+      if (i === last) finalHash = actual;
     }
   }
   // A final checkpoint exists only once the match is over (ADR-0013 §D2; review R1 n5).
   if (log.final !== undefined && state.status !== 'finished') return err(malformedLog('final'));
-  const finalHash = stateHash(state);
+  finalHash ??= stateHash(state);
   if (log.final !== undefined && log.final.stateHash !== finalHash) {
     return err(hashMismatch('final', log.final.stateHash, finalHash));
   }

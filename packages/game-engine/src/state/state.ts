@@ -4,21 +4,23 @@
  * every field and invariant (shapes, ranges, sorted racks, tile conservation, `result` iff finished).
  */
 import { err, ok, type Result } from '@codelex/config/result';
-import { engineError, rulesVersionError } from '../errors.js';
+import { engineError } from '../errors.js';
 import { canonicalJson, hash16, isJcsInteger } from '../hash/jcs.js';
 import { configProblem, isPlainObject, keyProblem } from '../match/create.js';
-import { getLayout, getLetterTable, RULES } from '../rules/constants.js';
+import { getLayout, getLetterTable } from '../rules/constants.js';
+import { resolveRules, type ResolvedRules } from '../rules/registry.js';
 import { finishMatch } from '../scoring/end.js';
 import { countTiles, initialBag, isBlankOnBoard, sortTiles } from '../tiles.js';
 import type {
+  DraftContext,
   EngineError,
   MatchConfig,
   MatchResult,
   MatchState,
+  Rules,
   SeatState,
   StateHash,
 } from '../types.js';
-import { ENGINE_RULES_VERSION } from '../version.js';
 
 /** The JCS text of the state: the hashed bytes. Throws on a value outside the ADR-0013 subset. */
 export function serializeState(state: MatchState): string {
@@ -66,7 +68,7 @@ const isU32 = (x: unknown): boolean => isCount(x) && x < TWO_POW_32;
 const intArray = (x: unknown, length: number): boolean =>
   Array.isArray(x) && x.length === length && (x as unknown[]).every(isInt);
 
-function seatProblem(value: unknown, index: number): string | undefined {
+function seatProblem(value: unknown, index: number, rules: Rules): string | undefined {
   const path = `seats[${String(index)}]`;
   if (!isPlainObject(value)) return path;
   const key = keyProblem(value, SEAT_KEYS);
@@ -75,14 +77,14 @@ function seatProblem(value: unknown, index: number): string | undefined {
   if (
     typeof rack !== 'string' ||
     !RACK.test(rack) ||
-    rack.length > RULES.rackSize ||
+    rack.length > rules.rackSize ||
     sortTiles(rack) !== rack
   ) {
     return `${path}.rack`;
   }
   if (!isInt(value['score'])) return `${path}.score`;
   const chainK = value['chainK'];
-  if (!isCount(chainK) || chainK > RULES.chainCap) return `${path}.chainK`;
+  if (!isCount(chainK) || chainK > rules.chainCap) return `${path}.chainK`;
   const form = value['lastMainForm'];
   if (typeof form !== 'string' || (form !== '' && !FORM.test(form))) return `${path}.lastMainForm`;
   // R-SCORE-005: a chain extends a previous main word, so k > 0 needs one.
@@ -119,8 +121,11 @@ function resultProblem(value: unknown, seats: number, teams: number): string | u
   return undefined;
 }
 
-/** First invalid field of a parsed state document, or undefined. */
-function stateProblem(doc: Readonly<Record<string, unknown>>): string | undefined {
+/** First invalid field of a parsed state document of the resolved version, or undefined. */
+function stateProblem(
+  doc: Readonly<Record<string, unknown>>,
+  { set, rules }: ResolvedRules,
+): string | undefined {
   // First unknown key in code-unit order, not in document order (deterministic reporting).
   const extra = Object.keys(doc)
     .sort(byCodeUnit)
@@ -129,14 +134,17 @@ function stateProblem(doc: Readonly<Record<string, unknown>>): string | undefine
   const missing = STATE_KEYS.find((k) => !Object.hasOwn(doc, k));
   if (missing !== undefined) return missing;
 
-  const config = configProblem({
-    seed: doc['seed'],
-    engineRulesVersion: doc['engineRulesVersion'],
-    lexiconVersion: doc['lexiconVersion'],
-    profileId: doc['profileId'],
-    definitionHash: doc['definitionHash'],
-    config: doc['config'],
-  } as unknown as MatchConfig);
+  const config = configProblem(
+    {
+      seed: doc['seed'],
+      engineRulesVersion: doc['engineRulesVersion'],
+      lexiconVersion: doc['lexiconVersion'],
+      profileId: doc['profileId'],
+      definitionHash: doc['definitionHash'],
+      config: doc['config'],
+    } as unknown as MatchConfig,
+    set,
+  );
   if (config !== undefined) return config;
   const setup = doc['config'] as MatchConfig['config'];
   const seatCount = setup.seats;
@@ -179,7 +187,7 @@ function stateProblem(doc: Readonly<Record<string, unknown>>): string | undefine
   const seats = doc['seats'];
   if (!Array.isArray(seats) || seats.length !== seatCount) return 'seats';
   for (let i = 0; i < seatCount; i += 1) {
-    const problem = seatProblem((seats as unknown[])[i], i);
+    const problem = seatProblem((seats as unknown[])[i], i, rules);
     if (problem !== undefined) return problem;
   }
 
@@ -201,7 +209,7 @@ function stateProblem(doc: Readonly<Record<string, unknown>>): string | undefine
   const shape = resultProblem(doc['result'], seatCount, setup.teams.length);
   if (shape !== undefined) return shape;
   const state = doc as unknown as MatchState;
-  return finishedProblem(state, doc['result'] as MatchResult);
+  return finishedProblem(state, doc['result'] as MatchResult, rules);
 }
 
 const isActive = (seat: SeatState | undefined): boolean => seat?.status === 'active';
@@ -222,7 +230,7 @@ function progressProblem(state: MatchState): string | undefined {
  * the result must be exactly what `finishMatch` computes from the seats (R-SCORE-006, R-END-003). Racks, statuses
  * and best turns are final; scores before the end adjustments are `score − adjustment`.
  */
-function finishedProblem(state: MatchState, result: MatchResult): string | undefined {
+function finishedProblem(state: MatchState, result: MatchResult, rules: Rules): string | undefined {
   const { end } = result;
   const activeTeams = activeTeamCount(state);
   if (end.reason === 'resign') {
@@ -234,7 +242,7 @@ function finishedProblem(state: MatchState, result: MatchResult): string | undef
     if (!isActive(seat) || seat?.rack !== '' || state.bag !== '') return 'result.end';
   } else {
     const activeSeats = state.seats.filter(isActive).length;
-    if (state.scorelessTurns < RULES.scorelessTurnsPerSeat * activeSeats) return 'result.end';
+    if (state.scorelessTurns < rules.scorelessTurnsPerSeat * activeSeats) return 'result.end';
   }
   const expected = finishMatch({
     config: state.config,
@@ -255,10 +263,14 @@ function malformedState(field: string): EngineError {
 }
 
 /**
- * Parses a persisted state. `RULES_VERSION_UNSUPPORTED` is checked before `MALFORMED_STATE`. Returns a state
- * deep-equal to the one serialised (P-GLOBAL-04).
+ * Parses a persisted state. `RULES_VERSION_UNSUPPORTED` (unregistered version, or a draft without
+ * `options.draft`, ADR-0014 §D4) is checked before `MALFORMED_STATE`. Returns a state deep-equal to the one
+ * serialised (P-GLOBAL-04).
  */
-export function parseState(text: string): Result<MatchState, EngineError> {
+export function parseState(
+  text: string,
+  options?: { readonly draft?: DraftContext },
+): Result<MatchState, EngineError> {
   let doc: unknown;
   try {
     doc = JSON.parse(text);
@@ -266,10 +278,9 @@ export function parseState(text: string): Result<MatchState, EngineError> {
     return err(malformedState(''));
   }
   if (!isPlainObject(doc)) return err(malformedState(''));
-  if (doc['engineRulesVersion'] !== ENGINE_RULES_VERSION) {
-    return err(rulesVersionError(doc['engineRulesVersion']));
-  }
-  const problem = stateProblem(doc);
+  const resolved = resolveRules(doc['engineRulesVersion'], options?.draft);
+  if (!resolved.ok) return resolved;
+  const problem = stateProblem(doc, resolved.value);
   if (problem !== undefined) return err(malformedState(problem));
   return ok(doc as unknown as MatchState);
 }

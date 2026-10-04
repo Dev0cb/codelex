@@ -34,6 +34,37 @@
       ]
     },
     {
+      "id": "ad-blocker",
+      "form": "ADBLOCKER",
+      "display": "Ad blocker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A browser extension or app that hides ads and often blocks trackers.",
+        "fr": "Extension ou application qui masque les publicités et bloque souvent les traceurs."
+      },
+      "inflections": [
+        {
+          "form": "ADBLOCKERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "browser-extension"
+        },
+        {
+          "type": "related_to",
+          "target": "tracker"
+        }
+      ]
+    },
+    {
       "id": "adware",
       "form": "ADWARE",
       "display": "Adware",
@@ -212,6 +243,31 @@
       ]
     },
     {
+      "id": "auth",
+      "form": "AUTH",
+      "display": "Auth",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Short for authentication, and often authorisation: checking who someone is and what they may do.",
+        "fr": "Abréviation d'authentification, et souvent d'autorisation : vérifier qui est quelqu'un et ce qu'il peut faire."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "authentication"
+        },
+        {
+          "type": "related_to",
+          "target": "authorization"
+        }
+      ]
+    },
+    {
       "id": "authentication",
       "form": "AUTHENTICATION",
       "display": "Authentication",
@@ -285,6 +341,56 @@
       ]
     },
     {
+      "id": "baiting",
+      "form": "BAITING",
+      "display": "Baiting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A social engineering trick that tempts victims with something attractive, like a free download or a USB stick.",
+        "fr": "Ruse d'ingénierie sociale qui appâte la victime avec un objet tentant, comme un téléchargement gratuit ou une clé USB."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        },
+        {
+          "type": "related_to",
+          "target": "usb-stick"
+        }
+      ]
+    },
+    {
+      "id": "bcrypt",
+      "form": "BCRYPT",
+      "display": "bcrypt",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A deliberately slow password-hashing function with a built-in salt, designed to resist brute force.",
+        "fr": "Fonction de hachage de mots de passe volontairement lente, avec sel intégré, conçue contre la force brute."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "hash"
+        },
+        {
+          "type": "uses",
+          "target": "salt"
+        }
+      ]
+    },
+    {
       "id": "biometrics",
       "form": "BIOMETRICS",
       "display": "Biometrics",
@@ -306,6 +412,42 @@
         {
           "type": "related_to",
           "target": "fingerprint"
+        }
+      ]
+    },
+    {
+      "id": "blockchain",
+      "form": "BLOCKCHAIN",
+      "display": "Blockchain",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A shared ledger made of linked blocks of records, copied across many computers so it is hard to alter.",
+        "fr": "Registre partagé fait de blocs d'enregistrements chaînés, copié sur de nombreux ordinateurs pour être difficile à modifier."
+      },
+      "inflections": [
+        {
+          "form": "BLOCKCHAINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "hash"
+        },
+        {
+          "type": "uses",
+          "target": "cryptography"
+        },
+        {
+          "type": "related_to",
+          "target": "peer-to-peer"
         }
       ]
     },
@@ -528,6 +670,38 @@
       ]
     },
     {
+      "id": "certificate-authority",
+      "form": "CA",
+      "display": "CA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "CA: certificate authority, a trusted organisation that issues the digital certificates websites use for HTTPS.",
+        "fr": "CA (certificate authority) : autorité de certification, organisme de confiance qui délivre les certificats des sites HTTPS."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "certificate"
+        },
+        {
+          "type": "part_of",
+          "target": "pki"
+        },
+        {
+          "type": "related_to",
+          "target": "https"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc5280"
+      ]
+    },
+    {
       "id": "cipher",
       "form": "CIPHER",
       "display": "Cipher",
@@ -607,6 +781,37 @@
       ]
     },
     {
+      "id": "claim",
+      "form": "CLAIM",
+      "display": "Claim",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A statement about a user, such as name or role, carried inside a security token.",
+        "fr": "Affirmation sur un utilisateur, comme son nom ou son rôle, transportée dans un jeton de sécurité."
+      },
+      "inflections": [
+        {
+          "form": "CLAIMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "jwt"
+        },
+        {
+          "type": "related_to",
+          "target": "token"
+        }
+      ]
+    },
+    {
       "id": "clickjacking",
       "form": "CLICKJACKING",
       "display": "Clickjacking",
@@ -628,6 +833,31 @@
         {
           "type": "related_to",
           "target": "browser"
+        }
+      ]
+    },
+    {
+      "id": "code-signing",
+      "form": "CODESIGNING",
+      "display": "Code signing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Digitally signing software so users can check who published it and that it was not altered.",
+        "fr": "Signature numérique d'un logiciel pour vérifier son éditeur et qu'il n'a pas été modifié."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "certificate"
+        },
+        {
+          "type": "uses",
+          "target": "signature"
         }
       ]
     },
@@ -767,6 +997,34 @@
       ]
     },
     {
+      "id": "csp",
+      "form": "CSP",
+      "display": "CSP",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Content Security Policy: a web header that tells the browser which sources of scripts and content to trust.",
+        "fr": "Content Security Policy : en-tête web qui indique au navigateur quelles sources de scripts et contenus accepter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "xss"
+        },
+        {
+          "type": "part_of",
+          "target": "header"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/CSP3/"
+      ]
+    },
+    {
       "id": "csrf",
       "form": "CSRF",
       "display": "CSRF",
@@ -780,6 +1038,37 @@
         "en": "Cross-site request forgery: tricking a browser into unwanted actions.",
         "fr": "Falsification de requête intersite : pousser un navigateur à des actions non voulues."
       }
+    },
+    {
+      "id": "ctf",
+      "form": "CTF",
+      "display": "CTF",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Capture the flag: a security competition where players solve hacking puzzles to find hidden flags.",
+        "fr": "Capture the flag : compétition de sécurité où l'on résout des défis de hacking pour trouver des drapeaux cachés."
+      },
+      "inflections": [
+        {
+          "form": "CTFS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ethical-hacker"
+        },
+        {
+          "type": "related_to",
+          "target": "hackathon"
+        }
+      ]
     },
     {
       "id": "cve",
@@ -816,6 +1105,34 @@
       ]
     },
     {
+      "id": "cvss",
+      "form": "CVSS",
+      "display": "CVSS",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Common Vulnerability Scoring System: a 0 to 10 score of how severe a security flaw is.",
+        "fr": "Common Vulnerability Scoring System : note de 0 à 10 de la gravité d'une faille de sécurité."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cve"
+        },
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        }
+      ],
+      "sources": [
+        "https://www.first.org/cvss/"
+      ]
+    },
+    {
       "id": "cyberattack",
       "form": "CYBERATTACK",
       "display": "Cyberattack",
@@ -837,6 +1154,31 @@
         {
           "type": "related_to",
           "target": "hacker"
+        }
+      ]
+    },
+    {
+      "id": "cybercrime",
+      "form": "CYBERCRIME",
+      "display": "Cybercrime",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Crime committed using computers or networks, such as fraud, data theft or ransomware.",
+        "fr": "Délit commis au moyen d'ordinateurs ou de réseaux, comme la fraude, le vol de données ou le rançongiciel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cyberattack"
+        },
+        {
+          "type": "related_to",
+          "target": "ransomware"
         }
       ]
     },
@@ -940,6 +1282,178 @@
       ]
     },
     {
+      "id": "denial-of-service",
+      "form": "DOS",
+      "display": "DoS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Denial of service: an attack that floods or crashes a service so real users cannot reach it.",
+        "fr": "Denial of service : attaque qui sature ou fait tomber un service pour que les vrais utilisateurs n'y accèdent plus."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cyberattack"
+        },
+        {
+          "type": "related_to",
+          "target": "ddos"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/denial_of_service"
+      ]
+    },
+    {
+      "id": "digital-wallet",
+      "form": "WALLET",
+      "display": "Wallet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An app that stores payment cards, tickets or crypto keys to pay or prove ownership.",
+        "fr": "Application qui stocke cartes de paiement, billets ou clés crypto pour payer ou prouver une possession."
+      },
+      "inflections": [
+        {
+          "form": "WALLETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        },
+        {
+          "type": "related_to",
+          "target": "nfc"
+        }
+      ]
+    },
+    {
+      "id": "dkim",
+      "form": "DKIM",
+      "display": "DKIM",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "DomainKeys Identified Mail: a signature added to emails so receivers can check the sending domain.",
+        "fr": "DomainKeys Identified Mail : signature ajoutée aux e-mails pour que le destinataire vérifie le domaine expéditeur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "spf"
+        },
+        {
+          "type": "related_to",
+          "target": "signature"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6376"
+      ]
+    },
+    {
+      "id": "dlp",
+      "form": "DLP",
+      "display": "DLP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Data loss prevention: tools and rules that stop sensitive data from leaving an organisation.",
+        "fr": "Data loss prevention : outils et règles qui empêchent les données sensibles de sortir d'une organisation."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "data-leak"
+        },
+        {
+          "type": "related_to",
+          "target": "pii"
+        }
+      ]
+    },
+    {
+      "id": "dmarc",
+      "form": "DMARC",
+      "display": "DMARC",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A DNS policy telling mail servers what to do with messages that fail SPF or DKIM checks.",
+        "fr": "Politique DNS qui indique aux serveurs de messagerie quoi faire des messages qui échouent à SPF ou DKIM."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "spf"
+        },
+        {
+          "type": "uses",
+          "target": "dkim"
+        },
+        {
+          "type": "related_to",
+          "target": "phishing"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc7489"
+      ]
+    },
+    {
+      "id": "dmz",
+      "form": "DMZ",
+      "display": "DMZ",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Demilitarised zone: a buffer network between the internet and an internal network, for public-facing servers.",
+        "fr": "Zone démilitarisée : réseau tampon entre internet et le réseau interne, pour les serveurs exposés."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "firewall"
+        },
+        {
+          "type": "related_to",
+          "target": "subnet"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/demilitarized_zone"
+      ]
+    },
+    {
       "id": "edr",
       "form": "EDR",
       "display": "EDR",
@@ -978,6 +1492,31 @@
         "en": "Transforming data so only holders of the right key can read it.",
         "fr": "Transformation des données pour que seuls les détenteurs de la bonne clé puissent les lire."
       }
+    },
+    {
+      "id": "entropy",
+      "form": "ENTROPY",
+      "display": "Entropy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A measure of unpredictability; high entropy makes keys and passwords harder to guess.",
+        "fr": "Mesure d'imprévisibilité ; une forte entropie rend clés et mots de passe plus durs à deviner."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "password"
+        },
+        {
+          "type": "related_to",
+          "target": "key"
+        }
+      ]
     },
     {
       "id": "ethical-hacker",
@@ -1097,6 +1636,55 @@
           "type": "related_to",
           "target": "log"
         }
+      ]
+    },
+    {
+      "id": "fuzzing",
+      "form": "FUZZING",
+      "display": "Fuzzing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Testing software by feeding it huge amounts of random or malformed input to find crashes and flaws.",
+        "fr": "Tester un logiciel en lui envoyant en masse des entrées aléatoires ou malformées pour trouver plantages et failles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        },
+        {
+          "type": "related_to",
+          "target": "test"
+        }
+      ]
+    },
+    {
+      "id": "gdpr",
+      "form": "GDPR",
+      "display": "GDPR",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "General Data Protection Regulation: the EU law on how organisations collect and use personal data.",
+        "fr": "Règlement général sur la protection des données (RGPD) : loi de l'UE sur la collecte et l'usage des données personnelles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "privacy"
+        }
+      ],
+      "sources": [
+        "https://eur-lex.europa.eu/eli/reg/2016/679/oj"
       ]
     },
     {
@@ -1220,6 +1808,34 @@
       ]
     },
     {
+      "id": "hmac",
+      "form": "HMAC",
+      "display": "HMAC",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Hash-based message authentication code: a keyed hash that proves a message is intact and from a key holder.",
+        "fr": "Hash-based message authentication code : empreinte à clé qui prouve qu'un message est intact et vient du détenteur."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "hash"
+        },
+        {
+          "type": "uses",
+          "target": "key"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc2104"
+      ]
+    },
+    {
       "id": "honeypot",
       "form": "HONEYPOT",
       "display": "Honeypot",
@@ -1247,6 +1863,93 @@
       ]
     },
     {
+      "id": "hsm",
+      "form": "HSM",
+      "display": "HSM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Hardware security module: a tamper-resistant device that keeps cryptographic keys and uses them safely.",
+        "fr": "Hardware security module : boîtier inviolable qui conserve les clés cryptographiques et les utilise en sécurité."
+      },
+      "inflections": [
+        {
+          "form": "HSMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "key"
+        },
+        {
+          "type": "related_to",
+          "target": "cryptography"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/hardware_security_module"
+      ]
+    },
+    {
+      "id": "hsts",
+      "form": "HSTS",
+      "display": "HSTS",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "HTTP Strict Transport Security: a header that makes browsers use only HTTPS for a site.",
+        "fr": "HTTP Strict Transport Security : en-tête qui oblige les navigateurs à utiliser uniquement HTTPS pour un site."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "https"
+        },
+        {
+          "type": "part_of",
+          "target": "header"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6797"
+      ]
+    },
+    {
+      "id": "identity-theft",
+      "form": "IDENTITYTHEFT",
+      "display": "Identity theft",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Using someone else's personal details, such as an ID or card number, to commit fraud.",
+        "fr": "Utilisation des données personnelles d'autrui, comme une pièce d'identité ou une carte, pour frauder."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        },
+        {
+          "type": "related_to",
+          "target": "data-leak"
+        }
+      ]
+    },
+    {
       "id": "ids",
       "form": "IDS",
       "display": "IDS",
@@ -1268,6 +1971,31 @@
       ],
       "sources": [
         "https://csrc.nist.gov/glossary/term/intrusion_detection_system"
+      ]
+    },
+    {
+      "id": "incognito",
+      "form": "INCOGNITO",
+      "display": "Incognito mode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A private browsing mode that does not keep history or cookies after the window closes.",
+        "fr": "Mode de navigation privée qui ne garde ni historique ni cookies après la fermeture de la fenêtre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "browser"
+        },
+        {
+          "type": "related_to",
+          "target": "cookie"
+        }
       ]
     },
     {
@@ -1316,6 +2044,34 @@
           "type": "is_a",
           "target": "exploit"
         }
+      ]
+    },
+    {
+      "id": "ips",
+      "form": "IPS",
+      "display": "IPS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Intrusion prevention system: watches network traffic and blocks attacks as they happen.",
+        "fr": "Intrusion prevention system : surveille le trafic réseau et bloque les attaques en temps réel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ids"
+        },
+        {
+          "type": "related_to",
+          "target": "firewall"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/intrusion_prevention_system"
       ]
     },
     {
@@ -1440,6 +2196,37 @@
       ]
     },
     {
+      "id": "lockout",
+      "form": "LOCKOUT",
+      "display": "Lockout",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Blocking an account for a while after too many wrong password attempts.",
+        "fr": "Blocage temporaire d'un compte après trop de mots de passe erronés."
+      },
+      "inflections": [
+        {
+          "form": "LOCKOUTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "brute-force"
+        },
+        {
+          "type": "related_to",
+          "target": "password"
+        }
+      ]
+    },
+    {
       "id": "login",
       "form": "LOGIN",
       "display": "Login",
@@ -1514,6 +2301,31 @@
       ]
     },
     {
+      "id": "mdm",
+      "form": "MDM",
+      "display": "MDM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Mobile device management: software a company uses to configure, secure and wipe staff phones and laptops.",
+        "fr": "Mobile device management : logiciel qui permet de configurer, sécuriser et effacer les appareils du personnel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        },
+        {
+          "type": "related_to",
+          "target": "laptop"
+        }
+      ]
+    },
+    {
       "id": "mfa",
       "form": "MFA",
       "display": "MFA",
@@ -1559,6 +2371,63 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc6749"
+      ]
+    },
+    {
+      "id": "obfuscation",
+      "form": "OBFUSCATION",
+      "display": "Obfuscation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Making code or data deliberately hard to read, to hide how it works or what it contains.",
+        "fr": "Rendre volontairement du code ou des données difficiles à lire, pour cacher leur fonctionnement ou contenu."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "malware"
+        },
+        {
+          "type": "related_to",
+          "target": "reverse-engineering"
+        }
+      ]
+    },
+    {
+      "id": "oidc",
+      "form": "OIDC",
+      "display": "OIDC",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "OpenID Connect: an identity layer on top of OAuth 2.0 that lets apps sign users in with another account.",
+        "fr": "OpenID Connect : couche d'identité au-dessus d'OAuth 2.0 qui permet de se connecter avec un autre compte."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "oauth"
+        },
+        {
+          "type": "implements",
+          "target": "sso"
+        },
+        {
+          "type": "uses",
+          "target": "jwt"
+        }
+      ],
+      "sources": [
+        "https://openid.net/specs/openid-connect-core-1_0.html"
       ]
     },
     {
@@ -1613,6 +2482,31 @@
         {
           "type": "related_to",
           "target": "password"
+        }
+      ]
+    },
+    {
+      "id": "padlock",
+      "form": "PADLOCK",
+      "display": "Padlock icon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The lock icon a browser shows next to the address when the connection is encrypted.",
+        "fr": "Icône de cadenas que le navigateur affiche près de l'adresse quand la connexion est chiffrée."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "https"
+        },
+        {
+          "type": "related_to",
+          "target": "certificate"
         }
       ]
     },
@@ -1787,6 +2681,31 @@
       ]
     },
     {
+      "id": "pharming",
+      "form": "PHARMING",
+      "display": "Pharming",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Redirecting users from a real website to a fake one, for example by tampering with DNS.",
+        "fr": "Redirection des utilisateurs d'un vrai site vers un faux, par exemple en falsifiant le DNS."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "phishing"
+        },
+        {
+          "type": "related_to",
+          "target": "dns"
+        }
+      ]
+    },
+    {
       "id": "phishing",
       "form": "PHISHING",
       "display": "Phishing",
@@ -1800,6 +2719,35 @@
         "en": "Scam using fake messages to trick people into revealing secrets.",
         "fr": "Arnaque utilisant de faux messages pour pousser à révéler des secrets."
       }
+    },
+    {
+      "id": "pii",
+      "form": "PII",
+      "display": "PII",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity",
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Personally identifiable information: any data that can identify a person, such as a name, email or ID number.",
+        "fr": "Personally identifiable information : toute donnée qui permet d'identifier une personne, comme un nom ou un e-mail."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "privacy"
+        },
+        {
+          "type": "related_to",
+          "target": "gdpr"
+        }
+      ],
+      "sources": [
+        "https://csrc.nist.gov/glossary/term/personally_identifiable_information"
+      ]
     },
     {
       "id": "pin",
@@ -1899,6 +2847,27 @@
         {
           "type": "related_to",
           "target": "scam"
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "form": "PRIVACY",
+      "display": "Privacy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The right and ability to control who sees and uses your personal information.",
+        "fr": "Droit et capacité de contrôler qui voit et utilise ses informations personnelles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "encryption"
         }
       ]
     },
@@ -2057,6 +3026,62 @@
       ]
     },
     {
+      "id": "reverse-engineering",
+      "form": "REVERSING",
+      "display": "Reverse engineering",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Reverse engineering: taking apart software or hardware to understand how it works without its source.",
+        "fr": "Rétro-ingénierie : démonter un logiciel ou un matériel pour comprendre son fonctionnement sans ses sources."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "malware"
+        },
+        {
+          "type": "related_to",
+          "target": "debugger"
+        }
+      ]
+    },
+    {
+      "id": "risk",
+      "form": "RISK",
+      "display": "Risk",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "In security, the chance that a threat exploits a weakness, combined with how bad the damage would be.",
+        "fr": "En sécurité, probabilité qu'une menace exploite une faiblesse, combinée à la gravité des dégâts."
+      },
+      "inflections": [
+        {
+          "form": "RISKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "threat"
+        },
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        }
+      ]
+    },
+    {
       "id": "role",
       "form": "ROLE",
       "display": "Role",
@@ -2178,6 +3203,34 @@
       ]
     },
     {
+      "id": "saml",
+      "form": "SAML",
+      "display": "SAML",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Security Assertion Markup Language: an XML standard for single sign-on between companies and apps.",
+        "fr": "Security Assertion Markup Language : norme XML d'authentification unique entre entreprises et applications."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "sso"
+        },
+        {
+          "type": "uses",
+          "target": "xml"
+        }
+      ],
+      "sources": [
+        "https://docs.oasis-open.org/security/saml/v2.0/"
+      ]
+    },
+    {
       "id": "sandbox",
       "form": "SANDBOX",
       "display": "Sandbox",
@@ -2196,6 +3249,65 @@
           "form": "SANDBOXES",
           "kind": "plural"
         }
+      ]
+    },
+    {
+      "id": "sast",
+      "form": "SAST",
+      "display": "SAST",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Static application security testing: scanning source code for vulnerabilities without running it.",
+        "fr": "Static application security testing : analyse du code source à la recherche de failles, sans l'exécuter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        },
+        {
+          "type": "related_to",
+          "target": "code-review"
+        }
+      ]
+    },
+    {
+      "id": "sbom",
+      "form": "SBOM",
+      "display": "SBOM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Software bill of materials: a list of every component and library inside a piece of software.",
+        "fr": "Software bill of materials : liste de tous les composants et bibliothèques présents dans un logiciel."
+      },
+      "inflections": [
+        {
+          "form": "SBOMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dependency"
+        },
+        {
+          "type": "related_to",
+          "target": "vulnerability"
+        }
+      ],
+      "sources": [
+        "https://www.cisa.gov/sbom"
       ]
     },
     {
@@ -2304,6 +3416,31 @@
         {
           "type": "related_to",
           "target": "passkey"
+        }
+      ]
+    },
+    {
+      "id": "security-policy",
+      "form": "POLICY",
+      "display": "Policy",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A set of rules saying who may do what, such as an access policy or a password policy.",
+        "fr": "Ensemble de règles qui disent qui peut faire quoi, comme une politique d'accès ou de mots de passe."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "rbac"
+        },
+        {
+          "type": "related_to",
+          "target": "iam"
         }
       ]
     },
@@ -2420,6 +3557,37 @@
       ]
     },
     {
+      "id": "sniffer",
+      "form": "SNIFFER",
+      "display": "Sniffer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A tool that captures and reads network traffic, for troubleshooting or for spying.",
+        "fr": "Outil qui capture et lit le trafic réseau, pour le dépannage ou l'espionnage."
+      },
+      "inflections": [
+        {
+          "form": "SNIFFERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "packet"
+        },
+        {
+          "type": "related_to",
+          "target": "network"
+        }
+      ]
+    },
+    {
       "id": "spam",
       "form": "SPAM",
       "display": "Spam",
@@ -2445,6 +3613,37 @@
       ]
     },
     {
+      "id": "spammer",
+      "form": "SPAMMER",
+      "display": "Spammer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A person or bot that sends unwanted bulk messages.",
+        "fr": "Personne ou robot qui envoie en masse des messages non sollicités."
+      },
+      "inflections": [
+        {
+          "form": "SPAMMERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "spam"
+        },
+        {
+          "type": "related_to",
+          "target": "bot"
+        }
+      ]
+    },
+    {
       "id": "spear-phishing",
       "form": "SPEARPHISHING",
       "display": "Spear phishing",
@@ -2463,6 +3662,38 @@
           "type": "is_a",
           "target": "phishing"
         }
+      ]
+    },
+    {
+      "id": "spf",
+      "form": "SPF",
+      "display": "SPF",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Sender Policy Framework: a DNS record listing which servers may send email for a domain.",
+        "fr": "Sender Policy Framework : enregistrement DNS qui liste les serveurs autorisés à envoyer les e-mails d'un domaine."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "email"
+        },
+        {
+          "type": "uses",
+          "target": "dns"
+        },
+        {
+          "type": "related_to",
+          "target": "spoofing"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc7208"
       ]
     },
     {
@@ -2561,6 +3792,48 @@
       ]
     },
     {
+      "id": "steganography",
+      "form": "STEGANOGRAPHY",
+      "display": "Steganography",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Hiding a secret message inside an ordinary file, such as an image, so nobody suspects it is there.",
+        "fr": "Cacher un message secret dans un fichier ordinaire, comme une image, sans que personne ne s'en doute."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cryptography"
+        }
+      ]
+    },
+    {
+      "id": "tailgating",
+      "form": "TAILGATING",
+      "display": "Tailgating",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Slipping into a secure building by following an authorised person through a door.",
+        "fr": "Entrer dans un bâtiment sécurisé en suivant une personne autorisée à travers une porte."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pretexting"
+        }
+      ]
+    },
+    {
       "id": "threat",
       "form": "THREAT",
       "display": "Threat",
@@ -2638,6 +3911,37 @@
       ],
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc6238"
+      ]
+    },
+    {
+      "id": "tracker",
+      "form": "TRACKER",
+      "display": "Tracker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "cybersecurity"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Code on a website or app that records what users do, often for advertising.",
+        "fr": "Code d'un site ou d'une application qui enregistre ce que font les utilisateurs, souvent pour la publicité."
+      },
+      "inflections": [
+        {
+          "form": "TRACKERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cookie"
+        },
+        {
+          "type": "related_to",
+          "target": "privacy"
+        }
       ]
     },
     {

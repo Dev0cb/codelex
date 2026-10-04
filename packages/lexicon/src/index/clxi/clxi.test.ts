@@ -56,6 +56,10 @@ const REAL: LexiconBuildInput = {
   document: lexiconContentDocument(lex),
   blocklist: [...lex.blocklist],
 };
+/** Playable forms (canonical + inflections) of the real lexicon. */
+const realFormCount = REAL.document.terms
+  .filter((t) => t.playable)
+  .reduce((n, t) => n + 1 + t.inflections.length, 0);
 
 function term(
   id: string,
@@ -961,8 +965,10 @@ describe('budgets (lexicon-index note §5)', () => {
   });
 
   // Projection for batch 3 (real terms + seeded synthetic terms fitted on them): f1 still fits at 2,000 forms
-  // (the AC-14 target) and at the 2,550-form ceiling, so the gate is reachable with real-like content.
-  it.each([2_000, SIZE_GATE.maxFormsWithGaddag])(
+  // (the AC-14 target) and at the 2,550-form ceiling, so the gate is reachable with real-like content. Once the
+  // real lexicon itself holds ≥ 2,000 forms, the real-artefact test above covers the target and the first
+  // projection starts from the real size (a real+synthetic corpus cannot be smaller than the real lexicon).
+  it.each([...new Set([Math.max(2_000, realFormCount), SIZE_GATE.maxFormsWithGaddag])])(
     'size gate (P7): real+synthetic corpus of %i forms passes with the GADDAG',
     (forms) => {
       const terms = scaleCorpus({

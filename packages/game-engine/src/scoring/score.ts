@@ -1,16 +1,18 @@
 /**
- * Classic scoring (R-SCORE-001…005, R-SCORE-007, R-SCORE-008, R-SCORE-009) for `engineRulesVersion` 1: no tech
- * squares (`classic-v1` has none) and no powers, so steps 2 and 3 of the pipeline are always 0. Every step is an
- * integer; nothing is ever divided.
+ * Classic scoring (R-SCORE-001…005, R-SCORE-007, R-SCORE-008, R-SCORE-009): no tech squares (no registered
+ * layout has any) and no powers, so steps 2 and 3 of the pipeline are always 0. Every step is an integer; nothing
+ * is ever divided. The constants come from the match's `Rules` (ADR-0014 §D1, §D5: the term bonus is
+ * `rules.termBonus[difficulty]`, never the lexicon `gameValue`).
  */
 import type { CheckedPlacement, FormedWord, ResolvedWord } from '../placement/check.js';
-import { RULES, squareKind } from '../rules/constants.js';
+import { squareKind } from '../rules/constants.js';
 import { tileValue } from '../tiles.js';
 import type {
   EngineLexicon,
   Layout,
   LetterTable,
   PreviewScore,
+  Rules,
   ScoreBreakdown,
   WordScore,
 } from '../types.js';
@@ -57,6 +59,7 @@ export function chainAfter(
   mainRef: ResolvedWord['ref'],
   context: ChainContext,
   lexicon: EngineLexicon,
+  rules: Rules,
 ): number {
   if (context.lastMainForm === '') return 0;
   const previous = lexicon.lookup(context.lastMainForm);
@@ -64,7 +67,7 @@ export function chainAfter(
   const a = lexicon.termOf(previous);
   const b = lexicon.termOf(mainRef);
   if (a === b || lexicon.related(a, b) === 0) return 0;
-  return Math.min(context.chainK + 1, RULES.chainCap);
+  return Math.min(context.chainK + 1, rules.chainCap);
 }
 
 /** R-SCORE-008 breakdown of a checked placement (main word first, as `checkPlacement` returns them). */
@@ -74,11 +77,12 @@ export function scorePlacement(
   letters: LetterTable,
   context: ChainContext,
   lexicon: EngineLexicon,
+  rules: Rules,
 ): ScoreBreakdown {
   const words: WordScore[] = placement.words.map((word) => {
     const { letterSum, wordMult, base } = wordBase(word, layout, letters);
     const term = lexicon.meta(lexicon.termOf(word.ref));
-    const termBonus = RULES.termBonus[term.difficulty];
+    const termBonus = rules.termBonus[term.difficulty];
     return {
       form: word.form,
       termId: term.id,
@@ -97,10 +101,10 @@ export function scorePlacement(
     };
   });
   const tilesPlaced = placement.tiles.length;
-  const fullStack = tilesPlaced === RULES.fullStackTiles ? RULES.fullStackBonus : 0;
+  const fullStack = tilesPlaced === rules.fullStackTiles ? rules.fullStackBonus : 0;
   const main = placement.words[0] as ResolvedWord;
-  const chainKAfter = chainAfter(main.ref, context, lexicon);
-  const chain = RULES.chainStep * chainKAfter;
+  const chainKAfter = chainAfter(main.ref, context, lexicon, rules);
+  const chain = rules.chainStep * chainKAfter;
   const total = words.reduce((sum, w) => sum + w.total, 0) + fullStack + chain;
   return { words, tilesPlaced, fullStack, chain, chainKAfter, total };
 }
@@ -111,6 +115,7 @@ export function previewPlacement(
   tilesPlaced: number,
   layout: Layout,
   letters: LetterTable,
+  rules: Rules,
 ): PreviewScore {
   const scored = words.map((word) => ({
     form: word.form,
@@ -119,7 +124,7 @@ export function previewPlacement(
     direction: word.direction,
     ...wordBase(word, layout, letters),
   }));
-  const fullStack = tilesPlaced === RULES.fullStackTiles ? RULES.fullStackBonus : 0;
+  const fullStack = tilesPlaced === rules.fullStackTiles ? rules.fullStackBonus : 0;
   return {
     words: scored,
     fullStack,

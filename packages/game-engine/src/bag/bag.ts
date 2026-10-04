@@ -5,9 +5,8 @@
 import { err, ok, type Result } from '@codelex/config/result';
 import { exchangeRejection, rackRejection } from '../errors.js';
 import { createRng } from '../rng/index.js';
-import { RULES } from '../rules/constants.js';
 import { chars, removeTiles, sortTiles } from '../tiles.js';
-import type { RackTile, Rejection, TileString } from '../types.js';
+import type { RackTile, Rejection, Rules, TileString } from '../types.js';
 
 export type BagRngState = readonly [number, number, number, number];
 
@@ -27,8 +26,9 @@ export function drawTiles(bag: TileString, count: number): Draw {
 export function refillRack(
   rack: TileString,
   bag: TileString,
+  rules: Rules,
 ): Draw & { readonly rack: TileString } {
-  const draw = drawTiles(bag, RULES.rackSize - rack.length);
+  const draw = drawTiles(bag, rules.rackSize - rack.length);
   return { ...draw, rack: sortTiles(rack + draw.drawn) };
 }
 
@@ -52,11 +52,12 @@ export function exchangeTiles(
   bag: TileString,
   rng: BagRngState,
   tiles: readonly RackTile[],
+  rules: Rules,
 ): Result<Exchanged, Rejection> {
-  if (tiles.length === 0 || tiles.length > RULES.rackSize) {
+  if (tiles.length === 0 || tiles.length > rules.rackSize) {
     return err(exchangeRejection('tile_count'));
   }
-  if (bag.length < RULES.minBagForExchange) return err(exchangeRejection('bag_too_small'));
+  if (bag.length < rules.minBagForExchange) return err(exchangeRejection('bag_too_small'));
   const { rest, missing } = removeTiles(rack, tiles);
   if (missing !== '') return err(rackRejection(missing));
 

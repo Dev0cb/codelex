@@ -208,6 +208,31 @@
       ]
     },
     {
+      "id": "asr",
+      "form": "ASR",
+      "display": "ASR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Automatic speech recognition: software that turns spoken words into text.",
+        "fr": "Automatic speech recognition : logiciel qui transforme la parole en texte."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "nlp"
+        },
+        {
+          "type": "alternative_to",
+          "target": "text-to-speech"
+        }
+      ]
+    },
+    {
       "id": "attention",
       "form": "ATTENTION",
       "display": "Attention",
@@ -250,6 +275,31 @@
         {
           "type": "related_to",
           "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "autocomplete",
+      "form": "AUTOCOMPLETE",
+      "display": "Autocomplete",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A feature that predicts and suggests the rest of a word, search or line of code as you type.",
+        "fr": "Fonction qui prédit et propose la fin d'un mot, d'une recherche ou d'une ligne de code pendant la saisie."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "prediction"
+        },
+        {
+          "type": "related_to",
+          "target": "search"
         }
       ]
     },
@@ -311,6 +361,31 @@
       ]
     },
     {
+      "id": "autopilot",
+      "form": "AUTOPILOT",
+      "display": "Autopilot",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A system that steers a vehicle or aircraft automatically, with a human ready to take over.",
+        "fr": "Système qui pilote automatiquement un véhicule ou un avion, un humain restant prêt à reprendre la main."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "self-driving"
+        },
+        {
+          "type": "related_to",
+          "target": "automation"
+        }
+      ]
+    },
+    {
       "id": "backpropagation",
       "form": "BACKPROPAGATION",
       "display": "Backpropagation",
@@ -332,6 +407,31 @@
         {
           "type": "part_of",
           "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "beam-search",
+      "form": "BEAMSEARCH",
+      "display": "Beam search",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A decoding method that keeps the few most likely partial outputs at each step to find a good sequence.",
+        "fr": "Méthode de décodage qui garde à chaque étape les quelques sorties partielles les plus probables."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "related_to",
+          "target": "decoder"
         }
       ]
     },
@@ -503,6 +603,37 @@
       ]
     },
     {
+      "id": "chunk",
+      "form": "CHUNK",
+      "display": "Chunk",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A piece of a larger text or file, such as the passages a RAG system indexes and retrieves.",
+        "fr": "Morceau d'un texte ou d'un fichier plus grand, comme les passages qu'un système RAG indexe et retrouve."
+      },
+      "inflections": [
+        {
+          "form": "CHUNKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "rag"
+        },
+        {
+          "type": "related_to",
+          "target": "embedding"
+        }
+      ]
+    },
+    {
       "id": "classifier",
       "form": "CLASSIFIER",
       "display": "Classifier",
@@ -637,6 +768,52 @@
         {
           "type": "part_of",
           "target": "cnn"
+        }
+      ]
+    },
+    {
+      "id": "corpus",
+      "form": "CORPUS",
+      "display": "Corpus",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A large collection of texts used to study language or train language models.",
+        "fr": "Grande collection de textes utilisée pour étudier la langue ou entraîner des modèles de langage."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "nlp"
+        }
+      ]
+    },
+    {
+      "id": "crowdsourcing",
+      "form": "CROWDSOURCING",
+      "display": "Crowdsourcing",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Getting work, such as labelling data or testing apps, done by many people online.",
+        "fr": "Faire réaliser un travail, comme étiqueter des données ou tester des applications, par de nombreuses personnes en ligne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "annotation"
         }
       ]
     },
@@ -935,6 +1112,133 @@
       ]
     },
     {
+      "id": "eval",
+      "form": "EVAL",
+      "display": "Eval",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A test set and scoring method used to measure how well an AI model performs on a task.",
+        "fr": "Jeu de tests et méthode de notation servant à mesurer la performance d'un modèle d'IA sur une tâche."
+      },
+      "inflections": [
+        {
+          "form": "EVALS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "benchmark"
+        },
+        {
+          "type": "related_to",
+          "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "expert-system",
+      "form": "EXPERTSYSTEM",
+      "display": "Expert system",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "An early form of AI that answers questions by applying a large set of hand-written rules.",
+        "fr": "Forme ancienne d'IA qui répond aux questions en appliquant un grand ensemble de règles écrites à la main."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ai"
+        }
+      ]
+    },
+    {
+      "id": "explainability",
+      "form": "EXPLAINABILITY",
+      "display": "Explainability",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "How well people can understand why an AI model produced a given answer or decision.",
+        "fr": "Capacité des humains à comprendre pourquoi un modèle d'IA a produit une réponse ou une décision."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "fairness"
+        }
+      ]
+    },
+    {
+      "id": "face-recognition",
+      "form": "FACERECOGNITION",
+      "display": "Face recognition",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Technology that identifies or verifies a person from an image of their face, as in phone unlocking.",
+        "fr": "Technologie qui identifie ou vérifie une personne à partir de l'image de son visage, comme pour déverrouiller un téléphone."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "computer-vision"
+        },
+        {
+          "type": "related_to",
+          "target": "biometrics"
+        }
+      ]
+    },
+    {
+      "id": "fairness",
+      "form": "FAIRNESS",
+      "display": "Fairness",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The goal that an AI system treats people and groups without unjustified differences in its results.",
+        "fr": "Objectif qu'un système d'IA traite personnes et groupes sans différence injustifiée dans ses résultats."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bias"
+        },
+        {
+          "type": "related_to",
+          "target": "alignment"
+        }
+      ]
+    },
+    {
       "id": "few-shot",
       "form": "FEWSHOT",
       "display": "Few-shot",
@@ -1002,6 +1306,31 @@
         {
           "type": "related_to",
           "target": "finetuning"
+        }
+      ]
+    },
+    {
+      "id": "fuzzy-logic",
+      "form": "FUZZYLOGIC",
+      "display": "Fuzzy logic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Logic that works with degrees of truth between 0 and 1 instead of only true or false.",
+        "fr": "Logique qui manie des degrés de vérité entre 0 et 1 au lieu de seulement vrai ou faux."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "boolean"
+        },
+        {
+          "type": "related_to",
+          "target": "ai"
         }
       ]
     },
@@ -1107,6 +1436,31 @@
       ]
     },
     {
+      "id": "ground-truth",
+      "form": "GROUNDTRUTH",
+      "display": "Ground truth",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The correct answers, usually labelled by people, that model predictions are compared against.",
+        "fr": "Bonnes réponses, en général étiquetées par des humains, auxquelles on compare les prédictions d'un modèle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "label"
+        },
+        {
+          "type": "related_to",
+          "target": "annotation"
+        }
+      ]
+    },
+    {
       "id": "guardrail",
       "form": "GUARDRAIL",
       "display": "Guardrail",
@@ -1161,6 +1515,33 @@
         {
           "type": "related_to",
           "target": "llm"
+        }
+      ]
+    },
+    {
+      "id": "heuristic",
+      "form": "HEURISTIC",
+      "display": "Heuristic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A practical rule of thumb that finds a good-enough answer quickly without guaranteeing the best one.",
+        "fr": "Règle pratique qui trouve vite une réponse satisfaisante sans garantir la meilleure."
+      },
+      "inflections": [
+        {
+          "form": "HEURISTICS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "algorithm"
         }
       ]
     },
@@ -1243,6 +1624,31 @@
       ]
     },
     {
+      "id": "knn",
+      "form": "KNN",
+      "display": "k-NN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "K-nearest neighbours: a method that classifies an item by looking at the k most similar known examples.",
+        "fr": "K plus proches voisins : méthode qui classe un élément d'après les k exemples connus les plus semblables."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "related_to",
+          "target": "classifier"
+        }
+      ]
+    },
+    {
       "id": "label",
       "form": "LABEL",
       "display": "Label",
@@ -1275,6 +1681,31 @@
         {
           "type": "part_of",
           "target": "dataset"
+        }
+      ]
+    },
+    {
+      "id": "latent-space",
+      "form": "LATENT",
+      "display": "Latent space",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Latent space: the hidden numeric space where a model represents data, with similar items close together.",
+        "fr": "Espace latent : espace numérique caché où un modèle représente les données, les éléments proches étant voisins."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "embedding"
+        },
+        {
+          "type": "related_to",
+          "target": "autoencoder"
         }
       ]
     },
@@ -1335,6 +1766,37 @@
       ]
     },
     {
+      "id": "logit",
+      "form": "LOGIT",
+      "display": "Logit",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A raw score a model outputs for each possible answer before it is turned into a probability.",
+        "fr": "Score brut produit par un modèle pour chaque réponse possible avant sa conversion en probabilité."
+      },
+      "inflections": [
+        {
+          "form": "LOGITS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "softmax"
+        },
+        {
+          "type": "related_to",
+          "target": "prediction"
+        }
+      ]
+    },
+    {
       "id": "loss-function",
       "form": "LOSSFUNCTION",
       "display": "Loss function",
@@ -1381,6 +1843,56 @@
       ]
     },
     {
+      "id": "matrix",
+      "form": "MATRIX",
+      "display": "Matrix",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A grid of numbers in rows and columns; neural networks are mostly matrix multiplications.",
+        "fr": "Grille de nombres en lignes et colonnes ; les réseaux de neurones sont surtout des multiplications de matrices."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tensor"
+        },
+        {
+          "type": "related_to",
+          "target": "vector"
+        }
+      ]
+    },
+    {
+      "id": "minimax",
+      "form": "MINIMAX",
+      "display": "Minimax",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A game-playing algorithm that picks the move with the best result assuming the opponent plays perfectly.",
+        "fr": "Algorithme de jeu qui choisit le coup au meilleur résultat en supposant que l'adversaire joue parfaitement."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "related_to",
+          "target": "decision-tree"
+        }
+      ]
+    },
+    {
       "id": "ml",
       "form": "ML",
       "display": "ML",
@@ -1397,6 +1909,37 @@
       "relations": [
         {
           "type": "uses",
+          "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "ml-feature",
+      "form": "FEATURE",
+      "display": "Feature",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "In machine learning, one measurable input to a model, such as a house's size when predicting its price.",
+        "fr": "En apprentissage automatique, une variable d'entrée du modèle, comme la surface d'une maison pour prédire son prix."
+      },
+      "inflections": [
+        {
+          "form": "FEATURES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
           "target": "model"
         }
       ]
@@ -1445,6 +1988,65 @@
         {
           "form": "MODELS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "model-card",
+      "form": "MODELCARD",
+      "display": "Model card",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A short document describing an AI model's purpose, training data, limits and test results.",
+        "fr": "Court document qui décrit l'usage d'un modèle d'IA, ses données d'entraînement, ses limites et ses résultats."
+      },
+      "inflections": [
+        {
+          "form": "MODELCARDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "explainability"
+        }
+      ],
+      "sources": [
+        "https://arxiv.org/abs/1810.03993"
+      ]
+    },
+    {
+      "id": "monte-carlo",
+      "form": "MONTECARLO",
+      "display": "Monte Carlo method",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Estimating a result by running many random simulations, used in games, finance and physics.",
+        "fr": "Estimer un résultat en lançant de nombreuses simulations aléatoires, en jeu, en finance ou en physique."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "related_to",
+          "target": "sampling"
         }
       ]
     },
@@ -1532,6 +2134,37 @@
       ]
     },
     {
+      "id": "ngram",
+      "form": "NGRAM",
+      "display": "N-gram",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A sequence of n consecutive words or characters, used to model which words tend to follow others.",
+        "fr": "Suite de n mots ou caractères consécutifs, utilisée pour modéliser quels mots en suivent d'autres."
+      },
+      "inflections": [
+        {
+          "form": "NGRAMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "nlp"
+        },
+        {
+          "type": "related_to",
+          "target": "token"
+        }
+      ]
+    },
+    {
       "id": "nlp",
       "form": "NLP",
       "display": "NLP",
@@ -1577,6 +2210,37 @@
       ]
     },
     {
+      "id": "nn-layer",
+      "form": "LAYER",
+      "display": "Layer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One level in a stack: a set of neurons in a neural network, a level of the network model, or of a container image.",
+        "fr": "Niveau d'un empilement : ensemble de neurones d'un réseau de neurones, niveau du modèle réseau ou d'une image de conteneur."
+      },
+      "inflections": [
+        {
+          "form": "LAYERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "neural-network"
+        },
+        {
+          "type": "related_to",
+          "target": "osi-model"
+        }
+      ]
+    },
+    {
       "id": "ocr",
       "form": "OCR",
       "display": "OCR",
@@ -1598,6 +2262,62 @@
       ]
     },
     {
+      "id": "open-weights",
+      "form": "OPENWEIGHTS",
+      "display": "Open weights",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes an AI model whose trained parameters are published so anyone can download and run it.",
+        "fr": "Qualifie un modèle d'IA dont les paramètres entraînés sont publiés pour que chacun puisse le télécharger et l'exécuter."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "weight"
+        },
+        {
+          "type": "related_to",
+          "target": "open-source"
+        }
+      ]
+    },
+    {
+      "id": "optimizer",
+      "form": "OPTIMIZER",
+      "display": "Optimizer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The algorithm that adjusts a model's weights during training to reduce the loss.",
+        "fr": "Algorithme qui ajuste les poids d'un modèle pendant l'entraînement pour réduire la perte."
+      },
+      "inflections": [
+        {
+          "form": "OPTIMIZERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "gradient"
+        },
+        {
+          "type": "related_to",
+          "target": "loss-function"
+        }
+      ]
+    },
+    {
       "id": "overfitting",
       "form": "OVERFITTING",
       "display": "Overfitting",
@@ -1615,6 +2335,35 @@
         {
           "type": "related_to",
           "target": "training"
+        }
+      ]
+    },
+    {
+      "id": "pca",
+      "form": "PCA",
+      "display": "PCA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Principal component analysis: reducing many variables to a few combined ones that keep most of the variation.",
+        "fr": "Analyse en composantes principales : réduire de nombreuses variables à quelques combinaisons qui gardent l'essentiel."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "algorithm"
+        },
+        {
+          "type": "related_to",
+          "target": "dimension"
+        },
+        {
+          "type": "related_to",
+          "target": "variance"
         }
       ]
     },
@@ -1982,6 +2731,37 @@
       ]
     },
     {
+      "id": "reward",
+      "form": "REWARD",
+      "display": "Reward",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "In reinforcement learning, the score an agent receives after an action, which it learns to maximise.",
+        "fr": "En apprentissage par renforcement, score reçu par un agent après une action, qu'il apprend à maximiser."
+      },
+      "inflections": [
+        {
+          "form": "REWARDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "reinforcement"
+        },
+        {
+          "type": "related_to",
+          "target": "agent"
+        }
+      ]
+    },
+    {
       "id": "rl",
       "form": "RL",
       "display": "RL",
@@ -2123,6 +2903,115 @@
       ]
     },
     {
+      "id": "rpa",
+      "form": "RPA",
+      "display": "RPA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Robotic process automation: software bots that copy human clicks and typing to automate office tasks.",
+        "fr": "Robotic process automation : robots logiciels qui reproduisent clics et saisies humains pour automatiser des tâches de bureau."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "automation"
+        },
+        {
+          "type": "related_to",
+          "target": "bot"
+        }
+      ]
+    },
+    {
+      "id": "scalar",
+      "form": "SCALAR",
+      "display": "Scalar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A single number, as opposed to a vector or matrix of numbers.",
+        "fr": "Nombre unique, par opposition à un vecteur ou à une matrice de nombres."
+      },
+      "inflections": [
+        {
+          "form": "SCALARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vector"
+        },
+        {
+          "type": "related_to",
+          "target": "tensor"
+        }
+      ]
+    },
+    {
+      "id": "scaling-law",
+      "form": "SCALINGLAW",
+      "display": "Scaling law",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "An observed rule linking a model's performance to its size, data and compute.",
+        "fr": "Règle observée qui relie la performance d'un modèle à sa taille, à ses données et à sa puissance de calcul."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "llm"
+        },
+        {
+          "type": "related_to",
+          "target": "pretraining"
+        }
+      ],
+      "sources": [
+        "https://arxiv.org/abs/2001.08361"
+      ]
+    },
+    {
+      "id": "segmentation",
+      "form": "SEGMENTATION",
+      "display": "Segmentation",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "In computer vision, labelling each pixel of an image with the object it belongs to.",
+        "fr": "En vision par ordinateur, attribuer à chaque pixel d'une image l'objet auquel il appartient."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "computer-vision"
+        },
+        {
+          "type": "related_to",
+          "target": "pixel"
+        }
+      ]
+    },
+    {
       "id": "self-driving",
       "form": "SELFDRIVING",
       "display": "Self-driving",
@@ -2198,6 +3087,63 @@
       ]
     },
     {
+      "id": "sigmoid",
+      "form": "SIGMOID",
+      "display": "Sigmoid",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "An S-shaped function that squeezes any number into the range 0 to 1, used as an activation.",
+        "fr": "Fonction en forme de S qui ramène tout nombre entre 0 et 1, utilisée comme activation."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "activation"
+        },
+        {
+          "type": "related_to",
+          "target": "softmax"
+        }
+      ]
+    },
+    {
+      "id": "smart-speaker",
+      "form": "SMARTSPEAKER",
+      "display": "Smart speaker",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A connected speaker with a built-in voice assistant that answers questions and controls devices.",
+        "fr": "Enceinte connectée avec un assistant vocal intégré qui répond aux questions et pilote des appareils."
+      },
+      "inflections": [
+        {
+          "form": "SMARTSPEAKERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "voice-assistant"
+        },
+        {
+          "type": "is_a",
+          "target": "speaker"
+        }
+      ]
+    },
+    {
       "id": "softmax",
       "form": "SOFTMAX",
       "display": "Softmax",
@@ -2219,6 +3165,31 @@
         {
           "type": "related_to",
           "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "speech-to-text",
+      "form": "SPEECHTOTEXT",
+      "display": "Speech-to-text",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Converting spoken audio into written words, as in dictation and automatic subtitles.",
+        "fr": "Conversion de la parole en texte écrit, comme pour la dictée et les sous-titres automatiques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "asr"
+        },
+        {
+          "type": "alternative_to",
+          "target": "text-to-speech"
         }
       ]
     },
@@ -2246,6 +3217,56 @@
         {
           "type": "is_a",
           "target": "classifier"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-data",
+      "form": "SYNTHETICDATA",
+      "display": "Synthetic data",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Artificially generated data that mimics real data, used to train or test models without exposing real records.",
+        "fr": "Données générées artificiellement qui imitent les vraies, pour entraîner ou tester sans exposer de données réelles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "privacy"
+        }
+      ]
+    },
+    {
+      "id": "system-prompt",
+      "form": "SYSTEMPROMPT",
+      "display": "System prompt",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hidden instructions given to a chatbot before the conversation that set its role, tone and rules.",
+        "fr": "Instructions cachées données à un chatbot avant la conversation, qui fixent son rôle, son ton et ses règles."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "prompt"
+        },
+        {
+          "type": "related_to",
+          "target": "llm"
         }
       ]
     },
@@ -2324,6 +3345,62 @@
         {
           "type": "alternative_to",
           "target": "pytorch"
+        }
+      ]
+    },
+    {
+      "id": "test-set",
+      "form": "TESTSET",
+      "display": "Test set",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Data held back from training and used only to check how well a model works on unseen examples.",
+        "fr": "Données mises de côté pendant l'entraînement pour vérifier comment un modèle s'en sort sur des exemples inédits."
+      },
+      "inflections": [
+        {
+          "form": "TESTSETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "overfitting"
+        }
+      ]
+    },
+    {
+      "id": "text-to-image",
+      "form": "TEXTTOIMAGE",
+      "display": "Text-to-image",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "AI that creates a picture from a written description.",
+        "fr": "IA qui crée une image à partir d'une description écrite."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "generative-ai"
+        },
+        {
+          "type": "uses",
+          "target": "diffusion"
         }
       ]
     },
@@ -2512,6 +3589,31 @@
       ]
     },
     {
+      "id": "upscaling",
+      "form": "UPSCALING",
+      "display": "Upscaling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Raising the resolution of an image or video, often with AI that invents plausible detail.",
+        "fr": "Augmentation de la résolution d'une image ou d'une vidéo, souvent par une IA qui invente des détails plausibles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "resolution"
+        },
+        {
+          "type": "related_to",
+          "target": "neural-network"
+        }
+      ]
+    },
+    {
       "id": "vector",
       "form": "VECTOR",
       "display": "Vector",
@@ -2581,6 +3683,37 @@
         {
           "type": "related_to",
           "target": "chatbot"
+        }
+      ]
+    },
+    {
+      "id": "watermark",
+      "form": "WATERMARK",
+      "display": "Watermark",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A visible or hidden mark added to an image, text or video to show its origin, including AI-generated content.",
+        "fr": "Marque visible ou cachée ajoutée à une image, un texte ou une vidéo pour en signaler l'origine, y compris l'IA."
+      },
+      "inflections": [
+        {
+          "form": "WATERMARKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deepfake"
+        },
+        {
+          "type": "related_to",
+          "target": "generative-ai"
         }
       ]
     },

@@ -468,6 +468,29 @@ Decided 2026-10-02 by `lexicon-curator` under the product owner's delegation, wi
   canonical): canonical-heavy (≥ 312 new canonical, ≤ 187 new inflections to stay ≤ 35 %), skew novice
   (intermediate sits at the 40 % ceiling, advanced near 30 %), favour 5–7-letter terms (33.4 %, below the ≈ 35–45 %
   target; 8–10 letters is 33.5 %, above ≈ 20–30 %), add ≥ 55 forms of 3–4 letters, prioritise cloud.
+  **Batch 3 (2026-10-04, sprint 3 C3, `feat/lexicon-batch-3`, one commit per category, three stacked groups of
+  ≤ 200 terms: cloud + devops + systems 160 new terms + 1 updated; networking + cybersecurity + data + ai 1/2
+  169 + 1; ai 2/2 + programming + hardware 115):** 444 new canonical terms (no products or trademarks; 14
+  `language` and 14 `tool` terms without owners or inflections; every new term has ≥ 1 typed relation, 817 new
+  relations of which 205 are typed other than `related_to`; all 43 new `protocol`/`standard` terms and all 11 new
+  two-letter terms have sources), 209 new inflections (198 plurals, 9 `verb_ed`, 2 `verb_s`, all on C-LC-3 verbs),
+  of which one irregular plural, BINARIES, is confirmed as data (`confirmed`, sprint 3 P7). Result: **2,154 forms
+  = 1,432 canonical + 722 inflections (33.5 %)**, `lexiconVersion` e568477b5592a994, 0 errors, 0 warnings, 0 open
+  `NEEDS_REVIEW`. Lengths 2 / 3 / 4 / 5–7 / 8–10 / 11–15 = 48 / 218 / 258 / 782 / 647 / 201: 2–4 letters
+  **24.3 %** (+192 short forms, steered per the B2 response D1-d), 3–4 letters 476, 5–7 letters 36.3 %, 8–10
+  letters 30.0 %, 11–15 letters 9.3 %. Difficulty 24.2 / 38.9 / 28.8 / 8.0 %; categories 10.1 % (ai, data) to
+  12.6 % (networking), cloud 9.8 % → 10.8 %. Two-letter forms 48 (+11: HA, GA, DR, RC, LS, IM, CA, DI, GC, EM, HD;
+  25 vowel-bearing; still 6 with a letter worth ≥ 5, none added). Every new 2–4-letter form was checked for
+  offensive readings in EN and FR and against both blocklists; KMS was dropped (EN blocklist). Size gate (P7):
+  f1 361,352 B = 167.8 B/form (≤ 215, cap 550,000, ceiling 2,550 forms), GADDAG 4.58 × DAWG; f0 138,352 B =
+  64.2 B/form (≤ 128). Real tech vocabulary stays denser than the real+synthetic projection (194.5 B/form at
+  2,000). The scale-corpus tests now derive their sizes from the real form count (a real+synthetic corpus cannot
+  be smaller than the real lexicon); no gate value changed. Excluded as ambiguous, low-usage or risky: MR (merge
+  request vs mixed reality), SD, DM, CP, PS, RM, KILL, NONCE (offensive UK reading), POS, TOR, CDC, CSR, APT as
+  "advanced persistent threat" (the string went to the package tool), trademarks (CUDA, NPM, CURL, DEBIAN,
+  SNOWFLAKE, ICEBERG, AVRO, ISTIO, LORA). The irregular forms RETRIES and RESTORING and all plurals of 11+-letter
+  forms were left out. All six batch-2 exclusions named for batch 3 are in (SOVEREIGNCLOUD, MULTIREGION,
+  LIFTANDSHIFT, COLDSTORAGE, DATALINEAGE, CONTROLPLANE).
 - **C-LC-3 Closed verb list for batch 2 (60 verbs; a verb form is authored only on an existing canonical term with
   that verb reading, regular -S/-ED/-ING only unless confirmed as NEEDS_REVIEW, noun reading wins on collisions per
   D-1, and a standalone term owns its string per D-5, e.g. LOGGING, STREAMING):** DEPLOY, COMMIT, MERGE, PUSH, PULL,
