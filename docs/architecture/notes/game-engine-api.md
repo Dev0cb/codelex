@@ -5,6 +5,7 @@
 - Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` — D4 (this note). Unblocks E2–E4 (engine), L2 (lexicon
   index types), B1 (bots), and the E-1.5 mobile work next sprint.
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013),
+  `docs/adr/0014-multiple-rules-versions-in-one-engine-build.md` (ADR-0014: §4.1.1, §6, §15 for v2),
   `docs/game/GAME_RULES.md` v0.3 (= `engineRulesVersion` 1), `docs/game/RULE_PROPERTIES.md`,
   `docs/architecture/notes/lexicon-index.md`, `docs/specs/E-1.7-playtest-lexicon/playtest-lexicon.md`,
   `packages/config/README.md`, `docs/standards/ENGINEERING.md`.
@@ -71,6 +72,8 @@ seeded RNG (`./rng`).
 ```
 
 - Two entries only. `.` = everything in §4–§13; `./rng` = §14 (bots and tests import it without the rules code).
+  *(ADR-0014, from E6)* A third entry, `./draft`, exports only the draft opt-in token (§4.1.1). Lint bans it under
+  `apps/**` and `services/**`.
   No `./internal`, no `./testing`: fixture states for golden cases are built inside the engine's own tests; bots and
   mobile build fixture **observations** directly (plain objects).
 - Source layout (internal, may change): `src/{board,bag,placement,validation,scoring,modes/classic,replay,rng,hash}/`.
@@ -168,6 +171,73 @@ export const RULES: {
 };
 ```
 
+### 4.1.1 Rules registry (`engineRulesVersion` 2 onward; ADR-0014, implemented by E6)
+
+The block above remains the exact content of `engineRulesVersion` 1. From E6 on, one build carries several
+versions. They differ **in data only** and run through one code path: every function resolves the `RulesSet` of
+`x.engineRulesVersion` once per call and passes it down, and no engine code branches on a version number
+(ADR-0014 §D1).
+
+```ts
+export type EngineRulesVersion = 1 | 2;                       // one literal per registered version
+export type LayoutId = 'classic-v1' | 'classic-v2';           // classic-v2: plain start square (R-BOARD-004 v2, D4)
+export type LetterTableId = 'letters-v1' | 'letters-v2';      // letters-v2: derived from batch 3 (T-4a, L7)
+
+/** Frozen, read-only registry entry; module-level constant data (not mutable state, §17.2). */
+export interface RulesSet {
+  readonly engineRulesVersion: EngineRulesVersion;
+  /** 'frozen' = published and immutable forever; 'draft' = refused unless opted in (below). */
+  readonly status: 'frozen' | 'draft';
+  /** GAME_RULES version implemented, e.g. '0.3.1'. */
+  readonly gameRules: string;
+  /** Allowed MatchSetup.layout / MatchSetup.letters ids (ascending, ≥ 1 each). */
+  readonly layouts: readonly LayoutId[];
+  readonly letterTables: readonly LetterTableId[];
+  /** Every other outcome-affecting constant (the `RULES` shape above, termBonus included). */
+  readonly rules: Rules;
+}
+
+export const RULES_VERSIONS: readonly EngineRulesVersion[];      // ascending
+export function rulesFor(version: EngineRulesVersion): RulesSet;  // unknown version: programmer error (throws)
+export function isRulesVersion(value: unknown): value is EngineRulesVersion;
+/** 16 hex: SHA-256 over the JCS of the set with its layouts and letter tables; pinned for frozen versions. */
+export function rulesDigest(version: EngineRulesVersion): string;
+
+/** @deprecated (ADR-0014 §D6) newest frozen version, kept one release; consumers pin their own version. */
+export const ENGINE_RULES_VERSION: 1;
+/** @deprecated = rulesFor(1).rules; engine code never reads it. */
+export const RULES: Rules;
+
+// --- `@codelex/game-engine/draft` (simulator and tests only; lint-banned in apps/** and services/**) ---
+export type DraftOptIn = { readonly __draftOptIn: unique symbol };
+export const ALLOW_DRAFT_RULES: DraftOptIn;   // compared by identity
+```
+
+```ts
+// EngineContext (§5) gains one optional member:
+export interface EngineContext {
+  readonly lexicon: EngineLexicon;
+  /** Simulator/tests only. Never stored in state, never logged. `candidate` picks a draft's named Rules. */
+  readonly draft?: { readonly optIn: DraftOptIn; readonly candidate?: string };
+}
+```
+
+| `engineRulesVersion` | status | `layouts` | `letterTables` | `rules.termBonus` nov/int/adv/exp | other `rules` |
+|---|---|---|---|---|---|
+| 1 | frozen (GAME_RULES 0.3.1) | `classic-v1` | `letters-v1` | 0/4/8/16 | as above |
+| 2 | **draft** until rules PR 0.4 (R4) | `classic-v2`; while draft also `classic-v1` (D4 DW-vs-plain confirmation) | `letters-v2` (a copy of `letters-v1` until L7 fills it) | candidates `tb-0-3-6-12`, `tb-0-2-4-8`; one remains at the freeze | unchanged from v1 |
+
+- **Draft rule.** `createMatch`, `parseState`, `parseActionLog` and `replay` refuse a draft version with
+  `RULES_VERSION_UNSUPPORTED`, `details { actual, status: 'draft' }`, unless `ctx.draft.optIn ===
+  ALLOW_DRAFT_RULES`. `parseState` and `parseActionLog` take an optional `{ draft }` options argument for this,
+  because they have no `ctx`. Draft outcomes and hashes promise nothing across commits. The simulator records
+  `rulesDigest` and `candidate` with every result.
+- **Literal types.** `Layout.size: 15`, `LetterTable.blanks: 2`, `blankValue: 0` and the literal `Rules` members
+  hold for v1 and v2. A different board size (for example 11×11) needs **v3** and widens `size` in a typed API
+  change.
+- **`gameValue`** is not read by the engine. The term bonus is `rulesFor(v).rules.termBonus[difficulty]`
+  (ADR-0014 §D5). The lexicon `gameValue` no longer depends on any rules version.
+
 ## 5. Lexicon dependency and context
 
 The engine imports **types only** from `@codelex/lexicon/index` (task L2) and receives the instance in the context.
@@ -242,6 +312,24 @@ export interface MatchSetup {
   readonly requireWinner: 0 | 1;
 }
 ```
+
+**Per-version values (ADR-0014 §D2).** The shape of `MatchConfig` and `MatchSetup` is the same in every rules
+version, and `logVersion` stays 1. Only the accepted values depend on `engineRulesVersion`:
+
+- `engineRulesVersion` must be in `RULES_VERSIONS`. A draft also needs the opt-in (§4.1.1); otherwise the result
+  is `RULES_VERSION_UNSUPPORTED`.
+- `layout` must be in `rulesFor(v).layouts`, and `letters` in `rulesFor(v).letterTables`; otherwise the result
+  is `INVALID_CONFIG` (`config.layout` / `config.letters`).
+- `mode`, `format`, `seats`, `teams` and `requireWinner` are accepted as above for v1 and v2.
+
+`layout` and `letters` stay in the header (§20 Q4). In v1 they are redundant; under the v2 draft they distinguish
+the DW-start and plain-start runs.
+
+| `engineRulesVersion` | `layout` | `letters` |
+|---|---|---|
+| 1 | `classic-v1` | `letters-v1` |
+| 2 (draft) | `classic-v2`, `classic-v1` | `letters-v2` |
+| 2 (frozen, R4) | as chosen by the v2 `/balance-check` (expected: `classic-v2` only) | `letters-v2` |
 
 Example header (ADR-0013 §D2, extended with the D4 `config` fields):
 
@@ -854,11 +942,26 @@ export interface ReplayOutcome {
   (ADR-0013 §D5) — **including any change to `MatchState` field names, encodings or value evolution, any change to
   `MatchSetup` accepted values, the hash or JCS rules, and any new action type, format, mode, layout or letter
   table.** `createMatch`/`apply`/`replay`/`parseState` refuse other versions (`RULES_VERSION_UNSUPPORTED`).
+- **Several versions per build (ADR-0014; partly supersedes ADR-0013 §D6).**
+  - "Other versions" means versions not in `RULES_VERSIONS`, plus drafts without the opt-in.
+  - A frozen `RulesSet` is never edited and never removed without a new ADR. Its `rulesDigest` is pinned in
+    `test/golden/rules-digests.json` (append-only).
+  - Bumping means **adding** a registry entry, first as a draft, then frozen by the GAME_RULES PR that maps it.
+    Existing entries are never changed.
+  - v1 logs replay on every future build. A local match resumes after an app update as long as its version is
+    frozen and registered.
+- **Consumers pin their own version.** `apps/mobile` uses `PLAY_RULES_VERSION` (an app constant; changed by an
+  explicit PR after the v1/v2 decision, never a remote flag). The Phase 2 server picks the version per queue and
+  never trusts a client value. `ENGINE_RULES_VERSION` is deprecated (§4.1.1).
 - **`logVersion`**: envelope/header/action-encoding changes (ADR-0013 §D2). Readers keep every published version.
 - **Package semver** governs only non-hashed API (events, observation, breakdown, rejection details, function
   signatures). Breaking changes there are coordinated with bots/mobile in the same PR; never used for pinning.
 - Golden files: `test/golden/{rng,sha256,jcs}.json`, `test/golden/replays/v1/*.json` (GC-DET-01 + seeded corpus),
   `test/golden/scoring/v1/*.json` (RULE_PROPERTIES §3.1/§3.2 transcribed). Immutable once `v1` is published.
+  *(ADR-0014 §D3)* **`replays/v1/` is never modified.** Draft goldens live in `test/golden/drafts/v<N>/`, which is
+  mutable and outside the immutability check. At the freeze (R4), they are regenerated once into `replays/v<N>/`
+  and `scoring/v<N>/`, which are immutable from then on. Bot goldens are pinned per (`BOT_VERSION`,
+  `engineRulesVersion`) in `packages/bots/test/golden/decisions-v<B>-r<R>.json`.
 - **E4 implementation note (2026-10-03):** GC-DET-01 (`test/golden/replays/v1/gc-det-01*.json`, final hash
   `59b0b2f2d2ca6c60`) is replayed on a frozen synthetic lexicon, not on the bundled lexicon: every content batch
   changes `lexiconVersion`, and a golden log must keep replaying. It moves to an archived `.clxi` once L4 ships one.
