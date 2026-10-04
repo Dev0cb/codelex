@@ -1,7 +1,10 @@
 /**
- * Outcome-affecting constants of `engineRulesVersion` 1 (GAME_RULES v0.3): the `classic-v1` premium layout
- * (§2.1), the `letters-v1` letter table (§3.1) and `RULES`. Frozen: changing any value is an
- * `engineRulesVersion` bump (ADR-0013 §D5). There is no runtime derivation path (P-BAG-001-f).
+ * Rules tables (data only; the registry in `registry.ts` says which version uses which):
+ * - `engineRulesVersion` 1 (GAME_RULES v0.3.1, frozen): the `classic-v1` premium layout (§2.1), the `letters-v1`
+ *   letter table (§3.1) and `RULES_V1`. Changing any value is forbidden (ADR-0013 §D5, ADR-0014 §D1).
+ * - `engineRulesVersion` 2 (draft, ADR-0014 §D4): `classic-v2` (plain start, b2-response D4 / §6), the
+ *   `letters-v2` placeholder and the two term-bonus candidates (D3). May change until the freeze (R4).
+ * There is no runtime derivation path (P-BAG-001-f).
  */
 import type { Layout, LayoutId, LetterTable, LetterTableId, Rules, SquareKind } from '../types.js';
 
@@ -95,19 +98,31 @@ const CLASSIC_V1_PREMIUMS: readonly (readonly [
   ],
 ];
 
-function buildSquares(): readonly SquareKind[] {
+const START = Object.freeze({ row: 7, col: 7 });
+
+/** The §2.1 grid; `plainStart` leaves the start square without premium (classic-v2, GAME_RULES 0.4 §2.2 draft). */
+function buildSquares(plainStart: boolean): readonly SquareKind[] {
   const squares = new Array<SquareKind>(SIZE * SIZE).fill('plain');
   for (const [kind, coordinates] of CLASSIC_V1_PREMIUMS) {
     for (const [row, col] of coordinates) squares[row * SIZE + col] = kind;
   }
+  if (plainStart) squares[START.row * SIZE + START.col] = 'plain';
   return Object.freeze(squares);
 }
 
 const CLASSIC_V1: Layout = Object.freeze({
   id: 'classic-v1',
   size: SIZE,
-  start: Object.freeze({ row: 7, col: 7 }),
-  squares: buildSquares(),
+  start: START,
+  squares: buildSquares(false),
+});
+
+/** R-BOARD-004 v2 (draft): identical to classic-v1 except the start square (7,7), which is plain. */
+const CLASSIC_V2: Layout = Object.freeze({
+  id: 'classic-v2',
+  size: SIZE,
+  start: START,
+  squares: buildSquares(true),
 });
 
 /** GAME_RULES §3.1: index = LetterCode (0 = 'A'). */
@@ -121,26 +136,45 @@ const LETTERS_V1: LetterTable = Object.freeze({
   blankValue: 0,
 });
 
-// Lookups by id only (never iterated): a typed id outside the union is a programmer error.
-const LAYOUTS: ReadonlyMap<string, Layout> = new Map([[CLASSIC_V1.id, CLASSIC_V1]]);
-const LETTER_TABLES: ReadonlyMap<string, LetterTable> = new Map([[LETTERS_V1.id, LETTERS_V1]]);
+/**
+ * PLACEHOLDER (ADR-0014 §D1, T-4a): `letters-v2` is derived from batch 3 by task L7 (BALANCE.md R-BAG-001).
+ * Until L7 fills it, it holds a copy of the `letters-v1` values and counts, and `engineRulesVersion` 2 stays a
+ * draft. Do not freeze v2 with this table.
+ */
+const LETTERS_V2: LetterTable = Object.freeze({
+  id: 'letters-v2',
+  values: LETTERS_V1.values,
+  counts: LETTERS_V1.counts,
+  blanks: 2,
+  blankValue: 0,
+});
 
-/** The premium layout of a layout id (R-BOARD-002). Only `classic-v1` exists in `engineRulesVersion` 1. */
+// Lookups by id only (never iterated): a typed id outside the union is a programmer error.
+const LAYOUTS: ReadonlyMap<string, Layout> = new Map([
+  [CLASSIC_V1.id, CLASSIC_V1],
+  [CLASSIC_V2.id, CLASSIC_V2],
+]);
+const LETTER_TABLES: ReadonlyMap<string, LetterTable> = new Map([
+  [LETTERS_V1.id, LETTERS_V1],
+  [LETTERS_V2.id, LETTERS_V2],
+]);
+
+/** The premium layout of a layout id (R-BOARD-002). Which version allows which id: `rulesFor(v).layouts`. */
 export function getLayout(id: LayoutId): Layout {
   const layout = LAYOUTS.get(id);
   if (layout === undefined) throw new RangeError('unknown layout id');
   return layout;
 }
 
-/** The letter table of a table id (R-BAG-001). Only `letters-v1` exists in `engineRulesVersion` 1. */
+/** The letter table of a table id (R-BAG-001). Which version allows which id: `rulesFor(v).letterTables`. */
 export function getLetterTable(id: LetterTableId): LetterTable {
   const table = LETTER_TABLES.get(id);
   if (table === undefined) throw new RangeError('unknown letter table id');
   return table;
 }
 
-/** Every other outcome-affecting constant of rules version 1 (GAME_RULES v0.3). */
-export const RULES: Rules = Object.freeze({
+/** Every other outcome-affecting constant of rules version 1 (GAME_RULES v0.3.1). Frozen. */
+export const RULES_V1: Rules = Object.freeze({
   rackSize: 7,
   minFirstMoveTiles: 2,
   minBagForExchange: 7,
@@ -151,6 +185,25 @@ export const RULES: Rules = Object.freeze({
   chainStep: 5,
   chainCap: 5,
 });
+
+/** v2 draft rules: v1 with another R-SCORE-003 term bonus (b2-response D3); nothing else changes. */
+function v2Rules(intermediate: number, advanced: number, expert: number): Rules {
+  return Object.freeze({
+    ...RULES_V1,
+    termBonus: Object.freeze({ novice: 0, intermediate, advanced, expert }),
+  });
+}
+
+/** Draft candidate A of the v2 `/balance-check` (v2-balance-check §2 `v2-3612`): 0/3/6/12. */
+export const RULES_V2_TB_0_3_6_12: Rules = v2Rules(3, 6, 12);
+/** Draft candidate B (`v2-248`), the D3 lead candidate and the GAME_RULES 0.4 diff value: 0/2/4/8. */
+export const RULES_V2_TB_0_2_4_8: Rules = v2Rules(2, 4, 8);
+
+/**
+ * Deprecated (ADR-0014 §D6): `rulesFor(1).rules`, kept for one release so that consumers (bots, B3) migrate.
+ * Engine code never reads it; read `rulesFor(version).rules` instead.
+ */
+export const RULES: Rules = RULES_V1;
 
 /** Premium of a square; `plain` outside the board is never asked for (callers check bounds first). */
 export function squareKind(layout: Layout, row: number, col: number): SquareKind {

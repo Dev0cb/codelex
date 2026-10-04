@@ -95,7 +95,8 @@ describe('classic-v1 layout (R-BOARD-001, R-BOARD-002, R-BOARD-004)', () => {
   });
 
   it('rejects unknown layout ids (programmer error)', () => {
-    expect(() => getLayout('classic-v2' as LayoutId)).toThrow(RangeError);
+    // classic-v2 is registered since ADR-0014 (v2 draft): probe an id that no version defines.
+    expect(() => getLayout('classic-v9' as LayoutId)).toThrow(RangeError);
   });
 });
 
@@ -124,7 +125,8 @@ describe('letters-v1 table (R-BAG-001, R-BAG-002; GC-BAG-02)', () => {
   });
 
   it('rejects unknown table ids (programmer error)', () => {
-    expect(() => getLetterTable('letters-v2' as LetterTableId)).toThrow(RangeError);
+    // letters-v2 is registered since ADR-0014 (v2 draft placeholder): probe an id that no version defines.
+    expect(() => getLetterTable('letters-v9' as LetterTableId)).toThrow(RangeError);
   });
 });
 

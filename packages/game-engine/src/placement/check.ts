@@ -7,7 +7,6 @@
 import type { FormRef } from '@codelex/lexicon/index';
 import { err, ok, type Result } from '@codelex/config/result';
 import { notInLexicon, placementRejection, rackRejection } from '../errors.js';
-import { RULES } from '../rules/constants.js';
 import { EMPTY_SQUARE, letterOf, rackTileOf, removeTiles } from '../tiles.js';
 import type {
   BoardRow,
@@ -17,6 +16,7 @@ import type {
   Layout,
   Placement,
   Rejection,
+  Rules,
   Square,
   TileString,
 } from '../types.js';
@@ -65,6 +65,8 @@ export interface PlacementInput {
   readonly rack: TileString;
   /** Canonical tiles: sorted by (row, col). Shape already checked (`parseAction`). */
   readonly tiles: readonly Placement[];
+  /** The match's rules (rack size, minimum first move), resolved once by the entry point (ADR-0014 §D1). */
+  readonly rules: Rules;
 }
 
 const STEP: Readonly<Record<Direction, Square>> = {
@@ -139,8 +141,8 @@ const other = (direction: Direction): Direction => (direction === 'row' ? 'col' 
 export function checkPlacementGeometry(
   input: PlacementInput,
 ): Result<PlacementGeometry, Rejection> {
-  const { board, layout, rack, tiles } = input;
-  if (tiles.length === 0 || tiles.length > RULES.rackSize) {
+  const { board, layout, rack, tiles, rules } = input;
+  if (tiles.length === 0 || tiles.length > rules.rackSize) {
     return err(placementRejection('tile_count'));
   }
   if (tiles.some((t) => t.row < 0 || t.col < 0 || t.row >= layout.size || t.col >= layout.size)) {
@@ -179,7 +181,7 @@ export function checkPlacementGeometry(
     if (!tiles.some((t) => t.row === sr && t.col === sc)) {
       return err(placementRejection('start_not_covered'));
     }
-    if (tiles.length < RULES.minFirstMoveTiles) {
+    if (tiles.length < rules.minFirstMoveTiles) {
       return err(placementRejection('first_move_too_short'));
     }
   } else {

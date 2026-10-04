@@ -16,6 +16,7 @@ import {
   type CheckedPlacement,
 } from '../placement/check.js';
 import { getLayout, getLetterTable } from '../rules/constants.js';
+import { rulesFor } from '../rules/registry.js';
 import type { BoardTile, EngineLexicon, Layout, Placement, SquareKind } from '../types.js';
 import { chainAfter, previewPlacement, scorePlacement, wordBase } from './score.js';
 
@@ -103,6 +104,9 @@ const STUB: EngineLexicon = createReferenceIndex({
 const layout = getLayout('classic-v1');
 const letters = getLetterTable('letters-v1');
 
+/** ADR-0014 §D1: internal modules take the match's rules; these unit tests run rules version 1. */
+const R1 = rulesFor(1).rules;
+
 function toPlacement(t: GoldenTile): Placement {
   return {
     row: t.r,
@@ -115,7 +119,7 @@ function checked(c: GoldenCase): CheckedPlacement {
   const board = boardWith(c.board.map((t) => [t.r, t.c, t.letter]));
   const tiles = c.place.map(toPlacement).sort(comparePlacements);
   const rack = c.place.map((t) => (t.blank === true ? '?' : t.letter)).join('');
-  const r = checkPlacement({ board, layout, rack, tiles }, STUB);
+  const r = checkPlacement({ board, layout, rack, tiles, rules: R1 }, STUB);
   if (!r.ok) throw new Error(`${c.id}: ${JSON.stringify(r.error)}`);
   return r.value;
 }
@@ -137,7 +141,7 @@ describe('golden scoring cases (RULE_PROPERTIES §3.1, §3.2; R-SCORE-001, R-SCO
       lastMainForm: c.context?.prevMainTerm ?? '',
       chainK: c.context?.chainK ?? 0,
     };
-    const breakdown = scorePlacement(placement, layout, letters, context, STUB);
+    const breakdown = scorePlacement(placement, layout, letters, context, STUB, R1);
     expect(
       breakdown.words.map(({ form, main, letterSum, wordMult, base, termBonus }) => ({
         form,
@@ -168,6 +172,7 @@ describe('golden scoring cases (RULE_PROPERTIES §3.1, §3.2; R-SCORE-001, R-SCO
       letters,
       { lastMainForm: '', chainK: 0 },
       STUB,
+      R1,
     ).words;
     expect(word).toMatchObject({
       form: 'PODS',
@@ -191,24 +196,24 @@ describe('chain (R-SCORE-005)', () => {
   it('P-SCORE-005-a/b: k grows by one per link and caps at 5 (+5 … +25)', () => {
     expect(
       [0, 1, 2, 3, 4, 5].map((k) =>
-        chainAfter(ref('BUCKET'), { lastMainForm: 'CLOUD', chainK: k }, STUB),
+        chainAfter(ref('BUCKET'), { lastMainForm: 'CLOUD', chainK: k }, STUB, R1),
       ),
     ).toEqual([1, 2, 3, 4, 5, 5]);
   });
 
   it('P-SCORE-005-a: undirected (CLOUD after BUCKET links too)', () => {
-    expect(chainAfter(ref('CLOUD'), { lastMainForm: 'BUCKET', chainK: 0 }, STUB)).toBe(1);
+    expect(chainAfter(ref('CLOUD'), { lastMainForm: 'BUCKET', chainK: 0 }, STUB, R1)).toBe(1);
   });
 
   it('P-SCORE-005-c/d/f: no previous word, the same term, or an inflection of it → 0', () => {
-    expect(chainAfter(ref('CLOUD'), { lastMainForm: '', chainK: 3 }, STUB)).toBe(0);
-    expect(chainAfter(ref('CLOUD'), { lastMainForm: 'CLOUD', chainK: 3 }, STUB)).toBe(0);
-    expect(chainAfter(ref('PODS'), { lastMainForm: 'POD', chainK: 3 }, STUB)).toBe(0);
-    expect(chainAfter(ref('PODS'), { lastMainForm: 'KUBERNETES', chainK: 3 }, STUB)).toBe(4);
+    expect(chainAfter(ref('CLOUD'), { lastMainForm: '', chainK: 3 }, STUB, R1)).toBe(0);
+    expect(chainAfter(ref('CLOUD'), { lastMainForm: 'CLOUD', chainK: 3 }, STUB, R1)).toBe(0);
+    expect(chainAfter(ref('PODS'), { lastMainForm: 'POD', chainK: 3 }, STUB, R1)).toBe(0);
+    expect(chainAfter(ref('PODS'), { lastMainForm: 'KUBERNETES', chainK: 3 }, STUB, R1)).toBe(4);
   });
 
   it('a previous form missing from the pinned index never links (defensive)', () => {
-    expect(chainAfter(ref('CLOUD'), { lastMainForm: 'NOTAWORD', chainK: 1 }, STUB)).toBe(0);
+    expect(chainAfter(ref('CLOUD'), { lastMainForm: 'NOTAWORD', chainK: 1 }, STUB, R1)).toBe(0);
   });
 });
 
@@ -219,9 +224,9 @@ describe('preview (R-SCORE-009)', () => {
       [7, 7, 'I'],
     ]);
     const tiles: Placement[] = [{ row: 7, col: 8, tile: 'M' }];
-    const g = checkPlacementGeometry({ board, layout, rack: 'M', tiles });
+    const g = checkPlacementGeometry({ board, layout, rack: 'M', tiles, rules: R1 });
     if (!g.ok) throw new Error('geometry');
-    const preview = previewPlacement(g.value.words, tiles.length, layout, letters);
+    const preview = previewPlacement(g.value.words, tiles.length, layout, letters, R1);
     expect(preview.total).toBe(5); // A1 + I1 + M3, (7,8) is plain in classic-v1
     expect(preview.words).toEqual([
       {
@@ -234,8 +239,9 @@ describe('preview (R-SCORE-009)', () => {
         base: 5,
       },
     ]);
-    // P-SCORE-009-a by construction: the preview takes no lexicon parameter (API-7).
-    expect(previewPlacement).toHaveLength(4);
+    // P-SCORE-009-a by construction: the preview takes no lexicon parameter (API-7). Its parameters are
+    // (words, tilesPlaced, layout, letters, rules): the fifth is the match's rules (ADR-0014 §D1), not a lexicon.
+    expect(previewPlacement).toHaveLength(5);
   });
 
   it('P-SCORE-009-c: committed − preview = Σ termBonus + chain, ≥ 0, on every golden case', () => {
@@ -245,8 +251,14 @@ describe('preview (R-SCORE-009)', () => {
         lastMainForm: c.context?.prevMainTerm ?? '',
         chainK: c.context?.chainK ?? 0,
       };
-      const committed = scorePlacement(placement, layout, letters, context, STUB);
-      const preview = previewPlacement(placement.words, placement.tiles.length, layout, letters);
+      const committed = scorePlacement(placement, layout, letters, context, STUB, R1);
+      const preview = previewPlacement(
+        placement.words,
+        placement.tiles.length,
+        layout,
+        letters,
+        R1,
+      );
       const delta = committed.words.reduce((s, w) => s + w.termBonus, 0) + committed.chain;
       expect(committed.total - preview.total, c.id).toBe(delta);
       expect(delta).toBeGreaterThanOrEqual(0);
@@ -325,11 +337,11 @@ describe('fixture-layout golden cases (RULE_PROPERTIES §3: GC-SCORE-02, GC-SCOR
   ): ReturnType<typeof scorePlacement> {
     const rack = tiles.map((t) => t.tile).join('');
     const r = checkPlacement(
-      { board: boardWith(board), layout: fixture, rack, tiles },
+      { board: boardWith(board), layout: fixture, rack, tiles, rules: R1 },
       CTX.lexicon,
     );
     if (!r.ok) throw new Error(JSON.stringify(r.error));
-    return scorePlacement(r.value, fixture, letters, context, CTX.lexicon);
+    return scorePlacement(r.value, fixture, letters, context, CTX.lexicon, R1);
   }
 
   it('GC-SCORE-02: DNS 10 + CDN 15 with the shared DL = 25; TCP → DNS is no link', () => {

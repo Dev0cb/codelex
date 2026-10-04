@@ -5,19 +5,15 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { parseAction } from '../actions/parse.js';
-import {
-  lexiconMismatch,
-  malformed,
-  matchOver,
-  notYourTurn,
-  rulesVersionError,
-} from '../errors.js';
+import { lexiconMismatch, malformed, matchOver, notYourTurn } from '../errors.js';
 import { checkPlacement, checkPlacementGeometry } from '../placement/check.js';
 import { getLayout, getLetterTable } from '../rules/constants.js';
+import { resolveSetup } from '../rules/registry.js';
 import { previewPlacement, scorePlacement } from '../scoring/score.js';
 import { BLANK_SLOT, countTiles, isBlankOnBoard } from '../tiles.js';
 import type {
   ApplyFailure,
+  DraftContext,
   EngineContext,
   MatchEvent,
   MatchState,
@@ -29,7 +25,6 @@ import type {
   SeatView,
   Viewer,
 } from '../types.js';
-import { ENGINE_RULES_VERSION } from '../version.js';
 import { comparePlacements } from '../actions/parse.js';
 
 const CODE_A = 65;
@@ -130,9 +125,10 @@ export function evaluateMove(
   action: PlaceWordAction,
   ctx: EngineContext,
 ): Result<MoveEvaluation, ApplyFailure> {
-  if ((observation.engineRulesVersion as number) !== ENGINE_RULES_VERSION) {
-    return err(rulesVersionError(observation.engineRulesVersion));
-  }
+  // Same resolution as `apply` (draft opt-in and candidate included), so P-API-01 holds for every version.
+  const resolved = resolveSetup(observation.engineRulesVersion, observation.config, ctx.draft);
+  if (!resolved.ok) return resolved;
+  const { rules } = resolved.value;
   const mismatch = lexiconMismatch(observation, ctx);
   if (mismatch !== undefined) return err(mismatch);
   if (observation.status === 'finished') return err(matchOver());
@@ -149,7 +145,7 @@ export function evaluateMove(
   }
   const layout = getLayout(observation.config.layout);
   const placement = checkPlacement(
-    { board: observation.board, layout, rack: observation.rack, tiles: canonical.tiles },
+    { board: observation.board, layout, rack: observation.rack, tiles: canonical.tiles, rules },
     ctx.lexicon,
   );
   if (!placement.ok) return placement;
@@ -159,6 +155,7 @@ export function evaluateMove(
     getLetterTable(observation.config.letters),
     seat,
     ctx.lexicon,
+    rules,
   );
   return ok({
     action: canonical,
@@ -170,14 +167,20 @@ export function evaluateMove(
 
 /**
  * R-SCORE-009: projected score of a tentative placement for the viewer, or `null` when the match is over, the
- * viewer is a spectator or no longer active, or the placement fails geometry or the viewer's rack
- * (P-SCORE-009-d). No lexicon.
+ * viewer is a spectator or no longer active, the rules do not resolve (unregistered version, a draft without
+ * `options.draft`, layout or letters outside the version's lists: the same guard as `evaluateMove`, ADR-0014
+ * §D4), or the placement fails geometry or the viewer's rack (P-SCORE-009-d). No lexicon (API-7). A candidate
+ * only changes the term bonus, which a preview never shows.
  */
 export function previewScore(
   observation: Observation,
   tiles: readonly Placement[],
+  options?: { readonly draft?: DraftContext },
 ): PreviewScore | null {
   if (observation.status === 'finished' || observation.viewer === 'spectator') return null;
+  const resolved = resolveSetup(observation.engineRulesVersion, observation.config, options?.draft);
+  if (!resolved.ok) return null;
+  const { rules } = resolved.value;
   // A resigned seat can never move again: no preview (review R1 n7).
   if (observation.seats[observation.viewer]?.status !== 'active') return null;
   const parsed = parseAction(
@@ -191,6 +194,7 @@ export function previewScore(
     layout,
     rack: observation.rack,
     tiles: [...parsed.value.tiles].sort(comparePlacements),
+    rules,
   });
   if (!geometry.ok) return null;
   return previewPlacement(
@@ -198,5 +202,6 @@ export function previewScore(
     geometry.value.tiles.length,
     layout,
     getLetterTable(observation.config.letters),
+    rules,
   );
 }

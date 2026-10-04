@@ -200,7 +200,7 @@ describe('evaluateMove (API note §13.4, P-API-01)', () => {
 
   it('engine errors and match_over come first; a resigned viewer is not active', () => {
     const o = observe(s, 0);
-    expect(evaluateMove({ ...o, engineRulesVersion: 2 as 1 }, AI, CTX)).toMatchObject({
+    expect(evaluateMove({ ...o, engineRulesVersion: 2 }, AI, CTX)).toMatchObject({
       error: { code: 'RULES_VERSION_UNSUPPORTED' },
     });
     const foreign = { lexicon: smallLexicon('eeeeeeeeeeeeeeee' as typeof SMALL_VERSION) };

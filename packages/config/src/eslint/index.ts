@@ -31,6 +31,11 @@ export function findRepoRoot(from: string): string {
   }
 }
 
+/** `options.repoRoot`, or the nearest workspace root above `tsconfigRootDir` (shared by every preset). */
+function repoRootOf(options: CodelexEslintOptions): string {
+  return options.repoRoot ?? findRepoRoot(options.tsconfigRootDir);
+}
+
 const require = createRequire(import.meta.url);
 
 const TS_FILES = ['**/*.{ts,tsx,mts,cts}'];
@@ -39,6 +44,12 @@ const TEST_FILES = ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'];
 const TOOLING_FILES = ['**/*.config.{js,mjs,cjs,ts,mts}'];
 const DETERMINISTIC_FILES = ['packages/game-engine/**', 'packages/bots/**'];
 const PURE_FILES = ['packages/game-engine/**'];
+/** ADR-0014 §D1: the one file allowed to tell rules versions apart. */
+const RULES_REGISTRY_FILE = 'packages/game-engine/src/rules/registry.ts';
+const ENGINE_SOURCE_FILES = ['packages/game-engine/src/**'];
+/** ADR-0014 §D4: code that must never reach a draft rules version. */
+const DRAFT_BANNED_FILES = ['apps/**', 'services/**'];
+const DRAFT_ENTRY = '@codelex/game-engine/draft';
 // Purity guards shipped code: tests and tooling configs may import test libraries and @codelex/config.
 // Determinism still applies to them (seeded tests only).
 const PURE_EXEMPT_FILES = [...TEST_FILES, ...TOOLING_FILES];
@@ -96,7 +107,7 @@ export function boundariesPreset(options: CodelexEslintOptions): Linter.Config[]
     files: [...TS_FILES, ...JS_FILES],
     plugins: { boundaries: boundaries as unknown as ESLint.Plugin },
     settings: {
-      'boundaries/root-path': options.repoRoot ?? findRepoRoot(options.tsconfigRootDir),
+      'boundaries/root-path': repoRootOf(options),
       'import/resolver': {
         // Absolute path: the resolver must be found even when the linted repo has no node_modules.
         [require.resolve('eslint-import-resolver-typescript')]: { alwaysTryTypes: true },
@@ -474,6 +485,46 @@ const SHIPPED_SELECTORS = [
   },
 ];
 
+/** One side of a comparison that reads a rules version: `x.engineRulesVersion`, `x['engineRulesVersion']`, a variable of that name, or any of them under `as`/`!`. */
+function versionSide(side: string): string[] {
+  const name = '/^(engineRulesVersion|ENGINE_RULES_VERSION)$/';
+  return [side, `${side}.expression`].flatMap((path) => [
+    `[${path}.name=${name}]`,
+    `[${path}.property.name=${name}]`,
+    `[${path}.property.value=${name}]`,
+  ]);
+}
+
+/** The other side: a literal (`1`, `'2'`), possibly under `as`, or the deprecated `ENGINE_RULES_VERSION`. */
+function constantSide(side: string): string[] {
+  return [
+    `[${side}.type='Literal']`,
+    `[${side}.expression.type='Literal']`,
+    `[${side}.name='ENGINE_RULES_VERSION']`,
+    `[${side}.property.name='ENGINE_RULES_VERSION']`,
+  ];
+}
+
+const VERSION_MESSAGE =
+  'Rules versions differ in data only (ADR-0014 §D1): resolve rulesFor(x.engineRulesVersion) / resolveRules once and read the RulesSet; only rules/registry.ts may compare versions.';
+const COMPARISON = 'BinaryExpression[operator=/^([=!]==?|[<>]=?)$/]';
+
+/** ADR-0014 §D1: no `engineRulesVersion` comparison with a constant, and no `switch` on it, in engine source. */
+const VERSION_SELECTORS = [
+  {
+    selector: `${COMPARISON}:matches(${versionSide('left').join(', ')}):matches(${constantSide('right').join(', ')})`,
+    message: VERSION_MESSAGE,
+  },
+  {
+    selector: `${COMPARISON}:matches(${constantSide('left').join(', ')}):matches(${versionSide('right').join(', ')})`,
+    message: VERSION_MESSAGE,
+  },
+  {
+    selector: `SwitchStatement:matches(${versionSide('discriminant').join(', ')})`,
+    message: VERSION_MESSAGE,
+  },
+];
+
 const DETERMINISM_PROPERTIES = [
   {
     object: 'Date',
@@ -514,7 +565,7 @@ function uniqueByName<T extends { name: string }>(entries: readonly T[]): T[] {
  * whatever the cwd / config location (per-package eslint.config.js, as under `turbo run lint`).
  */
 export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[] {
-  const basePath = options.repoRoot ?? findRepoRoot(options.tsconfigRootDir);
+  const basePath = repoRootOf(options);
   return defineConfig(
     {
       basePath,
@@ -554,6 +605,22 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       },
     },
     {
+      // ADR-0014 §D1: shipped engine source outside the registry never branches on a rules version. Repeats the
+      // shipped selectors above, because this entry replaces them for these files.
+      basePath,
+      files: ENGINE_SOURCE_FILES,
+      ignores: [...TEST_FILES, RULES_REGISTRY_FILE],
+      rules: {
+        'no-restricted-syntax': [
+          'error',
+          ...DETERMINISM_SELECTORS,
+          ...ADR_D4_SELECTORS,
+          ...SHIPPED_SELECTORS,
+          ...VERSION_SELECTORS,
+        ],
+      },
+    },
+    {
       basePath,
       files: PURE_FILES,
       ignores: PURE_EXEMPT_FILES,
@@ -574,12 +641,37 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
   );
 }
 
+/**
+ * ADR-0014 §D4: apps and services never import the draft opt-in token (`@codelex/game-engine/draft`), so a draft
+ * rules version can never be created, resumed or replayed by them. Allowed elsewhere (simulator, engine and bot
+ * tests); `packages/bots/src` bans every engine subpath but `./rng` in its own config.
+ */
+export function draftRulesPreset(options: CodelexEslintOptions): Linter.Config[] {
+  const basePath = repoRootOf(options);
+  const message =
+    'Draft rules versions are for the simulator and engine tests only (ADR-0014 §D4): apps and services pin a frozen engineRulesVersion.';
+  return defineConfig({
+    basePath,
+    files: DRAFT_BANNED_FILES,
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [{ name: DRAFT_ENTRY, message }],
+          patterns: [{ group: [`${DRAFT_ENTRY}/*`, '@codelex/game-engine/dist/*'], message }],
+        },
+      ],
+    },
+  });
+}
+
 /** Full CODELEX flat config. `prettier` is last so formatting rules never conflict. */
 export function codelex(options: CodelexEslintOptions): Linter.Config[] {
   return defineConfig(
     genericPreset(options),
     boundariesPreset(options),
     gameEnginePreset(options),
+    draftRulesPreset(options),
     prettierConfig,
   );
 }

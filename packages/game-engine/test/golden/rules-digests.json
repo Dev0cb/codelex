@@ -1,0 +1,6 @@
+{
+  "$comment": "ADR-0014 D1: rulesDigest(v) of every FROZEN engineRulesVersion (first 16 hex of SHA-256 over the JCS of the RulesSet, its layouts and its letter tables). Append-only (tools/golden/protected-paths.json): a version is added at its freeze (R4), never edited or removed. Draft versions are never pinned.",
+  "digests": {
+    "1": "32c2abd097ccdb78"
+  }
+}
