@@ -58,6 +58,37 @@
       ]
     },
     {
+      "id": "alpha",
+      "form": "ALPHA",
+      "display": "Alpha",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An early, incomplete version of software tested mainly by its own team.",
+        "fr": "Version précoce et incomplète d'un logiciel, testée surtout par sa propre équipe."
+      },
+      "inflections": [
+        {
+          "form": "ALPHAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "beta"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
       "id": "ansible",
       "form": "ANSIBLE",
       "display": "Ansible",
@@ -166,6 +197,62 @@
       ]
     },
     {
+      "id": "beta",
+      "form": "BETA",
+      "display": "Beta",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A nearly finished version of software released to testers or the public to find remaining bugs.",
+        "fr": "Version presque finie d'un logiciel diffusée à des testeurs ou au public pour trouver les derniers bugs."
+      },
+      "inflections": [
+        {
+          "form": "BETAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "bisect",
+      "form": "BISECT",
+      "display": "Bisect",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Finding the commit that introduced a bug by repeatedly testing the midpoint of a range of history.",
+        "fr": "Trouver le commit qui a introduit un bug en testant à chaque fois le milieu d'une plage d'historique."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "git"
+        },
+        {
+          "type": "related_to",
+          "target": "debug"
+        }
+      ]
+    },
+    {
       "id": "blue-green",
       "form": "BLUEGREEN",
       "display": "Blue-green deployment",
@@ -223,6 +310,37 @@
         {
           "type": "part_of",
           "target": "git"
+        }
+      ]
+    },
+    {
+      "id": "bugfix",
+      "form": "BUGFIX",
+      "display": "Bugfix",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A change to code that corrects a bug.",
+        "fr": "Modification du code qui corrige un bug."
+      },
+      "inflections": [
+        {
+          "form": "BUGFIXES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bug"
+        },
+        {
+          "type": "related_to",
+          "target": "patch"
         }
       ]
     },
@@ -336,6 +454,34 @@
           "type": "related_to",
           "target": "version"
         }
+      ]
+    },
+    {
+      "id": "chaos-engineering",
+      "form": "CHAOS",
+      "display": "Chaos engineering",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Chaos engineering: deliberately injecting failures into a system to prove it copes before real incidents do.",
+        "fr": "Chaos engineering : injecter volontairement des pannes dans un système pour prouver sa résistance."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sre"
+        },
+        {
+          "type": "related_to",
+          "target": "incident"
+        }
+      ],
+      "sources": [
+        "https://principlesofchaos.org/"
       ]
     },
     {
@@ -618,6 +764,33 @@
       ]
     },
     {
+      "id": "demo",
+      "form": "DEMO",
+      "display": "Demo",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A live showing of software to explain or test it, or a limited free version of a program or game.",
+        "fr": "Présentation en direct d'un logiciel pour l'expliquer ou le tester, ou version gratuite limitée d'un programme."
+      },
+      "inflections": [
+        {
+          "form": "DEMOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sprint"
+        }
+      ]
+    },
+    {
       "id": "deploy",
       "form": "DEPLOY",
       "display": "Deploy",
@@ -674,6 +847,37 @@
         {
           "type": "related_to",
           "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "dev",
+      "form": "DEV",
+      "display": "Dev",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Short for developer or development; also the environment where code is written and first tried.",
+        "fr": "Abréviation de développeur ou développement ; aussi l'environnement où l'on écrit et essaie le code."
+      },
+      "inflections": [
+        {
+          "form": "DEVS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "developer"
+        },
+        {
+          "type": "related_to",
+          "target": "environment"
         }
       ]
     },
@@ -785,6 +989,48 @@
       ]
     },
     {
+      "id": "dogfooding",
+      "form": "DOGFOODING",
+      "display": "Dogfooding",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A company using its own product internally before customers do, to find problems early.",
+        "fr": "Fait pour une entreprise d'utiliser son propre produit en interne avant ses clients, pour trouver les défauts."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "beta"
+        }
+      ]
+    },
+    {
+      "id": "downstream",
+      "form": "DOWNSTREAM",
+      "display": "Downstream",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Describes projects or services that depend on another one and receive its changes.",
+        "fr": "Qualifie les projets ou services qui dépendent d'un autre et en reçoivent les changements."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "upstream"
+        }
+      ]
+    },
+    {
       "id": "drift",
       "form": "DRIFT",
       "display": "Drift",
@@ -856,6 +1102,37 @@
         {
           "type": "related_to",
           "target": "lts"
+        }
+      ]
+    },
+    {
+      "id": "epic",
+      "form": "EPIC",
+      "display": "Epic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "In agile planning, a large piece of work split into several user stories.",
+        "fr": "En planification agile, gros lot de travail découpé en plusieurs user stories."
+      },
+      "inflections": [
+        {
+          "form": "EPICS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "user-story"
+        },
+        {
+          "type": "related_to",
+          "target": "backlog"
         }
       ]
     },
@@ -970,6 +1247,56 @@
         {
           "type": "related_to",
           "target": "merge"
+        }
+      ]
+    },
+    {
+      "id": "fixme",
+      "form": "FIXME",
+      "display": "FIXME",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A comment marker flagging code known to be broken or fragile that must be fixed.",
+        "fr": "Marqueur de commentaire signalant du code connu pour être cassé ou fragile, à corriger."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "todo"
+        },
+        {
+          "type": "related_to",
+          "target": "comment"
+        }
+      ]
+    },
+    {
+      "id": "flaky",
+      "form": "FLAKY",
+      "display": "Flaky test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Describes a test that sometimes passes and sometimes fails without any change to the code.",
+        "fr": "Qualifie un test qui passe ou échoue au hasard sans aucune modification du code."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "race-condition"
         }
       ]
     },
@@ -1097,6 +1424,37 @@
         {
           "type": "related_to",
           "target": "endpoint"
+        }
+      ]
+    },
+    {
+      "id": "heartbeat",
+      "form": "HEARTBEAT",
+      "display": "Heartbeat",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small signal sent at regular intervals to show a service or node is still alive.",
+        "fr": "Petit signal envoyé à intervalle régulier pour montrer qu'un service ou un nœud est toujours en vie."
+      },
+      "inflections": [
+        {
+          "form": "HEARTBEATS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "healthcheck"
+        },
+        {
+          "type": "related_to",
+          "target": "monitoring"
         }
       ]
     },
@@ -1241,6 +1599,37 @@
       ]
     },
     {
+      "id": "issue",
+      "form": "ISSUE",
+      "display": "Issue",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An item in a project tracker describing a bug, a task or an idea to work on.",
+        "fr": "Élément d'un outil de suivi de projet décrivant un bug, une tâche ou une idée à traiter."
+      },
+      "inflections": [
+        {
+          "form": "ISSUES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ticket"
+        },
+        {
+          "type": "related_to",
+          "target": "bug"
+        }
+      ]
+    },
+    {
       "id": "jenkins",
       "form": "JENKINS",
       "display": "Jenkins",
@@ -1319,6 +1708,33 @@
       ]
     },
     {
+      "id": "kludge",
+      "form": "KLUDGE",
+      "display": "Kludge",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A clumsy, makeshift fix that works for now but is hard to maintain.",
+        "fr": "Rustine maladroite et improvisée qui fonctionne pour l'instant mais reste difficile à maintenir."
+      },
+      "inflections": [
+        {
+          "form": "KLUDGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "hotfix"
+        }
+      ]
+    },
+    {
       "id": "kubernetes",
       "form": "KUBERNETES",
       "display": "Kubernetes",
@@ -1355,6 +1771,31 @@
       ]
     },
     {
+      "id": "lgtm",
+      "form": "LGTM",
+      "display": "LGTM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Looks good to me: the short comment a reviewer leaves to approve a code change.",
+        "fr": "Looks good to me : courte formule laissée par un relecteur pour approuver une modification de code."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "code-review"
+        },
+        {
+          "type": "related_to",
+          "target": "pr"
+        }
+      ]
+    },
+    {
       "id": "load-test",
       "form": "LOADTEST",
       "display": "Load test",
@@ -1382,6 +1823,37 @@
         {
           "type": "related_to",
           "target": "scalability"
+        }
+      ]
+    },
+    {
+      "id": "lockfile",
+      "form": "LOCKFILE",
+      "display": "Lockfile",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A file recording the exact version of every dependency, so every install gets the same packages.",
+        "fr": "Fichier qui fixe la version exacte de chaque dépendance pour que chaque installation soit identique."
+      },
+      "inflections": [
+        {
+          "form": "LOCKFILES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dependency"
+        },
+        {
+          "type": "related_to",
+          "target": "package"
         }
       ]
     },
@@ -1454,6 +1926,95 @@
           "type": "related_to",
           "target": "version"
         }
+      ]
+    },
+    {
+      "id": "makefile",
+      "form": "MAKEFILE",
+      "display": "Makefile",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A file of rules telling the make tool how to build a program and which steps depend on which.",
+        "fr": "Fichier de règles qui indique à l'outil make comment construire un programme et l'ordre des étapes."
+      },
+      "inflections": [
+        {
+          "form": "MAKEFILES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "build"
+        },
+        {
+          "type": "related_to",
+          "target": "compile"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/software/make/manual/make.html"
+      ]
+    },
+    {
+      "id": "manifest",
+      "form": "MANIFEST",
+      "display": "Manifest",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A file that declares what to deploy or package, such as its name, version, resources and dependencies.",
+        "fr": "Fichier qui déclare ce qu'il faut déployer ou empaqueter : nom, version, ressources et dépendances."
+      },
+      "inflections": [
+        {
+          "form": "MANIFESTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "yaml"
+        },
+        {
+          "type": "related_to",
+          "target": "deploy"
+        }
+      ]
+    },
+    {
+      "id": "markdown",
+      "form": "MARKDOWN",
+      "display": "Markdown",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A light text syntax using symbols like # and * to format headings, lists and links in plain text.",
+        "fr": "Syntaxe de texte légère qui utilise des symboles comme # et * pour titres, listes et liens."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "html"
+        }
+      ],
+      "sources": [
+        "https://commonmark.org/"
       ]
     },
     {
@@ -1565,6 +2126,37 @@
         {
           "type": "part_of",
           "target": "roadmap"
+        }
+      ]
+    },
+    {
+      "id": "mirror",
+      "form": "MIRROR",
+      "display": "Mirror",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "An exact copy of a repository, website or download server kept in sync, often closer to users.",
+        "fr": "Copie exacte d'un dépôt, site ou serveur de téléchargement tenue à jour, souvent plus proche des utilisateurs."
+      },
+      "inflections": [
+        {
+          "form": "MIRRORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "replica"
+        },
+        {
+          "type": "related_to",
+          "target": "repo"
         }
       ]
     },
@@ -1712,6 +2304,31 @@
       ]
     },
     {
+      "id": "nightly",
+      "form": "NIGHTLY",
+      "display": "Nightly build",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A build produced automatically every night from the latest code, for testers and early adopters.",
+        "fr": "Build produit automatiquement chaque nuit à partir du dernier code, pour testeurs et curieux."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "build"
+        },
+        {
+          "type": "related_to",
+          "target": "pipeline"
+        }
+      ]
+    },
+    {
       "id": "observability",
       "form": "OBSERVABILITY",
       "display": "Observability",
@@ -1737,6 +2354,35 @@
       ]
     },
     {
+      "id": "oci",
+      "form": "OCI",
+      "display": "OCI",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "devops",
+        "cloud"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Open Container Initiative: open specifications for container images and runtimes, so tools can share them.",
+        "fr": "Open Container Initiative : spécifications ouvertes pour les images et environnements d'exécution de conteneurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "container"
+        },
+        {
+          "type": "related_to",
+          "target": "image"
+        }
+      ],
+      "sources": [
+        "https://opencontainers.org/"
+      ]
+    },
+    {
       "id": "oncall",
       "form": "ONCALL",
       "display": "On-call",
@@ -1758,6 +2404,31 @@
         {
           "type": "related_to",
           "target": "sre"
+        }
+      ]
+    },
+    {
+      "id": "ops",
+      "form": "OPS",
+      "display": "Ops",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Operations: the work of running, monitoring and fixing systems in production, the second half of DevOps.",
+        "fr": "Operations : exploitation, travail qui consiste à faire tourner, surveiller et réparer les systèmes en production."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "devops"
+        },
+        {
+          "type": "related_to",
+          "target": "monitoring"
         }
       ]
     },
@@ -1788,6 +2459,37 @@
       ]
     },
     {
+      "id": "pager",
+      "form": "PAGER",
+      "display": "Pager",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The alerting tool or device that wakes the on-call engineer when production breaks.",
+        "fr": "Outil ou appareil d'alerte qui réveille l'ingénieur d'astreinte quand la production tombe."
+      },
+      "inflections": [
+        {
+          "form": "PAGERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "oncall"
+        },
+        {
+          "type": "related_to",
+          "target": "alert"
+        }
+      ]
+    },
+    {
       "id": "pipeline",
       "form": "PIPELINE",
       "display": "Pipeline",
@@ -1806,6 +2508,33 @@
         {
           "form": "PIPELINES",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "platform",
+      "form": "PLATFORM",
+      "display": "Platform",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A base of hardware or software that other programs or services are built on, such as an OS or a cloud.",
+        "fr": "Socle matériel ou logiciel sur lequel d'autres programmes ou services sont bâtis, comme un OS ou un cloud."
+      },
+      "inflections": [
+        {
+          "form": "PLATFORMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "framework"
         }
       ]
     },
@@ -1964,6 +2693,62 @@
       ]
     },
     {
+      "id": "preview",
+      "form": "PREVIEW",
+      "display": "Preview",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "An early look at a feature or a temporary environment built for each change so reviewers can try it.",
+        "fr": "Aperçu précoce d'une fonction, ou environnement temporaire créé pour chaque changement afin de l'essayer."
+      },
+      "inflections": [
+        {
+          "form": "PREVIEWS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "beta"
+        },
+        {
+          "type": "related_to",
+          "target": "pr"
+        }
+      ]
+    },
+    {
+      "id": "prod",
+      "form": "PROD",
+      "display": "Prod",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Short for production: the live environment that real users depend on.",
+        "fr": "Abréviation de production : l'environnement réel dont dépendent les utilisateurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "production"
+        },
+        {
+          "type": "alternative_to",
+          "target": "staging"
+        }
+      ]
+    },
+    {
       "id": "production",
       "form": "PRODUCTION",
       "display": "Production",
@@ -2060,6 +2845,37 @@
       ]
     },
     {
+      "id": "readme",
+      "form": "README",
+      "display": "README",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The text file at the top of a project explaining what it is and how to use it.",
+        "fr": "Fichier texte en tête d'un projet qui explique de quoi il s'agit et comment l'utiliser."
+      },
+      "inflections": [
+        {
+          "form": "READMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "repo"
+        },
+        {
+          "type": "related_to",
+          "target": "markdown"
+        }
+      ]
+    },
+    {
       "id": "rebase",
       "form": "REBASE",
       "display": "Rebase",
@@ -2147,6 +2963,65 @@
         {
           "type": "related_to",
           "target": "version"
+        }
+      ]
+    },
+    {
+      "id": "release-candidate",
+      "form": "RC",
+      "display": "RC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "RC: release candidate, a build that may become the final release if testing finds no blocking bug.",
+        "fr": "RC (release candidate) : version candidate, build qui deviendra la version finale si les tests ne trouvent aucun bug bloquant."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "release"
+        },
+        {
+          "type": "related_to",
+          "target": "version"
+        }
+      ],
+      "sources": [
+        "https://semver.org/"
+      ]
+    },
+    {
+      "id": "remote",
+      "form": "REMOTE",
+      "display": "Remote",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "In Git, a named copy of the repository hosted elsewhere, such as on a server, that you push to and pull from.",
+        "fr": "Dans Git, copie nommée du dépôt hébergée ailleurs, sur un serveur par exemple, vers laquelle on pousse et tire."
+      },
+      "inflections": [
+        {
+          "form": "REMOTES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "repo"
+        },
+        {
+          "type": "related_to",
+          "target": "git"
         }
       ]
     },
@@ -2315,6 +3190,37 @@
       ]
     },
     {
+      "id": "runner",
+      "form": "RUNNER",
+      "display": "Runner",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A machine or agent that picks up CI jobs and executes their steps.",
+        "fr": "Machine ou agent qui récupère les jobs d'intégration continue et en exécute les étapes."
+      },
+      "inflections": [
+        {
+          "form": "RUNNERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        },
+        {
+          "type": "related_to",
+          "target": "job"
+        }
+      ]
+    },
+    {
       "id": "scrum",
       "form": "SCRUM",
       "display": "Scrum",
@@ -2336,6 +3242,34 @@
       ],
       "sources": [
         "https://scrumguides.org/"
+      ]
+    },
+    {
+      "id": "semver",
+      "form": "SEMVER",
+      "display": "SemVer",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Semantic versioning: version numbers MAJOR.MINOR.PATCH that signal breaking changes, features and fixes.",
+        "fr": "Versionnage sémantique : numéros MAJEUR.MINEUR.CORRECTIF qui signalent ruptures, nouveautés et correctifs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "version"
+        },
+        {
+          "type": "related_to",
+          "target": "release"
+        }
+      ],
+      "sources": [
+        "https://semver.org/"
       ]
     },
     {
@@ -2432,6 +3366,36 @@
       ]
     },
     {
+      "id": "span",
+      "form": "SPAN",
+      "display": "Span",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "In tracing, one timed operation within a request, such as a database call, linked to its parent operations.",
+        "fr": "En traçage, une opération chronométrée d'une requête, comme un appel base de données, liée à ses parentes."
+      },
+      "inflections": [
+        {
+          "form": "SPANS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "tracing"
+        }
+      ],
+      "sources": [
+        "https://opentelemetry.io/docs/concepts/signals/traces/"
+      ]
+    },
+    {
       "id": "sprint",
       "form": "SPRINT",
       "display": "Sprint",
@@ -2459,6 +3423,35 @@
       ]
     },
     {
+      "id": "squash",
+      "form": "SQUASH",
+      "display": "Squash",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "In Git, combining several commits into one to keep history tidy.",
+        "fr": "Dans Git, fusionner plusieurs commits en un seul pour garder un historique propre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "commit"
+        },
+        {
+          "type": "related_to",
+          "target": "git"
+        },
+        {
+          "type": "related_to",
+          "target": "rebase"
+        }
+      ]
+    },
+    {
       "id": "sre",
       "form": "SRE",
       "display": "SRE",
@@ -2476,6 +3469,41 @@
         {
           "type": "related_to",
           "target": "observability"
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "form": "STAGE",
+      "display": "Stage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One step of a pipeline, such as build, test or deploy; staging also means preparing changes for a commit.",
+        "fr": "Étape d'un pipeline, comme build, test ou déploiement ; en Git, préparer des changements avant un commit."
+      },
+      "inflections": [
+        {
+          "form": "STAGED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "STAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "pipeline"
+        },
+        {
+          "type": "related_to",
+          "target": "staging"
         }
       ]
     },
@@ -2679,6 +3707,123 @@
       ]
     },
     {
+      "id": "ticket",
+      "form": "TICKET",
+      "display": "Ticket",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A tracked request in a help desk or issue tracker, such as a bug report or support question.",
+        "fr": "Demande suivie dans un outil d'assistance ou de suivi, comme un signalement de bug ou une question."
+      },
+      "inflections": [
+        {
+          "form": "TICKETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bug"
+        },
+        {
+          "type": "related_to",
+          "target": "backlog"
+        }
+      ]
+    },
+    {
+      "id": "todo",
+      "form": "TODO",
+      "display": "TODO",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A marker left in code or a list item for work still to be done.",
+        "fr": "Marqueur laissé dans le code, ou élément de liste, pour un travail restant à faire."
+      },
+      "inflections": [
+        {
+          "form": "TODOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "comment"
+        },
+        {
+          "type": "related_to",
+          "target": "backlog"
+        }
+      ]
+    },
+    {
+      "id": "toggle",
+      "form": "TOGGLE",
+      "display": "Toggle",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A switch between two states, such as a feature toggle that turns a feature on or off without redeploying.",
+        "fr": "Interrupteur entre deux états, comme un toggle qui active ou coupe une fonction sans redéployer."
+      },
+      "inflections": [
+        {
+          "form": "TOGGLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "feature-flag"
+        }
+      ]
+    },
+    {
+      "id": "toil",
+      "form": "TOIL",
+      "display": "Toil",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "In SRE, manual, repetitive operational work that could be automated and grows with the service.",
+        "fr": "En SRE, travail opérationnel manuel et répétitif, automatisable, qui grossit avec le service."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sre"
+        },
+        {
+          "type": "related_to",
+          "target": "automation"
+        }
+      ],
+      "sources": [
+        "https://sre.google/sre-book/eliminating-toil/"
+      ]
+    },
+    {
       "id": "toolchain",
       "form": "TOOLCHAIN",
       "display": "Toolchain",
@@ -2700,6 +3845,27 @@
         {
           "type": "related_to",
           "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "tooling",
+      "form": "TOOLING",
+      "display": "Tooling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The set of tools a team uses to write, build, test and ship software.",
+        "fr": "Ensemble des outils qu'une équipe utilise pour écrire, construire, tester et livrer du logiciel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "toolchain"
         }
       ]
     },
@@ -2779,6 +3945,31 @@
       ]
     },
     {
+      "id": "uat",
+      "form": "UAT",
+      "display": "UAT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "User acceptance testing: the final check where real users confirm software does what they need before release.",
+        "fr": "User acceptance testing : recette, vérification finale où des utilisateurs confirment que le logiciel répond au besoin."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "test"
+        },
+        {
+          "type": "related_to",
+          "target": "staging"
+        }
+      ]
+    },
+    {
       "id": "upstream",
       "form": "UPSTREAM",
       "display": "Upstream",
@@ -2825,6 +4016,31 @@
         {
           "type": "related_to",
           "target": "agile"
+        }
+      ]
+    },
+    {
+      "id": "velocity",
+      "form": "VELOCITY",
+      "display": "Velocity",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "In agile, the amount of work a team typically completes in one sprint, used to plan the next ones.",
+        "fr": "En agile, quantité de travail qu'une équipe termine en général dans un sprint, utilisée pour planifier."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sprint"
+        },
+        {
+          "type": "related_to",
+          "target": "scrum"
         }
       ]
     },
@@ -2899,6 +4115,27 @@
         {
           "type": "alternative_to",
           "target": "agile"
+        }
+      ]
+    },
+    {
+      "id": "wip",
+      "form": "WIP",
+      "display": "WIP",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Work in progress: tasks started but not finished; agile teams limit it to finish faster.",
+        "fr": "Work in progress : travail en cours, tâches commencées mais non finies ; les équipes agiles le limitent."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kanban"
         }
       ]
     },

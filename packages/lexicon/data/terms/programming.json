@@ -24,6 +24,58 @@
       ]
     },
     {
+      "id": "ada",
+      "form": "ADA",
+      "display": "Ada",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A strongly typed language designed for safety-critical systems such as aircraft and rail.",
+        "fr": "Langage fortement typé conçu pour les systèmes critiques, comme l'aéronautique et le ferroviaire."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ],
+      "sources": [
+        "https://www.adaic.org/"
+      ]
+    },
+    {
+      "id": "ajax",
+      "form": "AJAX",
+      "display": "Ajax",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A technique where a web page fetches data in the background and updates itself without reloading.",
+        "fr": "Technique par laquelle une page web récupère des données en arrière-plan et se met à jour sans rechargement."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "javascript"
+        },
+        {
+          "type": "uses",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Glossary/AJAX"
+      ]
+    },
+    {
       "id": "algorithm",
       "form": "ALGORITHM",
       "display": "Algorithm",
@@ -232,6 +284,58 @@
       ]
     },
     {
+      "id": "basic",
+      "form": "BASIC",
+      "display": "BASIC",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A simple language from 1964 that taught a generation of home-computer owners to program.",
+        "fr": "Langage simple de 1964 qui a appris à programmer à une génération de possesseurs d'ordinateurs personnels."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "bitmap",
+      "form": "BITMAP",
+      "display": "Bitmap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A map of pixels or bits; often a simple uncompressed raster image.",
+        "fr": "Carte de pixels ou de bits ; souvent une image matricielle simple non compressée."
+      },
+      "inflections": [
+        {
+          "form": "BITMAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "raster"
+        },
+        {
+          "type": "related_to",
+          "target": "bit"
+        }
+      ]
+    },
+    {
       "id": "boolean",
       "form": "BOOLEAN",
       "display": "Boolean",
@@ -270,6 +374,68 @@
         {
           "form": "BUGS",
           "kind": "plural"
+        }
+      ]
+    },
+    {
+      "id": "bundle",
+      "form": "BUNDLE",
+      "display": "Bundle",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A single file, or set of files, that packs an app's code and assets for delivery to browsers or devices.",
+        "fr": "Fichier unique, ou ensemble de fichiers, qui regroupe le code et les ressources d'une application pour la livraison."
+      },
+      "inflections": [
+        {
+          "form": "BUNDLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "javascript"
+        },
+        {
+          "type": "related_to",
+          "target": "build"
+        }
+      ]
+    },
+    {
+      "id": "button",
+      "form": "BUTTON",
+      "display": "Button",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An on-screen control you tap or click to trigger an action.",
+        "fr": "Commande à l'écran sur laquelle on tape ou clique pour déclencher une action."
+      },
+      "inflections": [
+        {
+          "form": "BUTTONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        },
+        {
+          "type": "related_to",
+          "target": "click"
         }
       ]
     },
@@ -351,6 +517,64 @@
       ]
     },
     {
+      "id": "char",
+      "form": "CHAR",
+      "display": "char",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A data type holding a single character, such as a letter or digit.",
+        "fr": "Type de données qui contient un seul caractère, comme une lettre ou un chiffre."
+      },
+      "inflections": [
+        {
+          "form": "CHARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "datatype"
+        },
+        {
+          "type": "related_to",
+          "target": "string"
+        }
+      ]
+    },
+    {
+      "id": "checkbox",
+      "form": "CHECKBOX",
+      "display": "Checkbox",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small square in a form that you tick to select an option.",
+        "fr": "Petite case d'un formulaire que l'on coche pour choisir une option."
+      },
+      "inflections": [
+        {
+          "form": "CHECKBOXES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
+      ]
+    },
+    {
       "id": "class",
       "form": "CLASS",
       "display": "Class",
@@ -378,6 +602,69 @@
       ]
     },
     {
+      "id": "click",
+      "form": "CLICK",
+      "display": "Click",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Pressing and releasing a mouse button or trackpad to select or activate something.",
+        "fr": "Appui bref sur un bouton de souris ou un pavé tactile pour sélectionner ou activer un élément."
+      },
+      "inflections": [
+        {
+          "form": "CLICKED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "CLICKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mouse"
+        },
+        {
+          "type": "related_to",
+          "target": "button"
+        }
+      ]
+    },
+    {
+      "id": "clojure",
+      "form": "CLOJURE",
+      "display": "Clojure",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A modern Lisp dialect running on the Java virtual machine, focused on immutable data.",
+        "fr": "Dialecte moderne de Lisp sur la machine virtuelle Java, centré sur les données immuables."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "lisp"
+        }
+      ],
+      "sources": [
+        "https://clojure.org/"
+      ]
+    },
+    {
       "id": "closure",
       "form": "CLOSURE",
       "display": "Closure",
@@ -401,6 +688,56 @@
         {
           "type": "is_a",
           "target": "function"
+        }
+      ]
+    },
+    {
+      "id": "cms",
+      "form": "CMS",
+      "display": "CMS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Content management system: software for creating and publishing website content without coding.",
+        "fr": "Content management system : logiciel pour créer et publier le contenu d'un site sans coder."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "website"
+        },
+        {
+          "type": "related_to",
+          "target": "blog"
+        }
+      ]
+    },
+    {
+      "id": "cobol",
+      "form": "COBOL",
+      "display": "COBOL",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A 1959 business language still running many bank and government systems.",
+        "fr": "Langage de gestion de 1959 qui fait encore tourner de nombreux systèmes bancaires et publics."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "runs_on",
+          "target": "mainframe"
         }
       ]
     },
@@ -782,6 +1119,34 @@
       ]
     },
     {
+      "id": "dependency-injection",
+      "form": "DI",
+      "display": "DI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "DI: dependency injection, giving an object the services it needs from outside instead of creating them inside.",
+        "fr": "DI (dependency injection) : injection de dépendances, fournir de l'extérieur à un objet les services dont il a besoin."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "design-pattern"
+        },
+        {
+          "type": "related_to",
+          "target": "dependency"
+        }
+      ],
+      "sources": [
+        "https://martinfowler.com/articles/injection.html"
+      ]
+    },
+    {
       "id": "design-pattern",
       "form": "DESIGNPATTERN",
       "display": "Design pattern",
@@ -897,6 +1262,89 @@
       ]
     },
     {
+      "id": "dropdown",
+      "form": "DROPDOWN",
+      "display": "Dropdown",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A menu that opens a list of choices when you click it.",
+        "fr": "Menu qui déroule une liste de choix quand on clique dessus."
+      },
+      "inflections": [
+        {
+          "form": "DROPDOWNS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "menu"
+        }
+      ]
+    },
+    {
+      "id": "elixir",
+      "form": "ELIXIR",
+      "display": "Elixir",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A functional language on the Erlang virtual machine, used for scalable web and real-time apps.",
+        "fr": "Langage fonctionnel sur la machine virtuelle d'Erlang, pour des applications web et temps réel extensibles."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "runs_on",
+          "target": "erlang"
+        }
+      ],
+      "sources": [
+        "https://elixir-lang.org/"
+      ]
+    },
+    {
+      "id": "em-unit",
+      "form": "EM",
+      "display": "em",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "EM: a CSS length unit equal to the current font size, so 2em is twice the text size.",
+        "fr": "EM : unité de longueur CSS égale à la taille de police courante ; 2em vaut deux fois la taille du texte."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "css"
+        },
+        {
+          "type": "related_to",
+          "target": "font"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/css-values-4/#font-relative-lengths"
+      ]
+    },
+    {
       "id": "encapsulation",
       "form": "ENCAPSULATION",
       "display": "Encapsulation",
@@ -946,6 +1394,59 @@
           "type": "related_to",
           "target": "variable"
         }
+      ]
+    },
+    {
+      "id": "eof",
+      "form": "EOF",
+      "display": "EOF",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "End of file: the signal that there is no more data to read from a file or stream.",
+        "fr": "End of file : signal indiquant qu'il n'y a plus de données à lire dans un fichier ou un flux."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "file"
+        },
+        {
+          "type": "related_to",
+          "target": "stream"
+        }
+      ]
+    },
+    {
+      "id": "erlang",
+      "form": "ERLANG",
+      "display": "Erlang",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A language built for highly reliable, concurrent systems such as telephone switches and chat servers.",
+        "fr": "Langage conçu pour des systèmes concurrents très fiables, comme les commutateurs téléphoniques."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "concurrency"
+        }
+      ],
+      "sources": [
+        "https://www.erlang.org/"
       ]
     },
     {
@@ -1015,6 +1516,68 @@
       ]
     },
     {
+      "id": "fallback",
+      "form": "FALLBACK",
+      "display": "Fallback",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A backup option used when the preferred one fails or is not available.",
+        "fr": "Option de secours utilisée quand l'option préférée échoue ou n'est pas disponible."
+      },
+      "inflections": [
+        {
+          "form": "FALLBACKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "failover"
+        },
+        {
+          "type": "related_to",
+          "target": "exception"
+        }
+      ]
+    },
+    {
+      "id": "fixture",
+      "form": "FIXTURE",
+      "display": "Fixture",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Fixed test data or setup prepared before tests run, so every run starts from the same state.",
+        "fr": "Données ou préparation fixes mises en place avant les tests, pour que chaque exécution parte du même état."
+      },
+      "inflections": [
+        {
+          "form": "FIXTURES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "unit-test"
+        },
+        {
+          "type": "related_to",
+          "target": "mock"
+        }
+      ]
+    },
+    {
       "id": "float",
       "form": "FLOAT",
       "display": "Float",
@@ -1039,6 +1602,34 @@
           "type": "alternative_to",
           "target": "integer"
         }
+      ]
+    },
+    {
+      "id": "fortran",
+      "form": "FORTRAN",
+      "display": "Fortran",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The first widely used high-level language, still used for scientific and numerical computing.",
+        "fr": "Premier langage de haut niveau très répandu, encore utilisé pour le calcul scientifique."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "hpc"
+        }
+      ],
+      "sources": [
+        "https://fortran-lang.org/"
       ]
     },
     {
@@ -1116,6 +1707,34 @@
           "form": "FUNCTIONS",
           "kind": "plural"
         }
+      ]
+    },
+    {
+      "id": "garbage-collection",
+      "form": "GC",
+      "display": "GC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "GC: garbage collection, the runtime freeing memory that a program no longer uses, automatically.",
+        "fr": "GC (garbage collection) : ramasse-miettes, libération automatique par le runtime de la mémoire qu'un programme n'utilise plus."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "runtime"
+        },
+        {
+          "type": "related_to",
+          "target": "memory"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Memory_management"
       ]
     },
     {
@@ -1226,6 +1845,37 @@
       },
       "sources": [
         "https://git-scm.com/doc"
+      ]
+    },
+    {
+      "id": "glyph",
+      "form": "GLYPH",
+      "display": "Glyph",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The drawn shape of a character in a particular font.",
+        "fr": "Forme dessinée d'un caractère dans une police donnée."
+      },
+      "inflections": [
+        {
+          "form": "GLYPHS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "font"
+        },
+        {
+          "type": "related_to",
+          "target": "unicode"
+        }
       ]
     },
     {
@@ -1446,6 +2096,33 @@
       ],
       "sources": [
         "https://html.spec.whatwg.org/"
+      ]
+    },
+    {
+      "id": "icon",
+      "form": "ICON",
+      "display": "Icon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small picture that stands for an app, file or action on a screen.",
+        "fr": "Petite image qui représente une application, un fichier ou une action à l'écran."
+      },
+      "inflections": [
+        {
+          "form": "ICONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
       ]
     },
     {
@@ -1731,6 +2408,34 @@
       ]
     },
     {
+      "id": "julia",
+      "form": "JULIA",
+      "display": "Julia",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A fast language for scientific computing and data analysis, designed to read like maths.",
+        "fr": "Langage rapide pour le calcul scientifique et l'analyse de données, conçu pour se lire comme des maths."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "data-science"
+        }
+      ],
+      "sources": [
+        "https://julialang.org/"
+      ]
+    },
+    {
       "id": "keyword",
       "form": "KEYWORD",
       "display": "Keyword",
@@ -1867,6 +2572,31 @@
       ]
     },
     {
+      "id": "lisp",
+      "form": "LISP",
+      "display": "Lisp",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "One of the oldest languages, where programs are written as nested lists in parentheses.",
+        "fr": "L'un des plus anciens langages, où les programmes s'écrivent en listes imbriquées entre parenthèses."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "list"
+        }
+      ]
+    },
+    {
       "id": "list",
       "form": "LIST",
       "display": "list",
@@ -1894,6 +2624,33 @@
       ],
       "tags": [
         "mission:master-python"
+      ]
+    },
+    {
+      "id": "locale",
+      "form": "LOCALE",
+      "display": "Locale",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A language and region setting, such as fr-SN, that decides how text, dates and numbers appear.",
+        "fr": "Réglage de langue et de région, comme fr-SN, qui détermine l'affichage des textes, dates et nombres."
+      },
+      "inflections": [
+        {
+          "form": "LOCALES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "unicode"
+        }
       ]
     },
     {
@@ -1946,6 +2703,34 @@
           "type": "related_to",
           "target": "code"
         }
+      ]
+    },
+    {
+      "id": "lua",
+      "form": "LUA",
+      "display": "Lua",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small, fast scripting language often embedded in games and apps to let users write add-ons.",
+        "fr": "Petit langage de script rapide, souvent intégré aux jeux et applications pour écrire des extensions."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "script"
+        }
+      ],
+      "sources": [
+        "https://www.lua.org/"
       ]
     },
     {
@@ -2005,6 +2790,33 @@
       ]
     },
     {
+      "id": "menu",
+      "form": "MENU",
+      "display": "Menu",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A list of commands or options to choose from in an app or website.",
+        "fr": "Liste de commandes ou d'options à choisir dans une application ou un site."
+      },
+      "inflections": [
+        {
+          "form": "MENUS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
+      ]
+    },
+    {
       "id": "method",
       "form": "METHOD",
       "display": "Method",
@@ -2028,6 +2840,37 @@
         {
           "type": "part_of",
           "target": "class"
+        }
+      ]
+    },
+    {
+      "id": "mixin",
+      "form": "MIXIN",
+      "display": "Mixin",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A reusable bundle of methods added to a class without being its parent class.",
+        "fr": "Ensemble réutilisable de méthodes ajouté à une classe sans en être la classe parente."
+      },
+      "inflections": [
+        {
+          "form": "MIXINS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "class"
+        },
+        {
+          "type": "related_to",
+          "target": "inheritance"
         }
       ]
     },
@@ -2067,6 +2910,37 @@
         {
           "type": "related_to",
           "target": "dependency"
+        }
+      ]
+    },
+    {
+      "id": "mockup",
+      "form": "MOCKUP",
+      "display": "Mockup",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A realistic static picture of a future app or website screen.",
+        "fr": "Image statique réaliste d'un futur écran d'application ou de site."
+      },
+      "inflections": [
+        {
+          "form": "MOCKUPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wireframe"
+        },
+        {
+          "type": "related_to",
+          "target": "ui"
         }
       ]
     },
@@ -2126,6 +3000,30 @@
           "type": "related_to",
           "target": "scope"
         }
+      ]
+    },
+    {
+      "id": "nan",
+      "form": "NAN",
+      "display": "NaN",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Not a number: a special value produced by undefined maths, such as 0 divided by 0.",
+        "fr": "Not a number : valeur spéciale produite par un calcul indéfini, comme 0 divisé par 0."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "float"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN"
       ]
     },
     {
@@ -2371,6 +3269,55 @@
       ]
     },
     {
+      "id": "pascal",
+      "form": "PASCAL",
+      "display": "Pascal",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A structured language from 1970, long used to teach programming.",
+        "fr": "Langage structuré de 1970, longtemps utilisé pour enseigner la programmation."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "perl",
+      "form": "PERL",
+      "display": "Perl",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A scripting language famous for text processing and system administration scripts.",
+        "fr": "Langage de script réputé pour le traitement de texte et les scripts d'administration système."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "regex"
+        }
+      ],
+      "sources": [
+        "https://www.perl.org/"
+      ]
+    },
+    {
       "id": "php",
       "form": "PHP",
       "display": "PHP",
@@ -2445,6 +3392,37 @@
       ]
     },
     {
+      "id": "popup",
+      "form": "POPUP",
+      "display": "Pop-up",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small window or box that appears over the current screen, for a message or an ad.",
+        "fr": "Petite fenêtre qui apparaît par-dessus l'écran en cours, pour un message ou une publicité."
+      },
+      "inflections": [
+        {
+          "form": "POPUPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        },
+        {
+          "type": "related_to",
+          "target": "ad-blocker"
+        }
+      ]
+    },
+    {
       "id": "programming-language",
       "display": "Programming language",
       "playable": false,
@@ -2457,6 +3435,31 @@
         "en": "Formal language used to write instructions a computer can execute.",
         "fr": "Langage formel servant à écrire des instructions exécutables par un ordinateur."
       }
+    },
+    {
+      "id": "prolog",
+      "form": "PROLOG",
+      "display": "Prolog",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A logic programming language where you state facts and rules and the system searches for answers.",
+        "fr": "Langage de programmation logique où l'on énonce faits et règles, le système cherchant les réponses."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "expert-system"
+        }
+      ]
     },
     {
       "id": "promise",
@@ -2486,6 +3489,37 @@
         {
           "type": "related_to",
           "target": "callback"
+        }
+      ]
+    },
+    {
+      "id": "prototype",
+      "form": "PROTOTYPE",
+      "display": "Prototype",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An early working model of a product, built to test an idea before the real thing.",
+        "fr": "Premier modèle fonctionnel d'un produit, construit pour tester une idée avant la version finale."
+      },
+      "inflections": [
+        {
+          "form": "PROTOTYPES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mvp"
+        },
+        {
+          "type": "related_to",
+          "target": "poc"
         }
       ]
     },
@@ -2567,6 +3601,31 @@
         {
           "type": "related_to",
           "target": "broker"
+        }
+      ]
+    },
+    {
+      "id": "raster",
+      "form": "RASTER",
+      "display": "Raster",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "An image stored as a grid of pixels, which blurs when enlarged, unlike vector graphics.",
+        "fr": "Image stockée comme une grille de pixels, qui devient floue à l'agrandissement, contrairement au vectoriel."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        },
+        {
+          "type": "alternative_to",
+          "target": "svg"
         }
       ]
     },
@@ -2748,6 +3807,34 @@
       ]
     },
     {
+      "id": "scala",
+      "form": "SCALA",
+      "display": "Scala",
+      "playable": true,
+      "kind": "language",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A language running on the Java virtual machine that mixes object-oriented and functional styles.",
+        "fr": "Langage qui tourne sur la machine virtuelle Java et mêle styles orienté objet et fonctionnel."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "programming-language"
+        },
+        {
+          "type": "related_to",
+          "target": "java"
+        }
+      ],
+      "sources": [
+        "https://www.scala-lang.org/"
+      ]
+    },
+    {
       "id": "scope",
       "form": "SCOPE",
       "display": "Scope",
@@ -2806,6 +3893,33 @@
         {
           "type": "related_to",
           "target": "automation"
+        }
+      ]
+    },
+    {
+      "id": "scrollbar",
+      "form": "SCROLLBAR",
+      "display": "Scrollbar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The bar at the edge of a window that shows and moves your position in long content.",
+        "fr": "Barre au bord d'une fenêtre qui montre et déplace la position dans un long contenu."
+      },
+      "inflections": [
+        {
+          "form": "SCROLLBARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
         }
       ]
     },
@@ -2902,6 +4016,37 @@
       ]
     },
     {
+      "id": "shader",
+      "form": "SHADER",
+      "display": "Shader",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A small program running on the GPU that computes the colour and position of pixels or vertices.",
+        "fr": "Petit programme exécuté sur le GPU qui calcule la couleur et la position des pixels ou des sommets."
+      },
+      "inflections": [
+        {
+          "form": "SHADERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "gpu"
+        },
+        {
+          "type": "related_to",
+          "target": "pixel"
+        }
+      ]
+    },
+    {
       "id": "singleton",
       "form": "SINGLETON",
       "display": "Singleton",
@@ -2933,6 +4078,64 @@
       ]
     },
     {
+      "id": "slice",
+      "form": "SLICE",
+      "display": "Slice",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A view or copy of part of an array or string, chosen by start and end positions.",
+        "fr": "Vue ou copie d'une partie d'un tableau ou d'une chaîne, choisie par positions de début et de fin."
+      },
+      "inflections": [
+        {
+          "form": "SLICES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "array"
+        },
+        {
+          "type": "related_to",
+          "target": "string"
+        }
+      ]
+    },
+    {
+      "id": "slider",
+      "form": "SLIDER",
+      "display": "Slider",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A control you drag along a track to pick a value, such as volume or brightness.",
+        "fr": "Commande que l'on fait glisser le long d'une piste pour régler une valeur, comme le volume."
+      },
+      "inflections": [
+        {
+          "form": "SLIDERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
+      ]
+    },
+    {
       "id": "snippet",
       "form": "SNIPPET",
       "display": "Snippet",
@@ -2960,6 +4163,31 @@
       ]
     },
     {
+      "id": "solid",
+      "form": "SOLID",
+      "display": "SOLID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Five object-oriented design principles (single responsibility, open-closed, Liskov, interface segregation, inversion).",
+        "fr": "Cinq principes de conception objet (responsabilité unique, ouvert-fermé, Liskov, ségrégation d'interfaces, inversion)."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "oop"
+        },
+        {
+          "type": "related_to",
+          "target": "design-pattern"
+        }
+      ]
+    },
+    {
       "id": "sorting",
       "form": "SORTING",
       "display": "Sorting",
@@ -2981,6 +4209,68 @@
         {
           "type": "related_to",
           "target": "array"
+        }
+      ]
+    },
+    {
+      "id": "spinner",
+      "form": "SPINNER",
+      "display": "Spinner",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small spinning animation that shows something is loading.",
+        "fr": "Petite animation tournante qui indique un chargement en cours."
+      },
+      "inflections": [
+        {
+          "form": "SPINNERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
+      ]
+    },
+    {
+      "id": "sprite",
+      "form": "SPRITE",
+      "display": "Sprite",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A 2D image or animation, such as a game character, drawn and moved as one piece.",
+        "fr": "Image ou animation 2D, comme un personnage de jeu, dessinée et déplacée d'un bloc."
+      },
+      "inflections": [
+        {
+          "form": "SPRITES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        },
+        {
+          "type": "related_to",
+          "target": "bitmap"
         }
       ]
     },
@@ -3064,6 +4354,37 @@
       ]
     },
     {
+      "id": "struct",
+      "form": "STRUCT",
+      "display": "Struct",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A data type that groups several named fields, such as x and y for a point.",
+        "fr": "Type de données qui regroupe plusieurs champs nommés, comme x et y pour un point."
+      },
+      "inflections": [
+        {
+          "form": "STRUCTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "datatype"
+        },
+        {
+          "type": "related_to",
+          "target": "field"
+        }
+      ]
+    },
+    {
       "id": "swift",
       "form": "SWIFT",
       "display": "Swift",
@@ -3082,6 +4403,33 @@
         {
           "type": "is_a",
           "target": "programming-language"
+        }
+      ]
+    },
+    {
+      "id": "swipe",
+      "form": "SWIPE",
+      "display": "Swipe",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Sliding a finger across a touchscreen to scroll, switch screens or dismiss items.",
+        "fr": "Glisser un doigt sur un écran tactile pour défiler, changer d'écran ou écarter un élément."
+      },
+      "inflections": [
+        {
+          "form": "SWIPES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "touchscreen"
         }
       ]
     },
@@ -3143,6 +4491,95 @@
         {
           "type": "related_to",
           "target": "bug"
+        }
+      ]
+    },
+    {
+      "id": "test-suite",
+      "form": "SUITE",
+      "display": "Test suite",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A collection of tests run together to check a program or module.",
+        "fr": "Ensemble de tests exécutés ensemble pour vérifier un programme ou un module."
+      },
+      "inflections": [
+        {
+          "form": "SUITES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "unit-test"
+        },
+        {
+          "type": "related_to",
+          "target": "test"
+        }
+      ]
+    },
+    {
+      "id": "tooltip",
+      "form": "TOOLTIP",
+      "display": "Tooltip",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small hint that appears when you hover over or long-press an item.",
+        "fr": "Petite bulle d'aide qui apparaît quand on survole ou presse longuement un élément."
+      },
+      "inflections": [
+        {
+          "form": "TOOLTIPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
+      ]
+    },
+    {
+      "id": "trait",
+      "form": "TRAIT",
+      "display": "Trait",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A set of methods that types can share and implement, used in languages like Rust and Scala.",
+        "fr": "Ensemble de méthodes que des types peuvent partager et implémenter, dans des langages comme Rust et Scala."
+      },
+      "inflections": [
+        {
+          "form": "TRAITS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "interface"
+        },
+        {
+          "type": "related_to",
+          "target": "rust"
         }
       ]
     },
@@ -3375,6 +4812,33 @@
       ]
     },
     {
+      "id": "voxel",
+      "form": "VOXEL",
+      "display": "Voxel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A 3D pixel: a small cube of volume used in medical scans and blocky game worlds.",
+        "fr": "Pixel 3D : petit cube de volume utilisé en imagerie médicale et dans les mondes de jeu en blocs."
+      },
+      "inflections": [
+        {
+          "form": "VOXELS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        }
+      ]
+    },
+    {
       "id": "webassembly",
       "form": "WEBASSEMBLY",
       "display": "WebAssembly",
@@ -3407,6 +4871,65 @@
       ],
       "sources": [
         "https://webassembly.org/"
+      ]
+    },
+    {
+      "id": "wireframe",
+      "form": "WIREFRAME",
+      "display": "Wireframe",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A bare sketch of a screen's layout, without colours or final content, used to plan an interface.",
+        "fr": "Croquis dépouillé de la disposition d'un écran, sans couleurs ni contenu final, pour concevoir une interface."
+      },
+      "inflections": [
+        {
+          "form": "WIREFRAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ux"
+        },
+        {
+          "type": "related_to",
+          "target": "prototype"
+        }
+      ]
+    },
+    {
+      "id": "xor",
+      "form": "XOR",
+      "display": "XOR",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Exclusive or: a logic operation that is true when exactly one of its two inputs is true.",
+        "fr": "Ou exclusif : opération logique vraie quand une seule de ses deux entrées est vraie."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "or"
+        },
+        {
+          "type": "related_to",
+          "target": "boolean"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_XOR"
       ]
     }
   ]

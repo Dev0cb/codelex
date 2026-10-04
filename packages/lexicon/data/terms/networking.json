@@ -3,6 +3,55 @@
   "category": "networking",
   "terms": [
     {
+      "id": "adsl",
+      "form": "ADSL",
+      "display": "ADSL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Asymmetric DSL: the common home DSL where downloads are much faster than uploads.",
+        "fr": "DSL asymétrique : le DSL domestique courant, où le téléchargement est bien plus rapide que l'envoi."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "dsl"
+        }
+      ]
+    },
+    {
+      "id": "antenna",
+      "form": "ANTENNA",
+      "display": "Antenna",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking",
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A device that sends or receives radio waves, as in phones, routers and cell towers.",
+        "fr": "Dispositif qui émet ou reçoit des ondes radio, dans les téléphones, routeurs et antennes relais."
+      },
+      "inflections": [
+        {
+          "form": "ANTENNAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wireless"
+        }
+      ]
+    },
+    {
       "id": "anycast",
       "form": "ANYCAST",
       "display": "Anycast",
@@ -126,6 +175,33 @@
       ]
     },
     {
+      "id": "avatar",
+      "form": "AVATAR",
+      "display": "Avatar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The picture or character that represents a user in an app, game or forum.",
+        "fr": "Image ou personnage qui représente un utilisateur dans une application, un jeu ou un forum."
+      },
+      "inflections": [
+        {
+          "form": "AVATARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "user"
+        }
+      ]
+    },
+    {
       "id": "bandwidth",
       "form": "BANDWIDTH",
       "display": "Bandwidth",
@@ -139,6 +215,62 @@
         "en": "Maximum amount of data a link can carry per second.",
         "fr": "Quantité maximale de données qu'un lien peut transporter par seconde."
       }
+    },
+    {
+      "id": "baud",
+      "form": "BAUD",
+      "display": "Baud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "A unit of signalling speed: the number of symbol changes per second on a line.",
+        "fr": "Unité de vitesse de signalisation : nombre de changements de symbole par seconde sur une ligne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "modem"
+        },
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ]
+    },
+    {
+      "id": "beacon",
+      "form": "BEACON",
+      "display": "Beacon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small radio transmitter or signal that announces its presence, used for indoor location or network discovery.",
+        "fr": "Petit émetteur radio ou signal qui annonce sa présence, pour la localisation intérieure ou la découverte réseau."
+      },
+      "inflections": [
+        {
+          "form": "BEACONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bluetooth"
+        },
+        {
+          "type": "related_to",
+          "target": "wireless"
+        }
+      ]
     },
     {
       "id": "bgp",
@@ -165,6 +297,33 @@
       ]
     },
     {
+      "id": "blog",
+      "form": "BLOG",
+      "display": "Blog",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A website made of regular posts, newest first, written by a person or a team.",
+        "fr": "Site web fait d'articles réguliers, les plus récents en premier, écrits par une personne ou une équipe."
+      },
+      "inflections": [
+        {
+          "form": "BLOGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "website"
+        }
+      ]
+    },
+    {
       "id": "bluetooth",
       "form": "BLUETOOTH",
       "display": "Bluetooth",
@@ -187,6 +346,37 @@
       ],
       "sources": [
         "https://www.bluetooth.com/specifications/"
+      ]
+    },
+    {
+      "id": "bookmark",
+      "form": "BOOKMARK",
+      "display": "Bookmark",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A saved link in a browser that takes you back to a page later.",
+        "fr": "Lien enregistré dans un navigateur pour revenir plus tard sur une page."
+      },
+      "inflections": [
+        {
+          "form": "BOOKMARKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "browser"
+        },
+        {
+          "type": "related_to",
+          "target": "url"
+        }
       ]
     },
     {
@@ -278,6 +468,64 @@
       ]
     },
     {
+      "id": "browser-extension",
+      "form": "EXTENSION",
+      "display": "Extension",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small add-on that gives a browser or app new features, such as a translator or ad blocker.",
+        "fr": "Petit module qui ajoute des fonctions à un navigateur ou une application, comme un traducteur."
+      },
+      "inflections": [
+        {
+          "form": "EXTENSIONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "plugin"
+        },
+        {
+          "type": "runs_on",
+          "target": "browser"
+        }
+      ]
+    },
+    {
+      "id": "browser-tab",
+      "form": "TAB",
+      "display": "Tab",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "One page open in a browser window, shown as a tab you can switch to; also the Tab key.",
+        "fr": "Page ouverte dans une fenêtre de navigateur, affichée comme un onglet ; aussi la touche Tab."
+      },
+      "inflections": [
+        {
+          "form": "TABS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "browser"
+        }
+      ]
+    },
+    {
       "id": "cdn",
       "form": "CDN",
       "display": "CDN",
@@ -302,6 +550,37 @@
         {
           "type": "uses",
           "target": "cache"
+        }
+      ]
+    },
+    {
+      "id": "chat",
+      "form": "CHAT",
+      "display": "Chat",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A live conversation by typed messages in an app or website.",
+        "fr": "Conversation en direct par messages écrits dans une application ou un site web."
+      },
+      "inflections": [
+        {
+          "form": "CHATS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "instant-messaging"
+        },
+        {
+          "type": "related_to",
+          "target": "chatbot"
         }
       ]
     },
@@ -362,6 +641,40 @@
           "type": "related_to",
           "target": "browser"
         }
+      ]
+    },
+    {
+      "id": "cname",
+      "form": "CNAME",
+      "display": "CNAME",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Canonical name record: a DNS entry that makes one domain name an alias of another.",
+        "fr": "Canonical name record : entrée DNS qui fait d'un nom de domaine l'alias d'un autre."
+      },
+      "inflections": [
+        {
+          "form": "CNAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dns"
+        },
+        {
+          "type": "related_to",
+          "target": "alias"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc1035"
       ]
     },
     {
@@ -474,6 +787,56 @@
       ]
     },
     {
+      "id": "dsl",
+      "form": "DSL",
+      "display": "DSL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Digital subscriber line: internet access carried over ordinary telephone wires.",
+        "fr": "Digital subscriber line : accès internet transporté sur les lignes téléphoniques ordinaires."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "broadband"
+        },
+        {
+          "type": "related_to",
+          "target": "modem"
+        }
+      ]
+    },
+    {
+      "id": "duplex",
+      "form": "DUPLEX",
+      "display": "Duplex",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Describes a link that carries data both ways; full duplex sends both ways at the same time.",
+        "fr": "Qualifie un lien qui transporte les données dans les deux sens ; en full duplex, simultanément."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ethernet"
+        },
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ]
+    },
+    {
       "id": "email",
       "form": "EMAIL",
       "display": "Email",
@@ -498,6 +861,40 @@
           "type": "uses",
           "target": "smtp"
         }
+      ]
+    },
+    {
+      "id": "emoji",
+      "form": "EMOJI",
+      "display": "Emoji",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small picture character, like a smiley or a heart, typed in messages; emoji are part of Unicode.",
+        "fr": "Petit caractère illustré, comme un smiley ou un cœur, utilisé dans les messages ; les emoji font partie d'Unicode."
+      },
+      "inflections": [
+        {
+          "form": "EMOJIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "unicode"
+        },
+        {
+          "type": "related_to",
+          "target": "chat"
+        }
+      ],
+      "sources": [
+        "https://home.unicode.org/emoji/"
       ]
     },
     {
@@ -532,6 +929,40 @@
       ]
     },
     {
+      "id": "esim",
+      "form": "ESIM",
+      "display": "eSIM",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A SIM built into a phone or watch and set up by download, with no physical card to insert.",
+        "fr": "SIM intégrée à un téléphone ou une montre et activée par téléchargement, sans carte à insérer."
+      },
+      "inflections": [
+        {
+          "form": "ESIMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "sim"
+        },
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
+      ],
+      "sources": [
+        "https://www.gsma.com/solutions-and-impact/technologies/esim/"
+      ]
+    },
+    {
       "id": "ethernet",
       "form": "ETHERNET",
       "display": "Ethernet",
@@ -560,6 +991,64 @@
       ]
     },
     {
+      "id": "favicon",
+      "form": "FAVICON",
+      "display": "Favicon",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The small icon of a website shown in the browser tab and bookmarks.",
+        "fr": "Petite icône d'un site web affichée dans l'onglet du navigateur et les favoris."
+      },
+      "inflections": [
+        {
+          "form": "FAVICONS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "website"
+        },
+        {
+          "type": "related_to",
+          "target": "browser-tab"
+        }
+      ]
+    },
+    {
+      "id": "feed",
+      "form": "FEED",
+      "display": "Feed",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A continuously updated stream of posts or articles, as in a social network or RSS reader.",
+        "fr": "Flux continu de publications ou d'articles, comme sur un réseau social ou dans un lecteur RSS."
+      },
+      "inflections": [
+        {
+          "form": "FEEDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "rss"
+        }
+      ]
+    },
+    {
       "id": "fiber",
       "form": "FIBER",
       "display": "Fibre optic",
@@ -578,6 +1067,33 @@
         {
           "type": "related_to",
           "target": "bandwidth"
+        }
+      ]
+    },
+    {
+      "id": "forum",
+      "form": "FORUM",
+      "display": "Forum",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An online discussion site where people post messages in threads by topic.",
+        "fr": "Site de discussion en ligne où l'on publie des messages en fils, classés par sujet."
+      },
+      "inflections": [
+        {
+          "form": "FORUMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "website"
         }
       ]
     },
@@ -637,6 +1153,31 @@
       ]
     },
     {
+      "id": "ftth",
+      "form": "FTTH",
+      "display": "FTTH",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Fibre to the home: optical fibre running all the way to the subscriber's home for very fast internet.",
+        "fr": "Fibre to the home : fibre optique tirée jusqu'au logement de l'abonné pour un internet très rapide."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "fiber"
+        },
+        {
+          "type": "is_a",
+          "target": "broadband"
+        }
+      ]
+    },
+    {
       "id": "gateway",
       "form": "GATEWAY",
       "display": "Gateway",
@@ -661,6 +1202,90 @@
           "type": "related_to",
           "target": "router"
         }
+      ]
+    },
+    {
+      "id": "gbps",
+      "form": "GBPS",
+      "display": "Gbps",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Gigabits per second: a thousand megabits per second, used for fibre and data-centre links.",
+        "fr": "Gigabits par seconde : mille mégabits par seconde, pour la fibre et les liens de centres de données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mbps"
+        },
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/prefixes.html"
+      ]
+    },
+    {
+      "id": "grpc",
+      "form": "GRPC",
+      "display": "gRPC",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "gRPC: an open-source remote procedure call framework that sends compact binary messages over HTTP/2.",
+        "fr": "gRPC : framework open source d'appel de procédure à distance qui échange des messages binaires compacts sur HTTP/2."
+      },
+      "relations": [
+        {
+          "type": "implements",
+          "target": "rpc"
+        },
+        {
+          "type": "uses",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://grpc.io/docs/"
+      ]
+    },
+    {
+      "id": "gsm",
+      "form": "GSM",
+      "display": "GSM",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Global System for Mobile Communications: the 2G mobile standard behind calls, SMS and SIM cards.",
+        "fr": "Global System for Mobile Communications : norme mobile 2G des appels, SMS et cartes SIM."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sms"
+        },
+        {
+          "type": "related_to",
+          "target": "sim"
+        }
+      ],
+      "sources": [
+        "https://www.3gpp.org/"
       ]
     },
     {
@@ -691,6 +1316,33 @@
         {
           "type": "part_of",
           "target": "tls"
+        }
+      ]
+    },
+    {
+      "id": "hashtag",
+      "form": "HASHTAG",
+      "display": "Hashtag",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A word or phrase after a # sign that groups social media posts on the same topic.",
+        "fr": "Mot ou expression précédé de # qui regroupe les publications sur un même sujet."
+      },
+      "inflections": [
+        {
+          "form": "HASHTAGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "feed"
         }
       ]
     },
@@ -893,6 +1545,90 @@
       ]
     },
     {
+      "id": "http-get",
+      "form": "GET",
+      "display": "GET",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The HTTP method a browser uses to ask a server for a page or resource without changing anything.",
+        "fr": "Méthode HTTP qu'un navigateur utilise pour demander une page ou une ressource sans rien modifier."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "http"
+        },
+        {
+          "type": "related_to",
+          "target": "rest"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET"
+      ]
+    },
+    {
+      "id": "http-post",
+      "form": "POST",
+      "display": "POST",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The HTTP method used to send data to a server, such as a submitted form or a new record.",
+        "fr": "Méthode HTTP utilisée pour envoyer des données à un serveur, comme un formulaire ou un nouvel enregistrement."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "http"
+        },
+        {
+          "type": "related_to",
+          "target": "rest"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST"
+      ]
+    },
+    {
+      "id": "http-put",
+      "form": "PUT",
+      "display": "PUT",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The HTTP method that creates or fully replaces a resource at a given address.",
+        "fr": "Méthode HTTP qui crée ou remplace entièrement une ressource à une adresse donnée."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "http"
+        },
+        {
+          "type": "related_to",
+          "target": "rest"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT"
+      ]
+    },
+    {
       "id": "https",
       "form": "HTTPS",
       "display": "HTTPS",
@@ -1037,6 +1773,61 @@
       ]
     },
     {
+      "id": "inbox",
+      "form": "INBOX",
+      "display": "Inbox",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The folder where new emails or messages arrive.",
+        "fr": "Dossier où arrivent les nouveaux e-mails ou messages."
+      },
+      "inflections": [
+        {
+          "form": "INBOXES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "email"
+        }
+      ]
+    },
+    {
+      "id": "instant-messaging",
+      "form": "IM",
+      "display": "IM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "IM: instant messaging, exchanging short text messages in real time over the internet.",
+        "fr": "IM (instant messaging) : messagerie instantanée, échange de courts messages texte en temps réel sur internet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "chat"
+        },
+        {
+          "type": "related_to",
+          "target": "internet"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc2779"
+      ]
+    },
+    {
       "id": "internet",
       "form": "INTERNET",
       "display": "Internet",
@@ -1159,6 +1950,30 @@
       ]
     },
     {
+      "id": "irc",
+      "form": "IRC",
+      "display": "IRC",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Internet Relay Chat: a long-running text chat system organised in channels on servers.",
+        "fr": "Internet Relay Chat : système de discussion texte historique, organisé en canaux sur des serveurs."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "instant-messaging"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc2810"
+      ]
+    },
+    {
       "id": "isp",
       "form": "ISP",
       "display": "ISP",
@@ -1207,6 +2022,31 @@
         {
           "type": "related_to",
           "target": "packet"
+        }
+      ]
+    },
+    {
+      "id": "lag",
+      "form": "LAG",
+      "display": "Lag",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A noticeable delay between an action and its effect, often felt in online games and video calls.",
+        "fr": "Retard perceptible entre une action et son effet, souvent ressenti dans les jeux en ligne et les appels vidéo."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "latency"
+        },
+        {
+          "type": "related_to",
+          "target": "ping"
         }
       ]
     },
@@ -1275,6 +2115,34 @@
       ]
     },
     {
+      "id": "localhost",
+      "form": "LOCALHOST",
+      "display": "localhost",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The name a computer uses for itself on the network, usually address 127.0.0.1.",
+        "fr": "Nom qu'un ordinateur se donne à lui-même sur le réseau, en général l'adresse 127.0.0.1."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "loopback"
+        },
+        {
+          "type": "related_to",
+          "target": "hostname"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc6761"
+      ]
+    },
+    {
       "id": "loopback",
       "form": "LOOPBACK",
       "display": "Loopback",
@@ -1293,6 +2161,34 @@
           "type": "related_to",
           "target": "ip"
         }
+      ]
+    },
+    {
+      "id": "lte",
+      "form": "LTE",
+      "display": "LTE",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Long Term Evolution: the 4G mobile network standard for fast data on phones.",
+        "fr": "Long Term Evolution : norme de réseau mobile 4G pour des données rapides sur téléphone."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        },
+        {
+          "type": "alternative_to",
+          "target": "gsm"
+        }
+      ],
+      "sources": [
+        "https://www.3gpp.org/technologies/lte"
       ]
     },
     {
@@ -1321,6 +2217,30 @@
       ]
     },
     {
+      "id": "mbps",
+      "form": "MBPS",
+      "display": "Mbps",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Megabits per second: the usual unit of internet connection speed.",
+        "fr": "Mégabits par seconde : unité habituelle de débit des connexions internet."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        }
+      ],
+      "sources": [
+        "https://physics.nist.gov/cuu/Units/prefixes.html"
+      ]
+    },
+    {
       "id": "mesh-network",
       "form": "MESHNETWORK",
       "display": "Mesh network",
@@ -1343,6 +2263,34 @@
           "type": "related_to",
           "target": "topology"
         }
+      ]
+    },
+    {
+      "id": "mime",
+      "form": "MIME",
+      "display": "MIME",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Multipurpose Internet Mail Extensions: labels such as image/png that tell software what kind of content it gets.",
+        "fr": "Multipurpose Internet Mail Extensions : étiquettes comme image/png qui indiquent le type d'un contenu."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "email"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc2045"
       ]
     },
     {
@@ -1375,6 +2323,34 @@
           "type": "related_to",
           "target": "isp"
         }
+      ]
+    },
+    {
+      "id": "mpls",
+      "form": "MPLS",
+      "display": "MPLS",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Multiprotocol Label Switching: forwards packets along pre-set paths using short labels, common in operator networks.",
+        "fr": "Multiprotocol Label Switching : achemine les paquets sur des chemins prédéfinis grâce à de courtes étiquettes."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "routing"
+        },
+        {
+          "type": "related_to",
+          "target": "wan"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc3031"
       ]
     },
     {
@@ -1529,6 +2505,90 @@
       ]
     },
     {
+      "id": "network-bridge",
+      "form": "BRIDGE",
+      "display": "Bridge",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A device or software that joins two network segments so they act as one.",
+        "fr": "Équipement ou logiciel qui relie deux segments de réseau pour qu'ils fonctionnent comme un seul."
+      },
+      "inflections": [
+        {
+          "form": "BRIDGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "switch"
+        },
+        {
+          "type": "related_to",
+          "target": "lan"
+        }
+      ]
+    },
+    {
+      "id": "newsletter",
+      "form": "NEWSLETTER",
+      "display": "Newsletter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A regular email sent to a list of subscribers with news or articles.",
+        "fr": "E-mail régulier envoyé à une liste d'abonnés avec des nouvelles ou des articles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "email"
+        },
+        {
+          "type": "related_to",
+          "target": "subscription"
+        }
+      ]
+    },
+    {
+      "id": "nfs",
+      "form": "NFS",
+      "display": "NFS",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Network File System: lets computers open files on a remote server as if they were local.",
+        "fr": "Network File System : permet aux ordinateurs d'ouvrir des fichiers d'un serveur distant comme s'ils étaient locaux."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "filesystem"
+        },
+        {
+          "type": "related_to",
+          "target": "nas"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc7530"
+      ]
+    },
+    {
       "id": "nic",
       "form": "NIC",
       "display": "NIC",
@@ -1589,6 +2649,37 @@
       ]
     },
     {
+      "id": "octet",
+      "form": "OCTET",
+      "display": "Octet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A group of exactly eight bits; network standards use it where byte could be ambiguous.",
+        "fr": "Groupe d'exactement huit bits ; les normes réseau l'emploient là où « byte » serait ambigu."
+      },
+      "inflections": [
+        {
+          "form": "OCTETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "byte"
+        },
+        {
+          "type": "related_to",
+          "target": "ip-address"
+        }
+      ]
+    },
+    {
       "id": "offline",
       "form": "OFFLINE",
       "display": "Offline",
@@ -1628,6 +2719,62 @@
           "type": "related_to",
           "target": "internet"
         }
+      ]
+    },
+    {
+      "id": "osi-model",
+      "form": "OSI",
+      "display": "OSI model",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Open Systems Interconnection model: a seven-layer reference that describes how network communication is split up.",
+        "fr": "Modèle Open Systems Interconnection : référence en sept couches qui décrit comment se découpe la communication réseau."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tcp"
+        },
+        {
+          "type": "related_to",
+          "target": "network"
+        }
+      ],
+      "sources": [
+        "https://www.iso.org/standard/20269.html"
+      ]
+    },
+    {
+      "id": "ospf",
+      "form": "OSPF",
+      "display": "OSPF",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Open Shortest Path First: a routing protocol that lets routers inside one network find the best paths.",
+        "fr": "Open Shortest Path First : protocole de routage qui permet aux routeurs d'un réseau de trouver les meilleurs chemins."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "routing"
+        },
+        {
+          "type": "alternative_to",
+          "target": "bgp"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc2328"
       ]
     },
     {
@@ -1709,6 +2856,37 @@
       ]
     },
     {
+      "id": "peer",
+      "form": "PEER",
+      "display": "Peer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A machine that talks to another as an equal, as in peer-to-peer sharing or routers exchanging routes.",
+        "fr": "Machine qui dialogue d'égal à égal avec une autre, comme en pair-à-pair ou entre routeurs qui échangent des routes."
+      },
+      "inflections": [
+        {
+          "form": "PEERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "peer-to-peer"
+        },
+        {
+          "type": "related_to",
+          "target": "node"
+        }
+      ]
+    },
+    {
       "id": "peer-to-peer",
       "form": "PEERTOPEER",
       "display": "Peer-to-peer",
@@ -1769,6 +2947,93 @@
           "type": "related_to",
           "target": "latency"
         }
+      ]
+    },
+    {
+      "id": "podcast",
+      "form": "PODCAST",
+      "display": "Podcast",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An audio or video series published online in episodes that listeners can subscribe to.",
+        "fr": "Série audio ou vidéo publiée en ligne par épisodes, à laquelle on peut s'abonner."
+      },
+      "inflections": [
+        {
+          "form": "PODCASTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "rss"
+        },
+        {
+          "type": "related_to",
+          "target": "streaming"
+        }
+      ]
+    },
+    {
+      "id": "poe",
+      "form": "POE",
+      "display": "PoE",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Power over Ethernet: sending electrical power along network cables to devices like cameras and access points.",
+        "fr": "Power over Ethernet : alimentation électrique transmise par le câble réseau à des caméras ou points d'accès."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "ethernet"
+        },
+        {
+          "type": "related_to",
+          "target": "ap"
+        }
+      ],
+      "sources": [
+        "https://www.ieee802.org/3/"
+      ]
+    },
+    {
+      "id": "pop",
+      "form": "POP",
+      "display": "POP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Post Office Protocol: an older email protocol (POP3) that downloads messages from a server to one device.",
+        "fr": "Post Office Protocol : ancien protocole de messagerie (POP3) qui télécharge les messages vers un seul appareil."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "imap"
+        },
+        {
+          "type": "related_to",
+          "target": "email"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc1939"
       ]
     },
     {
@@ -1856,6 +3121,78 @@
       ]
     },
     {
+      "id": "redirect",
+      "form": "REDIRECT",
+      "display": "Redirect",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Sending a visitor or request automatically from one web address to another.",
+        "fr": "Renvoi automatique d'un visiteur ou d'une requête d'une adresse web vers une autre."
+      },
+      "inflections": [
+        {
+          "form": "REDIRECTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "REDIRECTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "url"
+        },
+        {
+          "type": "related_to",
+          "target": "status-code"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections"
+      ]
+    },
+    {
+      "id": "registrar",
+      "form": "REGISTRAR",
+      "display": "Registrar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A company accredited to sell and register domain names for the public.",
+        "fr": "Entreprise accréditée pour vendre et enregistrer des noms de domaine auprès du public."
+      },
+      "inflections": [
+        {
+          "form": "REGISTRARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "domain"
+        },
+        {
+          "type": "related_to",
+          "target": "dns"
+        }
+      ],
+      "sources": [
+        "https://www.icann.org/registrars"
+      ]
+    },
+    {
       "id": "repeater",
       "form": "REPEATER",
       "display": "Repeater",
@@ -1901,6 +3238,65 @@
         {
           "type": "uses",
           "target": "http"
+        }
+      ]
+    },
+    {
+      "id": "rfc",
+      "form": "RFC",
+      "display": "RFC",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Request for Comments: the numbered document series that defines internet protocols such as HTTP and TCP.",
+        "fr": "Request for Comments : série de documents numérotés qui définit les protocoles internet comme HTTP et TCP."
+      },
+      "inflections": [
+        {
+          "form": "RFCS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "internet"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/"
+      ]
+    },
+    {
+      "id": "roaming",
+      "form": "ROAMING",
+      "display": "Roaming",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Using your phone on another operator's network, typically when abroad.",
+        "fr": "Utilisation de son téléphone sur le réseau d'un autre opérateur, en général à l'étranger."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        },
+        {
+          "type": "related_to",
+          "target": "sim"
         }
       ]
     },
@@ -1990,6 +3386,278 @@
           "type": "related_to",
           "target": "bgp"
         }
+      ]
+    },
+    {
+      "id": "rpc",
+      "form": "RPC",
+      "display": "RPC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Remote procedure call: calling a function that runs on another machine as if it were local.",
+        "fr": "Remote procedure call : appel d'une fonction exécutée sur une autre machine comme si elle était locale."
+      },
+      "inflections": [
+        {
+          "form": "RPCS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "api"
+        },
+        {
+          "type": "related_to",
+          "target": "function"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc5531"
+      ]
+    },
+    {
+      "id": "rss",
+      "form": "RSS",
+      "display": "RSS",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Really Simple Syndication: a feed format that lets apps follow new posts from websites and podcasts.",
+        "fr": "Really Simple Syndication : format de flux qui permet de suivre les nouveaux articles de sites et de podcasts."
+      },
+      "relations": [
+        {
+          "type": "uses",
+          "target": "xml"
+        },
+        {
+          "type": "related_to",
+          "target": "feed"
+        }
+      ],
+      "sources": [
+        "https://www.rssboard.org/rss-specification"
+      ]
+    },
+    {
+      "id": "sd-wan",
+      "form": "SDWAN",
+      "display": "SD-WAN",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Software-defined WAN: links company sites over several internet and private connections managed by software.",
+        "fr": "WAN défini par logiciel : relie les sites d'une entreprise via plusieurs connexions pilotées par logiciel."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "wan"
+        },
+        {
+          "type": "related_to",
+          "target": "sdn"
+        }
+      ]
+    },
+    {
+      "id": "sdn",
+      "form": "SDN",
+      "display": "SDN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Software-defined networking: steering network traffic from central software instead of configuring each device.",
+        "fr": "Software-defined networking : piloter le trafic réseau depuis un logiciel central au lieu de configurer chaque équipement."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "control-plane"
+        },
+        {
+          "type": "related_to",
+          "target": "network"
+        }
+      ]
+    },
+    {
+      "id": "search-engine",
+      "form": "SEARCHENGINE",
+      "display": "Search engine",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A website or service that finds web pages matching the words you type.",
+        "fr": "Site ou service qui trouve les pages web correspondant aux mots saisis."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "web"
+        },
+        {
+          "type": "related_to",
+          "target": "index"
+        }
+      ]
+    },
+    {
+      "id": "seo",
+      "form": "SEO",
+      "display": "SEO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Search engine optimisation: improving a website so it ranks higher in search results.",
+        "fr": "Search engine optimisation : améliorer un site web pour qu'il remonte dans les résultats de recherche."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "website"
+        },
+        {
+          "type": "related_to",
+          "target": "search-engine"
+        }
+      ]
+    },
+    {
+      "id": "signup",
+      "form": "SIGNUP",
+      "display": "Sign-up",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Creating a new account on a website or app.",
+        "fr": "Création d'un nouveau compte sur un site web ou une application."
+      },
+      "inflections": [
+        {
+          "form": "SIGNUPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "account"
+        },
+        {
+          "type": "related_to",
+          "target": "login"
+        }
+      ]
+    },
+    {
+      "id": "sip",
+      "form": "SIP",
+      "display": "SIP",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Session Initiation Protocol: sets up, manages and ends voice and video calls over IP.",
+        "fr": "Session Initiation Protocol : établit, gère et termine les appels voix et vidéo sur IP."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "voip"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc3261"
+      ]
+    },
+    {
+      "id": "slug",
+      "form": "SLUG",
+      "display": "Slug",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The readable last part of a web address that names a page, like my-first-post.",
+        "fr": "Partie lisible en fin d'adresse web qui nomme une page, comme mon-premier-article."
+      },
+      "inflections": [
+        {
+          "form": "SLUGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "url"
+        }
+      ]
+    },
+    {
+      "id": "smb",
+      "form": "SMB",
+      "display": "SMB",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Server Message Block: the file and printer sharing protocol used on Windows networks.",
+        "fr": "Server Message Block : protocole de partage de fichiers et d'imprimantes des réseaux Windows."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "nfs"
+        },
+        {
+          "type": "related_to",
+          "target": "nas"
+        }
+      ],
+      "sources": [
+        "https://learn.microsoft.com/en-us/windows-server/storage/file-server/file-server-smb-overview"
       ]
     },
     {
@@ -2363,6 +4031,71 @@
       ]
     },
     {
+      "id": "timeout",
+      "form": "TIMEOUT",
+      "display": "Timeout",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A time limit after which a request or session is abandoned if no answer comes.",
+        "fr": "Délai au-delà duquel une requête ou une session est abandonnée faute de réponse."
+      },
+      "inflections": [
+        {
+          "form": "TIMEOUTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "latency"
+        },
+        {
+          "type": "related_to",
+          "target": "session"
+        }
+      ]
+    },
+    {
+      "id": "tld",
+      "form": "TLD",
+      "display": "TLD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Top-level domain: the last part of a domain name, such as .com, .org or .sn.",
+        "fr": "Top-level domain : dernière partie d'un nom de domaine, comme .com, .org ou .sn."
+      },
+      "inflections": [
+        {
+          "form": "TLDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "domain"
+        },
+        {
+          "type": "related_to",
+          "target": "dns"
+        }
+      ],
+      "sources": [
+        "https://www.iana.org/domains/root/db"
+      ]
+    },
+    {
       "id": "tls",
       "form": "TLS",
       "display": "TLS",
@@ -2409,6 +4142,37 @@
         {
           "type": "related_to",
           "target": "lan"
+        }
+      ]
+    },
+    {
+      "id": "torrent",
+      "form": "TORRENT",
+      "display": "Torrent",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small file that lets a peer-to-peer app download a larger file in pieces from many users at once.",
+        "fr": "Petit fichier qui permet à une application pair-à-pair de télécharger un gros fichier par morceaux depuis de nombreux utilisateurs."
+      },
+      "inflections": [
+        {
+          "form": "TORRENTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "peer-to-peer"
+        },
+        {
+          "type": "related_to",
+          "target": "download"
         }
       ]
     },
@@ -2463,6 +4227,37 @@
       ]
     },
     {
+      "id": "tunnel",
+      "form": "TUNNEL",
+      "display": "Tunnel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A connection that wraps one network's traffic inside another, as a VPN does over the internet.",
+        "fr": "Connexion qui encapsule le trafic d'un réseau dans un autre, comme un VPN sur internet."
+      },
+      "inflections": [
+        {
+          "form": "TUNNELS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "vpn"
+        },
+        {
+          "type": "related_to",
+          "target": "packet"
+        }
+      ]
+    },
+    {
       "id": "udp",
       "form": "UDP",
       "display": "UDP",
@@ -2512,6 +4307,36 @@
       ]
     },
     {
+      "id": "uri",
+      "form": "URI",
+      "display": "URI",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Uniform resource identifier: a string that names or locates a resource; every URL is a URI.",
+        "fr": "Uniform resource identifier : chaîne qui nomme ou localise une ressource ; toute URL est un URI."
+      },
+      "inflections": [
+        {
+          "form": "URIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "url"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc3986"
+      ]
+    },
+    {
       "id": "url",
       "form": "URL",
       "display": "URL",
@@ -2535,6 +4360,65 @@
         {
           "type": "related_to",
           "target": "dns"
+        }
+      ]
+    },
+    {
+      "id": "user-agent",
+      "form": "USERAGENT",
+      "display": "User agent",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The software acting for a user on the web, and the header that tells servers which browser and system it is.",
+        "fr": "Logiciel qui agit pour l'utilisateur sur le web, et l'en-tête qui indique au serveur navigateur et système."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "browser"
+        },
+        {
+          "type": "part_of",
+          "target": "header"
+        }
+      ],
+      "sources": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent"
+      ]
+    },
+    {
+      "id": "user-profile",
+      "form": "PROFILE",
+      "display": "Profile",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The page or record holding a user's name, picture and settings on a service.",
+        "fr": "Page ou fiche qui contient le nom, la photo et les réglages d'un utilisateur sur un service."
+      },
+      "inflections": [
+        {
+          "form": "PROFILES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "account"
+        },
+        {
+          "type": "related_to",
+          "target": "avatar"
         }
       ]
     },
@@ -2743,6 +4627,31 @@
       ]
     },
     {
+      "id": "webmail",
+      "form": "WEBMAIL",
+      "display": "Webmail",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Email read and written in a web browser instead of a dedicated mail app.",
+        "fr": "Courrier électronique lu et écrit dans un navigateur plutôt que dans une application dédiée."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "email"
+        },
+        {
+          "type": "runs_on",
+          "target": "browser"
+        }
+      ]
+    },
+    {
       "id": "webpage",
       "form": "WEBPAGE",
       "display": "Web page",
@@ -2771,6 +4680,34 @@
           "type": "uses",
           "target": "html"
         }
+      ]
+    },
+    {
+      "id": "webrtc",
+      "form": "WEBRTC",
+      "display": "WebRTC",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Web Real-Time Communication: browser technology for live audio, video and data between users without plugins.",
+        "fr": "Web Real-Time Communication : technologie des navigateurs pour audio, vidéo et données en direct sans plugin."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "browser"
+        },
+        {
+          "type": "related_to",
+          "target": "peer-to-peer"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/webrtc/"
       ]
     },
     {
@@ -2839,6 +4776,34 @@
       ]
     },
     {
+      "id": "whois",
+      "form": "WHOIS",
+      "display": "WHOIS",
+      "playable": true,
+      "kind": "protocol",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A lookup service that shows public registration details of a domain name or IP address.",
+        "fr": "Service de recherche qui affiche les informations publiques d'enregistrement d'un domaine ou d'une adresse IP."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "domain"
+        },
+        {
+          "type": "related_to",
+          "target": "registrar"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc3912"
+      ]
+    },
+    {
       "id": "wifi",
       "form": "WIFI",
       "display": "Wi-Fi",
@@ -2864,6 +4829,33 @@
       ]
     },
     {
+      "id": "wiki",
+      "form": "WIKI",
+      "display": "Wiki",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A website whose pages readers can edit together, used for encyclopedias and team documentation.",
+        "fr": "Site web dont les lecteurs peuvent modifier les pages ensemble, pour encyclopédies et documentation d'équipe."
+      },
+      "inflections": [
+        {
+          "form": "WIKIS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "website"
+        }
+      ]
+    },
+    {
       "id": "wireless",
       "form": "WIRELESS",
       "display": "Wireless",
@@ -2885,6 +4877,37 @@
         {
           "type": "related_to",
           "target": "bluetooth"
+        }
+      ]
+    },
+    {
+      "id": "wlan",
+      "form": "WLAN",
+      "display": "WLAN",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Wireless local area network: a LAN that connects devices by radio, usually Wi-Fi.",
+        "fr": "Wireless local area network : réseau local qui relie les appareils par radio, en général en Wi-Fi."
+      },
+      "inflections": [
+        {
+          "form": "WLANS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "lan"
+        },
+        {
+          "type": "uses",
+          "target": "wifi"
         }
       ]
     },
@@ -2915,6 +4938,34 @@
       ],
       "sources": [
         "https://www.wi-fi.org/discover-wi-fi/security"
+      ]
+    },
+    {
+      "id": "www",
+      "form": "WWW",
+      "display": "WWW",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "networking"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "World Wide Web: the system of linked pages and sites reached through a browser.",
+        "fr": "World Wide Web : système de pages et de sites liés, consultés avec un navigateur."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "web"
+        },
+        {
+          "type": "related_to",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/standards/"
       ]
     }
   ]
