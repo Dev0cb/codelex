@@ -26,7 +26,7 @@ Validate: `pnpm lexicon:validate [-- --report <path.json>]`.
 | `aliases` | string[] | other ids or display strings (e.g. `K8S`) |
 | `relations` | `{type, target}`[] | typed edges; target = existing term id |
 | `sources` | url[] | official docs used to verify (not copied) |
-| `inflections` | `{form, kind}`[]? | v2: curated playable inflected forms of this term (§2.1) |
+| `inflections` | `{form, kind, confirmed?}`[]? | v2: curated playable inflected forms of this term (§2.1) |
 | `tags` | string[]? | free tags (season packs, missions) |
 | `gameValue`, `knowledgeXp` | int? | **computed**; if present must equal the formula unless `override` is set |
 | `override` | `{gameValue?, knowledgeXp?, approvedBy}`? | requires `game-designer` approval |
@@ -43,6 +43,20 @@ never a scoring input. Rules (validator, §5): matches `^[A-Z]{2,15}$` but is ne
 forms are canonical terms only), ≠ the term's own form, ≤ 4 per term, array sorted by form in code-unit order without duplicates, only on
 `playable` terms with a `form`, never on `product` or `language` terms (D-6), not blocklisted, unique in the global
 form namespace.
+
+**Confirmed irregular forms (E-1.7 AC-14, sprint 3 P7).** An inflection that does not start with the term's form or
+lacks its kind's suffix (§5 warnings) is either fixed or confirmed by the curator **as data**, on the entry itself:
+
+```json
+{ "form": "INDICES", "kind": "plural",
+  "confirmed": { "approvedBy": "lexicon-curator", "reason": "Standard Latin plural of index, …" } }
+```
+
+`approvedBy` is non-empty, `reason` is 10..160 characters and says why the form is correct. A confirmed entry no
+longer raises `NEEDS_REVIEW`; every other irregular entry, including a new irregular form added to the same term,
+still does. `confirmed` on a regular form is an error, so a confirmation never outlives the irregularity it covers.
+It is review metadata: excluded from `lexiconVersion` and `cardsVersion` (§7), so confirming never changes an
+artefact. The field is optional, so schema v2 files without it stay valid (no `schemaVersion` bump).
 
 ## 3. Difficulty rubric
 - **novice** — known by most smartphone users / general public (CLOUD, EMAIL, PASSWORD, CPU).
@@ -79,20 +93,21 @@ Check: KUBERNETES (expert) → 17 + 10 + 16 = **43** game value, 75 + 10 = **85*
 - Forms (canonical and inflections) match `^[A-Z]{2,15}$` and are not in any `data/blocklist/*.txt`. Blocklist
   lines are trimmed, `#` starts a comment, entries are folded (NFD, combining marks removed, uppercased: `écu` →
   `ECU`), and a line that does not match `^[A-Z]{2,15}$` after folding fails the load with its file and line.
-- Inflections: entries are exactly `{form, kind}`; `kind` in the enum; form ≠ the term's form; no two-letter
+- Inflections: entries are `{form, kind}` plus an optional `confirmed: {approvedBy, reason}` (§2.1; only on an
+  irregular form, `approvedBy` non-empty, `reason` 10..160 chars); `kind` in the enum; form ≠ the term's form; no two-letter
   inflection (AC-15); ≤ 4 per term; sorted by form (code-unit order), no duplicates; owner term is `playable` with a
   `form`; owner kind is not `product` nor `language`. Inflections of an invalid owner are reported once and do not
   enter the namespace or the stats.
 
 **Warnings (`NEEDS_REVIEW`, non-blocking, printed and in the report):**
-- an inflection that does not start with the term's form (INDICES, MATRICES, PROXIES);
-- a `plural`/`verb_s` not ending in S, `verb_ed` not ending in ED, `verb_ing` not ending in ING;
+- an inflection that does not start with the term's form (INDICES, MATRICES, PROXIES), unless `confirmed` (§2.1);
+- a `plural`/`verb_s` not ending in S, `verb_ed` not ending in ED, `verb_ing` not ending in ING, unless `confirmed`;
 - a `product`, `protocol` or `standard` term without `sources` (D-11; becomes an error once the seed has 0 warnings).
 
 **Report (spec E-1.7 AC-7):** every run prints, and `--report <path>` writes as JSON: `lexiconVersion`,
 `cardsVersion`, errors, warnings, form counts (canonical / inflections / total), counts by form length (2, 3, 4, 5–7,
-8–10, 11–15; all forms), by primary category and by difficulty (canonical playable terms), by inflection kind, and
-the list of two-letter forms.
+8–10, 11–15; all forms), by primary category and by difficulty (canonical playable terms), by inflection kind, the
+number of confirmed irregular inflections (`confirmedInflections`), and the list of two-letter forms.
 
 ## 6. Size targets & inflection policy (product owner decision, 2026-10-02)
 - **Playtest target (E-1.5 stage 1):** ≥ 2,000 playable forms, of which ~20–25 % have 2–4 letters (≥ 350 with 3–4
@@ -132,7 +147,7 @@ Sorting is by UTF-16 code units (never locale). Consequences: the version is ind
 layout, of how terms are split across files, of key order, whitespace, CRLF/LF, and of the order of tags,
 relations, secondary categories and blocklist lines; an absent optional array equals `[]`; writing the computed
 `gameValue`/`knowledgeXp` explicitly equals omitting them. **Excluded** (display-only, never changes the version):
-`definitions`, `display`, `owner`, `sources`, `aliases`, `override.approvedBy`, category names, icons and colour
+`definitions`, `display`, `owner`, `sources`, `aliases`, `override.approvedBy`, inflection `confirmed`, category names, icons and colour
 tokens, and `schemaVersion` (a pure format migration such as v1 → v2 keeps the version).
 
 **`cardsVersion`** — same construction over the display-only document

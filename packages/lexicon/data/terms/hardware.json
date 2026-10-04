@@ -161,7 +161,11 @@
       "inflections": [
         {
           "form": "BATTERIES",
-          "kind": "plural"
+          "kind": "plural",
+          "confirmed": {
+            "approvedBy": "lexicon-curator",
+            "reason": "Regular English plural: consonant + y becomes -ies (battery, batteries). The prefix check only misses the dropped Y."
+          }
         }
       ]
     },
