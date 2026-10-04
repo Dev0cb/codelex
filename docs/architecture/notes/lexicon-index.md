@@ -459,8 +459,9 @@ container):* DAWG 1,306 nodes / 1,963 edges = 26,152 B; GADDAG 8,476 nodes / 12,
 DAWG sections, gate ≤ 6×); artefact 184,688 B with the GADDAG (82,657 B gzip -9), 67,016 B without (26,395 B
 gzip); decode with full validation 12.8 ms with the GADDAG, 3.8 ms without; build 47 ms / 11 ms; `has()` median 0.6–2.3
 µs, `crossCheck()` median 0.7 µs alone (up to ≈ 7 µs while other suites run in parallel). Size gates (hard, in
-`clxi.test.ts`): ≤ 0.55 MB with the GADDAG for ≤ 2,000 forms, ≤ 128 B per form without it, GADDAG sections ≤ 6×
-DAWG sections. Speed gates (node:test on `dist/`): `has()` < 10 µs, `crossCheck()` < 50 µs (median).
+`clxi.test.ts`): restated in sprint 3 for more than 2,000 forms, see §5.1 (the original "≤ 0.55 MB with the GADDAG
+for ≤ 2,000 forms, ≤ 128 B per form without it, GADDAG sections ≤ 6× DAWG sections" is kept and extended). Speed
+gates (node:test on `dist/`): `has()` < 10 µs, `crossCheck()` < 50 µs (median).
 
 Reading the table: lookup cost depends on form length, not lexicon size, so the 5 µs NFR holds at any scale on
 the server; the binding constraints are **artefact size at 50,000 forms** on mobile (mitigations: omit the GADDAG
@@ -478,13 +479,98 @@ How it is measured (task T8):
   that are reported, not blocking. *Measured* on `4fa5884050b4ea53` (1,501 forms, Node 22, dev container):
   `f1` 283,672 B, decode 17.7 ms, `has` 258/288 ns hit/miss, `crossCheck` 881 ns; `f0` 100,160 B, decode 4.6 ms.
 - **Open:** build time in the JSON, 10,000 seeded non-forms instead of form+`Q`.
-- **Size gate** (exact, deterministic, hard): artefact bytes per profile against the budget column; size diff
-  printed on every lexicon PR.
-- **Scale fixtures:** seeded synthetic corpora of 2,000 and 50,000 forms (letter-bigram model fitted on the real
-  forms), clearly labelled synthetic — they validate scaling trends, not real sharing ratios.
+- **Size gate** (exact, deterministic, hard): §5.1, `scripts/size-gate.mjs`, applied in `clxi.test.ts`;
+  `bench:index` reports each artefact's bytes, bytes per form and gate failures.
+- **Scale fixtures — done (sprint 3, P7):** `scripts/scale-corpus.mjs`, seeded corpora fitted on the real lexicon
+  (length distribution, start letter + letter bigrams, plural/verb and relation rates, difficulty and category mix),
+  clearly labelled synthetic — they validate scaling trends, not real sharing ratios. `synthetic` = generated terms
+  only; `real+synthetic` = every real term plus generated ones. `bench:index` builds both at 2,000, 2,500 and 3,000
+  forms (`scale` in the JSON). The bots keep their own 2,000/50,000-form fixtures (`packages/bots`).
 - **Device:** Hermes timings on the E-1.5 reference device as part of the AC-8 perf test (`mobile-engineer`);
   optionally the Hermes CLI in CI as a proxy (Q-H1). Move-generation benchmarks with fixed seeded positions live
   in `packages/bots` (`ai-engineer`).
+
+### 5.1 Size gate above 2,000 forms (restated 2026-10-04, sprint 3 task P7)
+
+**Why restate.** The first gate was "≤ 0.55 MB with the GADDAG for ≤ 2,000 forms": batch 3 (AC-14, ≥ 2,000
+forms) leaves its scope, and a pure byte cap says nothing until it breaks. At 189 B/form a linear projection
+puts the break near 2,900 forms. The measurements below put it at about 2,700.
+
+**Measured growth** (2026-10-04, `pnpm turbo run bench:index`, builder of format 1 unchanged, Node 22; corpora from
+`scripts/scale-corpus.mjs`; seed 1, and in brackets the range over seeds 1–4 for real+synthetic). B/form = artefact
+bytes ÷ playable forms. GADDAG ÷ DAWG = section bytes.
+
+| Corpus | Forms | f1 bytes | f1 B/form | GADDAG ÷ DAWG | f0 bytes | f0 B/form |
+|---|---|---|---|---|---|---|
+| real (`4fa5884050b4ea53`) | 1,501 | 283,672 | 189.0 | 4.71 | 100,160 | 66.7 |
+| real+synthetic | 2,000 | 389,024 (389,024–395,968) | 194.5 (194.5–198.0) | 4.59 | 136,816 | 68.4 |
+| real+synthetic | 2,500 | 498,520 (497,776–508,840) | 199.4 (199.1–203.5) | 4.52 | 174,024 | 69.6 |
+| real+synthetic | 2,550 | 510,296 | 200.1 | 4.52 | 177,728 | 69.7 |
+| real+synthetic | 3,000 | 600,920 (598,736–613,360) | 200.3 (199.6–204.5) | 4.52 | 209,296 | 69.8 |
+| synthetic | 2,000 | 460,968 (460,968–480,544) | 230.5 (230.5–240.3) | 4.43 | 152,560 | 76.3 |
+| synthetic | 2,500 | 563,864 (563,864–586,352) | 225.5 (225.5–234.5) | 4.43 | 188,768 | 75.5 |
+| synthetic | 3,000 | 668,840 (666,464–699,232) | 222.9 (222.2–233.1) | 4.46 | 224,408 | 74.8 |
+
+Earlier real points: 1,053 forms → 184,688 B (175.4 B/form, L5); 1,501 → 283,672 B (189.0). Reading:
+- The real lexicon got denser per form from batch 1 to batch 2 (+8 %). This came from the content mix. Within one
+  corpus the automata grow slightly super-linearly: real+synthetic goes from 194.5 to 200.3 B/form between 2,000
+  and 3,000 forms, and the GADDAG stays at ≈ 4.5× the DAWG.
+- Pure synthetic forms share fewer prefixes and suffixes than tech vocabulary (≈ 225 B/form). It is the
+  pessimistic bound, not the projection.
+- The 550,000 B cap is crossed at about **2,680–2,780 forms** on real+synthetic (4 seeds, interpolated) and at
+  about 2,400–2,450 on pure synthetic. f0 stays below 80 B/form everywhere: about 7,000 forms before the cap.
+- Build time: 150–260 ms (f1, real+synthetic, 2,000–3,000 forms).
+
+**The gate** (`packages/lexicon/scripts/size-gate.mjs`, hard in `src/index/clxi/clxi.test.ts`, reported by
+`bench:index`):
+
+| Gate | f1 (with GADDAG, bundled today) | f0 (no GADDAG) |
+|---|---|---|
+| Absolute cap = mobile `lexiconBytes` (`apps/mobile/bundle-budget.json`, both platforms) | ≤ 550,000 B | ≤ 550,000 B |
+| Density | ≤ **215 B/form** | ≤ 128 B/form |
+| Batch-3 ceiling | ≤ **2,550 forms** | — |
+| GADDAG sections | ≤ 6 × DAWG sections | — |
+
+- The numbers fit together: ceiling = ⌊550,000 / 215 / 50⌋ × 50 = 2,550 (a test checks this). Density × ceiling
+  ≤ cap, so while both gates hold, the cap holds up to the ceiling. The density gate gives the early warning that
+  the cap alone could not.
+- 215 B/form is 14 % above today's 189 and about 5 % above the worst real+synthetic value (205.4, seed 4 at 2,750 forms). A batch that is
+  less dense than real tech vocabulary, or a builder regression, fails before it eats the cap.
+- The ceiling is 5–8 % below the measured cap crossing. Above 2,550 forms, f1 is no longer planned to fit, and the
+  switch rule below decides. Raising the cap is not part of that rule.
+- `clxi.test.ts` checks the real f1 and f0 artefacts. It also checks two real+synthetic projections (seed 1) at
+  2,000 forms (the AC-14 target) and at the 2,550-form ceiling, so a builder change that breaks the batch-3 plan
+  fails in CI before the content arrives.
+- `test/size-gate.test.mjs` checks that the cap equals `lexiconBytes` on every platform of
+  `apps/mobile/bundle-budget.json`. `prepare:lexicon` keeps enforcing the cap on the file it bundles. The mobile
+  budget value is unchanged (550,000 B): the new gate adds density and a ceiling on the lexicon side and does not
+  move the cap.
+
+**f0 switch rule (pre-agreed, numeric; used by ST0 for the Strategist budget).** `bundledFlags()` in
+`size-gate.mjs` encodes it:
+
+1. **Keep f1** while the f1 artefact of the bundled profile passes every f1 gate above.
+2. **Switch to f0** (`BUNDLED_FLAGS = 0` in `apps/mobile/scripts/lexicon-asset.mjs`, a one-line PR with no new
+   design review) on the first lexicon change that makes f1 fail a gate, when both hold:
+   - f0 passes its gates;
+   - DAWG-path generation time is **≤ 1.5×** the GADDAG path's: p95 per-position time over the ≥ 200 mid-game
+     positions of the bots `qa2` bench, on the lexicon being shipped. Measured: 1.44× on the real 1,501 forms,
+     1.45× on synthetic 2,000, 1.43× on synthetic 50,000 (bots-api §6).
+3. **Escalate** otherwise (f0 also fails, or the ratio is above 1.5×). lexicon-engineer, mobile-engineer and
+   ai-engineer then choose between CDN delivery, a reviewed cap change and cheaper generation. The cap is never
+   raised silently.
+
+**Consequence for the Strategist budget (ST0).** Size the budget so it holds on f0 from the start: assume
+`c_node(f0) = 1.5 × c_node(f1)`, that is `maxNodes = ⌊(T_target − T_fixed − maxCandidates × c_eval) / (1.5 ×
+c_node,GADDAG)⌋` with the bots-api §5 constants. Then a switch under rule 2 changes neither the budget nor
+`BOT_VERSION`, and the device time stays within budget.
+
+The node count is not the issue: DAWG ÷ GADDAG nodes per position are 100–121 % on the real lexicon at p50/p95, and
+`maxNodes` bounds both. On two-blank positions the time ratio reaches 1.73× (synthetic 2,000, p95), but the same node
+cap bounds them.
+
+One residual point for ai-engineer: with a binding budget the two paths may choose differently (P-BOT-03 only
+guarantees equality without budget exhaustion). Pin bot goldens on the variant the app ships.
 
 ## 6. Alternatives considered
 
@@ -543,7 +629,7 @@ fail.
 | T5 | DAWG build + minimisation + rank, encoder/decoder v1, CRC32 — done (sprint L4; normative layout in `src/index/clxi/format.ts`, adds TERM_FORM/FORM_TERM/FORM_KIND tables for the FormRef/TermRef split) | lexicon-engineer | code-reviewer | T3 | M |
 | T6 | GADDAG build + traversal + `crossCheck` — done (sprint L5: 15-section format 1, flags bit 0, `LexiconIndex.dawg`, T-GADDAG) | lexicon-engineer | ai-engineer | T5 | M |
 | T7 | Property/differential/fuzz tests, golden fixtures | lexicon-engineer | qa-engineer | T4–T6 | M |
-| T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring — benchmark JSON and CI artefact done (sprint L6, non-gating, §5); size gate and scale corpora pending | lexicon-engineer | devops-sre | T5–T6 | S |
+| T8 | Benchmarks, size gate, synthetic scale corpora, CI wiring — benchmark JSON and CI artefact done (sprint L6, non-gating, §5); size gate restated above 2,000 forms with the f0 switch rule and scale corpora done (sprint 3 P7, §5.1) | lexicon-engineer | devops-sre | T5–T6 | S |
 | T9 | `build:index` CLI, Turborepo task, manifest — done (CLI and manifest sprint L4, global profile only; cached Turborepo task, `current.json` pointer and `@codelex/lexicon/indexes` resolver sprint L6, §3.4) | lexicon-engineer | devops-sre | T5 | S |
 | T10 | Mobile asset bundling + loader + corrupt-index state (E-1.5) | mobile-engineer | lexicon-engineer | T9 | S |
 | T11 | Server loader cache in `services/game` (Phase 2) | game-engine-engineer | lexicon-engineer | T9 | S |
