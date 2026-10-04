@@ -2,8 +2,11 @@
 
 - Epic: E-1.7 (feeds E-1.5 playtest Stage 1, E-1.3 bots, E-1.6 balance; depends on E-1.2) · Vision refs: V-04, V-05,
   V-13 · Status: Ready for design
-- Owner: product-strategist · Last update: 2026-10-03
-- Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` task D2 (unblocks L1, L2, C1).
+- Owner: product-strategist · Last update: 2026-10-04 (sprint 3 SP1, b2-response T-7: primary KPI restated as
+  C-02; scoreless-ending guardrail replaced by C-10/C-11 per §9.1 item 1 (D1-c); batch-3 steering ≈ 24 % of forms
+  at 2–4 letters per D1-d/T-5)
+- Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` task D2 (unblocks L1, L2, C1);
+  `docs/sprints/2026-10-04-phase1-playtest-gates.md` task SP1 (this restatement) and C3 (batch 3).
 - Next reviews: `game-designer` (scoring and rule amendments, confirmations C-GD-1..5), `lexicon-curator` (content
   plan, two-letter pool, confirmations C-LC-1..5), `lexicon-engineer` (schema v2, validator), `solution-architect`
   (the change crosses `packages/lexicon`, `packages/game-engine`, `packages/bots`, `apps/mobile`), FYI
@@ -27,9 +30,17 @@ too thin:
 Evidence (game-designer review of E-1.5, R-1): with 6 two-letter forms, parallel plays and hooks are nearly
 impossible, the board becomes a sparse crossword, premiums go unreachable and bots often have no legal move late in
 the game; below ~1,000 forms the same 40–50 acronyms dominate every game, and repetition kills "would play again".
-BALANCE.md sets the measured fallback: if the 15×15 simulation shows > 15 % turns with no legal word, > 10 %
-scoreless endings or top-20 terms > 40 % of words played, the playtest falls back to an 11×11 board. A rich, honest
-lexicon is the cheapest way to keep full Classic.
+BALANCE.md sets a measured fallback: the playtest falls back to an 11×11 board if the 15×15 simulation shows too
+many no-word turns, lock-ups or repeated terms. Since 2026-10-04 (b2-response §9.1 item 1, D1-c) these triggers
+are read as:
+
+- C-02 > 15 % (no legal word while the bag is non-empty);
+- C-10 > 5 % (premature lock: an R-TURN-004 ending with ≥ 7 tiles in the bag) or C-11 < 90 tiles played;
+- top-20 terms > 40 % of words played.
+
+The old "> 10 % scoreless endings" trigger was dropped. R-TURN-004 is the normal ending whenever nobody goes out:
+it ends 55–67 % of matches even on a 60,000-word English lexicon, so it cannot tell a thin lexicon from a healthy
+one. A rich, honest lexicon is the cheapest way to keep full Classic.
 
 ## Target players & context
 
@@ -129,6 +140,12 @@ sprint, binary DAWG from L4). "Form" = a playable string; "term" = the canonical
   ≥ 1,300 canonical and inflections ≤ 35 % of forms; ≥ 30 two-letter forms (target 35+); ≥ 350 forms of 3–4
   letters; 2–4-letter forms 20–25 %; 11–15-letter forms ≤ 12 %; category share 8–16 % each; difficulty mix of
   canonical playable terms within the D-9 bands; 0 validator errors and 0 open `NEEDS_REVIEW` items.
+  *(SP1, b2-response D1-d / T-5)* Steering inside the gate: batch 3 aims at **≈ 24 % of all forms at 2–4 letters**
+  (≈ 480 of 2,000, i.e. about +150 new 2–4-letter forms rather than the ≥ 55 minimum). New short forms should be
+  hook-friendly (regular plurals, C-LC-3 verb forms) and vowel-bearing 3-letter forms are preferred. The canonical,
+  novice-skewed and 5–7-letter steering of C-LC-2 is unchanged. The hard gate stays 20–25 %, so 24 % leaves one
+  point of headroom. It is the single biggest content lever on C-10 and C-11 (b2-response §2.3: at 2,000 forms, a
+  short-rich mix measured 1.2 % premature lock vs 3.6 %, and 93.9 vs 89.8 tiles played).
 - **AC-15 Two-letter honesty.** Given any two-letter form, Then it is a canonical term (never an inflection) whose
   EN and FR definitions spell out what it stands for, it has ≥ 1 `sources` URL, it passes the two-letter checklist
   (D-7), and no two-letter form is accepted only because it is an English or French function word.
@@ -152,7 +169,17 @@ sprint, binary DAWG from L4). "Form" = a playable string; "term" = the canonical
   no runtime deny-list exists.
 - **AC-20 Simulation readout per batch.** Given a batch is merged and the E-1.3 simulator exists, When it runs a
   fixed seed set on the current lexicon with profile variants "with inflections" and "without inflections" (D-14),
-  Then a readout records the KPI table below for both variants and is linked from the sprint file.
+  Then a readout records the KPI table below for both variants and is linked from the sprint file. *(SP1)* The
+  readout reports at least:
+  - C-02 (non-empty bag) and, next to it, the all-turns no-word rate;
+  - C-10 and the bag-at-end split (0 / 1–6 / ≥ 7);
+  - C-11 (mean tiles played);
+  - the raw R-TURN-004 ending share (reported, no target);
+  - the top-20 term share.
+
+  The batch-3 gating readout runs on a **Strategist mirror** under the rules version chosen by the sprint 3 v1/v2
+  decision (BALANCE C-10/C-11 "read on a Strategist mirror"). Greedy stands in only if Strategist has not merged,
+  and the readout must then say so.
 - **AC-21 Suggestion helper never writes data.** Given the optional inflection helper script, When it runs, Then it
   only prints deterministic candidates (regular -S / -ES / -IES rules; skips `product` and `language` terms, mass
   nouns tagged by the curator, and any collision with an existing form or blocklist entry) for curator review, and
@@ -208,23 +235,27 @@ report (AC-7), the E-1.3/E-1.6 simulator (AC-20) and, during the playtest, the e
 
 | KPI | Type | Target | Source |
 |---|---|---|---|
-| Turns with no legal PlaceWord (bot, 15×15 Classic, equal bots) | **Primary** | ≤ 15 % at batch 3 (BALANCE.md fallback threshold); trend reported at batches 1–2 | E-1.3 simulator / E-1.6 |
-| Matches ending on scoreless turns (R-TURN-004) | Guardrail | ≤ 10 % at batch 3 | simulator |
+| **C-02** — turns with no legal PlaceWord **taken while the bag is non-empty** (BALANCE 0.4 C-02; 15×15 Classic, bot mirror) | **Primary** | ≤ 15 % at batch 3 (BALANCE C-02 and 11×11 trigger); trend reported at every batch. The all-turns rate is reported next to it but is not the target, because the end-of-match forced-pass tail (≈ 5 turns per R-TURN-004 ending) dominates it | E-1.3 simulator / E-1.6, Strategist mirror at batch 3 (AC-20) |
+| **C-10** — premature lock: matches ending on R-TURN-004 with ≥ 7 tiles in the bag | Guardrail | ≤ 5 % at batch 3 (replaces "≤ 10 % scoreless endings", b2-response §9.1 item 1). Batch 2: 14.9 %; batch-3 proxy: 3.6 % | simulator; playtest via `bot_match_finished.bag_count_at_end` |
+| **C-11** — mean tiles played on the board per 1v1 match (of 100) | Guardrail | ≥ 90 at batch 3. Batch 2: 84.8; batch-3 proxy: 89.8 | simulator; playtest via `bot_match_finished.tiles_on_board_at_end` |
+| Matches ending on R-TURN-004 (raw share) | Reported, no target | — (normal ending when nobody goes out; kept for continuity with earlier readouts) | simulator |
 | Top-20 terms share of words played | Guardrail | ≤ 40 % at batch 3 | simulator |
 | Validator errors on `main` | Guardrail | 0, always | CI |
 | Offensive or wrong-term content reported in playtest | Guardrail | 0 offensive; any report → new version (AC-19) | debrief, E-1.5 halt criteria |
 | Index size compressed / load on reference device | Guardrail | ≤ 0.3 MB / < 100 ms at 2,000 forms (lexicon-index note §5) | L4 size gate, T10 |
 | Inflection share of words played | Secondary | baseline (expect 10–25 %) | simulator; playtest via `form_kind` (below) |
 | Term-bonus points from hooked inflections (single tile added) | Secondary | baseline; investigate if > 10 % of all term-bonus points | simulator |
-| Lift from inflections (no-legal-word rate, with vs without) | Secondary | baseline; justifies D-1 | AC-20 variants |
+| Lift from inflections (C-02, C-10 and C-11, with vs without) | Secondary | baseline; justifies D-1 | AC-20 variants |
+| Share of forms at 2–4 letters | Batch-3 steering | ≈ 24 % (gate 20–25 %, AC-14) | validator report |
 | Rejected attempts per player turn (playtest) | Secondary | median ≤ 1.0 (E-1.5 guardrail) | `word_rejected` |
 | Distribution targets (AC-13, AC-14) | Batch gate | as stated | validator report |
 
 ### Events
 
-No new event. One property proposed to `data-analyst` for the E-1.5 catalogue proposal (not edited here):
-`bot_word_played.form_kind` ∈ `canonical | plural | verb_s | verb_ed | verb_ing`; `term_id` stays the canonical id.
-No played string is added (E-1.5 Q-8 spirit: avoid free text).
+No new event. One property, `bot_word_played.form_kind` ∈ `canonical | plural | verb_s | verb_ed | verb_ing`, is
+now in `docs/standards/ANALYTICS_EVENTS.md` (sprint 3 SP1); `term_id` stays the canonical id. No played string is
+added (E-1.5 Q-8 spirit: avoid free text). C-10 and C-11 are also read on humans during the playtest through
+`bot_match_finished.bag_count_at_end` and `tiles_on_board_at_end` (b2-response T-9, §10 "bots are not humans").
 
 ## Flags & rollout
 
@@ -249,7 +280,7 @@ No played string is added (E-1.5 Q-8 spirit: avoid free text).
 | S4 | Blocklists populated + content batch 1 (≥ 800 forms, ≥ 30 two-letter) | C1 | new `lexiconVersion` | AC-13, AC-15..17 |
 | S5 | Simulator readout with/without inflections on batch 1 (stretch) | B1 | profile variants | AC-20 KPIs |
 | S6 | Batch 2 (≥ 1,400 forms; verb forms on closed list) | next sprint | new `lexiconVersion` | report + simulator |
-| S7 | Batch 3 (≥ 2,000 forms) → gate for E-1.6 calibration and playtest Stage 1 | next sprint +1 | new `lexiconVersion` | AC-14, primary KPI |
+| S7 | Batch 3 (≥ 2,000 forms, ≈ 24 % at 2–4 letters) → gate for E-1.6 calibration and playtest Stage 1 | sprint 3 C3 | new `lexiconVersion` | AC-14, C-02 (primary), C-10, C-11 |
 
 ## Privacy, security, monetisation notes
 
@@ -365,6 +396,21 @@ decision is reversible (data and schema minor changes), except where noted.
   ≥ 1,300 canonical. Each batch is split into category PRs of ≤ 200 terms. Playtest Stage 1 is gated on batch 3 plus
   the primary KPI, not on the calendar.
 - **D-17 Letter derivation includes inflections** (Rules impact 3); Phase 1 values stay frozen by D3.
+- **D-18 KPI restatement (sprint 3 SP1, 2026-10-04; b2-response T-7, §9.1 item 1).**
+  - The primary KPI is C-02: no-legal-word turns counted while the bag is non-empty.
+  - The "≤ 10 % scoreless endings" guardrail is replaced by C-10 (premature lock ≤ 5 %) and C-11 (tiles played
+    ≥ 90). The raw R-TURN-004 share stays in readouts with no target.
+  - Batch 3 steers toward ≈ 24 % of forms at 2–4 letters (AC-14).
+
+  Why: the old guardrail fails on any realistic lexicon, so it cannot steer content. C-10 and C-11 follow the
+  lexicon dose–response (b2-response §2.3). Rejected:
+  - keeping the old guardrail with a higher threshold: it is still blind to lock-up versus a normal ending;
+  - dropping the lock-up guardrail entirely: then no metric would catch a thin lexicon.
+
+  ICE: impact high × confidence high (458,000 simulated matches) ÷ effort low (docs). Two-way door.
+  ASSUMPTION: the BALANCE.md 11×11 trigger text is updated to the same C-10/C-11 wording in the reviewed rules PR
+  (§9.1 item 1, owner `game-designer`); until then this spec and the b2-response §9.1 decision are the reading of
+  record.
 
 ## Confirmations requested (non-blocking for design)
 
@@ -463,7 +509,9 @@ Decided 2026-10-02 by `lexicon-curator` under the product owner's delegation, wi
 
 - H-1 Approve a non-allowlisted licence for the blocklist dataset, only if no allowlisted dataset covering EN and FR
   is found (C-LC-4).
-- H-2 None other blocks design; the 11×11 fallback decision stays governed by BALANCE.md on simulator evidence.
+- H-2 None other blocks design; the 11×11 fallback decision stays governed by BALANCE.md on simulator evidence,
+  with the triggers restated as C-02 / C-10 / C-11 / top-20 (D-18; product owner decision delegated and recorded in
+  b2-response §9.1 item 1).
 
 ## Test traceability
 
