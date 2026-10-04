@@ -34,6 +34,37 @@
       ]
     },
     {
+      "id": "adapter",
+      "form": "ADAPTER",
+      "display": "Adapter",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A connector or small box that lets a device plug into a different port or socket.",
+        "fr": "Connecteur ou petit boîtier qui permet de brancher un appareil sur un port ou une prise différents."
+      },
+      "inflections": [
+        {
+          "form": "ADAPTERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cable"
+        },
+        {
+          "type": "related_to",
+          "target": "port"
+        }
+      ]
+    },
+    {
       "id": "alu",
       "form": "ALU",
       "display": "ALU",
@@ -145,6 +176,33 @@
       ]
     },
     {
+      "id": "barcode",
+      "form": "BARCODE",
+      "display": "Barcode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A pattern of bars or squares that a scanner reads to identify a product or ticket.",
+        "fr": "Motif de barres ou de carrés lu par un scanner pour identifier un produit ou un billet."
+      },
+      "inflections": [
+        {
+          "form": "BARCODES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "scanner"
+        }
+      ]
+    },
+    {
       "id": "battery",
       "form": "BATTERY",
       "display": "Battery",
@@ -166,6 +224,33 @@
             "approvedBy": "lexicon-curator",
             "reason": "Regular English plural: consonant + y becomes -ies (battery, batteries). The prefix check only misses the dropped Y."
           }
+        }
+      ]
+    },
+    {
+      "id": "bezel",
+      "form": "BEZEL",
+      "display": "Bezel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The frame around a screen; thin bezels leave more room for the display.",
+        "fr": "Cadre autour d'un écran ; des bordures fines laissent plus de place à l'affichage."
+      },
+      "inflections": [
+        {
+          "form": "BEZELS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "screen"
         }
       ]
     },
@@ -375,6 +460,36 @@
       ]
     },
     {
+      "id": "cd-rom",
+      "form": "CDROM",
+      "display": "CD-ROM",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A compact disc that stores read-only data, once the usual way to install software.",
+        "fr": "Disque compact de données en lecture seule, autrefois le moyen habituel d'installer des logiciels."
+      },
+      "inflections": [
+        {
+          "form": "CDROMS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "rom"
+        }
+      ],
+      "sources": [
+        "https://www.iso.org/standard/17505.html"
+      ]
+    },
+    {
       "id": "charger",
       "form": "CHARGER",
       "display": "Charger",
@@ -564,6 +679,37 @@
         {
           "type": "related_to",
           "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "codec",
+      "form": "CODEC",
+      "display": "Codec",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Software or a chip that compresses and decompresses audio or video, such as for streaming.",
+        "fr": "Logiciel ou puce qui compresse et décompresse l'audio ou la vidéo, par exemple pour le streaming."
+      },
+      "inflections": [
+        {
+          "form": "CODECS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "streaming"
+        },
+        {
+          "type": "related_to",
+          "target": "encoding"
         }
       ]
     },
@@ -765,6 +911,37 @@
       ]
     },
     {
+      "id": "dongle",
+      "form": "DONGLE",
+      "display": "Dongle",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small device plugged into a port to add a feature, such as wireless, a video output or a licence key.",
+        "fr": "Petit appareil branché sur un port pour ajouter une fonction, comme le sans-fil, une sortie vidéo ou une clé de licence."
+      },
+      "inflections": [
+        {
+          "form": "DONGLES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "usb"
+        },
+        {
+          "type": "related_to",
+          "target": "adapter"
+        }
+      ]
+    },
+    {
       "id": "dpi",
       "form": "DPI",
       "display": "DPI",
@@ -811,6 +988,129 @@
       ]
     },
     {
+      "id": "drone",
+      "form": "DRONE",
+      "display": "Drone",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An uncrewed aircraft flown by remote control or autonomously, often carrying a camera.",
+        "fr": "Aéronef sans pilote à bord, télécommandé ou autonome, souvent équipé d'une caméra."
+      },
+      "inflections": [
+        {
+          "form": "DRONES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "robot"
+        },
+        {
+          "type": "uses",
+          "target": "gps"
+        }
+      ]
+    },
+    {
+      "id": "dvd",
+      "form": "DVD",
+      "display": "DVD",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An optical disc format holding films or data, with far more capacity than a CD.",
+        "fr": "Format de disque optique pour films ou données, d'une capacité bien supérieure au CD."
+      },
+      "inflections": [
+        {
+          "form": "DVDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cd-rom"
+        }
+      ],
+      "sources": [
+        "https://www.dvdfllc.co.jp/"
+      ]
+    },
+    {
+      "id": "earbud",
+      "form": "EARBUD",
+      "display": "Earbud",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A tiny earphone that sits in the ear, often wireless and paired by Bluetooth.",
+        "fr": "Petit écouteur qui se loge dans l'oreille, souvent sans fil et appairé en Bluetooth."
+      },
+      "inflections": [
+        {
+          "form": "EARBUDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "bluetooth"
+        },
+        {
+          "type": "related_to",
+          "target": "headset"
+        }
+      ]
+    },
+    {
+      "id": "ebook",
+      "form": "EBOOK",
+      "display": "E-book",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A book published as a digital file to read on a screen.",
+        "fr": "Livre publié sous forme de fichier numérique, à lire sur un écran."
+      },
+      "inflections": [
+        {
+          "form": "EBOOKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ereader"
+        },
+        {
+          "type": "related_to",
+          "target": "pdf"
+        }
+      ]
+    },
+    {
       "id": "embedded-system",
       "form": "EMBEDDEDSYSTEM",
       "display": "Embedded system",
@@ -833,6 +1133,64 @@
         {
           "type": "related_to",
           "target": "firmware"
+        }
+      ]
+    },
+    {
+      "id": "ereader",
+      "form": "EREADER",
+      "display": "E-reader",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A handheld device for reading e-books, usually with a paper-like screen.",
+        "fr": "Appareil portable de lecture de livres numériques, en général avec un écran imitant le papier."
+      },
+      "inflections": [
+        {
+          "form": "EREADERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "tablet"
+        }
+      ]
+    },
+    {
+      "id": "fan",
+      "form": "FAN",
+      "display": "Fan",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A spinning blower that cools a computer's processor, graphics card or case.",
+        "fr": "Ventilateur qui refroidit le processeur, la carte graphique ou le boîtier d'un ordinateur."
+      },
+      "inflections": [
+        {
+          "form": "FANS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "heatsink"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
         }
       ]
     },
@@ -955,6 +1313,33 @@
       ]
     },
     {
+      "id": "gadget",
+      "form": "GADGET",
+      "display": "Gadget",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A small, clever electronic device, often bought for fun or convenience.",
+        "fr": "Petit appareil électronique astucieux, souvent acheté par plaisir ou commodité."
+      },
+      "inflections": [
+        {
+          "form": "GADGETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "wearable"
+        }
+      ]
+    },
+    {
       "id": "gamepad",
       "form": "GAMEPAD",
       "display": "Gamepad",
@@ -1058,6 +1443,31 @@
         {
           "type": "related_to",
           "target": "cpu"
+        }
+      ]
+    },
+    {
+      "id": "gpio",
+      "form": "GPIO",
+      "display": "GPIO",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "General-purpose input/output: pins on a chip or board that software can switch or read, to drive LEDs or sensors.",
+        "fr": "General-purpose input/output : broches d'une puce ou d'une carte que le logiciel commande ou lit, pour LED ou capteurs."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "microcontroller"
+        },
+        {
+          "type": "related_to",
+          "target": "sensor"
         }
       ]
     },
@@ -1305,6 +1715,61 @@
       ]
     },
     {
+      "id": "high-definition",
+      "form": "HD",
+      "display": "HD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "HD: high definition, video or screens with at least 720 lines of resolution, sharper than standard definition.",
+        "fr": "HD (high definition) : haute définition, vidéo ou écran d'au moins 720 lignes, plus net que la définition standard."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "resolution"
+        },
+        {
+          "type": "related_to",
+          "target": "display"
+        }
+      ],
+      "sources": [
+        "https://www.itu.int/rec/R-REC-BT.709"
+      ]
+    },
+    {
+      "id": "inkjet",
+      "form": "INKJET",
+      "display": "Inkjet",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A printer that sprays tiny drops of ink onto paper.",
+        "fr": "Imprimante qui projette de minuscules gouttes d'encre sur le papier."
+      },
+      "inflections": [
+        {
+          "form": "INKJETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "printer"
+        }
+      ]
+    },
+    {
       "id": "iot",
       "form": "IOT",
       "display": "IoT",
@@ -1428,6 +1893,33 @@
       ]
     },
     {
+      "id": "keycap",
+      "form": "KEYCAP",
+      "display": "Keycap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The removable plastic top of a key on a keyboard.",
+        "fr": "Capuchon en plastique amovible d'une touche de clavier."
+      },
+      "inflections": [
+        {
+          "form": "KEYCAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "keyboard"
+        }
+      ]
+    },
+    {
       "id": "keystroke",
       "form": "KEYSTROKE",
       "display": "Keystroke",
@@ -1482,6 +1974,33 @@
         {
           "type": "related_to",
           "target": "byte"
+        }
+      ]
+    },
+    {
+      "id": "kiosk",
+      "form": "KIOSK",
+      "display": "Kiosk",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A self-service touchscreen terminal, such as a ticket machine or an ordering screen.",
+        "fr": "Borne tactile en libre-service, comme un distributeur de billets ou un écran de commande."
+      },
+      "inflections": [
+        {
+          "form": "KIOSKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "touchscreen"
         }
       ]
     },
@@ -1858,6 +2377,31 @@
       ]
     },
     {
+      "id": "nand",
+      "form": "NAND",
+      "display": "NAND",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A logic gate that outputs false only when both inputs are true; also the flash memory built from such gates.",
+        "fr": "Porte logique qui ne renvoie faux que si ses deux entrées sont vraies ; aussi la mémoire flash bâtie sur elle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "flash-memory"
+        },
+        {
+          "type": "related_to",
+          "target": "transistor"
+        }
+      ]
+    },
+    {
       "id": "nanometer",
       "form": "NANOMETER",
       "display": "Nanometer",
@@ -2183,6 +2727,37 @@
       ]
     },
     {
+      "id": "power-bank",
+      "form": "POWERBANK",
+      "display": "Power bank",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A portable battery used to recharge phones and other devices on the go.",
+        "fr": "Batterie portable qui sert à recharger téléphones et autres appareils en déplacement."
+      },
+      "inflections": [
+        {
+          "form": "POWERBANKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "battery"
+        },
+        {
+          "type": "related_to",
+          "target": "charger"
+        }
+      ]
+    },
+    {
       "id": "power-supply",
       "form": "POWERSUPPLY",
       "display": "Power supply",
@@ -2289,6 +2864,33 @@
         {
           "type": "related_to",
           "target": "display"
+        }
+      ]
+    },
+    {
+      "id": "psu",
+      "form": "PSU",
+      "display": "PSU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Power supply unit: the box inside a computer that turns mains power into the voltages its parts need.",
+        "fr": "Power supply unit : bloc d'un ordinateur qui transforme le courant secteur en tensions utiles aux composants."
+      },
+      "inflections": [
+        {
+          "form": "PSUS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "power-supply"
         }
       ]
     },
@@ -2623,6 +3225,31 @@
       ]
     },
     {
+      "id": "scada",
+      "form": "SCADA",
+      "display": "SCADA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "expert",
+      "definitions": {
+        "en": "Supervisory control and data acquisition: systems that monitor and run industrial sites like power grids.",
+        "fr": "Supervisory control and data acquisition : systèmes qui surveillent et pilotent des sites industriels comme les réseaux électriques."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ot"
+        },
+        {
+          "type": "related_to",
+          "target": "sensor"
+        }
+      ]
+    },
+    {
       "id": "scanner",
       "form": "SCANNER",
       "display": "Scanner",
@@ -2755,6 +3382,37 @@
       ]
     },
     {
+      "id": "servo",
+      "form": "SERVO",
+      "display": "Servo",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small motor that turns to a precise angle on command, used in robots and drones.",
+        "fr": "Petit moteur qui tourne à un angle précis sur commande, utilisé dans les robots et les drones."
+      },
+      "inflections": [
+        {
+          "form": "SERVOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "actuator"
+        },
+        {
+          "type": "related_to",
+          "target": "robotics"
+        }
+      ]
+    },
+    {
       "id": "silicon",
       "form": "SILICON",
       "display": "Silicon",
@@ -2849,6 +3507,41 @@
         {
           "type": "related_to",
           "target": "smartphone"
+        }
+      ]
+    },
+    {
+      "id": "soc",
+      "form": "SOC",
+      "display": "SoC",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "System on a chip: one chip that holds the processor, graphics, memory controller and more, as in phones.",
+        "fr": "System on a chip : puce unique qui réunit processeur, graphisme, contrôleur mémoire et plus, comme dans les téléphones."
+      },
+      "inflections": [
+        {
+          "form": "SOCS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "chip"
+        },
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        },
+        {
+          "type": "related_to",
+          "target": "cpu"
         }
       ]
     },
@@ -3095,6 +3788,64 @@
       ]
     },
     {
+      "id": "timer",
+      "form": "TIMER",
+      "display": "Timer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A hardware or software clock that triggers an action after a set time or at intervals.",
+        "fr": "Horloge matérielle ou logicielle qui déclenche une action après un délai ou à intervalles."
+      },
+      "inflections": [
+        {
+          "form": "TIMERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "clock"
+        },
+        {
+          "type": "related_to",
+          "target": "interrupt"
+        }
+      ]
+    },
+    {
+      "id": "toner",
+      "form": "TONER",
+      "display": "Toner",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The fine powder a laser printer fuses onto paper instead of liquid ink.",
+        "fr": "Poudre fine qu'une imprimante laser fixe sur le papier à la place de l'encre liquide."
+      },
+      "inflections": [
+        {
+          "form": "TONERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "printer"
+        }
+      ]
+    },
+    {
       "id": "touchscreen",
       "form": "TOUCHSCREEN",
       "display": "Touchscreen",
@@ -3308,6 +4059,31 @@
       ],
       "sources": [
         "https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API"
+      ]
+    },
+    {
+      "id": "vram",
+      "form": "VRAM",
+      "display": "VRAM",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "hardware"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Video RAM: the memory on a graphics card that holds images, textures and AI model data.",
+        "fr": "Video RAM : mémoire de la carte graphique qui contient images, textures et données de modèles d'IA."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "ram"
+        },
+        {
+          "type": "part_of",
+          "target": "graphics-card"
+        }
       ]
     },
     {
