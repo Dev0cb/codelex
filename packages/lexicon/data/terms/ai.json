@@ -254,6 +254,31 @@
       ]
     },
     {
+      "id": "autocomplete",
+      "form": "AUTOCOMPLETE",
+      "display": "Autocomplete",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A feature that predicts and suggests the rest of a word, search or line of code as you type.",
+        "fr": "Fonction qui prédit et propose la fin d'un mot, d'une recherche ou d'une ligne de code pendant la saisie."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "prediction"
+        },
+        {
+          "type": "related_to",
+          "target": "search"
+        }
+      ]
+    },
+    {
       "id": "autoencoder",
       "form": "AUTOENCODER",
       "display": "Autoencoder",
@@ -935,6 +960,56 @@
       ]
     },
     {
+      "id": "explainability",
+      "form": "EXPLAINABILITY",
+      "display": "Explainability",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "How well people can understand why an AI model produced a given answer or decision.",
+        "fr": "Capacité des humains à comprendre pourquoi un modèle d'IA a produit une réponse ou une décision."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "model"
+        },
+        {
+          "type": "related_to",
+          "target": "fairness"
+        }
+      ]
+    },
+    {
+      "id": "fairness",
+      "form": "FAIRNESS",
+      "display": "Fairness",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The goal that an AI system treats people and groups without unjustified differences in its results.",
+        "fr": "Objectif qu'un système d'IA traite personnes et groupes sans différence injustifiée dans ses résultats."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bias"
+        },
+        {
+          "type": "related_to",
+          "target": "alignment"
+        }
+      ]
+    },
+    {
       "id": "few-shot",
       "form": "FEWSHOT",
       "display": "Few-shot",
@@ -1397,6 +1472,37 @@
       "relations": [
         {
           "type": "uses",
+          "target": "model"
+        }
+      ]
+    },
+    {
+      "id": "ml-feature",
+      "form": "FEATURE",
+      "display": "Feature",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "In machine learning, one measurable input to a model, such as a house's size when predicting its price.",
+        "fr": "En apprentissage automatique, une variable d'entrée du modèle, comme la surface d'une maison pour prédire son prix."
+      },
+      "inflections": [
+        {
+          "form": "FEATURES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
           "target": "model"
         }
       ]
@@ -2250,6 +2356,56 @@
       ]
     },
     {
+      "id": "synthetic-data",
+      "form": "SYNTHETICDATA",
+      "display": "Synthetic data",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Artificially generated data that mimics real data, used to train or test models without exposing real records.",
+        "fr": "Données générées artificiellement qui imitent les vraies, pour entraîner ou tester sans exposer de données réelles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "dataset"
+        },
+        {
+          "type": "related_to",
+          "target": "privacy"
+        }
+      ]
+    },
+    {
+      "id": "system-prompt",
+      "form": "SYSTEMPROMPT",
+      "display": "System prompt",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hidden instructions given to a chatbot before the conversation that set its role, tone and rules.",
+        "fr": "Instructions cachées données à un chatbot avant la conversation, qui fixent son rôle, son ton et ses règles."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "prompt"
+        },
+        {
+          "type": "related_to",
+          "target": "llm"
+        }
+      ]
+    },
+    {
       "id": "temperature",
       "form": "TEMPERATURE",
       "display": "Temperature",
@@ -2512,6 +2668,31 @@
       ]
     },
     {
+      "id": "upscaling",
+      "form": "UPSCALING",
+      "display": "Upscaling",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Raising the resolution of an image or video, often with AI that invents plausible detail.",
+        "fr": "Augmentation de la résolution d'une image ou d'une vidéo, souvent par une IA qui invente des détails plausibles."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "resolution"
+        },
+        {
+          "type": "related_to",
+          "target": "neural-network"
+        }
+      ]
+    },
+    {
       "id": "vector",
       "form": "VECTOR",
       "display": "Vector",
@@ -2581,6 +2762,37 @@
         {
           "type": "related_to",
           "target": "chatbot"
+        }
+      ]
+    },
+    {
+      "id": "watermark",
+      "form": "WATERMARK",
+      "display": "Watermark",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "ai"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A visible or hidden mark added to an image, text or video to show its origin, including AI-generated content.",
+        "fr": "Marque visible ou cachée ajoutée à une image, un texte ou une vidéo pour en signaler l'origine, y compris l'IA."
+      },
+      "inflections": [
+        {
+          "form": "WATERMARKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "deepfake"
+        },
+        {
+          "type": "related_to",
+          "target": "generative-ai"
         }
       ]
     },
