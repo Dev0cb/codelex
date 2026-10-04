@@ -208,6 +208,11 @@ Reading:
   All other fields unchanged (`maxDifficultyRank` 1, `shortLength` 5 × 2, `skipFullStackPermille` 500,
   `maxCandidates` 300). Before the length multiplier the best move is picked 16/25 = 64 % of the time instead of
   42 %. BG-5 is unaffected: generation and the budget are unchanged.
+  *Amended 2026-10-04 (Strategist spec review, GD-7):* `BOT_VERSION` 2 also cuts Beginner's budget from
+  200,000 / 300 to 70,000 / 300 for device latency (`docs/specs/E-1.3-bots/strategist.md` § Budget). The sentence
+  above no longer holds: BG-5 is re-read in B4 (tuning seeds, rules v1, batch 3) and in the v2 `/balance-check`.
+  If BG-5 exceeds 1 % because of two-blank racks, Beginner takes 100,000 / 300 instead. Strength fields are
+  unchanged.
 - **Targets (to be restated in bots-api §5.4 by ai-engineer):**
 
 | ID | Restated target | Read at |

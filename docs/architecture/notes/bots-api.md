@@ -283,10 +283,10 @@ The common `PersonalityData` fields for `strategist`:
 
 | Field | `strategist` | Note |
 |---|---|---|
-| `budget` | **70,000 / 500**; 70,000 / 900 only if P7 locks f1 (§6) | One budget on every host and both automata |
+| `budget` | **70,000 / 500**, unconditional (§6.1; game-designer GD-7 with the P7 size-gate input) | One budget on every host and both automata |
 | `maxDifficultyRank` | 2 (advanced) | GD-1. Ignored if it empties the set, as for Beginner |
 | `sampleWhenOver` | 0 | With `strategy ≠ null`, overflow uses the attention key `8 · tilesPlaced + 4 · (DW+TW covered) + (DL+TL covered)`, ties by canonical key |
-| `topWeights` | `[16, 6, 2, 1]` over `U` | Best move 64 %. This is the first strength lever (ST-1b) |
+| `topWeights` | `[10, 6, 3, 1]` over `U` | Best move 50 % (GD-2; tuning range `[8,5,3,2,1]`..`[16,6,2,1]`). This is the first strength lever (ST-1b) |
 | `shortLength` / `shortMultiplier` | 0 / 1 | Neutral |
 | `skipFullStackPermille` | 0 | — |
 | `strategy` | the starting values above | — |
@@ -304,9 +304,9 @@ come later and mean `BOT_VERSION` 3.
 | # | Change | Source |
 |---|---|---|
 | V2-1 | Beginner `topWeights` `[8, 5, 3, 2, 1]` → **`[16, 6, 2, 1]`**; every other Beginner field unchanged | b2-response D2, T-1 |
-| V2-2 | Beginner `budget` 200,000 / 300 → **70,000 / 300** (device worst case 1.29 s on f1, 1.71 s on f0, against 2.85 s / 4.05 s before) | §6, spec GD-7 |
+| V2-2 | Beginner `budget` 200,000 / 300 → **70,000 / 300** (device worst case 1.29 s on f1, 1.71 s on f0, against 2.85 s / 4.05 s before). BG-5 is re-read in B4; if it exceeds 1 % because of two-blank racks, 100,000 / 300 instead (f0 worst case 2.25 s) | §6, spec GD-7 |
 | V2-3 | `BotPersonalityId` gains **`'strategist'`**; `PERSONALITIES.strategist` per §5.5; `PersonalityData.strategy` (`null` for the others) | spec ST0 |
-| V2-4 | Strategist budget 70,000 / 500 (or 70,000 / 900 if P7 locks f1) | §6 |
+| V2-4 | Strategist budget 70,000 / 500 on both automata | §6.1 |
 | V2-5 | `random-legal` and `greedy` unchanged (simulator only, server class). The BG-2a yardstick is a simulator override of `greedy`, not a new id | T-1 |
 | V2-6 | `BOT_VERSION` = 2, reported in `bot_match_started.bot_version` | BOT-7 |
 
@@ -328,7 +328,9 @@ Order inside B4:
 - B4 adds `decisions-b2-r1.json`, and `decisions-b2-r2.json` once `engineRulesVersion` 2 is frozen (R4). While v2
   is a draft, a `decisions-b2-r2-draft.json` may exist; it is not a required check.
 - Each file holds 20 seeded positions × each personality (Strategist included). Positions are chosen so that no
-  cap binds, and the test asserts that f1 and f0 give the same decision on them.
+  cap binds, and the test asserts that f1 and f0 give the same decision on them. Expected decisions are computed
+  on the automaton the app ships (f0 unless P7 locks f1), and the file records it; any position where a cap binds
+  is labelled and asserted on that automaton only (P-BOT-03 guarantees equality only when no cap binds).
 - A changed golden without a version bump fails review. The P3 golden-immutability check is the natural place to
   enforce it.
 
@@ -408,16 +410,18 @@ target.
 
 | Personality | Artefact | `maxNodes` | `maxCandidates` | Worst case on device | Target |
 |---|---|---|---|---|---|
-| Strategist | f1 | 70,000 | 900 | 150 + 840 + 990 = 1,980 ms | AC-8 compute p95 ≤ 2 s |
+| Strategist | f1 | 70,000 | 500 | 150 + 840 + 550 = 1,540 ms | AC-8 compute p95 ≤ 2 s |
 | Strategist | f0 | 70,000 | 500 | 150 + 1,260 + 550 = 1,960 ms | same |
-| Strategist | f1 budget on f0 | 70,000 | 900 | 2,400 ms (**misses**) | — |
+| Strategist | f1-only sizing on f0 (dropped) | 70,000 | 900 | 2,400 ms (**misses**) | — |
 | Beginner | f1 / f0 | 70,000 | 300 | 1,290 / 1,710 ms | compute p95 ≤ 1 s (typical ≈ 0.2 s); worst case hidden under the 4 s total |
 
-**Frozen value.** `BOT_VERSION` 2 freezes **Strategist 70,000 / 500 on every host and both automata**. The one
-exception: P7 has locked f1 for the playtest build by the time B4 merges, and the extra candidates measurably help.
-Then the value is 70,000 / 900. A budget that is safe on f0 means a later f0 switch (lexicon P7 rule) needs no
-version bump. One budget per version keeps server, simulator and device decisions identical whenever no cap binds
-(P-BOT-03).
+**Frozen value.** `BOT_VERSION` 2 freezes **Strategist 70,000 / 500 on every host and both automata**, with no
+exception (game-designer review GD-7, 2026-10-04). The earlier 70,000 / 900 option for a locked f1 is dropped: P7
+sets the f1 size gate at ≤ 215 B/form with a batch-3 ceiling of 2,550 forms and recommends sizing for f0 from the
+start. A budget that is safe on f0 means a later f0 switch (lexicon P7 rule) needs no version bump. One budget per
+version keeps server, simulator and device decisions identical whenever no cap binds (P-BOT-03). When a cap binds,
+the DAWG and GADDAG paths may choose different moves, so goldens are pinned on the automaton the app ships (§5.6,
+spec AC-12).
 
 **Change rules:**
 

@@ -1,9 +1,10 @@
 # Strategist bot
 
 - Epic: E-1.3 (feeds E-1.5 slice S4, E-1.6 balance; depends on E-1.1, E-1.2, E-1.7 batch 3) · Vision refs: V-15 ·
-  Status: **Draft, ready for review**. It becomes Ready for implementation once the `game-designer` review lands
-  (open questions GD-1..GD-8).
-- Owner: ai-engineer (spec author for this bot; E-1.3 owner) · Last update: 2026-10-04
+  Status: **Ready for implementation** (2026-10-04). The `game-designer` review answered GD-1..GD-8 (§ Open
+  questions, answers inline) and aligned the spec with the pre-registered v2 pass list
+  (`docs/specs/E-1.6-balance/v2-balance-check.md`, "V1") and the P7 size-gate input.
+- Owner: ai-engineer (spec author for this bot; E-1.3 owner) · Last update: 2026-10-04 (game-designer review)
 - Sprint: `docs/sprints/2026-10-04-phase1-playtest-gates.md`, task **ST0**. It unblocks B4 (implementation and
   `BOT_VERSION` 2), S4 (opponent selector) and BC (the v2 `/balance-check` uses a Strategist mirror).
 - Next reviews: `game-designer` (decision model, thresholds, ST-x targets: required), `product-strategist` (persona
@@ -170,7 +171,9 @@ Ties are broken by canonical key. Each term is defined below.
 ### S-3 Choosing among PLACE_WORD candidates
 
 Rank by `U` descending, ties by canonical key. Draw rank `i` with integer weights `topWeights` (starting value
-**`[16, 6, 2, 1]`**), using one `ctx.rng.int(0, Σw)`. The best move is picked 64 % of the time.
+**`[10, 6, 3, 1]`**, GD-2), using one `ctx.rng.int(0, Σw)`. The best move is picked 50 % of the time and one of
+the top two 80 %. Tuning range for B4: from `[8, 5, 3, 2, 1]` (best 42 %) to `[16, 6, 2, 1]` (best 64 %); going
+outside it needs game-designer sign-off (GD-2).
 
 There is no short-word multiplier and no missed Full Stack (`shortMultiplier` 1, `skipFullStackPermille` 0).
 
@@ -198,6 +201,9 @@ Let `P*` be the candidate with the highest `U` (the argmax, before the weighted 
   This keeps the useful tiles, not only the blanks. It is a personality-specific refinement of BOT-6:
   P-BOT-06 for Strategist reads "an EXCHANGE of ≥ 1 tile iff `bagCount ≥ 7`", and it never resigns. The keep
   matters because the forced exchange is also what makes a stuck match terminate (b2-response §3.2).
+  Termination itself comes from exchanges counting toward R-TURN-004 (b2-response D1-a), so the keep cannot break
+  it; what it can do is lower the chance that the refreshed rack finds a word. **Pre-decided revert (GD-3):** if
+  ST-7 misses, the forced path goes back to plain BOT-6 (whole rack minus blanks) before X-2/X-5 are touched.
 
 ### S-5 What Strategist never does
 
@@ -227,10 +233,11 @@ Budgets:
 
 | Artefact | `maxNodes` | `maxCandidates` | Worst case on device (cap reached) | Typical p95 at batch 3 (estimate) |
 |---|---|---|---|---|
-| **f1** | **70,000** | **900** | 150 + 70,000 × 0.012 + 900 × 1.1 = 150 + 840 + 990 = **1,980 ms** | 4,118 nodes, 94 candidates: 150 + 49 + 103 ≈ **0.30 s** |
-| **f0** | **70,000** | **500** | 150 + 70,000 × 0.018 + 500 × 1.1 = 150 + 1,260 + 550 = **1,960 ms** | 4,273 nodes, 94 candidates: 150 + 77 + 103 ≈ **0.33 s** |
+| f1-only sizing (derivation step; **not used**) | 70,000 | 900 | 150 + 70,000 × 0.012 + 900 × 1.1 = 150 + 840 + 990 = 1,980 ms | — |
+| **Frozen, on f0** | **70,000** | **500** | 150 + 70,000 × 0.018 + 500 × 1.1 = 150 + 1,260 + 550 = **1,960 ms** | 4,273 nodes, 94 candidates: 150 + 77 + 103 ≈ **0.33 s** |
+| **Frozen, on f1** | **70,000** | **500** | 150 + 840 + 550 = **1,540 ms** | 4,118 nodes, 94 candidates: 150 + 49 + 103 ≈ **0.30 s** |
 | f0, alternative (rejected) | 47,000 | 900 | 150 + 846 + 990 = 1,986 ms | — |
-| f1 budget on an f0 artefact (unsafe) | 70,000 | 900 | 150 + 1,260 + 990 = **2,400 ms**: misses AC-8 | — |
+| f1-only budget on an f0 artefact (unsafe, why 900 is dropped) | 70,000 | 900 | 150 + 1,260 + 990 = **2,400 ms**: misses AC-8 | — |
 
 Derivation: f1 gives `⌊(2,000 − 150 − 900 × 1.1) / 0.012⌋ = 71,666`, rounded down to 70,000. f0 with the same
 70,000 nodes gives `⌊(2,000 − 150 − 1,260) / 1.1⌋ = 536` candidates, rounded down to 500.
@@ -241,12 +248,13 @@ The f0 row keeps the node cap and cuts candidates rather than the reverse:
   p50 and 87k at p95.
 - The candidate cap rarely binds, because candidates p95 is ≤ 94 at batch-3 size.
 
-**Recommendation for the P7 reconciliation.** Freeze `BOT_VERSION` 2 at **70,000 / 500** on every host and both
-automata. The other option is 70,000 / 900, and it is only worth taking if all of the following hold at B4 merge:
-
-- P7 has decided that the playtest build ships **f1**;
-- the restated size gate has headroom through batch 4;
-- the 400 extra candidates measurably help (ST-2 or ST-1 on tuning seeds).
+**Decision (P7 reconciliation, game-designer review GD-7).** `BOT_VERSION` 2 is frozen at **70,000 / 500** on
+every host and both automata, **unconditionally**. The 70,000 / 900 option is dropped. P7 (lexicon-engineer) sets
+the f1 size gate at ≤ 215 B/form with a batch-3 ceiling of 2,550 forms (the 0.55 MB cap breaks at about 2,700), and
+switches to f0 when f1 fails a gate and DAWG generation is ≤ 1.5× GADDAG (measured 1.43–1.45×). So the gate has no
+headroom through batch 4, which was a precondition of the 900 option, and P7 itself recommends sizing for f0 from
+the start. The constants may still be replaced once before B4 merges (rule 1 below); a re-derived budget is then
+sized on the f0 row too.
 
 Reasons:
 
@@ -257,9 +265,13 @@ Reasons:
 
 **Beginner under `BOT_VERSION` 2.** The same constants put Beginner's 200,000-node cap at
 150 + 2,400 + 300 = 2.85 s worst case on f1 and 4.05 s on f0. That exceeds AC-8, even though Beginner's p95 is
-about 2,500 nodes. Proposal: Beginner gets **70,000 / 300**, for a worst case of 1.29 s (f1) or 1.71 s (f0). BG-5 is
-re-read: at batch 2 the Beginner maximum was ≈ 60,000 nodes, so the cut binds only on rare two-blank racks. This
-amends the b2-response D2 note that the budget is unchanged (GD-7).
+about 2,500 nodes. Decision (GD-7, accepted): Beginner gets **70,000 / 300**, for a worst case of 1.29 s (f1) or
+1.71 s (f0). This amends the b2-response D2 note that the budget is unchanged (amendment recorded there). BG-5
+**must be re-read** before B4 freezes the data: at batch 2 the Beginner maximum was ≈ 60,000 nodes, but on the
+batch-3 proxy two-blank racks need 44k nodes at p50 and 87k at p95, so the cut can bind on part of them.
+Pre-decided fallback, inside B4: if BG-5 > 1 % on tuning seeds (rules v1, batch 3) and the excess comes from
+two-blank racks, Beginner goes to **100,000 / 300** (worst case 150 + 1,800 + 300 = 2.25 s on f0, still inside
+AC-8's 4 s perceived bound) before the freeze. No other Beginner field changes.
 
 **Rules for changing the budget:**
 
@@ -282,23 +294,32 @@ natural-letter move.
 
 ## ST-x simulator targets
 
-Read on the **batch-3 lexicon as merged** (C3), on the automaton the playtest build ships (P7; both, if undecided),
-with `engineRulesVersion` 1 and the v2 draft both reported. The gate is the version the build pins. Seats are
-swapped. CIs are Wilson 95 %. Draws are excluded from win rates and reported. Matches are replay-verified.
+Read on the **batch-3 lexicon as merged** (C3, the commit V1 §4.3 defines), on the automaton the playtest build
+ships (P7: f0 unless f1 is locked; both, if undecided), with **`engineRulesVersion` 1 only**. Seats are swapped on
+every other match (`seatsFor`, as in V1 §3.1). CIs are Wilson 95 %. Draws are excluded from win rates and reported.
+Matches are replay-verified.
+
+**No v2-draft readings in B4** (game-designer review; V1 §1.3 and §5.4). Any simulation that uses the v2 draft
+constants on the batch-3 lexicon and produces a V1 §3 metric (B-07, B-01, C-02, C-05, C-10, C-11, top-20, BG-*)
+is a "v2 run" under the V1 pre-registration, and tuning the Strategist after seeing one is excluded there. So B4
+tunes and confirms on `engineRulesVersion` 1 only. The v2 values of these metrics come from BC alone, with the
+Strategist exactly as B4 merged it. The V1 §1.3 exemption still applies: v2-draft smoke runs of ≤ 100 matches per
+pairing, or on test lexicons, to prove correctness, never read against a target.
 
 | ID | Metric | Target | Sample | Lever if missed |
 |---|---|---|---|---|
-| **ST-1 (B-07, pre-registered)** | Strategist vs Beginner v2 (`[16,6,2,1]`), win rate | **lower 95 % CI ≥ 60 %** | 2,000 matches (1,000 seeds × 2 seat orders), confirmation seeds | `topWeights` sharper; `maxDifficultyRank` 3 |
-| ST-1b | Same run: point estimate | **70–85 %** (human-guardrail proxy, see below) | as ST-1 | above 85 %: flatter `topWeights` and/or `maxDifficultyRank` 1→2 stays; below 70 %: sharper |
+| **ST-1 (B-07 at B4, pre-registered)** | Strategist vs Beginner v2 (`[16,6,2,1]`), win rate, `engineRulesVersion` 1 | **lower 95 % CI ≥ 60 %** | 2,000 matches (match indices 0..1,999, seats swapped every other match), confirmation seeds | `topWeights` sharper; `maxDifficultyRank` 3 |
+| ST-1b | Point estimate of the same pairing | **70–85 %** (human-guardrail proxy, see below; tuning target, GD-2) | **tuned and read on tuning seeds** (2,000); on the confirmation run it is **reported only** | above 85 %: flatter `topWeights` down to `[8,5,3,2,1]`, then `maxDifficultyRank` 1; below 70 %: sharper `topWeights` up to `[16,6,2,1]`, then `maxDifficultyRank` 3 |
 | ST-2 | Strategist vs **ablated Strategist** (same filter, weights and budget; `L = C = D = 0`, no voluntary exchange) | point ≥ 55 %, lower CI > 50 % | 2,000, paired | leave and denial weights (the strategy must add strength, not only flavour) |
 | ST-3 | Full-vocabulary greedy vs Strategist | **reported, no target** (like BG-2b: the gap is deliberate) | 2,000 | — |
 | ST-4a | Mean `raw(leave)` after Strategist's PLACE_WORDs with bag ≥ 7, minus greedy's | ≥ +30 dp | from ST-3 run | leave weights |
-| ST-4b | Voluntary exchanges, share of Strategist turns with bag ≥ 7 | 1–6 %, and **0** with `scorelessTurns ≥ 3` | ST-1 + mirror | X-3..X-5 |
+| ST-4b | Voluntary exchanges, share of Strategist turns with bag ≥ 7 | 1–6 %, and **0** with `scorelessTurns ≥ 3` | ST-1b tuning run + ST-7 Strategist mirror | X-3..X-5 |
 | ST-4c | Hot TW squares opened per Strategist move while leading, ÷ greedy's in the same score situation | ≤ 0.70 | ST-3 run | `hotTwDp`, `denialLeadPermille` |
 | ST-4d | Share of Strategist main words that extend a chain (`chainKAfter > 0`), ÷ greedy's | ≥ 1.25 | ST-3 run | `chainKeepDp`, `chainDegreeDp` |
 | ST-5 | `budgetExhausted`, share of Strategist decisions; node p95 | ≤ 1 %; node p95 ≤ 35,000 (half the cap) | every run | cheaper generation; R-3 |
 | ST-6 | Legality and determinism: 100 % of actions accepted by `apply`; same seed ⇒ same log; replay hashes equal | 100 % over ≥ 1,000 matches | nightly `test:full`; ~250-match PR smoke | bug fix (blocking) |
-| ST-7 | Mirror health, Strategist mirror vs greedy mirror on paired seeds: C-10 (premature lock) | Strategist ≤ greedy + 1.0 point, and ≤ 5 % absolute | 10,000 (BC run) | X-2, X-5 |
+| ST-7 | Mirror health, the bot's own contribution to lock-up: Strategist mirror vs greedy mirror on the same seeds, `engineRulesVersion` 1. C-10 (premature lock, R-TURN-004 ending with bag ≥ 7) and C-11 (tiles played) | C-10: Strategist ≤ greedy + 1.0 point. C-11: Strategist ≥ greedy − 1.0 tile. **No absolute target here**: the absolute C-10/C-11 gates are V1 P-4/P-5 (class L, lexicon-driven), read in BC | 10,000 per mirror, **B4 run on tuning seeds** (not BC: BC has no greedy mirror and runs after B4) | forced keep → plain BOT-6 (GD-3), then X-2, X-5 |
+| ST-8 | Seat balance of the instrument (R-5): first-player win rate, Strategist mirror − greedy mirror, from the ST-7 runs | **reported**; a gap > 1.0 point triggers a game-designer review before the data freeze | as ST-7 | `denialLeadPermille`, `leadThreshold` |
 
 How ST-1b relates to the human guardrail (an assumption, recorded and reversible). Use a logistic (Elo-like) chain
 from a playtester's assumed win rate against Beginner (60–75 %, i.e. at or above the ≥ 55 % F-9 target):
@@ -309,6 +330,41 @@ from a playtester's assumed win rate against Beginner (60–75 %, i.e. at or abo
 So 70–85 % in simulation is the band most likely to land inside the 20–50 % human guardrail. The playtest is the
 real test.
 
+**How ST-1, ST-1b and V1's B-07 relate** (game-designer review):
+
+- **ST-1** is B4's acceptance gate (AC-8). It runs on `engineRulesVersion` 1 under its own master seed (below).
+- **V1 B-07** (pairing 2, master seed `2026100400000e16`) is the version-decision reading in BC, per variant
+  (`v1`, `v2-3612`, `v2-248`), class K, with the Strategist exactly as B4 merged it. ST-1 passing does not excuse
+  a V1 B-07 failure, and a V1 B-07 result never retunes `BOT_VERSION` 2 (V1 §5.4).
+- **ST-1b** is a tuning target, never a gate. It is read on tuning seeds; on the confirmation run it is only
+  reported. A confirmation result outside 70–85 % is recorded under AC-9 and is **not** a reason to retune, since
+  that would tune on confirmation seeds. The playtest guardrail decides.
+
+**Prior (game-designer, 2026-10-04; not pass evidence).** Run with the b2-response harness
+(`docs/game/sim/2026-10-b2-response/harness.mjs`), `engineRulesVersion` 1, lexicon `realb3:2000` (batch-3 proxy:
+synthetic forms, no relations), master seed `2026100400000d00` (fresh: neither the tuning nor the confirmation
+seed), pairing index 20, 2,000 matches each, seats alternating. Side A is an **ablated-Strategist proxy**: the
+ranked policy with `shortMultiplier` 1, `skipFullStackPermille` 0, `sampleWhenOver` 0 and budget 70,000 / 500, with
+no `L`, `C`, `D` or voluntary exchange. Side B is Beginner v2.
+
+| Proxy `maxDifficultyRank` | `topWeights` (best-move share) | Proxy win vs Beginner v2 [95 % CI] | Proxy ppw / Beginner ppw | Proxy main words novice or intermediate |
+|---|---|---|---|---|
+| 1 | `[16,6,2,1]` (64 %) | 51.3 % [49.1, 53.5] | 15.4 / 15.4 | 92.7 % |
+| 2 | `[8,5,3,2,1]` (42 %) | 71.1 % [69.0, 73.0] | 17.4 / 15.4 | 52.5 % |
+| 2 | **`[10,6,3,1]` (50 %)** | **79.2 % [77.4, 80.9]** | 18.1 / 15.2 | 51.4 % |
+| 2 | `[16,6,2,1]` (64 %) | 83.6 % [81.9, 85.1] | 18.8 / 15.2 | 50.3 % |
+| 2 | `[1]` (100 %) | 93.2 % [92.0, 94.2] | 20.3 / 15.1 | 47.4 % |
+| 3 | `[8,5,3,2,1]` (42 %) | 83.3 % [81.6, 84.9] | 18.9 / 15.4 | 46.2 % |
+| 3 | `[16,6,2,1]` (64 %) | 90.8 % [89.5, 92.0] | 20.3 / 15.3 | 42.5 % |
+
+Reading:
+
+- Vocabulary is almost the whole gap to Beginner. With Beginner's vocabulary (rank 1) the proxy is level, so the
+  short-word bias and the missed Full Stacks cost Beginner nothing measurable.
+- At rank 2, the original `[16,6,2,1]` already sits at the top of the band **before** `L`, `C`, `D` and the
+  exchange add strength, and ST-2 requires them to add some. Hence the starting value `[10,6,3,1]` (S-3).
+- Rank 3 reaches the band only with a pick flatter than Beginner v1's (best move < 42 %). See GD-1.
+
 ### Pre-registration (ST-1 / B-07)
 
 Written before any Strategist run, so the gate cannot be tuned against itself:
@@ -316,12 +372,15 @@ Written before any Strategist run, so the gate cannot be tuned against itself:
 - **Hypothesis:** Strategist at `BOT_VERSION` 2 as merged beats Beginner v2 in ≥ 60 % of decisive matches.
 - **Test:** Wilson 95 % lower bound ≥ 60.0 %. One-sided reading, draws excluded and reported.
 - **Seeds:**
-  - Confirmation: master seed `2026100400000b07`, stream `sim-match:<pairingIndex>:<i>`, pairing index 10,
-    `i` in 0..999, each seed played in both seat orders.
+  - Confirmation: master seed `2026100400000b07`, match seed `matchSeed(master, 10, i)` (stream
+    `sim-match:10:<i>`), `i` in 0..1,999 contiguous, seats swapped on every other match (`seatsFor`), the same
+    convention as V1 §3.1. *(Review edit, before any Strategist run: the draft said "1,000 seeds × 2 seat
+    orders", which the simulator does not implement and V1 does not use.)*
   - Tuning (B4 only): master seed `2026100400000a00`, any pairing. Confirmation seeds are never used for tuning.
+    Neither seed may be `2026100400000e16` (V1) or `2026100300000b02` (B2).
 - **Pinned:**
-  - `lexiconVersion` of batch 3;
-  - `engineRulesVersion` 1 and the v2 draft (both reported; the build's version gates);
+  - `lexiconVersion` of batch 3 (the V1 §4.3 commit if it exists at B4; otherwise the latest C3 commit, recorded);
+  - `engineRulesVersion` **1 only**. The v2 reading of B-07 is V1's pairing 2 in BC (see above);
   - automaton per P7;
   - `BOT_VERSION` 2.
 - **One confirmation run per candidate data set.** A failed run is reported, never deleted. Retuning produces a
@@ -367,8 +426,10 @@ trips more than once.
 - **AC-7 Chain preference.** Given two candidates with equal `10 · total + L + D`, one with `chainKAfter > 0`,
   When Strategist ranks them, Then the linked one ranks first.
 - **AC-8 Ladder (B-07).** Given the pre-registered ST-1 run, When it completes, Then the lower 95 % CI is ≥ 60 %.
-- **AC-9 Calibration and behaviour.** Given the ST runs, Then ST-1b, ST-2, ST-4a–d, ST-5, ST-6 and ST-7 meet their
-  targets, or a miss is recorded with game-designer's sign-off before S4 enables the bot.
+- **AC-9 Calibration and behaviour.** Given the ST runs (`engineRulesVersion` 1, tuning seeds except ST-1), Then
+  ST-1b, ST-2, ST-4a–d, ST-5, ST-6 and ST-7 meet their targets and ST-8 is reported, or a miss is recorded with
+  game-designer's sign-off before S4 enables the bot. Given the BG re-read under the `BOT_VERSION` 2 Beginner
+  budget, Then BG-5 ≤ 1 % (or the GD-7 fallback 100,000 / 300 is applied before the freeze).
 - **AC-10 Kill switch.** Given `bots.strategist.enabled` is off, When the opponent selector opens, Then Strategist
   is not offered for new matches. Given a match against Strategist is in progress, Then it can still be finished
   and resumed (E-1.5 AC-9). The bots package knows nothing about flags; the app reads the flag.
@@ -380,6 +441,13 @@ trips more than once.
 - **AC-12 Goldens.** Given `BOT_VERSION` 2, Then 20 seeded positions per personality (Strategist included) are
   pinned per (`BOT_VERSION`, `engineRulesVersion`) in `packages/bots/test/golden/`. They are chosen so that no cap
   binds and the decision is identical on f1 and f0. Changing them requires a version bump.
+  **Pinned on the automaton the app ships (P7 input).** P-BOT-03 guarantees equal decisions on the DAWG and
+  GADDAG paths only when no cap binds; once a budget is exhausted, generation order differs and so can the move.
+  The golden files therefore record the automaton they were computed on, and the expected decisions are computed
+  on the variant the app ships (f0 unless P7 locks f1). The f1 = f0 assertion applies to the no-bind positions
+  only. Any golden position where a cap binds is labelled as such and asserted on the shipped variant only. The
+  same caveat applies to the simulator: a run on the other automaton than the one shipped can differ from the
+  device only on cap-bound decisions (ST-5 ≤ 1 %), and its results JSON records which automaton it used.
 
 ## Non-goals
 
@@ -458,18 +526,19 @@ BC depends on B4 because Strategist is the balance instrument.
 
 | ID | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| R-1 | **Too strong for casual humans** (guardrail < 20 %): full vocabulary plus leave management | Medium | High (playtest "would play again") | `maxDifficultyRank` 2 to start; ST-1b upper bound 85 %; guardrail with pre-set levers |
+| R-1 | **Too strong for casual humans** (guardrail < 20 %): advanced vocabulary plus leave management. The prior (§ ST-x) shows that rank 2 alone puts a plain ranked bot at 71–93 % against Beginner, depending on the pick | Medium | High (playtest "would play again") | `maxDifficultyRank` 2; starting `topWeights` `[10,6,3,1]`; ST-1b upper bound 85 % on tuning seeds; guardrail with pre-set levers |
 | R-2 | **Budget wrong on device** (×10 is a guess; Hermes may be slower) | Medium | High (AC-8) | Cap sized for the worst case; typical p95 ≈ 0.3 s leaves ≈ 6× headroom; Hermes-CLI constants before B4 merge; H1 ⇒ `BOT_VERSION` 3 |
 | R-3 | **ST-5 miss on two-blank racks**: Strategist keeps blanks, and the 70k cap binds on part of two-blank positions | Medium | Low–Medium | Blanks generated last, so best-so-far holds all natural-letter moves; cheaper key build; if ST-5 misses only through two-blank racks, game-designer may accept a reported 1–2 % rather than lowering `leaveBlankDp` |
 | R-4 | **Voluntary exchanges distort the balance mirror** (C-10, C-11 read on a Strategist mirror) | Low–Medium | High (v1/v2 decision) | X-2 scoreless guard; ST-7 paired against greedy; ST-4b cap 6 % |
-| R-5 | **Heuristics bias B-01**: denial-when-leading may favour whoever leads early (often the first player) | Low | Medium | BC reports B-01 on Strategist and greedy mirrors side by side; a gap > 1 point is flagged to game-designer |
+| R-5 | **Heuristics bias B-01**: denial-when-leading may favour whoever leads early (often the first player). V1 P-1 is class R and needs the whole CI inside [48 %, 52 %] on the Strategist mirror, so a bot-made seat bias could eliminate a v2 candidate | Low | **High** (v1/v2 decision) | ST-8 in B4 (v1 rules, tuning seeds): Strategist-mirror B-01 vs greedy-mirror B-01 on the same seeds; a gap > 1 point is reviewed by game-designer before the freeze. BC has no greedy mirror (V1 §3.1), so this check cannot move there |
 | R-6 | **Proxy lexicon**: tuning on batch-3 proxy forms, which have no morphology or relations, mis-sets chain/S weights | Medium | Low | Tune on the merged batch 3 only; ST-4d needs real relations |
-| R-7 | **f0 switch after B4** with a 900-candidate budget breaks AC-8 | Low (if recommendation taken) | Medium | Freeze 70,000 / 500 unless P7 locks f1 |
-| R-8 | **Schedule**: B4 is on a parallel critical path of similar length to C3 → BC | Medium | High (D0+9) | If Strategist is late, BC uses greedy (b2-response D4 allows it) and records the risk; the playtest ships v1 per §9.1 |
+| R-7 | **f0 switch after B4** with a 900-candidate budget breaks AC-8 | Closed | — | 70,000 / 500 frozen unconditionally (GD-7, P7 input) |
+| R-8 | **Schedule**: B4 is on a parallel critical path of similar length to C3 → BC | Medium | High (D0+9) | V1 §5.2 governs: if B4 is not accepted by D0+7 (2026-10-11), BC's primary mirror is greedy and the decision is provisional until a Strategist run under the same V1 file confirms it before R4 freezes `replays/v2`; otherwise the build pins v1 |
 
 ## Open questions
 
-For **game-designer** (blocking Ready for implementation):
+For **game-designer** (were blocking Ready for implementation; **answered 2026-10-04**, see the answers below
+the list):
 
 - **GD-1** Vocabulary cap: Strategist starts at `maxDifficultyRank` 2 (no expert main words unless nothing else
   exists). Is that consistent with "hunts bonuses"? The alternative is `maxDifficultyRank` 3 with flatter
@@ -489,6 +558,149 @@ For **game-designer** (blocking Ready for implementation):
 - **GD-8** Think-time distribution for Strategist (F-8 "Beginner slower and more variable"): propose 1.2–3.0 s
   for Strategist vs 1.2–4.0 s for Beginner, inside `bots.think_delay_ms`. This is presentation, to settle with
   ux-ui-designer and mobile-engineer.
+
+### Game-designer answers (2026-10-04)
+
+Each answer gives the decision, the reason, and when the evidence is due. "Before B4" means a simulation is
+needed before B4 starts. "In B4" means B4 tunes on tuning seeds (`engineRulesVersion` 1) against the ST-x targets
+named.
+
+| # | Decision | Evidence |
+|---|---|---|
+| GD-1 | Keep `maxDifficultyRank` **2**. Rank 3 with a flatter pick is rejected | Prior done (§ ST-x); in B4 against ST-1 / ST-1b |
+| GD-2 | ST-1b 70–85 % accepted as a **tuning target, not a gate**. Read on tuning seeds, only reported on confirmation. ST-1 stays the gate. Starting `topWeights` → `[10,6,3,1]` | Prior done; in B4 |
+| GD-3 | X-1..X-5 accepted at the starting values. The forced keep `K*` is accepted, with a pre-decided revert to plain BOT-6 if ST-7 misses | In B4 (ST-4b, ST-2, ST-7) |
+| GD-4 | Lane definition accepted as written (TW + DW, reach 4, no playability check, lead ≥ 30 / trail ≤ −50) | In B4 (ST-4c, ST-8) |
+| GD-5 | Leave values accepted. **No re-derivation for `BOT_VERSION` 2**; re-derive at `BOT_VERSION` 3 | In B4 (ST-4a, ST-2) |
+| GD-6 | Chain weights accepted as starting values, with a ceiling on tuning (`chainKeepDp` ≤ 40) | In B4 (ST-4d), real batch-3 relations only |
+| GD-7 | Beginner 70,000 / 300 **accepted**. BG-5 **must be re-read**, with a pre-decided fallback of 100,000 / 300. Strategist 70,000 / 500 unconditional | In B4 (BG-5, ST-5) |
+| GD-8 | 1.2–3.0 s (Strategist) vs 1.2–4.0 s (Beginner) supported, with a steadier Strategist shape and a longer think before voluntary exchanges. ux-ui-designer and mobile-engineer decide | None (presentation) |
+
+Nothing here needs a simulation before B4 starts. The one question where B4's starting point depended on numbers
+(GD-1/GD-2) has the prior run above.
+
+**GD-1: vocabulary cap.** Keep rank 2.
+
+- In the prior, rank 3 lands in the 70–85 % band only with a pick flatter than Beginner v1's: 83.3 % with a 42 %
+  best-move share. That bot knows the rarest terms but often misses the best visible play. It is the opposite of
+  "plays like a seasoned player", and for the third of testers who are not engineers, losing to words they cannot
+  read feels like losing to a dictionary, not to skill. Pillar 3 says knowledge is rewarded, not required.
+- Rank 2 still plays about half advanced words (51 % of main words are novice or intermediate in the prior). So
+  Strategist visibly knows more than Beginner without leaning on expert terms. Expert terms are 8 % of batch-3
+  forms and stay playable through the empty-set fallback.
+- "Hunts bonuses" in the style line means premium squares, Full Stacks and chains (the `D` and `C` terms and the
+  attention key), not term bonuses. The copy is unchanged.
+- Rank 3 stays as the lever for ST-1b below 70 %, after `topWeights` reaches `[16,6,2,1]`.
+
+**GD-2: ST-1b as the guardrail proxy.** Accepted as a calibration target, with three conditions:
+
+1. **ST-1 stays the only gate** (lower CI ≥ 60 %).
+2. ST-1b is tuned and read on **tuning seeds**. On the confirmation run it is reported only. A confirmation value
+   outside the band is recorded under AC-9 and never triggers a retune, because that would tune on confirmation
+   seeds.
+3. **The playtest guardrail overrides it.** A human win rate CI outside 20–50 % retunes under `BOT_VERSION` 3,
+   whatever ST-1b said.
+
+The starting `topWeights` moves from `[16,6,2,1]` to `[10,6,3,1]`. The ablated proxy at `[16,6,2,1]` already
+measures 83.6 % [81.9, 85.1], and ST-2 requires the strategy terms to add strength on top. At `[10,6,3,1]` the
+ablated proxy measures 79.2 %, so the full bot should land inside the band. The B4 tuning range is
+`[8,5,3,2,1]`..`[16,6,2,1]`; beyond it, the vocabulary lever applies (rank 1 if too strong, rank 3 if too weak).
+
+Caveat: the logistic chain assumes the bots and humans sit on one strength scale. Here the gap is mostly
+vocabulary (the rank-1 proxy is level with Beginner), and vocabulary does not transfer evenly across humans: an
+engineer knows the advanced terms, a designer may not. Expect a wide spread per player in the playtest. The
+guardrail's cap of 10 counted matches per player keeps one player from dominating the reading.
+
+**GD-3: exchange thresholds and the forced keep.** Accepted as written.
+
+- **X-3 with X-5:** Strategist gives up at most 14 points of score for at least 15 points of leave value. That
+  is a conservative trade that experienced players would recognise.
+- **Worked example:** the bag holds ≥ 7 tiles, the rack is `? E R U V W K`, and the best-`U` play scores 12
+  points by spending the blank and E R.
+  - The leave is U V W K: `raw` = 0 − 40 − 30 − 30 = −100 dp. The vowel term is 0 (n = 4, ideal 1, w = 1).
+  - `K*` = {?, E, R}: `raw` = 150 + 10 + 10 = 170 dp.
+  - All of X-1..X-5 hold (12 ≤ 14; −100 ≤ −80; gain 270 ≥ 150), so Strategist exchanges U V W K and keeps the
+    blank. This is the "rarely wastes the blank" behaviour of the persona table.
+- **X-2:** `scorelessTurns ≤ 2` keeps a voluntary exchange at least three scoreless turns away from the 1v1
+  R-TURN-004 limit of 6. It is consistent with ST-4b ("0 with `scorelessTurns ≥ 3`") and with P-BOT-09. In 2v2
+  (limit 12) the same value is simply more conservative. 2v2 is out of Phase 1.
+- **ST-4b's 1–6 % band** stays: frequent enough to be noticed in a match ("now and then"), and its cap protects
+  the balance mirror (R-4).
+- **Forced (no-word) keep `K*`:** accepted as Strategist's refinement of BOT-6. It does not threaten
+  termination, because exchanges count toward R-TURN-004 (b2-response D1-a). Its risk is a smaller rack refresh on
+  a locked board, which ST-7 measures against greedy, whose forced exchange keeps only blanks. If ST-7 misses, the
+  forced path reverts to plain BOT-6 first, then X-2 and X-5 are looked at. O-2's reading in b2-response §3.2 still
+  holds for Beginner.
+
+**GD-4: lane definition.** Accepted as written.
+
+- The behaviour must be **visible** (pillar 2). A player judges an open lane by eye, not by dictionary, so a TW
+  that looks reachable is the right thing to deny.
+- A rack-independent "playable extension" check is rejected for `BOT_VERSION` 2:
+  - it costs a lexicon walk per hot square per candidate (≤ 24 × candidates);
+  - it would still not say whether the *opponent* can use the lane, since their rack is hidden.
+  It is a fit for Architect (E-3.5).
+- **Thresholds:** lead ≥ 30 is about 1.5 average turns (mean points per word 18–20 in the prior); trail ≤ −50 is
+  about 2.5 turns. The asymmetry is intended: Strategist starts protecting a lead early, and opens the board only
+  when clearly behind.
+- **Edges:** exactly +30 counts as leading and exactly −50 as trailing; with the bag empty the mode is "even".
+- The B-01 side effect is watched by ST-8 (R-5).
+
+**GD-5: leave values and `letters-v2`.** Accepted as starting values. No re-derivation for `BOT_VERSION` 2.
+
+- **Formula terms** (base, per-value, floor) already follow `letters-v2` through `getLetterTable` of the
+  observation's rules version. The goldens are pinned per (`BOT_VERSION`, `engineRulesVersion`) anyway.
+- **The S bonus (+30) and `vowelIdealPermille` (350) stay fixed in `BOT_VERSION` 2**, for two reasons:
+  - L7 may land after B4 freezes, and V1 §5.4 excludes changing bot parameters between v2 results and BC;
+  - S keeps its hook value under any table. Batch-3 plurals make it worth more, not less.
+- **Tripwire:** if `letters-v2`'s vowel share of lettered tiles differs from 34.7 % by more than 3 points, the BC
+  digest notes it as a known Strategist approximation (reported, no retune).
+- **Re-derivation is due at `BOT_VERSION` 3**, after the playtest:
+  - `vowelIdealPermille` = the frozen table's vowel share;
+  - the S bonus re-checked against ST-4a.
+- B4 may still tune every leave value on tuning seeds (v1) against ST-4a and ST-2.
+
+**GD-6: chain weights.** Accepted as starting values: `chainKeepDp` 25, `chainDegreeDp` 3, `chainDegreeCap` 8.
+
+- **Bounded:** R-SCORE-005 caps `k` at 5, so `C` ≤ 125 + 24 = 149 dp. That is under 15 points, and at most
+  4.9 points at `k` = 1.
+- **Size relative to the true value:** keeping a chain alive is worth `p · 5 · min(k + 1, 5)` next turn, where `p`
+  is the chance that the next word links. At a plausible `p` of 0.2–0.3, 2.5 points per link is about twice that
+  expected value. This is a deliberate persona bias, and it is bounded, so it cannot override a clearly better
+  word.
+- **Tuning ceiling for B4:** `chainKeepDp` 10–40 and `chainDegreeDp` 0–5. If ST-4d is still below 1.25× at 40,
+  the miss is recorded (AC-9) rather than raising the weight further: greedy already takes chain points through
+  `breakdown.total`, so the ratio is measured against a chain-aware baseline.
+- Whether 25 is enough cannot be known before real batch-3 relations exist (the proxy has none, R-6). ST-4d is
+  read on the merged batch 3 only.
+
+**GD-7: Beginner budget.** Accepted: 70,000 / 300 in `BOT_VERSION` 2.
+
+- The old 200,000 cap is 4.05 s worst case on f0, beyond AC-8's 4 s perceived bound. A cap is a safety net, not
+  a strength knob, and blanks are generated last, so a binding cap keeps every natural-letter move.
+- **BG-5 must be re-read** (the D2 note's "BG-5 is unaffected" no longer holds; an amendment is recorded in
+  `docs/game/decisions/2026-10-b2-response.md` §3.2):
+  - in B4, on tuning seeds, v1 rules, batch 3;
+  - then in BC as V1's BG-5 (class K).
+- **Pre-decided fallback inside B4:** BG-5 > 1 % because of two-blank racks ⇒ Beginner 100,000 / 300 before the
+  freeze (f0 worst case 2.25 s, under the 4 s bound).
+- **P7 input confirmed:** Strategist 70,000 / 500 is frozen unconditionally on both automata (§ Budget). The 900
+  option is dropped, and goldens are pinned on the shipped automaton (AC-12).
+
+**GD-8: think time (design view; ux-ui-designer and mobile-engineer have the final say).** Support 1.2–3.0 s for
+Strategist and 1.2–4.0 s for Beginner, both inside `bots.think_delay_ms`. This matches F-8: Beginner is slower and
+more variable. Three design points:
+
+1. **Shape matters more than range.** Strategist should feel *steady*, with most draws around 1.6–2.4 s. Beginner
+   should be *uneven*, with a long tail toward 4 s.
+2. **Perceived time is `max(compute, delay)`.** Strategist's worst-case compute (1.96 s on f0) sits under its
+   3.0 s ceiling, so the budget never shows as a stall.
+3. **Voluntary exchanges should not appear at the 1.2 s floor.** An exchange revealed instantly reads as a
+   failure, not as a decision. Suggestion: draw from the upper half of the range (≥ 2.0 s) when the action is
+   `EXCHANGE`. This is presentation only: the host already knows the action type, and the `bot-think:<seat>:<n>`
+   stream is unchanged.
+
+No balance invariant is involved (B-05 is Blitz only).
 
 Assumptions (reversible):
 
