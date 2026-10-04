@@ -1,22 +1,25 @@
 /**
  * Action log and replay (ADR-0013 §D2, API note §14.2). A log is the match header (`MatchConfig`) plus the
- * accepted actions in canonical form; replaying it from the header reproduces every state bit for bit.
+ * accepted actions in canonical form; replaying it from the header reproduces every state bit for bit. The rules
+ * version comes from `header.engineRulesVersion` (ADR-0014 §D3): logs of every registered version share this code.
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { parseAction } from '../actions/parse.js';
 import { canonicalJson } from '../hash/jcs.js';
 import { apply } from '../match/apply.js';
 import { configProblem, createMatch, isPlainObject } from '../match/create.js';
+import { resolveRules, type RulesVersionError } from '../rules/registry.js';
 import { stateHash } from '../state/state.js';
 import type {
   Action,
+  DraftContext,
   EngineContext,
   MatchConfig,
   MatchState,
   Rejection,
+  RulesVersionDetails,
   StateHash,
 } from '../types.js';
-import { ENGINE_RULES_VERSION } from '../version.js';
 
 /** Action-log envelope version this build writes (ADR-0013 §D2). */
 export const LOG_VERSION = 1;
@@ -39,11 +42,12 @@ export type ReplayError =
       readonly message: string;
       readonly details: { readonly logVersion: number };
     }
+  /** Same details as the engine error (ADR-0014 §D6; API note §20 Q3 item 1). */
   | {
       readonly kind: 'replay';
       readonly code: 'RULES_VERSION_UNSUPPORTED';
       readonly message: string;
-      readonly details: { readonly engineRulesVersion: number };
+      readonly details: RulesVersionDetails;
     }
   | {
       readonly kind: 'replay';
@@ -83,6 +87,11 @@ export interface ReplayOutcome {
   readonly stateHashes?: readonly StateHash[];
 }
 
+/** Options of `parseActionLog`. `draft` opts in to a draft rules version (ADR-0014 §D4). */
+export interface ParseLogOptions {
+  readonly draft?: DraftContext;
+}
+
 const HEX16 = /^[0-9a-f]{16}$/;
 const LOG_KEYS = ['actions', 'final', 'header', 'logVersion', 'stateHashes'];
 const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
@@ -107,11 +116,23 @@ export function serializeActionLog(log: ActionLog): string {
   return canonicalJson(log);
 }
 
+/** The replay form of an engine `RULES_VERSION_UNSUPPORTED`: same message and details. */
+const replayVersionError = (e: RulesVersionError): ReplayError => ({
+  kind: 'replay',
+  code: 'RULES_VERSION_UNSUPPORTED',
+  message: e.message,
+  details: e.details,
+});
+
 /**
- * Parses a log. Order: JSON → `logVersion` → `header.engineRulesVersion` → strict schema (unknown keys rejected)
- * → canonical form of every action → `stateHashes.length === actions.length` → `final.actionCount`.
+ * Parses a log. Order: JSON → `logVersion` → `header.engineRulesVersion` (registered; a draft needs
+ * `options.draft`, ADR-0014 §D4) → strict schema (unknown keys rejected; layout and letters per version) →
+ * canonical form of every action → `stateHashes.length === actions.length` → `final.actionCount`.
  */
-export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
+export function parseActionLog(
+  text: string,
+  options?: ParseLogOptions,
+): Result<ActionLog, ReplayError> {
   let doc: unknown;
   try {
     doc = JSON.parse(text);
@@ -129,20 +150,14 @@ export function parseActionLog(text: string): Result<ActionLog, ReplayError> {
   }
   const header = doc['header'];
   const version = isPlainObject(header) ? header['engineRulesVersion'] : undefined;
-  if (version !== ENGINE_RULES_VERSION) {
-    return err({
-      kind: 'replay',
-      code: 'RULES_VERSION_UNSUPPORTED',
-      message: 'unsupported engineRulesVersion',
-      details: { engineRulesVersion: versionOrMinusOne(version) },
-    });
-  }
+  const resolved = resolveRules(version, options?.draft);
+  if (!resolved.ok) return err(replayVersionError(resolved.error));
   // First unknown key in code-unit order, not in document order (deterministic reporting).
   const extra = Object.keys(doc)
     .sort(byCodeUnit)
     .find((k) => !LOG_KEYS.includes(k));
   if (extra !== undefined) return err(malformedLog(extra));
-  const headerProblem = configProblem(header as MatchConfig);
+  const headerProblem = configProblem(header as MatchConfig, resolved.value.set);
   if (headerProblem !== undefined) {
     return err(malformedLog(headerProblem === '' ? 'header' : `header.${headerProblem}`));
   }
@@ -214,14 +229,17 @@ function hashMismatch(
 }
 
 /**
- * `createMatch(header)`, then `apply` per action, verifying each `stateHashes[i]` (first divergence wins) and
- * `final.stateHash`. The lexicon is checked once, before the first action.
+ * `createMatch(header)`, then `apply` per action, verifying the stored checkpoints (first divergence wins) and
+ * `final.stateHash`. The rules version (draft opt-in and candidate from `ctx.draft`) and the lexicon are checked
+ * once, before the first action.
  */
 export function replay(
   log: ActionLog,
   ctx: EngineContext,
   options?: { readonly recordHashes?: boolean },
 ): Result<ReplayOutcome, ReplayError> {
+  const resolved = resolveRules(log.header.engineRulesVersion, ctx.draft);
+  if (!resolved.ok) return err(replayVersionError(resolved.error));
   const created = createMatch(log.header, ctx);
   if (!created.ok) {
     const e = created.error;
@@ -234,14 +252,6 @@ export function replay(
           expected: String(e.details?.['expected']),
           actual: String(e.details?.['actual']),
         },
-      });
-    }
-    if (e.code === 'RULES_VERSION_UNSUPPORTED') {
-      return err({
-        kind: 'replay',
-        code: 'RULES_VERSION_UNSUPPORTED',
-        message: e.message,
-        details: { engineRulesVersion: versionOrMinusOne(log.header.engineRulesVersion) },
       });
     }
     return err(malformedLog(`header.${String(e.details?.['field'] ?? '')}`));

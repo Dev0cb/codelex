@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CTX, boardWith, spell } from '../../test/support/small-lexicon.js';
 import { comparePlacements } from '../actions/parse.js';
 import { getLayout } from '../rules/constants.js';
+import { rulesFor } from '../rules/registry.js';
 import { removeTiles, rackTileOf, sortTiles } from '../tiles.js';
 import type { BoardTile, Placement, Rejection } from '../types.js';
 import {
@@ -16,6 +17,9 @@ import {
 const layout = getLayout('classic-v1');
 const EMPTY = boardWith([]);
 
+/** ADR-0014 §D1: internal modules take the match's rules; these unit tests run rules version 1. */
+const R1 = rulesFor(1).rules;
+
 const p = (row: number, col: number, tile: string): Placement => ({
   row,
   col,
@@ -27,7 +31,13 @@ function input(
   tiles: readonly Placement[],
   rack = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ??',
 ): PlacementInput {
-  return { board, layout, rack: sortTiles(rack), tiles: [...tiles].sort(comparePlacements) };
+  return {
+    board,
+    layout,
+    rack: sortTiles(rack),
+    tiles: [...tiles].sort(comparePlacements),
+    rules: R1,
+  };
 }
 
 function words(board: readonly string[], tiles: readonly Placement[], rack?: string): FormedWord[] {
@@ -362,7 +372,7 @@ describe('property: geometry check ≡ independent oracle', () => {
         const tiles = [...rawTiles].sort(comparePlacements);
         const needed = tiles.map((t) => rackTileOf(t.tile)).join('');
         const rack = sortTiles(fullRack ? needed + 'XYZ' : needed.slice(1));
-        const r = checkPlacementGeometry({ board, layout, rack, tiles });
+        const r = checkPlacementGeometry({ board, layout, rack, tiles, rules: R1 });
         const expected = oracleViolation(board, tiles, rack);
         if (!r.ok) {
           const got = r.error.code === 'placement' ? r.error.details.violation : r.error.code;

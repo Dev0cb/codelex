@@ -1,6 +1,6 @@
 /**
- * Public types of `@codelex/game-engine` for `engineRulesVersion` 1. Normative source:
- * `docs/architecture/notes/game-engine-api.md` §4–§12 (names, shapes and doc comments are the contract).
+ * Public types of `@codelex/game-engine`. Normative source: `docs/architecture/notes/game-engine-api.md` §4–§12
+ * (names, shapes and doc comments are the contract); rules registry §4.1.1 (ADR-0014).
  * Everything reachable from `MatchState` is hashed (API-2) and uses only objects, arrays, ASCII strings and safe
  * integers (API-3).
  */
@@ -10,13 +10,14 @@ import type {
   LexiconIndex,
   LexiconVersion,
 } from '@codelex/lexicon/index';
-import type { ENGINE_RULES_VERSION } from './version.js';
+import type { DraftOptIn } from './rules/draft-token.js';
 
 export type { DefinitionHash, Difficulty, LexiconVersion };
 
 // --- §4 primitives ---
 
-export type EngineRulesVersion = typeof ENGINE_RULES_VERSION;
+/** Every registered rules version, one literal per registry entry (ADR-0014 §D1). */
+export type EngineRulesVersion = 1 | 2;
 
 /** 64-bit seed as exactly 16 lowercase hex chars, `^[0-9a-f]{16}$` (ADR-0013 §D1). */
 export type SeedHex = string & { readonly __brand: 'SeedHex' };
@@ -81,15 +82,17 @@ export type BoardRow = string;
 
 // --- §4.1 rules constants ---
 
-export type LayoutId = 'classic-v1';
-export type LetterTableId = 'letters-v1';
+/** `classic-v2` = `classic-v1` with a plain start square (R-BOARD-004 v2, b2-response D4). */
+export type LayoutId = 'classic-v1' | 'classic-v2';
+/** `letters-v2`: derived from batch 3 by task L7 (T-4a); a placeholder copy of `letters-v1` until then. */
+export type LetterTableId = 'letters-v1' | 'letters-v2';
 export type SquareKind = 'plain' | 'DL' | 'TL' | 'DW' | 'TW';
 
 /** Premium layout. `classic-v1` equals GAME_RULES §2.1 square by square (snapshot test, P-BOARD-002-d). */
 export interface Layout {
   readonly id: LayoutId;
   readonly size: 15;
-  /** (7,7) for classic-v1; carries a DW (R-BOARD-004). */
+  /** (7,7); a DW in classic-v1, plain in classic-v2 (R-BOARD-004). */
   readonly start: Square;
   /** Row-major, length size × size. No tech squares in classic-v1 (R-BOARD-003 off). */
   readonly squares: readonly SquareKind[];
@@ -106,7 +109,7 @@ export interface LetterTable {
   readonly blankValue: 0;
 }
 
-/** Every other outcome-affecting constant of rules version 1 (GAME_RULES v0.3). */
+/** Every other outcome-affecting constant of a rules version (the literal members hold for every version). */
 export interface Rules {
   /** R-BAG-003 */
   readonly rackSize: 7;
@@ -120,12 +123,41 @@ export interface Rules {
   readonly fullStackTiles: 7;
   /** R-SCORE-004 */
   readonly fullStackBonus: 50;
-  /** R-SCORE-003: novice 0, intermediate 4, advanced 8, expert 16. */
+  /** R-SCORE-003, per version: v1 novice 0, intermediate 4, advanced 8, expert 16. */
   readonly termBonus: Readonly<Record<Difficulty, number>>;
   /** R-SCORE-005: bonus = 5 × k */
   readonly chainStep: 5;
   /** R-SCORE-005: k ≤ 5 */
   readonly chainCap: 5;
+}
+
+/** A named `Rules` alternative of a draft rules version (ADR-0014 §D4), e.g. `tb-0-2-4-8`. */
+export interface RulesCandidate {
+  readonly id: string;
+  readonly rules: Rules;
+}
+
+/**
+ * One entry of the rules registry (ADR-0014 §D1): frozen, read-only module data. Versions differ in data only and
+ * run through one code path.
+ */
+export interface RulesSet {
+  readonly engineRulesVersion: EngineRulesVersion;
+  /** 'frozen' = published, immutable forever. 'draft' = still being tuned, refused unless opted in (§D4). */
+  readonly status: 'frozen' | 'draft';
+  /** GAME_RULES version this set implements, e.g. '0.3.1'; '0.4-draft' while v2 is a draft. */
+  readonly gameRules: string;
+  /** Allowed `MatchSetup.layout` ids (ascending, ≥ 1). */
+  readonly layouts: readonly LayoutId[];
+  /** Allowed `MatchSetup.letters` ids (ascending, ≥ 1). */
+  readonly letterTables: readonly LetterTableId[];
+  /** Every other outcome-affecting constant; for a draft, the rules used when no candidate is selected. */
+  readonly rules: Rules;
+  /**
+   * Named alternatives selected by `EngineContext.draft.candidate` (ADR-0014 §D4). Empty for a frozen set; for a
+   * draft, `rules` is one of them (the default).
+   */
+  readonly candidates: readonly RulesCandidate[];
 }
 
 // --- §5 lexicon dependency ---
@@ -150,6 +182,17 @@ export type EngineLexicon = Pick<
  */
 export interface EngineContext {
   readonly lexicon: EngineLexicon;
+  /**
+   * Simulator and engine tests only (ADR-0014 §D4). Never stored in state, never logged. `optIn` must be
+   * `ALLOW_DRAFT_RULES` from `@codelex/game-engine/draft`; `candidate` picks one of a draft's named `Rules`.
+   */
+  readonly draft?: DraftContext;
+}
+
+/** The draft opt-in of a context or a parse call (ADR-0014 §D4). */
+export interface DraftContext {
+  readonly optIn: DraftOptIn;
+  readonly candidate?: string;
 }
 
 // --- §6 MatchConfig (= action-log header) ---
@@ -168,7 +211,10 @@ export interface MatchConfig {
   readonly config: MatchSetup;
 }
 
-/** Game setup. Only the listed values are valid in engineRulesVersion 1; anything else → INVALID_CONFIG. */
+/**
+ * Game setup. The shape is the same in every rules version; `layout` and `letters` must be in the version's
+ * `RulesSet` lists (ADR-0014 §D2). Anything else → INVALID_CONFIG.
+ */
 export interface MatchSetup {
   readonly mode: 'classic';
   /** 'untimed-vs-bot' (R-MODE-CLASSIC-002): seats = 2. 'untimed': 2–4 seats, no clock. Neither is competitive. */
@@ -356,7 +402,7 @@ export type Rejection =
 export type RejectionCode = Rejection['code'];
 
 export type EngineErrorCode =
-  /** state/config/log engineRulesVersion ≠ ENGINE_RULES_VERSION (ADR-0013 §D6) */
+  /** engineRulesVersion not registered, a draft without the opt-in, or an unknown candidate (ADR-0014 §D4, §D6) */
   | 'RULES_VERSION_UNSUPPORTED'
   /** ctx.lexicon identity ≠ match identity (ADR-0013 Q-G1) */
   | 'LEXICON_MISMATCH'
@@ -364,6 +410,19 @@ export type EngineErrorCode =
   | 'INVALID_CONFIG'
   /** parseState: not a valid MatchState document */
   | 'MALFORMED_STATE';
+
+/**
+ * `RULES_VERSION_UNSUPPORTED` details, the same for engine and replay errors (ADR-0014 §D6, API note §20 Q3).
+ * `actual`: the version as given (a finite number or a string; any other value by its `typeof`). `supported`:
+ * comma-separated frozen versions. `status` is set when the version is registered: 'draft' for a refused draft,
+ * or the set's status for an unknown `candidate`.
+ */
+export type RulesVersionDetails = {
+  readonly actual: string | number;
+  readonly supported: string;
+  readonly status?: 'frozen' | 'draft';
+  readonly candidate?: string;
+};
 
 export interface EngineError {
   readonly kind: 'engine';

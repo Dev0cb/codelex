@@ -750,8 +750,8 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-BOARD-001 | covered | `packages/game-engine/src/rules/constants.test.ts` | a / b |  |
 | R-BOARD-002 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts` | a,d,e / b,c |  |
 | R-BOARD-003 | out-of-scope | — | — / a,b,c,d,e | Out of scope: Tech squares are not part of classic-v1 and are off for the Phase 1 playtest (GAME_RULES section 2.1); positions and categories are open (A-02). Revisit with the first layout that has tech squares. |
-| R-BOARD-004 | covered | `packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts` | — / a,b |  |
-| R-BAG-001 | covered | `packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | a,d / b,c,e,f |  |
+| R-BOARD-004 | covered | `packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts` | — / a,b |  |
+| R-BAG-001 | covered | `packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | a,d / b,c,e,f |  |
 | R-BAG-002 | covered | `packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | b / a |  |
 | R-BAG-003 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts` | a / b,c |  |
 | R-BAG-004 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/state/state.test.ts`<br>`packages/game-engine/test/phase1/tagged-rules.test.ts` | a / — |  |
@@ -760,12 +760,12 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-TURN-001 | covered | `packages/game-engine/src/actions/parse.test.ts` | — / a,b,c,d,e |  |
 | R-TURN-002 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/placement/check.test.ts` | — / a,b,c,d |  |
 | R-TURN-003 | covered | `packages/game-engine/src/placement/check.test.ts` | b / a,c |  |
-| R-TURN-004 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/decisions.test.ts` | — / a,b,c,d,e |  |
+| R-TURN-004 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/match/rules-versions.test.ts` | — / a,b,c,d,e |  |
 | R-TURN-005 | covered | `packages/game-engine/src/match/apply.test.ts` | — / a,b |  |
 | R-TURN-006 | covered | `packages/bots/src/board.test.ts`<br>`packages/game-engine/src/placement/check.test.ts` | d / a,b,c |  |
 | R-SCORE-001 | covered | `packages/game-engine/src/scoring/score.test.ts` | a / b,c |  |
 | R-SCORE-002 | covered | `packages/game-engine/src/scoring/score.test.ts` | — / a,b |  |
-| R-SCORE-003 | covered | `packages/game-engine/src/scoring/score.test.ts` | — / a,b,c |  |
+| R-SCORE-003 | covered | `packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts` | — / a,b,c |  |
 | R-SCORE-004 | covered | `packages/game-engine/src/scoring/score.test.ts` | — / a,b |  |
 | R-SCORE-005 | covered | `packages/game-engine/src/scoring/score.test.ts`<br>`packages/lexicon/src/index/reference.test.ts` | a,c / b,d,e,f |  |
 | R-SCORE-006 | covered | `packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts` | a / b,c,d |  |
@@ -794,9 +794,9 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | Global property | Status | Tagged assertions in |
 |---|---|---|
 | P-GLOBAL-01 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` |
-| P-GLOBAL-02 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/replay/log.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` |
+| P-GLOBAL-02 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts`<br>`packages/game-engine/src/replay/log.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` |
 | P-GLOBAL-03 | covered | `packages/game-engine/src/match/api-properties.test.ts`<br>`packages/game-engine/src/match/apply.test.ts` |
-| P-GLOBAL-04 | covered | `packages/game-engine/src/state/state.test.ts` |
+| P-GLOBAL-04 | covered | `packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/match/rules-versions.test.ts`<br>`packages/game-engine/src/state/state.test.ts` |
 | P-GLOBAL-05 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/test/phase1/tagged-rules.test.ts` |
 | P-GLOBAL-06 | covered | `packages/game-engine/test/phase1/tagged-rules.test.ts` |
 | P-GLOBAL-07 | covered | `packages/game-engine/src/match/observe.test.ts` |

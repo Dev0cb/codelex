@@ -89,7 +89,7 @@ describe('parseActionLog (ADR-0013 §D2, P-API-06)', () => {
       parseActionLog(
         edit((d) => ((d['header'] as Record<string, unknown>)['engineRulesVersion'] = 'x')),
       ),
-    ).toMatchObject({ error: { details: { engineRulesVersion: -1 } } });
+    ).toMatchObject({ error: { details: { actual: 'x', supported: '1' } } });
     expect(
       code(
         edit(
@@ -205,15 +205,24 @@ describe('replay (ADR-0013 §D2, P-API-07)', () => {
       },
     });
     const log = shortLog();
+    // ADR-0014 §D6 / API note §20 Q3 item 1: the replay details are the engine details.
+    expect(replay({ ...log, header: { ...log.header, engineRulesVersion: 2 } }, CTX)).toMatchObject(
+      {
+        error: {
+          code: 'RULES_VERSION_UNSUPPORTED',
+          details: { actual: 2, supported: '1', status: 'draft' },
+        },
+      },
+    );
     expect(
-      replay({ ...log, header: { ...log.header, engineRulesVersion: 2 as 1 } }, CTX),
+      replay({ ...log, header: { ...log.header, engineRulesVersion: 3 as 1 } }, CTX),
     ).toMatchObject({
-      error: { code: 'RULES_VERSION_UNSUPPORTED', details: { engineRulesVersion: 2 } },
+      error: { code: 'RULES_VERSION_UNSUPPORTED', details: { actual: 3, supported: '1' } },
     });
     expect(
       replay({ ...log, header: { ...log.header, engineRulesVersion: Number.NaN as 1 } }, CTX),
     ).toMatchObject({
-      error: { code: 'RULES_VERSION_UNSUPPORTED', details: { engineRulesVersion: -1 } },
+      error: { code: 'RULES_VERSION_UNSUPPORTED', details: { actual: 'number', supported: '1' } },
     });
     expect(replay({ ...log, header: { ...log.header, profileId: '' } }, CTX)).toMatchObject({
       error: { code: 'MALFORMED_LOG', details: { path: 'header.profileId' } },
