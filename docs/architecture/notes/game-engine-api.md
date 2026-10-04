@@ -1,7 +1,7 @@
 # Design note — `@codelex/game-engine` public API (`engineRulesVersion` 1)
 
 - Status: Proposed · Date: 2026-10-02 · Owner/author: game-engine-engineer (decisions delegated by the product owner)
-- Reviewed-by: ai-engineer (2026-10-03, §20 Q8–Q12, B0); pending solution-architect
+- Reviewed-by: ai-engineer (2026-10-03, §20 Q8–Q12, B0); solution-architect (2026-10-04, §20 Q1–Q7, sprint P2)
 - Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` — D4 (this note). Unblocks E2–E4 (engine), L2 (lexicon
   index types), B1 (bots), and the E-1.5 mobile work next sprint.
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013),
@@ -1077,6 +1077,109 @@ For **solution-architect**:
    spectating, or should redaction live in `services/realtime`?
 7. Is `parseState` (snapshot resume, E-1.5 "action log + periodic snapshot") acceptable as a second trusted entry
    point next to `replay`, or should mobile always resume by replaying the log?
+
+**Answered 2026-10-04 (sprint P2)** by solution-architect. Each answer was checked against
+`packages/game-engine/src` at `29a827a`. "Code check" states where the code agrees, and where it does not. None of
+the answers changes a hashed field, so `engineRulesVersion` 1 and GC-DET-01 are unaffected.
+
+- **Q1: keep the nested `config`.**
+  - Code check: agrees. `create.ts` `CONFIG_KEYS` holds `config` and `SETUP_KEYS` holds the seven setup keys;
+    `parseActionLog` validates the header through the same `configProblem`.
+  - *Why:* flattening would buy nothing (same bytes after gzip) and would cost a one-way header change. The
+    split also mirrors the ownership: identity and pins at the top, game setup inside. Final once Phase 2 logs
+    exist.
+- **Q2: every `MatchState` field is hashed, with no booleans or nulls in hashed or logged data.**
+  - Code check: agrees.
+    - `stateHash(s)` hashes `canonicalJson(s)`, the whole object (`state.ts`), so a field cannot exist without
+      being hashed.
+    - The JCS subset throws on booleans, `null`, fractions and `-0` (`hash/jcs.ts`).
+    - `MatchState`, `MatchSetup` and `Action` contain no boolean. `requireWinner` is `0 | 1`, and the absent
+      `result` is omitted, never `null`.
+    - Booleans appear only in non-hashed outputs, as API-3 allows: `Rejection.details.seatInactive`,
+      `WordScore.main`, `PreviewScore.words[].main`, `MoveEvaluation.goesOut`.
+  - *Why:* the restricted subset keeps the hash reproducible in any language without a JSON library's opinion on
+    `true`/`null`. It is already frozen by GC-DET-01.
+- **Q3: keep the three error families** (`rejection` with lowercase rule codes; `engine` and `replay` with
+  UPPER_SNAKE codes), discriminated by `kind`. ADR-0011 (E-2.3) maps them to problem+json later.
+  - Code check: the three families exist as specified (`errors.ts`, `replay/log.ts`), with three
+    inconsistencies for ADR-0011 to resolve. None blocks Phase 1.
+    1. **`RULES_VERSION_UNSUPPORTED` has two detail shapes.** As an `engine` error it carries
+       `{ expected, actual }` (`errors.ts` `rulesVersionError`); as a `replay` error it carries
+       `{ engineRulesVersion }` (`log.ts`). ADR-0014 §D6 already changes the engine shape to
+       `{ actual, supported, status? }`; the replay shape should converge in the same E6 PR.
+    2. **`replay` drops engine-error codes.** An `EngineError` from `apply` during replay becomes `MALFORMED_LOG`
+       (`log.ts`, the non-rejection branch), losing the code. It is unreachable today (version and lexicon are
+       checked by `createMatch` first), but it is lossy by construction.
+    3. **`replay` turns details into strings.** `LEXICON_MISMATCH` details are re-built with
+       `String(e.details?.[…])`, so a missing detail becomes the string `"undefined"` instead of a typed
+       failure.
+- **Q4: keep `layout` and `letters` in `MatchSetup`, in the header.**
+  - Code check: agrees for v1. `configProblem` accepts exactly `classic-v1` / `letters-v1`, and
+    `create`/`apply`/`observe`/`state`/`end` resolve the tables from `state.config.layout` / `.letters`, never
+    from the version.
+  - E6 must replace the hard-coded literals with `rulesFor(v).layouts` / `.letterTables` (ADR-0014 §D2).
+  - *Why:* self-describing logs, about 40 bytes. Under the v2 draft they are what distinguishes the DW-start and
+    plain-start runs of the D4 confirmation.
+- **Q5: keep `untimed`** (2–4 seats) next to `untimed-vs-bot` (exactly 2).
+  - Code check: agrees (`configProblem`: `untimed-vs-bot` requires 2 seats; canonical teams for 2, 3 and 4
+    seats).
+  - *Why:* it is what the simulator, 2v2/FFA tests and hot-seat use. Removing it now would be an outcome change
+    for no gain.
+- **Q6: redaction stays in the engine** (`eventsFor`), and `services/realtime` stays rules-agnostic.
+  - Code check: agrees. `eventsFor` (`match/observe.ts`) strips `TILES_DRAWN.tiles` and `TILES_EXCHANGED.returned`
+    for every viewer other than the acting seat, including `'spectator'`. `MATCH_ENDED.finalRacks` stays public
+    (Q-GD-5).
+  - Phase 2: `services/game` calls `eventsFor` once per audience (each seat plus one spectator view) and maps the
+    result to `match.*.v1`. Realtime only fans out pre-redacted payloads, so it never needs the engine, and a
+    spectator-delay policy stays a service concern.
+- **Q7: the append-only action log, with `stateHashes`, is the source of truth for on-device persistence and
+  resume (E-1.5 AC-11, slice S3).** A snapshot is only a cache that speeds up resume. `parseState` is accepted as
+  an entry point because a snapshot is never trusted on its own.
+  - **Write path.**
+    - After each accepted `apply`, append `applied.action` and `stateHash(state)` to the log as one atomic record
+      (write, then flush) *before* the UI shows the move as committed.
+    - Every N = 10 actions, and on `app_backgrounded`, write `serializeState(state)` as the snapshot, atomically
+      (temp file, then rename), after the log append.
+    - The log always records `stateHashes`, although they are optional in the log format.
+  - **Resume.**
+    1. Check the header: `parseActionLog`. A version that is unknown, or a draft, returns
+       `RULES_VERSION_UNSUPPORTED` and leads to the "older version" state of ADR-0013 §D6, now reached only on a
+       downgrade (ADR-0014 §D3).
+    2. Use the snapshot `S` only if all of these hold:
+       - `parseState(S)` is ok;
+       - `1 ≤ S.actionCount ≤ log.actions.length`;
+       - `stateHash(S) === log.stateHashes[S.actionCount − 1]`.
+
+       Otherwise ignore it.
+    3. Re-apply the tail `log.actions[S.actionCount…]` with `apply`. After the last tail action, compare its
+       `stateHash` with `log.stateHashes[last]`.
+    4. On any failure in steps 2–3, replay from the start:
+       - Run `replay` on the log without `stateHashes` and compare `finalHash` with the last stored hash.
+       - Only if that differs, run `replay` with all `stateHashes` to locate the first divergent index, for the
+         Sentry event (no PII) and "Send match log".
+    5. If the full replay fails, the match cannot be resumed. Keep the log for export (P9) and offer a new match.
+    - The lexicon pin is checked by the first `apply` (tail or next move). `parseState` takes no `ctx`, by design.
+  - **Budget:** resume p95 ≤ 300 ms on the reference Android device, from "resume requested" to the first
+    rendered observation, with the lexicon index already loaded (the index load has its own budget). This is an
+    H1 target, unconfirmed until measured.
+    - Node measurements (§18): a full GC-DET-01 replay costs 1.0 ms mean / 5.0 ms p99 with only the final hash
+      checked, and 5.3 / 9.8 ms with all 90 hashes verified.
+    - At an assumed Hermes factor of 10–30×, the final-hash-only replay fits (≤ 150 ms); verifying every hash
+      on the happy path may not. That is why step 4 checks the final hash first.
+  - Code check: **the API supports this, but no helper exists.**
+    - `parseState`, `apply`, `stateHash` and `replay` exist and behave as required. `parseState` validates
+      invariants (§13.6), not reachability, which is why the snapshot is accepted only on a hash match with the
+      log.
+    - There is no "replay from a state" entry point: `replay` always starts from `createMatch(header)`, and with
+      `stateHashes` present it verifies every checkpoint (`log.ts`). Without a helper, S3 would hand-roll steps
+      2–4 in `apps/mobile`.
+    - Follow-up (game-engine-engineer, before S3; non-hashed, semver minor): add
+      `replay(log, ctx, { from?: MatchState; verify?: 'all' | 'final' })`. It starts from a snapshot that matches
+      `stateHashes[from.actionCount − 1]`, otherwise fails with `HASH_MISMATCH`. The app then only orchestrates
+      files.
+  - Snapshot tampering and "Send match log" contents are the subject of P9 (security-engineer,
+    privacy-compliance). Offline casual play has no stakes, and a tampered snapshot is caught by the hash match
+    with the log. The log itself is unauthenticated on device, which is acceptable for non-competitive play.
 
 For **ai-engineer**:
 8. API-6: `evaluateMove(observation, action, ctx)` instead of `(state, …)` — does it fit `chooseAction(observation,
