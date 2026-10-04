@@ -356,3 +356,17 @@ variant, or swapping the lexicon commit for a later one.
 
 - 2026-10-04 — `game-designer` — Pre-registration (sprint 3 task V1). Master seed `2026100400000e16`. Merged
   before any v2 run.
+
+## Orchestrator confirmation (2026-10-04, before any v2 run)
+
+Confirmed as written, on the product owner's standing delegation:
+
+1. L/K class rule. An L or K miss that v1 shares does not force the fallback. It is recorded and routed to the
+   owner.
+2. Strategist-late path (§5.2). If B4 is not accepted by D0+7, the greedy mirror is primary. The decision stays
+   provisional until a Strategist run under this same file confirms it, before `replays/v2` is frozen.
+3. CI rule per criterion. B-01, B-07 and C-05 are judged on their CI bounds; the other criteria on point estimates.
+4. Sample sizes. 10,000 matches for each mirror; 2,000 for B-07 and the BG pairings.
+
+These confirmations are part of the pre-registration. Changing any of them after a v2 result has been seen requires
+a new pre-registration with a new master seed (§5.4).
