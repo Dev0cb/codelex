@@ -1,10 +1,11 @@
 # Design note — `@codelex/game-engine` public API (`engineRulesVersion` 1)
 
 - Status: Proposed · Date: 2026-10-02 · Owner/author: game-engine-engineer (decisions delegated by the product owner)
-- Reviewed-by: ai-engineer (2026-10-03, §20 Q8–Q12, B0); pending solution-architect
+- Reviewed-by: ai-engineer (2026-10-03, §20 Q8–Q12, B0); solution-architect (2026-10-04, §20 Q1–Q7, sprint P2)
 - Sprint: `docs/sprints/2026-10-02-phase1-engine-core.md` — D4 (this note). Unblocks E2–E4 (engine), L2 (lexicon
   index types), B1 (bots), and the E-1.5 mobile work next sprint.
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013),
+  `docs/adr/0014-multiple-rules-versions-in-one-engine-build.md` (ADR-0014: §4.1.1, §6, §15 for v2),
   `docs/game/GAME_RULES.md` v0.3 (= `engineRulesVersion` 1), `docs/game/RULE_PROPERTIES.md`,
   `docs/architecture/notes/lexicon-index.md`, `docs/specs/E-1.7-playtest-lexicon/playtest-lexicon.md`,
   `packages/config/README.md`, `docs/standards/ENGINEERING.md`.
@@ -71,6 +72,8 @@ seeded RNG (`./rng`).
 ```
 
 - Two entries only. `.` = everything in §4–§13; `./rng` = §14 (bots and tests import it without the rules code).
+  *(ADR-0014, from E6)* A third entry, `./draft`, exports only the draft opt-in token (§4.1.1). Lint bans it under
+  `apps/**` and `services/**`.
   No `./internal`, no `./testing`: fixture states for golden cases are built inside the engine's own tests; bots and
   mobile build fixture **observations** directly (plain objects).
 - Source layout (internal, may change): `src/{board,bag,placement,validation,scoring,modes/classic,replay,rng,hash}/`.
@@ -168,6 +171,73 @@ export const RULES: {
 };
 ```
 
+### 4.1.1 Rules registry (`engineRulesVersion` 2 onward; ADR-0014, implemented by E6)
+
+The block above remains the exact content of `engineRulesVersion` 1. From E6 on, one build carries several
+versions. They differ **in data only** and run through one code path: every function resolves the `RulesSet` of
+`x.engineRulesVersion` once per call and passes it down, and no engine code branches on a version number
+(ADR-0014 §D1).
+
+```ts
+export type EngineRulesVersion = 1 | 2;                       // one literal per registered version
+export type LayoutId = 'classic-v1' | 'classic-v2';           // classic-v2: plain start square (R-BOARD-004 v2, D4)
+export type LetterTableId = 'letters-v1' | 'letters-v2';      // letters-v2: derived from batch 3 (T-4a, L7)
+
+/** Frozen, read-only registry entry; module-level constant data (not mutable state, §17.2). */
+export interface RulesSet {
+  readonly engineRulesVersion: EngineRulesVersion;
+  /** 'frozen' = published and immutable forever; 'draft' = refused unless opted in (below). */
+  readonly status: 'frozen' | 'draft';
+  /** GAME_RULES version implemented, e.g. '0.3.1'. */
+  readonly gameRules: string;
+  /** Allowed MatchSetup.layout / MatchSetup.letters ids (ascending, ≥ 1 each). */
+  readonly layouts: readonly LayoutId[];
+  readonly letterTables: readonly LetterTableId[];
+  /** Every other outcome-affecting constant (the `RULES` shape above, termBonus included). */
+  readonly rules: Rules;
+}
+
+export const RULES_VERSIONS: readonly EngineRulesVersion[];      // ascending
+export function rulesFor(version: EngineRulesVersion): RulesSet;  // unknown version: programmer error (throws)
+export function isRulesVersion(value: unknown): value is EngineRulesVersion;
+/** 16 hex: SHA-256 over the JCS of the set with its layouts and letter tables; pinned for frozen versions. */
+export function rulesDigest(version: EngineRulesVersion): string;
+
+/** @deprecated (ADR-0014 §D6) newest frozen version, kept one release; consumers pin their own version. */
+export const ENGINE_RULES_VERSION: 1;
+/** @deprecated = rulesFor(1).rules; engine code never reads it. */
+export const RULES: Rules;
+
+// --- `@codelex/game-engine/draft` (simulator and tests only; lint-banned in apps/** and services/**) ---
+export type DraftOptIn = { readonly __draftOptIn: unique symbol };
+export const ALLOW_DRAFT_RULES: DraftOptIn;   // compared by identity
+```
+
+```ts
+// EngineContext (§5) gains one optional member:
+export interface EngineContext {
+  readonly lexicon: EngineLexicon;
+  /** Simulator/tests only. Never stored in state, never logged. `candidate` picks a draft's named Rules. */
+  readonly draft?: { readonly optIn: DraftOptIn; readonly candidate?: string };
+}
+```
+
+| `engineRulesVersion` | status | `layouts` | `letterTables` | `rules.termBonus` nov/int/adv/exp | other `rules` |
+|---|---|---|---|---|---|
+| 1 | frozen (GAME_RULES 0.3.1) | `classic-v1` | `letters-v1` | 0/4/8/16 | as above |
+| 2 | **draft** until rules PR 0.4 (R4) | `classic-v2`; while draft also `classic-v1` (D4 DW-vs-plain confirmation) | `letters-v2` (a copy of `letters-v1` until L7 fills it) | candidates `tb-0-3-6-12`, `tb-0-2-4-8`; one remains at the freeze | unchanged from v1 |
+
+- **Draft rule.** `createMatch`, `parseState`, `parseActionLog` and `replay` refuse a draft version with
+  `RULES_VERSION_UNSUPPORTED`, `details { actual, status: 'draft' }`, unless `ctx.draft.optIn ===
+  ALLOW_DRAFT_RULES`. `parseState` and `parseActionLog` take an optional `{ draft }` options argument for this,
+  because they have no `ctx`. Draft outcomes and hashes promise nothing across commits. The simulator records
+  `rulesDigest` and `candidate` with every result.
+- **Literal types.** `Layout.size: 15`, `LetterTable.blanks: 2`, `blankValue: 0` and the literal `Rules` members
+  hold for v1 and v2. A different board size (for example 11×11) needs **v3** and widens `size` in a typed API
+  change.
+- **`gameValue`** is not read by the engine. The term bonus is `rulesFor(v).rules.termBonus[difficulty]`
+  (ADR-0014 §D5). The lexicon `gameValue` no longer depends on any rules version.
+
 ## 5. Lexicon dependency and context
 
 The engine imports **types only** from `@codelex/lexicon/index` (task L2) and receives the instance in the context.
@@ -242,6 +312,24 @@ export interface MatchSetup {
   readonly requireWinner: 0 | 1;
 }
 ```
+
+**Per-version values (ADR-0014 §D2).** The shape of `MatchConfig` and `MatchSetup` is the same in every rules
+version, and `logVersion` stays 1. Only the accepted values depend on `engineRulesVersion`:
+
+- `engineRulesVersion` must be in `RULES_VERSIONS`. A draft also needs the opt-in (§4.1.1); otherwise the result
+  is `RULES_VERSION_UNSUPPORTED`.
+- `layout` must be in `rulesFor(v).layouts`, and `letters` in `rulesFor(v).letterTables`; otherwise the result
+  is `INVALID_CONFIG` (`config.layout` / `config.letters`).
+- `mode`, `format`, `seats`, `teams` and `requireWinner` are accepted as above for v1 and v2.
+
+`layout` and `letters` stay in the header (§20 Q4). In v1 they are redundant; under the v2 draft they distinguish
+the DW-start and plain-start runs.
+
+| `engineRulesVersion` | `layout` | `letters` |
+|---|---|---|
+| 1 | `classic-v1` | `letters-v1` |
+| 2 (draft) | `classic-v2`, `classic-v1` | `letters-v2` |
+| 2 (frozen, R4) | as chosen by the v2 `/balance-check` (expected: `classic-v2` only) | `letters-v2` |
 
 Example header (ADR-0013 §D2, extended with the D4 `config` fields):
 
@@ -854,11 +942,26 @@ export interface ReplayOutcome {
   (ADR-0013 §D5) — **including any change to `MatchState` field names, encodings or value evolution, any change to
   `MatchSetup` accepted values, the hash or JCS rules, and any new action type, format, mode, layout or letter
   table.** `createMatch`/`apply`/`replay`/`parseState` refuse other versions (`RULES_VERSION_UNSUPPORTED`).
+- **Several versions per build (ADR-0014; partly supersedes ADR-0013 §D6).**
+  - "Other versions" means versions not in `RULES_VERSIONS`, plus drafts without the opt-in.
+  - A frozen `RulesSet` is never edited and never removed without a new ADR. Its `rulesDigest` is pinned in
+    `test/golden/rules-digests.json` (append-only).
+  - Bumping means **adding** a registry entry, first as a draft, then frozen by the GAME_RULES PR that maps it.
+    Existing entries are never changed.
+  - v1 logs replay on every future build. A local match resumes after an app update as long as its version is
+    frozen and registered.
+- **Consumers pin their own version.** `apps/mobile` uses `PLAY_RULES_VERSION` (an app constant; changed by an
+  explicit PR after the v1/v2 decision, never a remote flag). The Phase 2 server picks the version per queue and
+  never trusts a client value. `ENGINE_RULES_VERSION` is deprecated (§4.1.1).
 - **`logVersion`**: envelope/header/action-encoding changes (ADR-0013 §D2). Readers keep every published version.
 - **Package semver** governs only non-hashed API (events, observation, breakdown, rejection details, function
   signatures). Breaking changes there are coordinated with bots/mobile in the same PR; never used for pinning.
 - Golden files: `test/golden/{rng,sha256,jcs}.json`, `test/golden/replays/v1/*.json` (GC-DET-01 + seeded corpus),
   `test/golden/scoring/v1/*.json` (RULE_PROPERTIES §3.1/§3.2 transcribed). Immutable once `v1` is published.
+  *(ADR-0014 §D3)* **`replays/v1/` is never modified.** Draft goldens live in `test/golden/drafts/v<N>/`, which is
+  mutable and outside the immutability check. At the freeze (R4), they are regenerated once into `replays/v<N>/`
+  and `scoring/v<N>/`, which are immutable from then on. Bot goldens are pinned per (`BOT_VERSION`,
+  `engineRulesVersion`) in `packages/bots/test/golden/decisions-v<B>-r<R>.json`.
 - **E4 implementation note (2026-10-03):** GC-DET-01 (`test/golden/replays/v1/gc-det-01*.json`, final hash
   `59b0b2f2d2ca6c60`) is replayed on a frozen synthetic lexicon, not on the bundled lexicon: every content batch
   changes `lexiconVersion`, and a golden log must keep replaying. It moves to an archived `.clxi` once L4 ships one.
@@ -974,6 +1077,109 @@ For **solution-architect**:
    spectating, or should redaction live in `services/realtime`?
 7. Is `parseState` (snapshot resume, E-1.5 "action log + periodic snapshot") acceptable as a second trusted entry
    point next to `replay`, or should mobile always resume by replaying the log?
+
+**Answered 2026-10-04 (sprint P2)** by solution-architect. Each answer was checked against
+`packages/game-engine/src` at `29a827a`. "Code check" states where the code agrees, and where it does not. None of
+the answers changes a hashed field, so `engineRulesVersion` 1 and GC-DET-01 are unaffected.
+
+- **Q1: keep the nested `config`.**
+  - Code check: agrees. `create.ts` `CONFIG_KEYS` holds `config` and `SETUP_KEYS` holds the seven setup keys;
+    `parseActionLog` validates the header through the same `configProblem`.
+  - *Why:* flattening would buy nothing (same bytes after gzip) and would cost a one-way header change. The
+    split also mirrors the ownership: identity and pins at the top, game setup inside. Final once Phase 2 logs
+    exist.
+- **Q2: every `MatchState` field is hashed, with no booleans or nulls in hashed or logged data.**
+  - Code check: agrees.
+    - `stateHash(s)` hashes `canonicalJson(s)`, the whole object (`state.ts`), so a field cannot exist without
+      being hashed.
+    - The JCS subset throws on booleans, `null`, fractions and `-0` (`hash/jcs.ts`).
+    - `MatchState`, `MatchSetup` and `Action` contain no boolean. `requireWinner` is `0 | 1`, and the absent
+      `result` is omitted, never `null`.
+    - Booleans appear only in non-hashed outputs, as API-3 allows: `Rejection.details.seatInactive`,
+      `WordScore.main`, `PreviewScore.words[].main`, `MoveEvaluation.goesOut`.
+  - *Why:* the restricted subset keeps the hash reproducible in any language without a JSON library's opinion on
+    `true`/`null`. It is already frozen by GC-DET-01.
+- **Q3: keep the three error families** (`rejection` with lowercase rule codes; `engine` and `replay` with
+  UPPER_SNAKE codes), discriminated by `kind`. ADR-0011 (E-2.3) maps them to problem+json later.
+  - Code check: the three families exist as specified (`errors.ts`, `replay/log.ts`), with three
+    inconsistencies for ADR-0011 to resolve. None blocks Phase 1.
+    1. **`RULES_VERSION_UNSUPPORTED` has two detail shapes.** As an `engine` error it carries
+       `{ expected, actual }` (`errors.ts` `rulesVersionError`); as a `replay` error it carries
+       `{ engineRulesVersion }` (`log.ts`). ADR-0014 §D6 already changes the engine shape to
+       `{ actual, supported, status? }`; the replay shape should converge in the same E6 PR.
+    2. **`replay` drops engine-error codes.** An `EngineError` from `apply` during replay becomes `MALFORMED_LOG`
+       (`log.ts`, the non-rejection branch), losing the code. It is unreachable today (version and lexicon are
+       checked by `createMatch` first), but it is lossy by construction.
+    3. **`replay` turns details into strings.** `LEXICON_MISMATCH` details are re-built with
+       `String(e.details?.[…])`, so a missing detail becomes the string `"undefined"` instead of a typed
+       failure.
+- **Q4: keep `layout` and `letters` in `MatchSetup`, in the header.**
+  - Code check: agrees for v1. `configProblem` accepts exactly `classic-v1` / `letters-v1`, and
+    `create`/`apply`/`observe`/`state`/`end` resolve the tables from `state.config.layout` / `.letters`, never
+    from the version.
+  - E6 must replace the hard-coded literals with `rulesFor(v).layouts` / `.letterTables` (ADR-0014 §D2).
+  - *Why:* self-describing logs, about 40 bytes. Under the v2 draft they are what distinguishes the DW-start and
+    plain-start runs of the D4 confirmation.
+- **Q5: keep `untimed`** (2–4 seats) next to `untimed-vs-bot` (exactly 2).
+  - Code check: agrees (`configProblem`: `untimed-vs-bot` requires 2 seats; canonical teams for 2, 3 and 4
+    seats).
+  - *Why:* it is what the simulator, 2v2/FFA tests and hot-seat use. Removing it now would be an outcome change
+    for no gain.
+- **Q6: redaction stays in the engine** (`eventsFor`), and `services/realtime` stays rules-agnostic.
+  - Code check: agrees. `eventsFor` (`match/observe.ts`) strips `TILES_DRAWN.tiles` and `TILES_EXCHANGED.returned`
+    for every viewer other than the acting seat, including `'spectator'`. `MATCH_ENDED.finalRacks` stays public
+    (Q-GD-5).
+  - Phase 2: `services/game` calls `eventsFor` once per audience (each seat plus one spectator view) and maps the
+    result to `match.*.v1`. Realtime only fans out pre-redacted payloads, so it never needs the engine, and a
+    spectator-delay policy stays a service concern.
+- **Q7: the append-only action log, with `stateHashes`, is the source of truth for on-device persistence and
+  resume (E-1.5 AC-11, slice S3).** A snapshot is only a cache that speeds up resume. `parseState` is accepted as
+  an entry point because a snapshot is never trusted on its own.
+  - **Write path.**
+    - After each accepted `apply`, append `applied.action` and `stateHash(state)` to the log as one atomic record
+      (write, then flush) *before* the UI shows the move as committed.
+    - Every N = 10 actions, and on `app_backgrounded`, write `serializeState(state)` as the snapshot, atomically
+      (temp file, then rename), after the log append.
+    - The log always records `stateHashes`, although they are optional in the log format.
+  - **Resume.**
+    1. Check the header: `parseActionLog`. A version that is unknown, or a draft, returns
+       `RULES_VERSION_UNSUPPORTED` and leads to the "older version" state of ADR-0013 §D6, now reached only on a
+       downgrade (ADR-0014 §D3).
+    2. Use the snapshot `S` only if all of these hold:
+       - `parseState(S)` is ok;
+       - `1 ≤ S.actionCount ≤ log.actions.length`;
+       - `stateHash(S) === log.stateHashes[S.actionCount − 1]`.
+
+       Otherwise ignore it.
+    3. Re-apply the tail `log.actions[S.actionCount…]` with `apply`. After the last tail action, compare its
+       `stateHash` with `log.stateHashes[last]`.
+    4. On any failure in steps 2–3, replay from the start:
+       - Run `replay` on the log without `stateHashes` and compare `finalHash` with the last stored hash.
+       - Only if that differs, run `replay` with all `stateHashes` to locate the first divergent index, for the
+         Sentry event (no PII) and "Send match log".
+    5. If the full replay fails, the match cannot be resumed. Keep the log for export (P9) and offer a new match.
+    - The lexicon pin is checked by the first `apply` (tail or next move). `parseState` takes no `ctx`, by design.
+  - **Budget:** resume p95 ≤ 300 ms on the reference Android device, from "resume requested" to the first
+    rendered observation, with the lexicon index already loaded (the index load has its own budget). This is an
+    H1 target, unconfirmed until measured.
+    - Node measurements (§18): a full GC-DET-01 replay costs 1.0 ms mean / 5.0 ms p99 with only the final hash
+      checked, and 5.3 / 9.8 ms with all 90 hashes verified.
+    - At an assumed Hermes factor of 10–30×, the final-hash-only replay fits (≤ 150 ms); verifying every hash
+      on the happy path may not. That is why step 4 checks the final hash first.
+  - Code check: **the API supports this, but no helper exists.**
+    - `parseState`, `apply`, `stateHash` and `replay` exist and behave as required. `parseState` validates
+      invariants (§13.6), not reachability, which is why the snapshot is accepted only on a hash match with the
+      log.
+    - There is no "replay from a state" entry point: `replay` always starts from `createMatch(header)`, and with
+      `stateHashes` present it verifies every checkpoint (`log.ts`). Without a helper, S3 would hand-roll steps
+      2–4 in `apps/mobile`.
+    - Follow-up (game-engine-engineer, before S3; non-hashed, semver minor): add
+      `replay(log, ctx, { from?: MatchState; verify?: 'all' | 'final' })`. It starts from a snapshot that matches
+      `stateHashes[from.actionCount − 1]`, otherwise fails with `HASH_MISMATCH`. The app then only orchestrates
+      files.
+  - Snapshot tampering and "Send match log" contents are the subject of P9 (security-engineer,
+    privacy-compliance). Offline casual play has no stakes, and a tampered snapshot is caught by the hash match
+    with the log. The log itself is unauthenticated on device, which is acceptable for non-competitive play.
 
 For **ai-engineer**:
 8. API-6: `evaluateMove(observation, action, ctx)` instead of `(state, …)` — does it fit `chooseAction(observation,
