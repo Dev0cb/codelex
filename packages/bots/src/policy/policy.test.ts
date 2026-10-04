@@ -18,7 +18,7 @@ import {
   spell,
 } from '../../test/support/match.js';
 import { chooseAction, PERSONALITIES, type BotDecision, type BotPersonalityId } from '../index.js';
-import { actionKey, compareKeys } from '../key.js';
+import { actionKey, candidateKey, compareKeys } from '../key.js';
 
 const TINY = tinyIndex();
 const RANK: Readonly<Record<string, number>> = {
@@ -56,7 +56,7 @@ function rankAll(obs: Observation, lexicon: LexiconIndex): Scored[] {
     if (!r.ok) continue;
     const main = r.value.breakdown.words[0];
     scored.push({
-      key: c.key,
+      key: candidateKey(c),
       total: r.value.breakdown.total,
       mainLength: main?.form.length ?? 0,
       rank: RANK[main?.difficulty ?? 'expert'] ?? 3,
@@ -190,7 +190,7 @@ describe('attention cap (§5.3 step 2, BOT-4)', () => {
     expect(d.budgetExhausted).toBe(true);
     const firstThree = generateFor(obs, TINY)
       .candidates.slice(0, 3)
-      .map((c) => c.key);
+      .map((c) => candidateKey(c));
     expect(firstThree).toContain(actionKey(d.action as PlaceWordAction));
   });
 });
@@ -198,7 +198,7 @@ describe('attention cap (§5.3 step 2, BOT-4)', () => {
 describe('random-legal (§5.2)', () => {
   const obs = craftedObservation(TINY, boardWith(spell('NODE', 7, 5)), 'AITPSOD');
   const sorted = generateFor(obs, TINY)
-    .candidates.map((c) => c.key)
+    .candidates.map((c) => candidateKey(c))
     .sort(compareKeys);
 
   it('picks uniformly in canonical-key order with one verification call', () => {

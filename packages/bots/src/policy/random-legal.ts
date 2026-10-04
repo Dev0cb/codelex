@@ -4,7 +4,7 @@
  * within `maxCandidates`. Ignores score entirely.
  */
 import { evaluateMove } from '@codelex/game-engine';
-import { byKey } from '../movegen/gaddag.js';
+import { byKey } from '../key.js';
 import type { PolicyInput, PolicyResult } from './types.js';
 
 export function randomLegal(input: PolicyInput): PolicyResult {

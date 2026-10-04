@@ -12,9 +12,8 @@
  */
 import { GADDAG_SEPARATOR, type Gaddag, type GaddagNode } from '@codelex/lexicon/index';
 import { BLANK, EMPTY } from '../board.js';
-import { compareKeys } from '../key.js';
 import { lowestBit, valueAt, Workspace } from './common.js';
-import type { Candidate, Generation, GenerationInput, MoveGenerator } from './types.js';
+import type { Generation, GenerationInput, MoveGenerator } from './types.js';
 
 export function gaddagGenerator(gaddag: Gaddag): MoveGenerator {
   return (input: GenerationInput): Generation => generate(gaddag, input);
@@ -99,9 +98,4 @@ function generate(gaddag: Gaddag, input: GenerationInput): Generation {
     }
   }
   return ws.result();
-}
-
-/** Candidates sorted by canonical key (the order used for sampling, independent of the automaton). */
-export function byKey(candidates: readonly Candidate[]): Candidate[] {
-  return [...candidates].sort((a, b) => compareKeys(a.key, b.key));
 }

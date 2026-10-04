@@ -11,7 +11,13 @@ import {
   observeOnTurn,
   UNBOUNDED,
 } from '../../test/support/generation.js';
-import { realIndex, syntheticIndex, tinyIndex } from '../../test/support/lexicons.js';
+import {
+  lexiconOf,
+  realIndex,
+  syntheticIndex,
+  term,
+  tinyIndex,
+} from '../../test/support/lexicons.js';
 import {
   boardWith,
   craftedObservation,
@@ -19,6 +25,7 @@ import {
   seedOf,
   spell,
 } from '../../test/support/match.js';
+import { candidateKey } from '../key.js';
 import { selectGenerator } from './index.js';
 
 const REAL = realIndex();
@@ -36,7 +43,7 @@ describe('first move', () => {
       expect(c.action.tiles.some((t) => t.row === 7 && t.col === 7)).toBe(true);
       expect(evaluateMove(obs, c.action, { lexicon: TINY }).ok).toBe(true);
     }
-    const keys = gen.candidates.map((c) => c.key);
+    const keys = gen.candidates.map((c) => candidateKey(c));
     expect(new Set(keys).size).toBe(keys.length);
     expect(keys).toContain('P0707A0708P0709I');
     expect(keys).toContain('P0707A0807P0907I');
@@ -47,10 +54,27 @@ describe('first move', () => {
 
   it('places blanks lowercase, after natural letters', () => {
     const obs = craftedObservation(TINY, boardWith([]), '?I');
-    const keys = generateFor(obs, TINY).candidates.map((c) => c.key);
+    const keys = generateFor(obs, TINY).candidates.map((c) => candidateKey(c));
     expect(keys).toContain('P0706a0707I');
     expect(keys).toContain('P0707I0708p');
     expect(keys.every((k) => /[a-z]/.test(k))).toBe(true);
+  });
+});
+
+describe('dedupe (packed signature)', () => {
+  it('keeps every one-tile move once and generates placements longer than a rack', () => {
+    const board = boardWith(spell('NODE', 7, 6));
+    const keys = generateFor(craftedObservation(TINY, board, 'S'), TINY).candidates.map((c) =>
+      candidateKey(c),
+    );
+    expect(keys).toEqual(['P0710S', 'P0807S']); // NODES, OS
+    const long = lexiconOf([term('NETWORKS')]);
+    for (const lexicon of [long, lexiconOf([term('NETWORKS')], '0123456789abcdef', false)]) {
+      const gen = generateFor(craftedObservation(long, boardWith([]), 'EKNORSTW'), lexicon);
+      const all = gen.candidates.map((c) => candidateKey(c));
+      expect(all).toHaveLength(16);
+      expect(new Set(all).size).toBe(16);
+    }
   });
 });
 
@@ -60,7 +84,7 @@ describe('extending a board', () => {
   it('hooks, extends through existing tiles and checks cross-words', () => {
     const obs = craftedObservation(TINY, board, 'SAPICTE');
     const gen = generateFor(obs, TINY);
-    const keys = gen.candidates.map((c) => c.key);
+    const keys = gen.candidates.map((c) => candidateKey(c));
     expect(keys).toContain('P0710S'); // NODES
     for (const c of gen.candidates) {
       expect(evaluateMove(obs, c.action, { lexicon: TINY }).ok).toBe(true);
@@ -118,7 +142,7 @@ describe('P-BOT-04 on seeded mid-game positions', () => {
               .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
               .join(''),
           };
-          const generated = new Set(generateFor(obs, TINY).candidates.map((c) => c.key));
+          const generated = new Set(generateFor(obs, TINY).candidates.map((c) => candidateKey(c)));
           const oracle = bruteForceKeys(obs, TINY, 3);
           oracleMoves += oracle.size;
           for (const k of oracle) expect(generated).toContain(k);
