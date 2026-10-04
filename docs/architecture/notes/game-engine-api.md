@@ -232,6 +232,10 @@ export interface EngineContext {
   ALLOW_DRAFT_RULES`. `parseState` and `parseActionLog` take an optional `{ draft }` options argument for this,
   because they have no `ctx`. Draft outcomes and hashes promise nothing across commits. The simulator records
   `rulesDigest` and `candidate` with every result.
+  *(E6, ADR-0014 §D4 amendment)* `apply` and `evaluateMove` also apply this rule, and so does `previewScore`
+  through its `{ draft }` option. A state or observation whose `layout`/`letters` is outside its version's lists
+  is refused (`INVALID_CONFIG`; `null` from `previewScore`). A draft log replays identically only with the same
+  `candidate`.
 - **Literal types.** `Layout.size: 15`, `LetterTable.blanks: 2`, `blankValue: 0` and the literal `Rules` members
   hold for v1 and v2. A different board size (for example 11×11) needs **v3** and widens `size` in a typed API
   change.
@@ -785,7 +789,9 @@ export function evaluateMove(
 ): Result<MoveEvaluation, ApplyFailure>;
 
 /** §13.5 — R-SCORE-009; null when the placement fails geometry or the viewer's rack (P-SCORE-009-d). */
-export function previewScore(observation: Observation, tiles: readonly Placement[]): PreviewScore | null;
+export function previewScore(                                     // options: E6, ADR-0014 §D4 amendment
+  observation: Observation, tiles: readonly Placement[], options?: { readonly draft?: DraftContext },
+): PreviewScore | null;
 
 /** §13.6 */
 export function stateHash(state: MatchState): StateHash;

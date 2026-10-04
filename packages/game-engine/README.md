@@ -59,8 +59,9 @@ input (action logs) before it reaches the RNG.
 ### `@codelex/game-engine/draft` (ADR-0014 §D4)
 
 `ALLOW_DRAFT_RULES` (and its type `DraftOptIn`) — the only way to reach a draft rules version:
-`createMatch`/`apply`/`evaluateMove`/`replay` read `ctx.draft = { optIn, candidate? }`, `parseState` and
-`parseActionLog` take `{ draft }`. Without it a draft is `RULES_VERSION_UNSUPPORTED` (`status: 'draft'`). Simulator
+`createMatch`/`apply`/`evaluateMove`/`replay` read `ctx.draft = { optIn, candidate? }`, `parseState`,
+`parseActionLog` and `previewScore` take `{ draft }`. A draft log is reproducible only with its candidate (ADR-0014
+§D4 amendment). Without it a draft is `RULES_VERSION_UNSUPPORTED` (`status: 'draft'`). Simulator
 and tests only: lint bans the entry under `apps/**` and `services/**`.
 
 SHA-256 and the JCS subset (`src/hash/`) are internal since E4 (API note §3): callers hash states with

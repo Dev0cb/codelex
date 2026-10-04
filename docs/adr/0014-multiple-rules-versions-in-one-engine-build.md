@@ -194,6 +194,23 @@ export function rulesDigest(version: EngineRulesVersion): string;
   From that commit, v2 follows the ADR-0013 §D5 bump rule like v1.
 - **If v1 wins the gate (§9.1).** v2 stays a draft, or is deleted. No log of it was ever published, so the number
   2 may be reused by the next candidate. Nothing has to be reverted.
+- **Amendment (E6 implementation review, PR #63, 2026-10-04).** These notes record how E6 implements this section.
+  The log schema does not change, and v1 is unaffected.
+  - *A draft log is reproducible only together with its candidate.* The candidate is in neither the state nor the
+    log header, so the same draft log replays to different outcomes under a different `ctx.draft.candidate`. A
+    draft readout is therefore identified by (log, `candidate`, `rulesDigest`), never by the log alone. The
+    simulator (B3) must record `candidate` in every results JSON and next to every exported draft log; this is a B3
+    acceptance criterion. A frozen set has no candidates, so frozen logs stay self-describing.
+  - *Without a candidate, a draft uses its default rules.* An opt-in without `candidate` runs the set's default
+    `rules`: `tb-0-2-4-8` for v2, the D3 lead candidate. An unknown candidate, or any candidate on a frozen version,
+    is refused with `RULES_VERSION_UNSUPPORTED` and `details.candidate`.
+  - *The draft guard covers every function that resolves rules.* Besides the four entry points above, `apply`,
+    `evaluateMove` and `previewScore` refuse a draft without the opt-in. `previewScore` has no context, so it takes
+    `{ draft }` like `parseState` and returns `null` without it.
+  - *Tables are checked against the version.* These same functions also refuse a state or observation whose
+    `layout` or `letters` is outside its version's lists, with `INVALID_CONFIG` (`null` from `previewScore`).
+    Otherwise a frozen version paired with draft tables would bypass the guard, for example
+    `engineRulesVersion: 1` with `classic-v2`.
 
 ### D5. `gameValue` decoupling (T-6): the engine computes the term bonus from difficulty
 

@@ -57,7 +57,8 @@ export type ReplayError =
     }
   /**
    * Schema violation, unknown key, non-canonical action, INVALID_CONFIG header, length mismatches; `from` that no
-   * checkpoint of the log can verify (`from.actionCount` out of range, or no `stateHashes`).
+   * checkpoint of the log can verify (`from.actionCount` out of range, or no `stateHashes`) or that cannot be
+   * hashed (a value outside the JCS subset: path `from`).
    */
   | {
       readonly kind: 'replay';
@@ -91,7 +92,8 @@ export interface ReplayOutcome {
   readonly finalHash: StateHash;
   /**
    * Present iff options.recordHashes: hash after each action (to write stateHashes into a log). With `from`, the
-   * hashes before `from.actionCount` are the log's own, verified through the snapshot's checkpoint.
+   * hashes before `from.actionCount − 1` are copied from the log WITHOUT being recomputed; only the checkpoint at
+   * `from.actionCount − 1` is checked (against the snapshot), and every hash from there on is recomputed.
    */
   readonly stateHashes?: readonly StateHash[];
 }
@@ -302,7 +304,13 @@ export function replay(
     }
     const expected = k === 0 ? stateHash(state) : stored?.[k - 1];
     if (expected === undefined) return err(malformedLog('stateHashes'));
-    const actual = stateHash(from);
+    // A hand-built snapshot may hold values outside the JCS subset (NaN, -0, booleans): never throw.
+    let actual: StateHash;
+    try {
+      actual = stateHash(from);
+    } catch {
+      return err(malformedLog('from'));
+    }
     if (actual !== expected) return err(hashMismatch('from', expected, actual));
     if (record) hashes.push(...(stored ?? []).slice(0, k));
     state = from;

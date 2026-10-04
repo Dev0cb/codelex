@@ -166,6 +166,20 @@ describe('replay options (API note §20 Q7)', () => {
     expect(fromStart.ok && fromStart.value.finalHash).toBe(stateHash(end));
   });
 
+  it('a snapshot outside the JCS subset is MALFORMED_LOG at from, never a throw', () => {
+    const end = game.states.at(-1) as MatchState;
+    for (const bad of [
+      { ...end, turnNumber: Number.NaN },
+      { ...end, scorelessTurns: -0 },
+      { ...end, status: true as unknown as MatchState['status'] },
+    ]) {
+      expect(replay(log, V1.ctx, { from: bad })).toMatchObject({
+        ok: false,
+        error: { code: 'MALFORMED_LOG', details: { path: 'from' } },
+      });
+    }
+  });
+
   it('the rules version and lexicon are checked before the snapshot', () => {
     const end = game.states.at(-1) as MatchState;
     expect(replay(log, CTX, { from: end })).toMatchObject({ error: { code: 'LEXICON_MISMATCH' } });
