@@ -2,6 +2,11 @@
   "app.name": "CODELEX",
   "home.tagline": "Joue le langage de la technologie.",
   "home.engine_version": "Moteur de règles v{version}",
+  "home.lexicon_version": "Lexique {version}",
   "splash.loading": "Préparation du lexique…",
+  "error.lexicon.title": "Impossible de charger le lexique CODELEX",
+  "error.lexicon.body": "Redémarre l'application. Si le problème persiste, réinstalle-la.",
+  "error.lexicon.code": "Code d'erreur : {code}",
+  "error.lexicon.retry": "Réessayer",
   "a11y.tile.letter": "Lettre {letter}, {points, plural, one {# point} other {# points}}"
 }

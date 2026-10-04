@@ -2,6 +2,11 @@
   "app.name": "CODELEX",
   "home.tagline": "Play the language of technology.",
   "home.engine_version": "Rules engine v{version}",
+  "home.lexicon_version": "Lexicon {version}",
   "splash.loading": "Preparing the lexicon…",
+  "error.lexicon.title": "We could not load the CODELEX lexicon",
+  "error.lexicon.body": "Restart the app. If it keeps happening, reinstall the app.",
+  "error.lexicon.code": "Error code: {code}",
+  "error.lexicon.retry": "Try again",
   "a11y.tile.letter": "Letter {letter}, {points, plural, one {# point} other {# points}}"
 }

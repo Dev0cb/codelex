@@ -30,7 +30,8 @@ exporters moved to Phase 2 (E-2.0, E-2.3, E-2.9). Bundle budgets arrive with the
 ## Phase 1 — Playable core (single player vs bots, offline-capable)
 Goal: prove the fun.
 In progress since 2026-10-02 — sprint 1 `docs/sprints/2026-10-02-phase1-engine-core.md` done (exit check 2026-10-03);
-current sprint `docs/sprints/2026-10-03-phase1-bots-app-foundation.md`.
+sprint 2 `docs/sprints/2026-10-03-phase1-bots-app-foundation.md` closed (exit check 2026-10-04; H1 device timings and
+stretch S1 carried over); sprint 3 not yet planned.
 
 | ID | Epic | Owner |
 |---|---|---|
