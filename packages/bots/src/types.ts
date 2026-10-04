@@ -6,8 +6,11 @@ import type { Action } from '@codelex/game-engine';
 import type { Rng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 
-/** `random-legal` is internal (simulator floor, fuzzing); never offered to players. `greedy` is a simulator yardstick. */
-export type BotPersonalityId = 'random-legal' | 'beginner' | 'greedy';
+/**
+ * `random-legal` is internal (simulator floor, fuzzing); never offered to players. `greedy` is a simulator yardstick.
+ * `strategist` is the second playable rung (`BOT_VERSION` 2, bots-api §5.5).
+ */
+export type BotPersonalityId = 'random-legal' | 'beginner' | 'greedy' | 'strategist';
 
 export interface BotBudget {
   /** Max automaton transitions (BOT-3). Safe integer ≥ 1. */
@@ -58,4 +61,54 @@ export interface PersonalityData {
   readonly shortMultiplier: number;
   /** Permille chance to ignore every Full Stack (7-tile) candidate in a decision. */
   readonly skipFullStackPermille: number;
+  /** Strategist-only knobs (bots-api §5.5, spec S-1..S-4); `null` for every other personality. */
+  readonly strategy: StrategyData | null;
+}
+
+/**
+ * Strategist decision data (docs/specs/E-1.3-bots/strategist.md S-2..S-4). Integers only; dp = tenths of a point.
+ * Weighted terms use `floorDiv` (rounding toward −∞, ADR-0013 §D4.1).
+ */
+export interface StrategyData {
+  // L: leave (S-2)
+  /** `tileDp(blank)`. */
+  readonly leaveBlankDp: number;
+  /** `tileDp(l) = max(leaveFloorDp, leaveBaseDp − leavePerValueDp · v(l)) + leaveLetterBonusDp[l]`. */
+  readonly leaveBaseDp: number;
+  readonly leavePerValueDp: number;
+  readonly leaveFloorDp: number;
+  /** 26 entries, index = LetterCode. */
+  readonly leaveLetterBonusDp: readonly number[];
+  /** Ideal vowel count = floorDiv(n · vowelIdealPermille + 500, 1000) over the n non-blank tiles. */
+  readonly vowelIdealPermille: number;
+  readonly vowelOffDp: number;
+  /** Further penalty when n ≥ 3 and the tiles hold no vowel or only vowels. */
+  readonly vowelAllOrNoneDp: number;
+  /** Per extra copy of a letter; blanks exempt. */
+  readonly duplicateDp: number;
+  /** Leave weight when the bag holds 1–6 tiles (1000 = full weight with ≥ 7). */
+  readonly leaveLowBagPermille: number;
+  /** Per point of tile value, bag empty (R-SCORE-006). */
+  readonly endgameRackDp: number;
+  // C: chain preference (S-2)
+  readonly chainKeepDp: number;
+  readonly chainDegreeDp: number;
+  readonly chainDegreeCap: number;
+  // D: lane blocking / premium denial (S-2)
+  readonly laneReach: number;
+  readonly hotTwDp: number;
+  readonly hotDwDp: number;
+  /** Points. Leading iff lead ≥ leadThreshold. */
+  readonly leadThreshold: number;
+  /** Points. Trailing iff lead ≤ −trailThreshold. */
+  readonly trailThreshold: number;
+  readonly denialLeadPermille: number;
+  readonly denialEvenPermille: number;
+  readonly denialTrailPermille: number;
+  // X: voluntary exchange (S-4); RULES.minBagForExchange is read from the engine
+  readonly exchangeMaxScoreless: number;
+  /** Points. */
+  readonly exchangeMaxScore: number;
+  readonly exchangePoorLeaveDp: number;
+  readonly exchangeGainDp: number;
 }

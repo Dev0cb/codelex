@@ -1,5 +1,5 @@
 /**
- * Personality policies on crafted positions (bots-api §5.2, §5.3): Beginner's vocabulary filter, top-5 weighting
+ * Personality policies on crafted positions (bots-api §5.2, §5.3): Beginner's vocabulary filter, top-N weighting
  * with the short-word multiplier, missed Full Stack, attention sampling; greedy; random-legal's uniform pick and
  * redraw on an engine rejection.
  */
@@ -86,23 +86,25 @@ describe('beginner vocabulary filter (§5.3 step 1)', () => {
   });
 });
 
-describe('beginner top-5 weighting (§5.3 step 5)', () => {
+describe('beginner top-N weighting (§5.3 step 5)', () => {
+  const TOP = PERSONALITIES.beginner.topWeights;
   // Mid-board position with many novice/intermediate options of different lengths.
   const board = boardWith([...spell('NODE', 7, 5), ...spell('CODE', 5, 8, 'col')]);
   const obs = craftedObservation(TINY, board, 'AITPSOD');
   const top = rankAll(obs, TINY)
     .filter((s) => s.rank <= 1)
-    .slice(0, 5);
+    .slice(0, TOP.length);
 
-  it('the crafted position has five ranked candidates and no Full Stack', () => {
-    expect(top).toHaveLength(5);
+  it('the crafted position has N = topWeights.length ranked candidates and no Full Stack', () => {
+    expect(TOP).toEqual([16, 6, 2, 1]); // BOT_VERSION 2 (b2-response D2)
+    expect(top).toHaveLength(TOP.length);
     expect(top[0]?.tiles).toBeLessThan(7);
   });
 
   it('maps every pick draw to the rank its weight interval covers', () => {
-    const weights = top.map((s, i) => [8, 5, 3, 2, 1][i]! * (s.mainLength <= 5 ? 2 : 1));
+    const weights = top.map((s, i) => TOP[i]! * (s.mainLength <= 5 ? 2 : 1));
     const sum = weights.reduce((a, b) => a + b, 0);
-    const counts = new Array<number>(5).fill(0);
+    const counts = new Array<number>(TOP.length).fill(0);
     for (let draw = 0; draw < sum; draw += 1) {
       const rng = scriptedRng([draw]);
       const d = decide(obs, TINY, 'beginner', rng);
@@ -114,7 +116,7 @@ describe('beginner top-5 weighting (§5.3 step 5)', () => {
   });
 
   it('over real streams, the best move is picked about as often as its weight says', () => {
-    const weights = top.map((s, i) => [8, 5, 3, 2, 1][i]! * (s.mainLength <= 5 ? 2 : 1));
+    const weights = top.map((s, i) => TOP[i]! * (s.mainLength <= 5 ? 2 : 1));
     const sum = weights.reduce((a, b) => a + b, 0);
     const n = 2_000;
     let best = 0;
@@ -232,9 +234,11 @@ describe('random-legal (§5.2)', () => {
     expect(capped).toMatchObject({ candidatesEvaluated: 1, budgetExhausted: true });
   });
 
-  it('ranked personalities drop rejected candidates too (the engine is authoritative)', () => {
-    const d = decide(qObs, liar, 'greedy', botRng(seedOf(2), 0, 0));
-    expect(d.action.type).toBe('EXCHANGE');
-    expect(d.candidatesEvaluated).toBeGreaterThan(0);
+  it('ranked personalities and Strategist drop rejected candidates too (the engine is authoritative)', () => {
+    for (const personality of ['greedy', 'strategist'] as const) {
+      const d = decide(qObs, liar, personality, botRng(seedOf(2), 0, 0));
+      expect(d.action.type).toBe('EXCHANGE');
+      expect(d.candidatesEvaluated).toBeGreaterThan(0);
+    }
   });
 });

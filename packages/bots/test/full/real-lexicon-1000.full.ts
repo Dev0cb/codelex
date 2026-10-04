@@ -1,6 +1,6 @@
 /**
  * Q4 full run: 1,000 seeded matches on the real global-ranked index and the real classic-v1 layout, moves chosen by
- * `chooseAction` (random-legal, Beginner, greedy), 1v1 / 2v2 / FFA-3 / FFA-4. Same sequence as the gating run
+ * `chooseAction` (random-legal, Beginner, greedy, Strategist), 1v1 / 2v2 / FFA-3 / FFA-4. Same sequence as the gating run
  * (`test/real-lexicon-matches.test.ts`), which plays its first 250 matches.
  *
  *   pnpm --filter @codelex/bots test:full       run and compare with the recorded results

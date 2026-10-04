@@ -14,7 +14,7 @@ import { play, seedOf } from './support/match.js';
 const REAL = realIndex();
 const SYNTH = syntheticIndex(2000);
 const TINY = tinyIndex();
-const IDS: readonly BotPersonalityId[] = ['random-legal', 'beginner', 'greedy'];
+const IDS: readonly BotPersonalityId[] = ['random-legal', 'beginner', 'greedy', 'strategist'];
 const RANK: Readonly<Record<string, number>> = {
   novice: 0,
   intermediate: 1,

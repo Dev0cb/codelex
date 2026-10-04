@@ -148,13 +148,15 @@ export function spell(
 
 /**
  * A crafted observation for seat 0 on turn: an in-progress match pinned to `lexicon` with the given board, rack
- * and bag count. Built from a real `createMatch` observation so every other field is consistent.
+ * and bag count (`extra` overrides any other field: scores, scoreless turns, chain state). Built from a real
+ * `createMatch` observation so every other field is consistent.
  */
 export function craftedObservation(
   lexicon: LexiconIndex,
   board: readonly string[],
   rack: string,
   bagCount = 50,
+  extra: Partial<Observation> = {},
 ): Observation {
   const base = observe(startMatch(lexicon, seedOf(1)), 0);
   return {
@@ -165,6 +167,7 @@ export function craftedObservation(
       .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
       .join(''),
     bagCount,
+    ...extra,
   };
 }
 

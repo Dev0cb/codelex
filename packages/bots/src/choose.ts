@@ -10,8 +10,16 @@ import { selectGenerator } from './movegen/index.js';
 import { PERSONALITIES } from './personalities.js';
 import { randomLegal } from './policy/random-legal.js';
 import { ranked } from './policy/ranked.js';
+import { strategist, type StrategistOptions } from './policy/strategist.js';
 import type { PolicyInput, PolicyResult } from './policy/types.js';
-import type { BotBudget, BotContext, BotDecision, BotError, BotErrorCode } from './types.js';
+import type {
+  BotBudget,
+  BotContext,
+  BotDecision,
+  BotError,
+  BotErrorCode,
+  PersonalityData,
+} from './types.js';
 
 function botError(code: BotErrorCode, message: string): BotError {
   return { kind: 'bot', code, message };
@@ -48,21 +56,40 @@ export function checkPreconditions(obs: Observation, ctx: BotContext): BotError 
   return undefined;
 }
 
-function runPolicy(ctx: BotContext, input: PolicyInput): PolicyResult {
+/** Host-side variants for the simulator only (never the app): personality data override and ST-2 ablation. */
+export interface DecideOptions extends StrategistOptions {
+  /** Replaces `PERSONALITIES[ctx.personality]` (e.g. the BG-2a vocabulary-matched greedy, tuning candidates). */
+  readonly data?: PersonalityData;
+}
+
+/** A decision plus what the readouts need to know about it (spec ST-4b). Not part of the public API. */
+export interface Decided {
+  readonly decision: BotDecision;
+  readonly voluntaryExchange: boolean;
+}
+
+function runPolicy(ctx: BotContext, input: PolicyInput, options: DecideOptions): PolicyResult {
+  if (input.data.strategy !== null) return strategist(input, input.data.strategy, options);
   switch (ctx.personality) {
     case 'random-legal':
       return randomLegal(input);
     case 'beginner':
     case 'greedy':
+    case 'strategist':
       return ranked(input);
   }
 }
 
-export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecision, BotError> {
+/** `chooseAction` with simulator options; same guards, pipeline and determinism (BOT-1). */
+export function decide(
+  obs: Observation,
+  ctx: BotContext,
+  options: DecideOptions = {},
+): Result<Decided, BotError> {
   const failure = checkPreconditions(obs, ctx);
   if (failure !== undefined) return err(failure);
   const seat = obs.seatOnTurn;
-  const data = PERSONALITIES[ctx.personality];
+  const data = options.data ?? PERSONALITIES[ctx.personality];
   const view = boardView(obs, getLayout(obs.config.layout), ctx.lexicon);
   const generation = selectGenerator(ctx.lexicon).generate({
     view,
@@ -70,19 +97,31 @@ export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecis
     seat,
     maxNodes: ctx.budget.maxNodes,
   });
-  const policy = runPolicy(ctx, {
-    obs,
-    lexicon: ctx.lexicon,
-    rng: ctx.rng,
-    budget: ctx.budget,
-    data,
-    view,
-    candidates: generation.candidates,
-  });
+  const policy = runPolicy(
+    ctx,
+    {
+      obs,
+      lexicon: ctx.lexicon,
+      rng: ctx.rng,
+      budget: ctx.budget,
+      data,
+      view,
+      candidates: generation.candidates,
+    },
+    options,
+  );
   return ok({
-    action: policy.action ?? fallbackAction(obs, seat),
-    nodesUsed: generation.nodesUsed,
-    candidatesEvaluated: policy.candidatesEvaluated,
-    budgetExhausted: generation.exhausted || policy.exhausted,
+    decision: {
+      action: policy.action ?? fallbackAction(obs, seat),
+      nodesUsed: generation.nodesUsed,
+      candidatesEvaluated: policy.candidatesEvaluated,
+      budgetExhausted: generation.exhausted || policy.exhausted,
+    },
+    voluntaryExchange: policy.voluntaryExchange === true,
   });
+}
+
+export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecision, BotError> {
+  const decided = decide(obs, ctx);
+  return decided.ok ? ok(decided.value.decision) : decided;
 }
