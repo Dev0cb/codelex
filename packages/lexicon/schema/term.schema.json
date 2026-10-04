@@ -44,7 +44,17 @@
             "additionalProperties": false,
             "properties": {
               "form": { "type": "string", "pattern": "^[A-Z]{2,15}$" },
-              "kind": { "enum": ["plural", "verb_s", "verb_ed", "verb_ing"] }
+              "kind": { "enum": ["plural", "verb_s", "verb_ed", "verb_ing"] },
+              "confirmed": {
+                "description": "Curator confirmation of an irregular form (does not start with the term form, or lacks the kind's suffix): silences its NEEDS_REVIEW warning (E-1.7 AC-14). Only on irregular forms. Review metadata: excluded from lexiconVersion and cardsVersion.",
+                "type": "object",
+                "required": ["approvedBy", "reason"],
+                "additionalProperties": false,
+                "properties": {
+                  "approvedBy": { "type": "string", "minLength": 1 },
+                  "reason": { "type": "string", "minLength": 10, "maxLength": 160 }
+                }
+              }
             }
           }
         },

@@ -1271,7 +1271,11 @@
         },
         {
           "form": "INDICES",
-          "kind": "plural"
+          "kind": "plural",
+          "confirmed": {
+            "approvedBy": "lexicon-curator",
+            "reason": "Standard Latin plural of index, usual in maths and for database indexes; INDEXES stays the other plural."
+          }
         }
       ],
       "relations": [
@@ -1954,7 +1958,11 @@
       "inflections": [
         {
           "form": "QUERIES",
-          "kind": "plural"
+          "kind": "plural",
+          "confirmed": {
+            "approvedBy": "lexicon-curator",
+            "reason": "Regular English plural: consonant + y becomes -ies (query, queries). The prefix check only misses the dropped Y."
+          }
         },
         {
           "form": "QUERYING",

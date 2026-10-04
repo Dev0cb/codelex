@@ -2785,7 +2785,11 @@
       "inflections": [
         {
           "form": "VULNERABILITIES",
-          "kind": "plural"
+          "kind": "plural",
+          "confirmed": {
+            "approvedBy": "lexicon-curator",
+            "reason": "Regular English plural: consonant + y becomes -ies (vulnerability, vulnerabilities). The prefix check only misses the dropped Y."
+          }
         }
       ],
       "relations": [

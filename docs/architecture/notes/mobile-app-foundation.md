@@ -173,9 +173,12 @@ Pending for S1: board, tile, premium, category, mono type, radius, elevation, la
   `--source-maps`; with it `hermesc` runs with the release flags and the bytecode is about 700 KB smaller (3.11 /
   2.93 MB); the loader (`@codelex/lexicon/index` decoder, expo-asset, expo-file-system, expo-crypto) then adds about
   105 KB per platform. Bundle and code-asset limits are about 15 % above the baseline (the earlier limits had become
-  about 40 % loose). `lexiconBytes` is not a 15 % margin but the lexicon-index §5 size gate (0.55 MB with the GADDAG
-  for up to 2,000 forms; 1,501 forms today), which `prepare:lexicon` enforces too: the corpus is planned to grow to
-  that size, and the step fails before the bundle does.
+  about 40 % loose). `lexiconBytes` is not a 15 % margin but the absolute cap of the lexicon-index §5.1 size gate
+  (550,000 B at any form count; 1,501 forms and 283,672 B today), which `prepare:lexicon` enforces too: the corpus
+  is planned to grow to that size, and the step fails before the bundle does. Sprint 3 (P7) restated the gate above
+  2,000 forms without moving the cap: f1 also needs ≤ 215 B/form and ≤ 2,550 forms. The pre-agreed f0 switch rule
+  (`BUNDLED_FLAGS = 0` when f1 fails a gate, f0 passes and DAWG generation is ≤ 1.5× GADDAG time) is in §5.1 of that
+  note.
 - **Crash reporting:** no SDK (E-1.5 Q-1/Q-7). S1 adds the unclean-exit flag: set a "session open" marker at
   launch, clear it on a clean background or exit; at the next launch a remaining marker means an unclean exit and is
   reported with `app_start` (E-1.5 analytics). Crash-free rates come from TestFlight and Play Console.

@@ -290,7 +290,7 @@ test('AC-4: inflection kind must be in the v2 enum', () => {
   assert.ok(has(run([pod({ inflections: [{ form: 'PODS' }] })]).errors, 'inflection kind'));
 });
 
-test('AC-4: inflection entries allow only { form, kind }', () => {
+test('AC-4: inflection entries allow only { form, kind, confirmed? }', () => {
   assert.ok(
     has(
       run([pod({ inflections: [{ form: 'PODS', kind: 'plural', definition: 'x' }] })]).errors,
@@ -399,6 +399,130 @@ test('AC-6: irregular inflections warn NEEDS_REVIEW without failing', () => {
   assert.ok(has(run([datum]).warnings, 'NEEDS_REVIEW', 'DATA', 'does not end in S'));
 });
 
+// ---------- AC-14: curator confirmations of irregular inflections (sprint 3 P7) ----------
+
+const CONFIRMED = {
+  approvedBy: 'lexicon-curator',
+  reason: 'Latin plural of index, standard in maths and databases.',
+};
+const indexTerm = (inflections) =>
+  term({ id: 'index', form: 'INDEX', kind: 'concept', owner: undefined, inflections });
+
+test('AC-14: a confirmed irregular inflection no longer warns; an unconfirmed one still does', () => {
+  const confirmed = run([indexTerm([{ form: 'INDICES', kind: 'plural', confirmed: CONFIRMED }])]);
+  assert.deepEqual(confirmed.errors, []);
+  assert.deepEqual(confirmed.warnings, []);
+  const datum = term({
+    id: 'datum',
+    form: 'DATUM',
+    kind: 'concept',
+    owner: undefined,
+    inflections: [{ form: 'DATA', kind: 'plural' }],
+  });
+  const mixed = run([
+    indexTerm([{ form: 'INDICES', kind: 'plural', confirmed: CONFIRMED }]),
+    datum,
+  ]);
+  assert.deepEqual(mixed.errors, []);
+  assert.ok(has(mixed.warnings, 'NEEDS_REVIEW', 'DATA'));
+  assert.ok(mixed.warnings.every((x) => x.includes('"DATA"')));
+});
+
+test('AC-14: a confirmation covers its own entry only, not a new irregular form of the same term', () => {
+  const { errors, warnings } = run([
+    term({
+      id: 'matrix',
+      form: 'MATRIX',
+      kind: 'concept',
+      owner: undefined,
+      inflections: [
+        { form: 'MATRICES', kind: 'plural', confirmed: CONFIRMED },
+        { form: 'MATRIXEN', kind: 'plural' },
+      ],
+    }),
+  ]);
+  assert.deepEqual(errors, []);
+  assert.ok(!has(warnings, 'MATRICES'));
+  assert.ok(has(warnings, 'NEEDS_REVIEW', 'MATRIXEN', 'does not end in S'));
+});
+
+test('AC-14: a confirmation covers both irregularities of one form (prefix and suffix)', () => {
+  const datum = (confirmed) =>
+    term({
+      id: 'datum',
+      form: 'DATUM',
+      kind: 'concept',
+      owner: undefined,
+      inflections: [{ form: 'DATA', kind: 'plural', ...(confirmed ? { confirmed } : {}) }],
+    });
+  assert.equal(run([datum()]).warnings.length, 2);
+  assert.deepEqual(run([datum(CONFIRMED)]).warnings, []);
+});
+
+test('AC-14: a confirmation on a regular inflection is an error (stale or misplaced)', () => {
+  const { errors } = run([
+    pod({ inflections: [{ form: 'PODS', kind: 'plural', confirmed: CONFIRMED }] }),
+  ]);
+  assert.ok(has(errors, 'pod', 'PODS', 'confirmed', 'regular'));
+});
+
+test('AC-14: confirmed must be { approvedBy, reason } with non-empty strings', () => {
+  const errorsOf = (confirmed) =>
+    run([indexTerm([{ form: 'INDICES', kind: 'plural', confirmed }])]).errors;
+  assert.ok(has(errorsOf({ reason: CONFIRMED.reason }), 'confirmed', 'approvedBy'));
+  assert.ok(has(errorsOf({ approvedBy: 'lexicon-curator' }), 'confirmed', 'reason'));
+  assert.ok(has(errorsOf({ ...CONFIRMED, approvedBy: '' }), 'confirmed.approvedBy'));
+  assert.ok(has(errorsOf({ ...CONFIRMED, reason: 'ok' }), 'confirmed.reason'));
+  assert.ok(has(errorsOf({ ...CONFIRMED, by: 'x' }), 'confirmed.by', 'not allowed'));
+  assert.ok(has(errorsOf(true), 'confirmed', 'object'));
+  assert.ok(has(errorsOf('yes'), 'confirmed', 'object'));
+  // An invalid confirmation confirms nothing: the irregular form still warns.
+  assert.ok(
+    has(
+      run([
+        indexTerm([{ form: 'INDICES', kind: 'plural', confirmed: { reason: CONFIRMED.reason } }]),
+      ]).warnings,
+      'INDICES',
+    ),
+  );
+});
+
+test('AC-14: confirmations are review metadata: lexiconVersion and cardsVersion do not change', () => {
+  const lexOf = (inflection) => ({
+    categories,
+    blocklist: new Set(),
+    files: [file([indexTerm([inflection])])],
+  });
+  const plain = buildReport(lexOf({ form: 'INDICES', kind: 'plural' }));
+  const confirmed = buildReport(lexOf({ form: 'INDICES', kind: 'plural', confirmed: CONFIRMED }));
+  assert.equal(confirmed.lexiconVersion, plain.lexiconVersion);
+  assert.equal(confirmed.cardsVersion, plain.cardsVersion);
+  assert.equal(plain.confirmedInflections, 0);
+  assert.equal(confirmed.confirmedInflections, 1);
+});
+
+test('AC-14: the six curator-confirmed seed plurals are confirmed in the data and do not warn', () => {
+  const lex = loadLexicon();
+  const { errors, warnings } = validateLexicon(lex);
+  assert.deepEqual(errors, []);
+  const confirmed = new Map();
+  for (const f of lex.files)
+    for (const t of f.data.terms)
+      for (const i of t.inflections ?? []) if (i.confirmed) confirmed.set(i.form, i.confirmed);
+  for (const form of [
+    'VULNERABILITIES',
+    'INDICES',
+    'QUERIES',
+    'BATTERIES',
+    'PROXIES',
+    'LIBRARIES',
+  ]) {
+    assert.ok(confirmed.has(form), `${form} is not confirmed in the data`);
+    assert.equal(confirmed.get(form).approvedBy, 'lexicon-curator', form);
+    assert.ok(!has(warnings, `"${form}"`), `${form} still warns`);
+  }
+});
+
 test('AC-6: product, protocol and standard terms without sources warn NEEDS_REVIEW (D-11)', () => {
   for (const kind of ['product', 'protocol', 'standard']) {
     const { errors, warnings } = run([term({ kind })]);
@@ -461,6 +585,7 @@ test('AC-7: report snapshot on the fixture lexicon', () => {
     byPrimaryCategory: { devops: 3, cloud: 1 },
     byDifficulty: { novice: 1, intermediate: 2, advanced: 0, expert: 1 },
     byInflectionKind: { plural: 1, verb_s: 0, verb_ed: 0, verb_ing: 0 },
+    confirmedInflections: 0,
     twoLetterForms: ['AI'],
   });
   assert.match(report.lexiconVersion, /^[0-9a-f]{16}$/);

@@ -25,7 +25,27 @@ jobs:
       # Zero-dependency validators: they must pass even before `pnpm install`.
       - run: node tools/framework/validate.mjs
       - run: node packages/lexicon/scripts/validate.mjs
-      - run: node --test "tools/framework/*.test.mjs" "tools/scaffold/*.test.mjs"
+      - run: node --test "tools/framework/*.test.mjs" "tools/scaffold/*.test.mjs" "tools/golden/*.test.mjs"
+
+  golden-immutability:
+    # ADR-0013 D8 / ADR-0014 D3: published goldens (replays/v1/**, rng/sha256/jcs vectors, frozen rules digests) are
+    # never modified or deleted; additions are fine. Zero-dependency script, runs in parallel with the other jobs.
+    name: Golden immutability
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Check published goldens are untouched
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: node tools/golden/immutability.mjs
 
   workspace:
     name: Lint, typecheck & test (affected)
