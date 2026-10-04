@@ -67,6 +67,37 @@
       ]
     },
     {
+      "id": "alias",
+      "form": "ALIAS",
+      "display": "Alias",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A short name that stands for a longer command, address or identifier.",
+        "fr": "Nom court qui remplace une commande, une adresse ou un identifiant plus long."
+      },
+      "inflections": [
+        {
+          "form": "ALIASES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shell"
+        },
+        {
+          "type": "related_to",
+          "target": "shortcut"
+        }
+      ]
+    },
+    {
       "id": "android",
       "form": "ANDROID",
       "display": "Android",
@@ -96,6 +127,93 @@
       ]
     },
     {
+      "id": "apk",
+      "form": "APK",
+      "display": "APK",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Android package: the file format used to distribute and install apps on Android devices.",
+        "fr": "Android package : format de fichier utilisé pour distribuer et installer des applications sur Android."
+      },
+      "inflections": [
+        {
+          "form": "APKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "runs_on",
+          "target": "android"
+        },
+        {
+          "type": "related_to",
+          "target": "app"
+        }
+      ],
+      "sources": [
+        "https://developer.android.com/guide/components/fundamentals"
+      ]
+    },
+    {
+      "id": "apt",
+      "form": "APT",
+      "display": "APT",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Advanced Package Tool: the command-line installer for software packages on Debian and Ubuntu Linux.",
+        "fr": "Advanced Package Tool : installeur en ligne de commande de paquets logiciels sous Debian et Ubuntu."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "cli"
+        },
+        {
+          "type": "related_to",
+          "target": "package"
+        },
+        {
+          "type": "related_to",
+          "target": "linux"
+        }
+      ],
+      "sources": [
+        "https://wiki.debian.org/Apt"
+      ]
+    },
+    {
+      "id": "autosave",
+      "form": "AUTOSAVE",
+      "display": "Autosave",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A feature that saves your work automatically at regular intervals.",
+        "fr": "Fonction qui enregistre automatiquement le travail à intervalles réguliers."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ]
+    },
+    {
       "id": "bash",
       "form": "BASH",
       "display": "Bash",
@@ -114,6 +232,41 @@
         {
           "type": "is_a",
           "target": "shell"
+        }
+      ]
+    },
+    {
+      "id": "binary",
+      "form": "BINARY",
+      "display": "Binary",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The base-2 number system of 0s and 1s that computers use; also a compiled program file.",
+        "fr": "Système de numération en base 2, fait de 0 et de 1, utilisé par les ordinateurs ; aussi un programme compilé."
+      },
+      "inflections": [
+        {
+          "form": "BINARIES",
+          "kind": "plural",
+          "confirmed": {
+            "approvedBy": "lexicon-curator",
+            "reason": "Regular English -IES plural of binary (consonant + y), as in \"release binaries\"."
+          }
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bit"
+        },
+        {
+          "type": "related_to",
+          "target": "compiler"
         }
       ]
     },
@@ -190,6 +343,90 @@
           "type": "related_to",
           "target": "latency"
         }
+      ]
+    },
+    {
+      "id": "bsd",
+      "form": "BSD",
+      "display": "BSD",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Berkeley Software Distribution: a family of Unix-like systems, also the name of a permissive software licence.",
+        "fr": "Berkeley Software Distribution : famille de systèmes de type Unix, et nom d'une licence logicielle permissive."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "unix"
+        },
+        {
+          "type": "related_to",
+          "target": "open-source"
+        }
+      ]
+    },
+    {
+      "id": "buffer",
+      "form": "BUFFER",
+      "display": "Buffer",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A temporary memory area that holds data while it moves between two places, such as a video stream.",
+        "fr": "Zone de mémoire temporaire qui retient des données pendant leur transfert, comme un flux vidéo."
+      },
+      "inflections": [
+        {
+          "form": "BUFFERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        },
+        {
+          "type": "related_to",
+          "target": "streaming"
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "form": "CAT",
+      "display": "cat",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The Unix command that prints the content of files, short for concatenate.",
+        "fr": "Commande Unix qui affiche le contenu de fichiers, abréviation de concatenate."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "file"
+        },
+        {
+          "type": "related_to",
+          "target": "shell"
+        }
+      ],
+      "sources": [
+        "https://man7.org/linux/man-pages/man1/cat.1.html"
       ]
     },
     {
@@ -463,6 +700,27 @@
       ]
     },
     {
+      "id": "dark-mode",
+      "form": "DARKMODE",
+      "display": "Dark mode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A display setting that shows light text on dark backgrounds, easier on the eyes at night.",
+        "fr": "Réglage d'affichage avec texte clair sur fond sombre, plus reposant pour les yeux la nuit."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "ui"
+        }
+      ]
+    },
+    {
       "id": "deadlock",
       "form": "DEADLOCK",
       "display": "Deadlock",
@@ -596,6 +854,34 @@
       ]
     },
     {
+      "id": "dll",
+      "form": "DLL",
+      "display": "DLL",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Dynamic-link library: on Windows, a file of shared code that several programs load while running.",
+        "fr": "Dynamic-link library : sous Windows, fichier de code partagé que plusieurs programmes chargent à l'exécution."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "library"
+        },
+        {
+          "type": "runs_on",
+          "target": "windows"
+        }
+      ],
+      "sources": [
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-client/setup-upgrade-and-drivers/dynamic-link-library"
+      ]
+    },
+    {
       "id": "driver",
       "form": "DRIVER",
       "display": "Driver",
@@ -649,6 +935,89 @@
       ]
     },
     {
+      "id": "dump",
+      "form": "DUMP",
+      "display": "Dump",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A raw copy of memory or of a database saved to a file, for debugging or backup.",
+        "fr": "Copie brute de la mémoire ou d'une base de données enregistrée dans un fichier, pour déboguer ou sauvegarder."
+      },
+      "inflections": [
+        {
+          "form": "DUMPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "memory"
+        },
+        {
+          "type": "related_to",
+          "target": "backup"
+        }
+      ]
+    },
+    {
+      "id": "echo",
+      "form": "ECHO",
+      "display": "echo",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A shell command that prints its arguments, often used in scripts to show messages or values.",
+        "fr": "Commande shell qui affiche ses arguments, souvent utilisée dans les scripts pour montrer messages ou valeurs."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shell"
+        },
+        {
+          "type": "related_to",
+          "target": "script"
+        }
+      ],
+      "sources": [
+        "https://man7.org/linux/man-pages/man1/echo.1.html"
+      ]
+    },
+    {
+      "id": "emacs",
+      "form": "EMACS",
+      "display": "Emacs",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A highly extensible text editor, programmable in its own Lisp dialect.",
+        "fr": "Éditeur de texte très extensible, programmable dans son propre dialecte de Lisp."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "vim"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/software/emacs/"
+      ]
+    },
+    {
       "id": "emulator",
       "form": "EMULATOR",
       "display": "Emulator",
@@ -680,6 +1049,58 @@
       ]
     },
     {
+      "id": "eula",
+      "form": "EULA",
+      "display": "EULA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "End-user licence agreement: the contract you accept before using a piece of software.",
+        "fr": "End-user licence agreement : contrat qu'on accepte avant d'utiliser un logiciel."
+      },
+      "inflections": [
+        {
+          "form": "EULAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "license"
+        }
+      ]
+    },
+    {
+      "id": "exe",
+      "form": "EXE",
+      "display": "EXE",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An executable program file on Windows, named after its .exe extension.",
+        "fr": "Fichier de programme exécutable sous Windows, nommé d'après son extension .exe."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "file"
+        },
+        {
+          "type": "runs_on",
+          "target": "windows"
+        }
+      ]
+    },
+    {
       "id": "file",
       "form": "FILE",
       "display": "File",
@@ -703,6 +1124,33 @@
         {
           "type": "part_of",
           "target": "filesystem"
+        }
+      ]
+    },
+    {
+      "id": "filename",
+      "form": "FILENAME",
+      "display": "Filename",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The name that identifies a file within a folder, often ending in an extension such as .txt.",
+        "fr": "Nom qui identifie un fichier dans un dossier, souvent terminé par une extension comme .txt."
+      },
+      "inflections": [
+        {
+          "form": "FILENAMES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "file"
         }
       ]
     },
@@ -866,6 +1314,90 @@
       ]
     },
     {
+      "id": "foss",
+      "form": "FOSS",
+      "display": "FOSS",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Free and open-source software: programs anyone may use, study, change and share.",
+        "fr": "Free and open-source software : logiciels libres et open source que chacun peut utiliser, étudier, modifier et partager."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "open-source"
+        },
+        {
+          "type": "related_to",
+          "target": "gpl"
+        }
+      ]
+    },
+    {
+      "id": "freeze",
+      "form": "FREEZE",
+      "display": "Freeze",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "When an app or computer stops responding to input; in releases, a period when no new changes are allowed.",
+        "fr": "Quand une application ou un ordinateur ne répond plus ; en livraison, période où aucun changement n'est admis."
+      },
+      "inflections": [
+        {
+          "form": "FREEZES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "crash"
+        },
+        {
+          "type": "related_to",
+          "target": "release"
+        }
+      ]
+    },
+    {
+      "id": "gpl",
+      "form": "GPL",
+      "display": "GPL",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "GNU General Public License: an open-source licence that requires shared changes to stay under the same licence.",
+        "fr": "GNU General Public License : licence open source qui impose que les modifications diffusées restent sous la même licence."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "open-source"
+        },
+        {
+          "type": "related_to",
+          "target": "license"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/licenses/gpl-3.0.html"
+      ]
+    },
+    {
       "id": "grep",
       "form": "GREP",
       "display": "grep",
@@ -891,6 +1423,34 @@
       ],
       "sources": [
         "https://www.gnu.org/software/grep/manual/"
+      ]
+    },
+    {
+      "id": "grub",
+      "form": "GRUB",
+      "display": "GRUB",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "GRand Unified Bootloader: the boot menu and loader used by most Linux systems.",
+        "fr": "GRand Unified Bootloader : menu et chargeur de démarrage utilisés par la plupart des systèmes Linux."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "bootloader"
+        },
+        {
+          "type": "related_to",
+          "target": "linux"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/software/grub/"
       ]
     },
     {
@@ -925,6 +1485,55 @@
       ]
     },
     {
+      "id": "gzip",
+      "form": "GZIP",
+      "display": "gzip",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A widely used tool and format for compressing files, often paired with tar.",
+        "fr": "Outil et format très répandus de compression de fichiers, souvent associés à tar."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "zip"
+        }
+      ],
+      "sources": [
+        "https://www.rfc-editor.org/rfc/rfc1952"
+      ]
+    },
+    {
+      "id": "hex",
+      "form": "HEX",
+      "display": "Hex",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Hexadecimal: base-16 notation using 0-9 and A-F, handy for writing bytes, colours and addresses.",
+        "fr": "Hexadécimal : notation en base 16 avec 0-9 et A-F, pratique pour écrire octets, couleurs et adresses."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "binary"
+        },
+        {
+          "type": "related_to",
+          "target": "byte"
+        }
+      ]
+    },
+    {
       "id": "hibernation",
       "form": "HIBERNATION",
       "display": "Hibernation",
@@ -950,6 +1559,37 @@
       ]
     },
     {
+      "id": "hotkey",
+      "form": "HOTKEY",
+      "display": "Hotkey",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A key or key combination that triggers an action directly, like Ctrl+S to save.",
+        "fr": "Touche ou combinaison de touches qui déclenche directement une action, comme Ctrl+S pour enregistrer."
+      },
+      "inflections": [
+        {
+          "form": "HOTKEYS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shortcut"
+        },
+        {
+          "type": "related_to",
+          "target": "keyboard"
+        }
+      ]
+    },
+    {
       "id": "hypervisor",
       "form": "HYPERVISOR",
       "display": "Hypervisor",
@@ -968,6 +1608,60 @@
         {
           "type": "implements",
           "target": "virtualization"
+        }
+      ]
+    },
+    {
+      "id": "idle",
+      "form": "IDLE",
+      "display": "Idle",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The state of a processor, connection or device that is on but doing no work.",
+        "fr": "État d'un processeur, d'une connexion ou d'un appareil allumé mais sans travail en cours."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cpu"
+        },
+        {
+          "type": "related_to",
+          "target": "sleep-mode"
+        }
+      ]
+    },
+    {
+      "id": "init",
+      "form": "INIT",
+      "display": "init",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The first process started by a Unix-like kernel at boot, which then starts every other service.",
+        "fr": "Premier processus lancé par un noyau de type Unix au démarrage, qui lance ensuite tous les services."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "boot"
+        },
+        {
+          "type": "related_to",
+          "target": "kernel"
+        },
+        {
+          "type": "related_to",
+          "target": "pid"
         }
       ]
     },
@@ -1187,6 +1881,64 @@
       ]
     },
     {
+      "id": "launcher",
+      "form": "LAUNCHER",
+      "display": "Launcher",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The app or menu used to find and start other apps, like a phone home screen.",
+        "fr": "Application ou menu qui sert à trouver et lancer les autres applications, comme l'écran d'accueil d'un téléphone."
+      },
+      "inflections": [
+        {
+          "form": "LAUNCHERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "app"
+        },
+        {
+          "type": "related_to",
+          "target": "android"
+        }
+      ]
+    },
+    {
+      "id": "license",
+      "form": "LICENSE",
+      "display": "Licence",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The legal terms that say how a piece of software may be used, copied or shared.",
+        "fr": "Conditions juridiques qui précisent comment un logiciel peut être utilisé, copié ou partagé."
+      },
+      "inflections": [
+        {
+          "form": "LICENSES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "software"
+        }
+      ]
+    },
+    {
       "id": "linux",
       "form": "LINUX",
       "display": "Linux",
@@ -1209,6 +1961,66 @@
       ],
       "sources": [
         "https://www.kernel.org/doc/html/latest/"
+      ]
+    },
+    {
+      "id": "lock",
+      "form": "LOCK",
+      "display": "Lock",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A mechanism that lets only one thread or process use a shared resource at a time.",
+        "fr": "Mécanisme qui permet à un seul thread ou processus à la fois d'utiliser une ressource partagée."
+      },
+      "inflections": [
+        {
+          "form": "LOCKS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mutex"
+        },
+        {
+          "type": "related_to",
+          "target": "deadlock"
+        },
+        {
+          "type": "related_to",
+          "target": "concurrency"
+        }
+      ]
+    },
+    {
+      "id": "lock-screen",
+      "form": "LOCKSCREEN",
+      "display": "Lock screen",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The screen shown when a device is locked, which asks for a PIN, password or fingerprint.",
+        "fr": "Écran affiché quand un appareil est verrouillé, qui demande un code, un mot de passe ou une empreinte."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pin"
+        },
+        {
+          "type": "related_to",
+          "target": "smartphone"
+        }
       ]
     },
     {
@@ -1241,6 +2053,34 @@
           "type": "part_of",
           "target": "session"
         }
+      ]
+    },
+    {
+      "id": "ls",
+      "form": "LS",
+      "display": "ls",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "LS: the Unix \"list\" command, which shows the files and folders in a directory.",
+        "fr": "LS (list) : commande Unix qui liste les fichiers et dossiers d'un répertoire."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "directory"
+        },
+        {
+          "type": "related_to",
+          "target": "shell"
+        }
+      ],
+      "sources": [
+        "https://man7.org/linux/man-pages/man1/ls.1.html"
       ]
     },
     {
@@ -1289,6 +2129,37 @@
       }
     },
     {
+      "id": "memory-page",
+      "form": "PAGE",
+      "display": "Page",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A fixed-size block of virtual memory that the operating system moves between RAM and disk.",
+        "fr": "Bloc de taille fixe de mémoire virtuelle que le système déplace entre la RAM et le disque."
+      },
+      "inflections": [
+        {
+          "form": "PAGES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "virtual-memory"
+        },
+        {
+          "type": "related_to",
+          "target": "paging"
+        }
+      ]
+    },
+    {
       "id": "microkernel",
       "form": "MICROKERNEL",
       "display": "Microkernel",
@@ -1306,6 +2177,69 @@
         {
           "type": "is_a",
           "target": "kernel"
+        }
+      ]
+    },
+    {
+      "id": "mkdir",
+      "form": "MKDIR",
+      "display": "mkdir",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The \"make directory\" command that creates a new folder from the command line.",
+        "fr": "Commande « make directory » qui crée un nouveau dossier en ligne de commande."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "directory"
+        },
+        {
+          "type": "related_to",
+          "target": "cli"
+        }
+      ],
+      "sources": [
+        "https://man7.org/linux/man-pages/man1/mkdir.1.html"
+      ]
+    },
+    {
+      "id": "mount",
+      "form": "MOUNT",
+      "display": "Mount",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Attaching a disk, partition or network share so its files appear in a folder of the system.",
+        "fr": "Rattacher un disque, une partition ou un partage réseau pour que ses fichiers apparaissent dans un dossier."
+      },
+      "inflections": [
+        {
+          "form": "MOUNTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "MOUNTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "filesystem"
+        },
+        {
+          "type": "related_to",
+          "target": "volume"
         }
       ]
     },
@@ -1388,6 +2322,34 @@
       ]
     },
     {
+      "id": "nano",
+      "form": "NANO",
+      "display": "nano",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A small, beginner-friendly text editor that runs in the terminal.",
+        "fr": "Petit éditeur de texte facile à prendre en main, qui fonctionne dans le terminal."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "vim"
+        },
+        {
+          "type": "related_to",
+          "target": "terminal"
+        }
+      ],
+      "sources": [
+        "https://www.nano-editor.org/"
+      ]
+    },
+    {
       "id": "notification",
       "form": "NOTIFICATION",
       "display": "Notification",
@@ -1424,6 +2386,31 @@
       },
       "sources": [
         "https://docs.kernel.org/"
+      ]
+    },
+    {
+      "id": "ota",
+      "form": "OTA",
+      "display": "OTA",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Over the air: delivering software or firmware updates to devices wirelessly.",
+        "fr": "Over the air : livraison sans fil de mises à jour logicielles ou firmware aux appareils."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "update"
+        },
+        {
+          "type": "related_to",
+          "target": "firmware"
+        }
       ]
     },
     {
@@ -1553,6 +2540,35 @@
       ],
       "sources": [
         "https://man7.org/linux/man-pages/man2/getpid.2.html"
+      ]
+    },
+    {
+      "id": "pip",
+      "form": "PIP",
+      "display": "pip",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems",
+        "programming"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The standard tool for installing Python packages from the Python Package Index.",
+        "fr": "Outil standard pour installer des paquets Python depuis le Python Package Index."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "python"
+        },
+        {
+          "type": "related_to",
+          "target": "package"
+        }
+      ],
+      "sources": [
+        "https://pip.pypa.io/"
       ]
     },
     {
@@ -1819,6 +2835,54 @@
       ]
     },
     {
+      "id": "redo",
+      "form": "REDO",
+      "display": "Redo",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The command that repeats an action you just undid.",
+        "fr": "Commande qui rétablit une action qu'on vient d'annuler."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "undo"
+        }
+      ]
+    },
+    {
+      "id": "reset",
+      "form": "RESET",
+      "display": "Reset",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Returning a device or setting to its starting state, from a simple restart to a full factory wipe.",
+        "fr": "Remise d'un appareil ou d'un réglage à son état initial, du simple redémarrage à l'effacement complet."
+      },
+      "inflections": [
+        {
+          "form": "RESETS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "reboot"
+        }
+      ]
+    },
+    {
       "id": "root",
       "form": "ROOT",
       "display": "Root",
@@ -1837,6 +2901,60 @@
         {
           "type": "related_to",
           "target": "permission"
+        }
+      ]
+    },
+    {
+      "id": "rooting",
+      "form": "ROOTING",
+      "display": "Rooting",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Unlocking full administrator (root) access on an Android device, beyond what the maker allows.",
+        "fr": "Déblocage d'un accès administrateur complet (root) sur un appareil Android, au-delà de ce que permet le fabricant."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "root"
+        },
+        {
+          "type": "related_to",
+          "target": "android"
+        },
+        {
+          "type": "alternative_to",
+          "target": "jailbreak"
+        }
+      ]
+    },
+    {
+      "id": "safe-mode",
+      "form": "SAFEMODE",
+      "display": "Safe mode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A startup mode that loads only essential drivers and services, used to troubleshoot a system.",
+        "fr": "Mode de démarrage qui ne charge que les pilotes et services essentiels, pour dépanner un système."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "boot"
+        },
+        {
+          "type": "related_to",
+          "target": "driver"
         }
       ]
     },
@@ -1868,6 +2986,31 @@
       ]
     },
     {
+      "id": "screensaver",
+      "form": "SCREENSAVER",
+      "display": "Screensaver",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An animation or image shown when a computer has been idle for a while.",
+        "fr": "Animation ou image affichée quand un ordinateur est inactif depuis un moment."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "idle"
+        },
+        {
+          "type": "related_to",
+          "target": "monitor"
+        }
+      ]
+    },
+    {
       "id": "screenshot",
       "form": "SCREENSHOT",
       "display": "Screenshot",
@@ -1886,6 +3029,61 @@
           "type": "related_to",
           "target": "screen"
         }
+      ]
+    },
+    {
+      "id": "sector",
+      "form": "SECTOR",
+      "display": "Sector",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The smallest block of storage that a disk reads or writes, often 512 bytes or 4 KB.",
+        "fr": "Plus petit bloc de stockage qu'un disque lit ou écrit, souvent 512 octets ou 4 Ko."
+      },
+      "inflections": [
+        {
+          "form": "SECTORS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "disk"
+        }
+      ]
+    },
+    {
+      "id": "sed",
+      "form": "SED",
+      "display": "sed",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Stream editor: a Unix tool that edits text line by line, for example to find and replace across a file.",
+        "fr": "Stream editor : outil Unix qui modifie du texte ligne par ligne, par exemple pour chercher et remplacer."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "grep"
+        },
+        {
+          "type": "related_to",
+          "target": "regex"
+        }
+      ],
+      "sources": [
+        "https://man7.org/linux/man-pages/man1/sed.1.html"
       ]
     },
     {
@@ -2061,6 +3259,58 @@
       ]
     },
     {
+      "id": "sidebar",
+      "form": "SIDEBAR",
+      "display": "Sidebar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A panel along the side of a window or web page with navigation or extra content.",
+        "fr": "Panneau sur le côté d'une fenêtre ou d'une page web, avec navigation ou contenu annexe."
+      },
+      "inflections": [
+        {
+          "form": "SIDEBARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
+      ]
+    },
+    {
+      "id": "sideloading",
+      "form": "SIDELOADING",
+      "display": "Sideloading",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Installing an app from a file or third-party source instead of the official app store.",
+        "fr": "Installer une application depuis un fichier ou une source tierce plutôt que depuis la boutique officielle."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "apk"
+        },
+        {
+          "type": "related_to",
+          "target": "app"
+        }
+      ]
+    },
+    {
       "id": "signal",
       "form": "SIGNAL",
       "display": "Signal",
@@ -2088,6 +3338,27 @@
         {
           "type": "related_to",
           "target": "interrupt"
+        }
+      ]
+    },
+    {
+      "id": "sleep-mode",
+      "form": "SLEEP",
+      "display": "Sleep mode",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A low-power state where a device pauses but keeps its session in memory to wake up quickly.",
+        "fr": "État basse consommation où un appareil se met en pause mais garde sa session en mémoire pour repartir vite."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "hibernation"
         }
       ]
     },
@@ -2162,6 +3433,31 @@
         {
           "type": "related_to",
           "target": "thread"
+        }
+      ]
+    },
+    {
+      "id": "standby",
+      "form": "STANDBY",
+      "display": "Standby",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A waiting state, for a device that uses little power or a backup system ready to take over.",
+        "fr": "État d'attente, pour un appareil qui consomme peu ou un système de secours prêt à prendre le relais."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "sleep-mode"
+        },
+        {
+          "type": "related_to",
+          "target": "failover"
         }
       ]
     },
@@ -2335,6 +3631,34 @@
       ]
     },
     {
+      "id": "tar",
+      "form": "TAR",
+      "display": "tar",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Tape archive: a Unix tool and format that bundles many files into one archive file.",
+        "fr": "Tape archive : outil et format Unix qui regroupe de nombreux fichiers dans une seule archive."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "archive"
+        },
+        {
+          "type": "related_to",
+          "target": "gzip"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/software/tar/manual/"
+      ]
+    },
+    {
       "id": "task",
       "form": "TASK",
       "display": "Task",
@@ -2362,6 +3686,27 @@
         {
           "type": "related_to",
           "target": "scheduler"
+        }
+      ]
+    },
+    {
+      "id": "taskbar",
+      "form": "TASKBAR",
+      "display": "Taskbar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The bar along the edge of the screen showing open apps, the clock and quick launch icons.",
+        "fr": "Barre au bord de l'écran qui montre les applications ouvertes, l'horloge et des icônes de lancement."
+      },
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "desktop"
         }
       ]
     },
@@ -2479,6 +3824,83 @@
       ]
     },
     {
+      "id": "toolbar",
+      "form": "TOOLBAR",
+      "display": "Toolbar",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A row of buttons giving quick access to common commands in an app.",
+        "fr": "Rangée de boutons donnant un accès rapide aux commandes courantes d'une application."
+      },
+      "inflections": [
+        {
+          "form": "TOOLBARS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "gui"
+        }
+      ]
+    },
+    {
+      "id": "trash",
+      "form": "TRASH",
+      "display": "Trash",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The folder where deleted files wait before being removed for good; also called recycle bin.",
+        "fr": "Dossier où les fichiers supprimés attendent avant leur effacement définitif ; aussi appelé corbeille."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "file"
+        },
+        {
+          "type": "related_to",
+          "target": "desktop"
+        }
+      ]
+    },
+    {
+      "id": "tty",
+      "form": "TTY",
+      "display": "TTY",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Teletypewriter: in Unix, a text terminal device through which a user talks to the system.",
+        "fr": "Teletypewriter : sous Unix, périphérique de terminal texte par lequel l'utilisateur dialogue avec le système."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "terminal"
+        },
+        {
+          "type": "related_to",
+          "target": "unix"
+        }
+      ]
+    },
+    {
       "id": "ubuntu",
       "form": "UBUNTU",
       "display": "Ubuntu",
@@ -2505,6 +3927,95 @@
       ],
       "sources": [
         "https://ubuntu.com/server/docs"
+      ]
+    },
+    {
+      "id": "uid",
+      "form": "UID",
+      "display": "UID",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "User identifier: the number an operating system uses to tell user accounts apart.",
+        "fr": "User identifier : numéro qu'un système d'exploitation utilise pour distinguer les comptes."
+      },
+      "inflections": [
+        {
+          "form": "UIDS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "user"
+        },
+        {
+          "type": "related_to",
+          "target": "permission"
+        }
+      ]
+    },
+    {
+      "id": "undo",
+      "form": "UNDO",
+      "display": "Undo",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The command that cancels your last action in an app, often Ctrl+Z.",
+        "fr": "Commande qui annule la dernière action dans une application, souvent Ctrl+Z."
+      },
+      "inflections": [
+        {
+          "form": "UNDOS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "shortcut"
+        }
+      ]
+    },
+    {
+      "id": "uninstall",
+      "form": "UNINSTALL",
+      "display": "Uninstall",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Removing a program and its files from a computer or phone.",
+        "fr": "Suppression d'un programme et de ses fichiers d'un ordinateur ou d'un téléphone."
+      },
+      "inflections": [
+        {
+          "form": "UNINSTALLED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "UNINSTALLS",
+          "kind": "verb_s"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "installer"
+        }
       ]
     },
     {
@@ -2763,6 +4274,33 @@
       ]
     },
     {
+      "id": "wallpaper",
+      "form": "WALLPAPER",
+      "display": "Wallpaper",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The background image shown on a desktop or phone home screen.",
+        "fr": "Image d'arrière-plan affichée sur un bureau ou l'écran d'accueil d'un téléphone."
+      },
+      "inflections": [
+        {
+          "form": "WALLPAPERS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "desktop"
+        }
+      ]
+    },
+    {
       "id": "watchdog",
       "form": "WATCHDOG",
       "display": "Watchdog",
@@ -2785,6 +4323,34 @@
           "type": "related_to",
           "target": "daemon"
         }
+      ]
+    },
+    {
+      "id": "wget",
+      "form": "WGET",
+      "display": "Wget",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A command-line tool that downloads files from the web over HTTP, HTTPS or FTP.",
+        "fr": "Outil en ligne de commande qui télécharge des fichiers du web via HTTP, HTTPS ou FTP."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "download"
+        },
+        {
+          "type": "uses",
+          "target": "http"
+        }
+      ],
+      "sources": [
+        "https://www.gnu.org/software/wget/"
       ]
     },
     {
@@ -2841,6 +4407,58 @@
       ],
       "sources": [
         "https://learn.microsoft.com/en-us/windows/"
+      ]
+    },
+    {
+      "id": "zip",
+      "form": "ZIP",
+      "display": "ZIP",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A common archive format that compresses one or more files into a single file.",
+        "fr": "Format d'archive courant qui compresse un ou plusieurs fichiers dans un seul fichier."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "archive"
+        }
+      ],
+      "sources": [
+        "https://support.pkware.com/pkzip/appnote"
+      ]
+    },
+    {
+      "id": "zsh",
+      "form": "ZSH",
+      "display": "Zsh",
+      "playable": true,
+      "kind": "tool",
+      "categories": [
+        "systems"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Z shell: a Unix command-line shell with rich completion and themes, default on recent macOS.",
+        "fr": "Z shell : interpréteur de commandes Unix riche en complétion et thèmes, par défaut sur les macOS récents."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "shell"
+        },
+        {
+          "type": "alternative_to",
+          "target": "bash"
+        }
+      ],
+      "sources": [
+        "https://zsh.sourceforge.io/"
       ]
     }
   ]
