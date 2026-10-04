@@ -28,6 +28,8 @@ const ID_RE = new RegExp(P.id.pattern);
 const FORM_RE = new RegExp(P.form.pattern);
 const INFLECTION_FORM_RE = new RegExp(P.inflections.items.properties.form.pattern);
 const INFLECTION_KEYS = new Set(Object.keys(P.inflections.items.properties));
+/** Curator confirmation of an irregular inflection (AC-14): `{ approvedBy, reason }`, review metadata only. */
+const CONFIRMED_SHAPE = P.inflections.items.properties.confirmed;
 const MAX_DEF = P.definitions.properties.en.maxLength;
 const MIN_DEF = P.definitions.properties.en.minLength;
 const ALLOWED_KEYS = new Set(Object.keys(P));
@@ -122,7 +124,8 @@ const lengthBucket = (n) => LENGTH_BUCKETS.find(([, lo, hi]) => n >= lo && n <= 
 
 /**
  * Validates a whole lexicon. Pure: takes parsed data, returns { errors, warnings, stats }.
- * Errors fail the build; warnings are `NEEDS_REVIEW` items the curator confirms (non-blocking).
+ * Errors fail the build; warnings are `NEEDS_REVIEW` items the curator confirms (non-blocking). An irregular
+ * inflection is confirmed as data (`confirmed: { approvedBy, reason }` on the entry) and then no longer warns.
  * @param {{categories: Array<{id:string}>, files: Array<{path:string, data:any}>, blocklist: Set<string>}} input
  */
 export function validateLexicon({ categories, files, blocklist }) {
@@ -282,7 +285,12 @@ export function validateLexicon({ categories, files, blocklist }) {
     }
   }
 
-  return { errors, warnings, stats: computeStats(terms, forms, categoryIds, edges) };
+  const confirmedInflections = pendingInflections.filter((i) => i.confirmed).length;
+  return {
+    errors,
+    warnings,
+    stats: computeStats(terms, forms, categoryIds, edges, confirmedInflections),
+  };
 }
 
 /** Shape rules of one term's `inflections` (AC-4, AC-5, AC-6, AC-15). Returns the entries eligible for the namespace. */
@@ -307,7 +315,7 @@ function checkInflections(t, w, e, warn, blocklist) {
   const out = [];
   const seen = new Set();
   let prevForm;
-  for (const i of list) {
+  for (const [index, i] of list.entries()) {
     for (const k of Object.keys(i ?? {}))
       if (!INFLECTION_KEYS.has(k)) e(w, `unknown inflection field "${k}"`);
     const form = i?.form;
@@ -335,17 +343,34 @@ function checkInflections(t, w, e, warn, blocklist) {
     if (form.length === 2)
       e(w, `inflection "${form}" is two-letter; two-letter forms must be canonical terms (AC-15)`);
     if (blocklist.has(form)) e(w, `inflection "${form}" is blocklisted`);
-    if (typeof t.form === 'string' && !form.startsWith(t.form))
-      warn(w, `inflection "${form}" does not start with "${t.form}" (irregular form: confirm)`);
+    const irregular = [];
+    if (!form.startsWith(t.form))
+      irregular.push(
+        `inflection "${form}" does not start with "${t.form}" (irregular form: confirm)`,
+      );
     const suffix = KIND_SUFFIX[i.kind];
     if (suffix && !form.endsWith(suffix))
-      warn(w, `${i.kind} "${form}" does not end in ${suffix} (irregular form: confirm)`);
-    out.push({ form, kind: i.kind, termId: t.id, where: w });
+      irregular.push(`${i.kind} "${form}" does not end in ${suffix} (irregular form: confirm)`);
+    // AC-14: a valid confirmation silences this entry's warnings; it is an error on a regular form, so a
+    // confirmation never lingers after the form was regularised. An invalid one confirms nothing.
+    let confirmed = false;
+    if (i.confirmed !== undefined) {
+      let shapeOk = true;
+      checkShape(CONFIRMED_SHAPE, i.confirmed, `inflections[${index}].confirmed`, (msg) => {
+        shapeOk = false;
+        e(w, msg);
+      });
+      if (irregular.length === 0)
+        e(w, `inflection "${form}" is confirmed but regular: remove its "confirmed" field`);
+      confirmed = shapeOk && irregular.length > 0;
+    }
+    if (!confirmed) for (const msg of irregular) warn(w, msg);
+    out.push({ form, kind: i.kind, termId: t.id, where: w, confirmed });
   }
   return out;
 }
 
-function computeStats(terms, forms, categoryIds, edges) {
+function computeStats(terms, forms, categoryIds, edges, confirmedInflections) {
   const byLength = Object.fromEntries(LENGTH_BUCKETS.map(([k]) => [k, 0]));
   const byInflectionKind = Object.fromEntries([...INFLECTION_KINDS].map((k) => [k, 0]));
   const byDifficulty = Object.fromEntries([...DIFFICULTIES].map((d) => [d, 0]));
@@ -375,6 +400,7 @@ function computeStats(terms, forms, categoryIds, edges) {
     byPrimaryCategory,
     byDifficulty,
     byInflectionKind,
+    confirmedInflections,
     byCategory,
     twoLetterForms: [...forms.keys()].filter((f) => f.length === 2).sort(byCodeUnit),
   };
@@ -415,6 +441,7 @@ export function buildReport(lex) {
     byPrimaryCategory: stats.byPrimaryCategory,
     byDifficulty: stats.byDifficulty,
     byInflectionKind: stats.byInflectionKind,
+    confirmedInflections: stats.confirmedInflections,
     twoLetterForms: stats.twoLetterForms,
   };
 }
@@ -502,6 +529,9 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     `  by difficulty:        ${JSON.stringify(report.byDifficulty)}  (canonical playable terms)`,
   );
   console.log(`  by inflection kind:   ${JSON.stringify(report.byInflectionKind)}`);
+  console.log(
+    `  confirmed irregular inflections: ${report.confirmedInflections} (curator, no NEEDS_REVIEW)`,
+  );
   console.log(
     `  two-letter forms (${report.twoLetterForms.length}): ${report.twoLetterForms.join(' ')}`,
   );

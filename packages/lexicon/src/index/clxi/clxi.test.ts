@@ -8,6 +8,8 @@ import {
   profileDefinitionHash,
 } from '../../../scripts/canonical.mjs';
 import { loadLexicon } from '../../../scripts/validate.mjs';
+import { scaleCorpus } from '../../../scripts/scale-corpus.mjs';
+import { SIZE_GATE, sizeGateFailures } from '../../../scripts/size-gate.mjs';
 import { GADDAG_SEPARATOR, relationTypesOf } from '../constants.js';
 import { decodeLexiconIndex } from '../decode.js';
 import { createReferenceIndex, type ReferenceTermInput } from '../reference.js';
@@ -941,11 +943,47 @@ describe('budgets (lexicon-index note §5)', () => {
   const sizeOf = (b: Uint8Array, ...names: SectionName[]): number =>
     names.reduce((sum, name) => sum + sectionOf(b, name).length, 0);
 
-  it('size gate: ≤ 0.55 MB for ≤ 2,000 forms with the GADDAG; ≤ 128 bytes per form without it', () => {
-    expect(index.size).toBeLessThanOrEqual(2000);
-    expect(bytes.length).toBeLessThanOrEqual(550_000);
-    expect(lean.length / index.size).toBeLessThanOrEqual(128);
+  // Restated in sprint 3 (P7) for > 2,000 forms: scripts/size-gate.mjs holds the numbers (one source with
+  // bench:index and the mobile lexiconBytes budget). The old "≤ 0.55 MB for ≤ 2,000 forms" scope is replaced by
+  // the same 550,000 B cap at any size plus a density gate and the batch-3 ceiling (lexicon-index note §5.1).
+  it('size gate (P7): the real f1 and f0 artefacts pass SIZE_GATE', () => {
+    const f1 = {
+      bytes: bytes.length,
+      forms: index.size,
+      gaddag: true,
+      dawgBytes: sizeOf(bytes, 'DAWG_NODES', 'DAWG_EDGES'),
+      gaddagBytes: sizeOf(bytes, 'GADDAG_NODES', 'GADDAG_EDGES'),
+    };
+    expect(sizeGateFailures(f1)).toEqual([]);
+    expect(sizeGateFailures({ bytes: lean.length, forms: index.size, gaddag: false })).toEqual([]);
+    expect(bytes.length).toBeLessThanOrEqual(SIZE_GATE.maxBytes);
+    expect(lean.length / index.size).toBeLessThanOrEqual(SIZE_GATE.maxBytesPerFormWithoutGaddag);
   });
+
+  // Projection for batch 3 (real terms + seeded synthetic terms fitted on them): f1 still fits at 2,000 forms
+  // (the AC-14 target) and at the 2,550-form ceiling, so the gate is reachable with real-like content.
+  it.each([2_000, SIZE_GATE.maxFormsWithGaddag])(
+    'size gate (P7): real+synthetic corpus of %i forms passes with the GADDAG',
+    (forms) => {
+      const terms = scaleCorpus({
+        terms: lexiconContentDocument(lex).terms,
+        blocklist: lex.blocklist,
+        kind: 'real+synthetic',
+        forms,
+        seed: 1,
+      });
+      const b = built({ ...REAL, document: { terms } });
+      const failures = sizeGateFailures({
+        bytes: b.length,
+        forms,
+        gaddag: true,
+        dawgBytes: sizeOf(b, 'DAWG_NODES', 'DAWG_EDGES'),
+        gaddagBytes: sizeOf(b, 'GADDAG_NODES', 'GADDAG_EDGES'),
+      });
+      expect(failures).toEqual([]);
+      expect(decoded(b).size).toBe(forms);
+    },
+  );
 
   it('size gate: GADDAG sections ≤ 6 × DAWG sections (sprint 2 decision log)', () => {
     const dawg = sizeOf(bytes, 'DAWG_NODES', 'DAWG_EDGES');
