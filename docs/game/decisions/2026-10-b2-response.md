@@ -385,6 +385,15 @@ B-01..B-07, C-05 and every other target are unchanged.
    planned), the plain start (D4) and lower term bonuses (D3). The playtest build should ship v2 if the v2
    `/balance-check` is done by batch 3; otherwise v1, accepting a known B-01 risk in casual vs-bot play only.
 
+### 9.1 Orchestrator decisions (2026-10-04, on the product owner's standing delegation; reversible)
+
+1. **D1-c accepted.** The 11×11 Quick Classic trigger and the E-1.7 scoreless guardrail are restated as C-10
+   (games locked with ≥ 7 tiles in the bag ≤ 5 %) and C-11 (tiles played ≥ 90). The rule text change goes into the
+   same reviewed rules PR as §6, with the E-1.7 spec update (owner: game-designer, product-strategist).
+2. **Fallback accepted.** The playtest ships `engineRulesVersion` 2 only if its `/balance-check` passes by
+   lexicon batch 3; otherwise it ships v1 and accepts the B-01 risk in casual vs-bot play only (no ranked,
+   no leaderboard in Phase 1). Recorded in the sprint 3 plan as a gate.
+
 ## 10. Risks and limits
 
 - **Proxy risk.** The batch-3 numbers come from synthetic forms without morphology or relations. Real batch-3
