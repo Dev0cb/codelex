@@ -12,7 +12,8 @@ const formsOf = (list) =>
 // Sizes derive from the real lexicon: a real+synthetic corpus can never be smaller than the real one.
 const realForms = formsOf(terms).length;
 const realCanonical = terms.filter((t) => t.playable).length;
-const sizesOf = (kind) => (kind === 'synthetic' ? [1_600, 2_000] : [realForms + 100, realForms + 500]);
+const sizesOf = (kind) =>
+  kind === 'synthetic' ? [1_600, 2_000] : [realForms + 100, realForms + 500];
 
 test('seededRandom is deterministic and in [0, 1)', () => {
   const a = seededRandom(7);
