@@ -3,6 +3,37 @@
   "category": "data",
   "terms": [
     {
+      "id": "ab-test",
+      "form": "ABTEST",
+      "display": "A/B test",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "An experiment that shows two versions to two groups of users and measures which performs better.",
+        "fr": "Expérience qui montre deux versions à deux groupes d'utilisateurs et mesure laquelle fonctionne le mieux."
+      },
+      "inflections": [
+        {
+          "form": "ABTESTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "analytics"
+        },
+        {
+          "type": "related_to",
+          "target": "feature-flag"
+        }
+      ]
+    },
+    {
       "id": "acid",
       "form": "ACID",
       "display": "ACID",
@@ -133,6 +164,31 @@
       ]
     },
     {
+      "id": "autofill",
+      "form": "AUTOFILL",
+      "display": "Autofill",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A feature that fills in forms or cells for you from saved or nearby data.",
+        "fr": "Fonction qui remplit à votre place formulaires ou cellules à partir de données enregistrées ou voisines."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "spreadsheet"
+        },
+        {
+          "type": "related_to",
+          "target": "browser"
+        }
+      ]
+    },
+    {
       "id": "backfill",
       "form": "BACKFILL",
       "display": "Backfill",
@@ -154,6 +210,37 @@
         {
           "type": "related_to",
           "target": "pipeline"
+        }
+      ]
+    },
+    {
+      "id": "bar-chart",
+      "form": "BARCHART",
+      "display": "Bar chart",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A chart that compares values with bars of different lengths.",
+        "fr": "Graphique qui compare des valeurs par des barres de longueurs différentes."
+      },
+      "inflections": [
+        {
+          "form": "BARCHARTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chart"
+        },
+        {
+          "type": "alternative_to",
+          "target": "pie-chart"
         }
       ]
     },
@@ -242,6 +329,31 @@
       ]
     },
     {
+      "id": "bounce-rate",
+      "form": "BOUNCERATE",
+      "display": "Bounce rate",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The share of visitors who leave a website after viewing only one page.",
+        "fr": "Part des visiteurs qui quittent un site après n'avoir vu qu'une seule page."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "kpi"
+        },
+        {
+          "type": "related_to",
+          "target": "website"
+        }
+      ]
+    },
+    {
       "id": "broker",
       "form": "BROKER",
       "display": "Broker",
@@ -287,6 +399,37 @@
         {
           "type": "is_a",
           "target": "nosql"
+        }
+      ]
+    },
+    {
+      "id": "cell",
+      "form": "CELL",
+      "display": "Cell",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "One box in a spreadsheet or table, where a row meets a column.",
+        "fr": "Case d'un tableur ou d'un tableau, à l'intersection d'une ligne et d'une colonne."
+      },
+      "inflections": [
+        {
+          "form": "CELLS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "spreadsheet"
+        },
+        {
+          "type": "related_to",
+          "target": "column"
         }
       ]
     },
@@ -339,6 +482,62 @@
         {
           "type": "related_to",
           "target": "snapshot"
+        }
+      ]
+    },
+    {
+      "id": "churn",
+      "form": "CHURN",
+      "display": "Churn",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The share of customers or users who stop using a service over a given period.",
+        "fr": "Part des clients ou utilisateurs qui cessent d'utiliser un service sur une période donnée."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "retention"
+        },
+        {
+          "type": "related_to",
+          "target": "kpi"
+        }
+      ]
+    },
+    {
+      "id": "cohort",
+      "form": "COHORT",
+      "display": "Cohort",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A group of users who share a starting point, such as signing up in the same week, studied over time.",
+        "fr": "Groupe d'utilisateurs partageant un point de départ, comme l'inscription la même semaine, suivi dans le temps."
+      },
+      "inflections": [
+        {
+          "form": "COHORTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "analytics"
+        },
+        {
+          "type": "related_to",
+          "target": "retention"
         }
       ]
     },
@@ -426,6 +625,31 @@
       ]
     },
     {
+      "id": "crc",
+      "form": "CRC",
+      "display": "CRC",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Cyclic redundancy check: a short code computed from data to detect accidental corruption.",
+        "fr": "Cyclic redundancy check : court code calculé sur les données pour détecter une corruption accidentelle."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "checksum"
+        },
+        {
+          "type": "related_to",
+          "target": "packet"
+        }
+      ]
+    },
+    {
       "id": "crud",
       "form": "CRUD",
       "display": "CRUD",
@@ -467,6 +691,31 @@
       },
       "sources": [
         "https://www.rfc-editor.org/rfc/rfc4180"
+      ]
+    },
+    {
+      "id": "ctr",
+      "form": "CTR",
+      "display": "CTR",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Click-through rate: the share of people who click a link, ad or button after seeing it.",
+        "fr": "Click-through rate : part des personnes qui cliquent sur un lien, une pub ou un bouton après l'avoir vu."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "kpi"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
       ]
     },
     {
@@ -581,6 +830,37 @@
       ]
     },
     {
+      "id": "data-catalog",
+      "form": "CATALOG",
+      "display": "Data catalogue",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A searchable inventory of an organisation's datasets with descriptions, owners and meanings.",
+        "fr": "Inventaire consultable des jeux de données d'une organisation, avec descriptions, responsables et sens."
+      },
+      "inflections": [
+        {
+          "form": "CATALOGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "metadata"
+        },
+        {
+          "type": "related_to",
+          "target": "dataset"
+        }
+      ]
+    },
+    {
       "id": "data-cleaning",
       "form": "DATACLEANING",
       "display": "Data cleaning",
@@ -627,6 +907,205 @@
         {
           "type": "related_to",
           "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "data-export",
+      "form": "EXPORT",
+      "display": "Export",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Saving data from an app into a file format another program can open, such as CSV or PDF.",
+        "fr": "Enregistrement des données d'une application dans un format lisible par un autre programme, comme CSV ou PDF."
+      },
+      "inflections": [
+        {
+          "form": "EXPORTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "EXPORTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "csv"
+        },
+        {
+          "type": "related_to",
+          "target": "pdf"
+        }
+      ]
+    },
+    {
+      "id": "data-governance",
+      "form": "GOVERNANCE",
+      "display": "Data governance",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The rules, roles and processes that keep an organisation's data accurate, secure and properly used.",
+        "fr": "Règles, rôles et processus qui gardent les données d'une organisation exactes, sûres et bien utilisées."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "data-catalog"
+        },
+        {
+          "type": "related_to",
+          "target": "gdpr"
+        }
+      ]
+    },
+    {
+      "id": "data-import",
+      "form": "IMPORT",
+      "display": "Import",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Bringing data from a file or another program into an app.",
+        "fr": "Chargement dans une application de données venant d'un fichier ou d'un autre programme."
+      },
+      "inflections": [
+        {
+          "form": "IMPORTED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "IMPORTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "data-export"
+        },
+        {
+          "type": "related_to",
+          "target": "csv"
+        }
+      ]
+    },
+    {
+      "id": "data-lineage",
+      "form": "DATALINEAGE",
+      "display": "Data lineage",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "The record of where data came from and every step that transformed it on the way.",
+        "fr": "Historique de l'origine des données et de chaque étape qui les a transformées en chemin."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "metadata"
+        },
+        {
+          "type": "related_to",
+          "target": "etl"
+        }
+      ]
+    },
+    {
+      "id": "data-mart",
+      "form": "DATAMART",
+      "display": "Data mart",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A small, focused part of a data warehouse built for one team or subject, such as sales.",
+        "fr": "Petite partie ciblée d'un entrepôt de données, conçue pour une équipe ou un sujet, comme les ventes."
+      },
+      "inflections": [
+        {
+          "form": "DATAMARTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "data-mesh",
+      "form": "DATAMESH",
+      "display": "Data mesh",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "An approach where each business domain owns and publishes its own data as a product.",
+        "fr": "Approche où chaque domaine métier possède et publie ses propres données comme un produit."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "datalake"
+        },
+        {
+          "type": "related_to",
+          "target": "data-catalog"
+        }
+      ]
+    },
+    {
+      "id": "data-point",
+      "form": "DATAPOINT",
+      "display": "Data point",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A single measured value or record in a dataset, such as one dot on a chart.",
+        "fr": "Valeur mesurée ou enregistrement unique d'un jeu de données, comme un point sur un graphique."
+      },
+      "inflections": [
+        {
+          "form": "DATAPOINTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "dataset"
         }
       ]
     },
@@ -788,6 +1267,31 @@
       ]
     },
     {
+      "id": "dau",
+      "form": "DAU",
+      "display": "DAU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Daily active users: how many distinct people use an app on a given day.",
+        "fr": "Daily active users : nombre de personnes distinctes qui utilisent une application un jour donné."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "kpi"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
       "id": "db",
       "form": "DB",
       "display": "DB",
@@ -892,6 +1396,31 @@
         {
           "type": "uses",
           "target": "index"
+        }
+      ]
+    },
+    {
+      "id": "elt",
+      "form": "ELT",
+      "display": "ELT",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "Extract, load, transform: copying raw data into a warehouse first and transforming it there.",
+        "fr": "Extract, load, transform : copier d'abord les données brutes dans l'entrepôt puis les transformer sur place."
+      },
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "etl"
+        },
+        {
+          "type": "related_to",
+          "target": "warehouse"
         }
       ]
     },
@@ -1089,6 +1618,37 @@
       ]
     },
     {
+      "id": "forecast",
+      "form": "FORECAST",
+      "display": "Forecast",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A prediction of future values, such as sales or load, built from past data.",
+        "fr": "Prévision de valeurs futures, comme les ventes ou la charge, construite à partir des données passées."
+      },
+      "inflections": [
+        {
+          "form": "FORECASTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "time-series"
+        },
+        {
+          "type": "related_to",
+          "target": "prediction"
+        }
+      ]
+    },
+    {
       "id": "foreign-key",
       "form": "FOREIGNKEY",
       "display": "Foreign key",
@@ -1111,6 +1671,98 @@
           "type": "related_to",
           "target": "join"
         }
+      ]
+    },
+    {
+      "id": "formula",
+      "form": "FORMULA",
+      "display": "Formula",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "In a spreadsheet, an expression starting with = that calculates a value from other cells.",
+        "fr": "Dans un tableur, expression commençant par = qui calcule une valeur à partir d'autres cellules."
+      },
+      "inflections": [
+        {
+          "form": "FORMULAS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cell"
+        },
+        {
+          "type": "related_to",
+          "target": "spreadsheet"
+        }
+      ]
+    },
+    {
+      "id": "funnel",
+      "form": "FUNNEL",
+      "display": "Funnel",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The series of steps users go through, like visit, sign-up and purchase, with drop-off measured at each.",
+        "fr": "Suite d'étapes que franchissent les utilisateurs, comme visite, inscription et achat, avec les abandons à chacune."
+      },
+      "inflections": [
+        {
+          "form": "FUNNELS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "analytics"
+        },
+        {
+          "type": "related_to",
+          "target": "kpi"
+        }
+      ]
+    },
+    {
+      "id": "gif",
+      "form": "GIF",
+      "display": "GIF",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Graphics Interchange Format: an image format limited to 256 colours, famous for short looping animations.",
+        "fr": "Graphics Interchange Format : format d'image limité à 256 couleurs, connu pour ses courtes animations en boucle."
+      },
+      "inflections": [
+        {
+          "form": "GIFS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "alternative_to",
+          "target": "png"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/Graphics/GIF/spec-gif89a.txt"
       ]
     },
     {
@@ -1188,6 +1840,37 @@
         {
           "type": "alternative_to",
           "target": "spark"
+        }
+      ]
+    },
+    {
+      "id": "heatmap",
+      "form": "HEATMAP",
+      "display": "Heatmap",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A chart that uses colour intensity to show where values are high or low, such as clicks on a page.",
+        "fr": "Graphique qui utilise l'intensité des couleurs pour montrer où les valeurs sont fortes, comme les clics sur une page."
+      },
+      "inflections": [
+        {
+          "form": "HEATMAPS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chart"
+        },
+        {
+          "type": "related_to",
+          "target": "visualization"
         }
       ]
     },
@@ -1286,6 +1969,27 @@
       ]
     },
     {
+      "id": "infographic",
+      "form": "INFOGRAPHIC",
+      "display": "Infographic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "An image that explains data or a topic with charts, icons and short text.",
+        "fr": "Image qui explique des données ou un sujet avec graphiques, icônes et texte court."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "visualization"
+        }
+      ]
+    },
+    {
       "id": "join",
       "form": "JOIN",
       "display": "Join",
@@ -1318,6 +2022,40 @@
           "type": "part_of",
           "target": "sql"
         }
+      ]
+    },
+    {
+      "id": "jpeg",
+      "form": "JPEG",
+      "display": "JPEG",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A compressed image format for photos that trades a little quality for much smaller files.",
+        "fr": "Format d'image compressé pour les photos, qui sacrifie un peu de qualité pour des fichiers bien plus légers."
+      },
+      "inflections": [
+        {
+          "form": "JPEGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        },
+        {
+          "type": "related_to",
+          "target": "encoding"
+        }
+      ],
+      "sources": [
+        "https://jpeg.org/jpeg/"
       ]
     },
     {
@@ -1458,6 +2196,87 @@
         {
           "type": "related_to",
           "target": "warehouse"
+        }
+      ]
+    },
+    {
+      "id": "macro",
+      "form": "MACRO",
+      "display": "Macro",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "A recorded or scripted series of actions that runs with one command, as in spreadsheets.",
+        "fr": "Suite d'actions enregistrée ou programmée qui s'exécute d'une seule commande, comme dans un tableur."
+      },
+      "inflections": [
+        {
+          "form": "MACROS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "automation"
+        },
+        {
+          "type": "related_to",
+          "target": "script"
+        }
+      ]
+    },
+    {
+      "id": "mau",
+      "form": "MAU",
+      "display": "MAU",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Monthly active users: how many distinct people use an app during a month.",
+        "fr": "Monthly active users : nombre de personnes distinctes qui utilisent une application dans le mois."
+      },
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "kpi"
+        },
+        {
+          "type": "related_to",
+          "target": "dau"
+        }
+      ]
+    },
+    {
+      "id": "mean",
+      "form": "MEAN",
+      "display": "Mean",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The average of a set of numbers: their sum divided by how many there are.",
+        "fr": "Moyenne d'un ensemble de nombres : leur somme divisée par leur nombre."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "median"
+        },
+        {
+          "type": "related_to",
+          "target": "statistics"
         }
       ]
     },
@@ -1669,6 +2488,37 @@
       ]
     },
     {
+      "id": "olap-cube",
+      "form": "CUBE",
+      "display": "Cube",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A multidimensional view of data, such as sales by product, region and month, for fast analysis.",
+        "fr": "Vue multidimensionnelle des données, comme les ventes par produit, région et mois, pour l'analyse rapide."
+      },
+      "inflections": [
+        {
+          "form": "CUBES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "part_of",
+          "target": "olap"
+        },
+        {
+          "type": "related_to",
+          "target": "dimension"
+        }
+      ]
+    },
+    {
       "id": "oltp",
       "form": "OLTP",
       "display": "OLTP",
@@ -1733,6 +2583,12 @@
         "en": "Object-relational mapping: library that maps database tables to objects in code.",
         "fr": "Object-relational mapping : bibliothèque qui fait correspondre tables de base et objets du code."
       },
+      "inflections": [
+        {
+          "form": "ORMS",
+          "kind": "plural"
+        }
+      ],
       "relations": [
         {
           "type": "related_to",
@@ -1773,6 +2629,37 @@
         {
           "type": "related_to",
           "target": "analytics"
+        }
+      ]
+    },
+    {
+      "id": "pageview",
+      "form": "PAGEVIEW",
+      "display": "Pageview",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "One loading of a web page by a visitor, counted by web analytics.",
+        "fr": "Chargement d'une page web par un visiteur, compté par les outils d'audience."
+      },
+      "inflections": [
+        {
+          "form": "PAGEVIEWS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "analytics"
+        },
+        {
+          "type": "related_to",
+          "target": "webpage"
         }
       ]
     },
@@ -1830,6 +2717,92 @@
       ]
     },
     {
+      "id": "pdf",
+      "form": "PDF",
+      "display": "PDF",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Portable Document Format: a file format that keeps a document looking the same on any device.",
+        "fr": "Portable Document Format : format de fichier qui garde un document identique sur tout appareil."
+      },
+      "inflections": [
+        {
+          "form": "PDFS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "file"
+        },
+        {
+          "type": "related_to",
+          "target": "printer"
+        }
+      ],
+      "sources": [
+        "https://www.iso.org/standard/75839.html"
+      ]
+    },
+    {
+      "id": "percentile",
+      "form": "PERCENTILE",
+      "display": "Percentile",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "The value below which a given share of measurements falls; p95 latency means 95 % of requests were faster.",
+        "fr": "Valeur sous laquelle tombe une part donnée des mesures ; une latence p95 signifie que 95 % des requêtes étaient plus rapides."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "median"
+        },
+        {
+          "type": "related_to",
+          "target": "latency"
+        }
+      ]
+    },
+    {
+      "id": "pie-chart",
+      "form": "PIECHART",
+      "display": "Pie chart",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "A round chart split into slices that show each part's share of a whole.",
+        "fr": "Graphique rond découpé en parts qui montrent la part de chaque élément dans un total."
+      },
+      "inflections": [
+        {
+          "form": "PIECHARTS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "is_a",
+          "target": "chart"
+        }
+      ]
+    },
+    {
       "id": "pivot",
       "form": "PIVOT",
       "display": "Pivot",
@@ -1858,6 +2831,40 @@
           "type": "related_to",
           "target": "table"
         }
+      ]
+    },
+    {
+      "id": "png",
+      "form": "PNG",
+      "display": "PNG",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Portable Network Graphics: a lossless image format that supports transparency.",
+        "fr": "Portable Network Graphics : format d'image sans perte qui gère la transparence."
+      },
+      "inflections": [
+        {
+          "form": "PNGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "pixel"
+        },
+        {
+          "type": "alternative_to",
+          "target": "jpeg"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/png-3/"
       ]
     },
     {
@@ -2078,6 +3085,56 @@
       ]
     },
     {
+      "id": "retention",
+      "form": "RETENTION",
+      "display": "Retention",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "How many users keep coming back to a product over time; also how long data is kept.",
+        "fr": "Nombre d'utilisateurs qui reviennent sur un produit dans le temps ; aussi durée de conservation des données."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "cohort"
+        },
+        {
+          "type": "related_to",
+          "target": "kpi"
+        }
+      ]
+    },
+    {
+      "id": "roi",
+      "form": "ROI",
+      "display": "ROI",
+      "playable": true,
+      "kind": "acronym",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Return on investment: the gain from a project compared with what it cost.",
+        "fr": "Return on investment : gain d'un projet comparé à ce qu'il a coûté."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "kpi"
+        },
+        {
+          "type": "related_to",
+          "target": "tco"
+        }
+      ]
+    },
+    {
       "id": "row",
       "form": "ROW",
       "display": "Row",
@@ -2178,6 +3235,41 @@
         {
           "type": "part_of",
           "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "form": "SEARCH",
+      "display": "Search",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "Finding items that match a query in a website, app, file system or database.",
+        "fr": "Recherche d'éléments qui correspondent à une requête dans un site, une application, des fichiers ou une base."
+      },
+      "inflections": [
+        {
+          "form": "SEARCHED",
+          "kind": "verb_ed"
+        },
+        {
+          "form": "SEARCHES",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "query"
+        },
+        {
+          "type": "related_to",
+          "target": "index"
         }
       ]
     },
@@ -2391,6 +3483,31 @@
       ]
     },
     {
+      "id": "statistics",
+      "form": "STATISTICS",
+      "display": "Statistics",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The science of collecting, summarising and drawing conclusions from data.",
+        "fr": "Science qui consiste à recueillir et résumer des données pour en tirer des conclusions."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "data-science"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
+        }
+      ]
+    },
+    {
       "id": "stream",
       "form": "STREAM",
       "display": "Stream",
@@ -2419,6 +3536,40 @@
           "type": "uses",
           "target": "event"
         }
+      ]
+    },
+    {
+      "id": "svg",
+      "form": "SVG",
+      "display": "SVG",
+      "playable": true,
+      "kind": "standard",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "intermediate",
+      "definitions": {
+        "en": "Scalable Vector Graphics: an XML image format made of shapes, so it stays sharp at any size.",
+        "fr": "Scalable Vector Graphics : format d'image XML fait de formes, qui reste net à toute taille."
+      },
+      "inflections": [
+        {
+          "form": "SVGS",
+          "kind": "plural"
+        }
+      ],
+      "relations": [
+        {
+          "type": "uses",
+          "target": "xml"
+        },
+        {
+          "type": "related_to",
+          "target": "vector"
+        }
+      ],
+      "sources": [
+        "https://www.w3.org/TR/SVG2/"
       ]
     },
     {
@@ -2643,6 +3794,31 @@
       ]
     },
     {
+      "id": "variance",
+      "form": "VARIANCE",
+      "display": "Variance",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "advanced",
+      "definitions": {
+        "en": "A measure of how spread out values are around their average.",
+        "fr": "Mesure de la dispersion des valeurs autour de leur moyenne."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "mean"
+        },
+        {
+          "type": "related_to",
+          "target": "statistics"
+        }
+      ]
+    },
+    {
       "id": "view",
       "form": "VIEW",
       "display": "View",
@@ -2722,6 +3898,31 @@
         {
           "type": "is_a",
           "target": "database"
+        }
+      ]
+    },
+    {
+      "id": "web-traffic",
+      "form": "TRAFFIC",
+      "display": "Traffic",
+      "playable": true,
+      "kind": "concept",
+      "categories": [
+        "data"
+      ],
+      "difficulty": "novice",
+      "definitions": {
+        "en": "The amount of data or visitors flowing through a network or to a website.",
+        "fr": "Quantité de données ou de visiteurs qui passe par un réseau ou arrive sur un site web."
+      },
+      "relations": [
+        {
+          "type": "related_to",
+          "target": "bandwidth"
+        },
+        {
+          "type": "related_to",
+          "target": "analytics"
         }
       ]
     },
