@@ -241,9 +241,9 @@ Copy this section into `docs/specs/E-1.5-play-vs-bot/playtest-readout.md` at the
 | Crash-free sessions | 1 − (sessions followed by an unclean-exit flag ÷ sessions), per platform; compared with TestFlight / Play Console figures                                                                    |
 | Export completeness | installs that sent ≥ 1 export ÷ active installs in the stores; < 80 % after week 1 triggers parent spec Q-1 follow-up                                                                        |
 
-Dependency for `data-analyst` and `mobile-engineer`: the parent catalogue has no event carrying foreground time or
-the unclean-exit flag. ASSUMPTION: add `app_backgrounded { foreground_ms }` and `app_opened.previous_exit_unclean`
-(bool) to the catalogue before S6; without them session length and local crash-free cannot be computed.
+Dependency for `data-analyst` and `mobile-engineer`: `app_backgrounded { foreground_ms }` and
+`app_opened.previous_exit_unclean` (bool) were added to `docs/standards/ANALYTICS_EVENTS.md` in sprint 3 SP1,
+together with `bot_match_finished.score_margin` and `bag_count_at_end`. Data-analyst sign-off is pending (OQ-3).
 
 ### 4.2 Headline
 
