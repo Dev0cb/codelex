@@ -248,6 +248,14 @@ index artefact is identified by (`lexiconVersion`, `profileId`, `definitionHash`
 2. **Next sprint (with lexicon T5):** a CI job bundles a Vitest-free golden runner (pure TS, same files) into one
    script and executes it with the `hermes` CLI **of the exact Hermes version shipped by the pinned Expo SDK**;
    its JSON output is diffed against Node's. Any difference fails CI and blocks release.
+   *Implementation note (sprint 3, P3).* Golden immutability is enforced by `tools/golden/immutability.mjs`
+   (CI job "Golden immutability"; protected paths in `tools/golden/protected-paths.json`; tests in
+   `tools/golden/immutability.test.mjs`; local run `pnpm golden:immutability`): published goldens may be added to, never
+   modified or deleted, and `rules-digests.json` is append-only (ADR-0014 §D3). Draft goldens live in
+   `test/golden/drafts/` and are not covered. The Hermes parity job is **not yet implemented**: the pinned
+   `hermes-compiler` 250829098.0.17 ships `hermesc` only (compile-only, "does not support -exec"), and no runnable
+   `hermes` VM CLI is available from the Expo SDK 57 / React Native 0.86.3 dependency tree. Adding one needs a
+   dependency decision (see the P3 report in the sprint plan).
 3. **Device:** the E-1.5 AC-20 replay check runs on the reference Android device in the mobile E2E/perf suite
    (`mobile-engineer`); playtest "Send match log" exports are replayed on Node during triage.
 4. **Later:** browsers (spectating/replays on web) join through Playwright when the engine first runs there.

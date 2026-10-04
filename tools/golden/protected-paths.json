@@ -1,0 +1,11 @@
+{
+  "$comment": "Published golden data (ADR-0013 D8, ADR-0014 D3). Anything matching 'immutable' may be ADDED but never modified, deleted, renamed or type-changed. 'appendOnlyJson' files may only grow: every existing key keeps its value, arrays keep their existing prefix. Draft goldens (test/golden/drafts/**) are deliberately not listed. Glob syntax: '*' is one path segment part, '**' any number of segments. Edit this file only to ADD protection; a PR that weakens it is a gate change and needs devops-sre review.",
+  "immutable": [
+    "packages/game-engine/test/golden/rng.json",
+    "packages/game-engine/test/golden/sha256.json",
+    "packages/game-engine/test/golden/jcs.json",
+    "packages/game-engine/test/golden/replays/v*/**",
+    "packages/game-engine/test/golden/scoring/v*/**"
+  ],
+  "appendOnlyJson": ["packages/game-engine/test/golden/rules-digests.json"]
+}
