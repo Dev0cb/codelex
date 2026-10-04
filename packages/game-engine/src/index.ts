@@ -22,5 +22,6 @@ export {
   type ActionLog,
   type ParseLogOptions,
   type ReplayError,
+  type ReplayOptions,
   type ReplayOutcome,
 } from './replay/log.js';

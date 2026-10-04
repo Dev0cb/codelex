@@ -790,14 +790,16 @@ export function previewScore(observation: Observation, tiles: readonly Placement
 /** §13.6 */
 export function stateHash(state: MatchState): StateHash;
 export function serializeState(state: MatchState): string;          // JCS text, the hashed bytes
-export function parseState(text: string): Result<MatchState, EngineError>;
+export function parseState(                                       // options: E6, ADR-0014 §D4
+  text: string, options?: { readonly draft?: DraftContext },
+): Result<MatchState, EngineError>;
 
 /** §14.2 */
 export function newActionLog(config: MatchConfig): ActionLog;
 export function serializeActionLog(log: ActionLog): string;         // JCS text
-export function parseActionLog(text: string): Result<ActionLog, ReplayError>;
+export function parseActionLog(text: string, options?: ParseLogOptions): Result<ActionLog, ReplayError>;
 export function replay(
-  log: ActionLog, ctx: EngineContext, options?: { readonly recordHashes?: boolean },
+  log: ActionLog, ctx: EngineContext, options?: ReplayOptions,   // §14.2; `from`/`verify` since E6 (§20 Q7)
 ): Result<ReplayOutcome, ReplayError>;
 ```
 
@@ -907,8 +909,9 @@ export type ReplayError =
   /** E5 (review R1 n4): a logVersion / engineRulesVersion that is not a safe integer is reported as -1, never NaN. */
   | { readonly kind: 'replay'; readonly code: 'LOG_VERSION_UNSUPPORTED'; readonly message: string;
       readonly details: { readonly logVersion: number } }
+  /** E6 (ADR-0014 §D6, §20 Q3 item 1): the same details as the engine error. */
   | { readonly kind: 'replay'; readonly code: 'RULES_VERSION_UNSUPPORTED'; readonly message: string;
-      readonly details: { readonly engineRulesVersion: number } }
+      readonly details: RulesVersionDetails }   // { actual, supported, status?, candidate? }
   | { readonly kind: 'replay'; readonly code: 'LEXICON_MISMATCH'; readonly message: string;
       readonly details: { readonly expected: string; readonly actual: string } }
   /** Schema violation, unknown key, non-canonical action, INVALID_CONFIG header, length mismatches. */
@@ -916,9 +919,9 @@ export type ReplayError =
       readonly details: { readonly path: string } }
   | { readonly kind: 'replay'; readonly code: 'ACTION_REJECTED'; readonly message: string;
       readonly details: { readonly index: number; readonly rejection: Rejection } }
-  /** index = action index; 'final' when the final checkpoint differs. */
+  /** index = action index; 'final' when the final checkpoint differs; 'from' when the `from` snapshot does. */
   | { readonly kind: 'replay'; readonly code: 'HASH_MISMATCH'; readonly message: string;
-      readonly details: { readonly index: number | 'final'; readonly expected: StateHash; readonly actual: StateHash } };
+      readonly details: { readonly index: number | 'final' | 'from'; readonly expected: StateHash; readonly actual: StateHash } };
 
 export interface ReplayOutcome {
   readonly state: MatchState;
@@ -926,6 +929,16 @@ export interface ReplayOutcome {
   /** Present iff options.recordHashes: hash after each action (to write stateHashes into a log). */
   readonly stateHashes?: readonly StateHash[];
 }
+
+/** E6 (§20 Q7). */
+export interface ReplayOptions {
+  readonly recordHashes?: boolean;
+  /** Resume from a snapshot; used only if stateHash(from) equals the log's checkpoint at from.actionCount. */
+  readonly from?: MatchState;
+  /** 'all' (default): every applied stateHashes[i]; 'final': only the last action's stored hash and `final`. */
+  readonly verify?: 'all' | 'final';
+}
+export interface ParseLogOptions { readonly draft?: DraftContext }   // ADR-0014 §D4
 ```
 
 - `parseActionLog` order: JSON → `logVersion` → `header.engineRulesVersion` → schema (strict, unknown keys
@@ -1177,6 +1190,12 @@ the answers changes a hashed field, so `engineRulesVersion` 1 and GC-DET-01 are 
       `replay(log, ctx, { from?: MatchState; verify?: 'all' | 'final' })`. It starts from a snapshot that matches
       `stateHashes[from.actionCount − 1]`, otherwise fails with `HASH_MISMATCH`. The app then only orchestrates
       files.
+    - **Done in E6** (§14.2 `ReplayOptions`). A mismatching snapshot fails with `HASH_MISMATCH`
+      `details.index: 'from'`. `from.actionCount` outside `[0, actions.length]` is `MALFORMED_LOG`
+      (`from.actionCount`), and a log without the needed checkpoint is `MALFORMED_LOG` (`stateHashes`). A snapshot
+      at 0 is checked against `createMatch(header)`. `verify: 'final'` is the fast path of step 4. Properties:
+      resuming from any snapshot equals a full replay; a tampered or foreign snapshot is detected
+      (`src/replay/resume.test.ts`, v1 and the v2 draft).
   - Snapshot tampering and "Send match log" contents are the subject of P9 (security-engineer,
     privacy-compliance). Offline casual play has no stakes, and a tampered snapshot is caught by the hash match
     with the log. The log itself is unauthenticated on device, which is acceptable for non-competitive play.

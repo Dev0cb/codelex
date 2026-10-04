@@ -53,7 +53,8 @@ input (action logs) before it reaches the RNG.
 - `serializeState`, `stateHash`, `parseState` — JCS text, its 16-hex SHA-256, and the validating parser
   (shapes, sorted racks, tile conservation, `result` iff finished).
 - `newActionLog`, `serializeActionLog`, `parseActionLog`, `replay`, `LOG_VERSION` — ADR-0013 §D2 logs; replay
-  verifies optional per-action and final hashes.
+  verifies optional per-action and final hashes. `replay(log, ctx, { from, verify })` resumes from a snapshot
+  verified against the log's checkpoint (API note §20 Q7); `verify: 'final'` checks only the last checkpoint.
 
 ### `@codelex/game-engine/draft` (ADR-0014 §D4)
 

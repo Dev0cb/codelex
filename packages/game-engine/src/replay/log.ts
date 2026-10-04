@@ -55,7 +55,10 @@ export type ReplayError =
       readonly message: string;
       readonly details: { readonly expected: string; readonly actual: string };
     }
-  /** Schema violation, unknown key, non-canonical action, INVALID_CONFIG header, length mismatches. */
+  /**
+   * Schema violation, unknown key, non-canonical action, INVALID_CONFIG header, length mismatches; `from` that no
+   * checkpoint of the log can verify (`from.actionCount` out of range, or no `stateHashes`).
+   */
   | {
       readonly kind: 'replay';
       readonly code: 'MALFORMED_LOG';
@@ -68,13 +71,16 @@ export type ReplayError =
       readonly message: string;
       readonly details: { readonly index: number; readonly rejection: Rejection };
     }
-  /** index = action index; 'final' when the final checkpoint differs. */
+  /**
+   * index = action index; 'final' when the final checkpoint differs; 'from' when the `from` snapshot differs from
+   * the log's checkpoint at `from.actionCount` (a tampered or foreign snapshot, API note §20 Q7).
+   */
   | {
       readonly kind: 'replay';
       readonly code: 'HASH_MISMATCH';
       readonly message: string;
       readonly details: {
-        readonly index: number | 'final';
+        readonly index: number | 'final' | 'from';
         readonly expected: StateHash;
         readonly actual: StateHash;
       };
@@ -83,8 +89,30 @@ export type ReplayError =
 export interface ReplayOutcome {
   readonly state: MatchState;
   readonly finalHash: StateHash;
-  /** Present iff options.recordHashes: hash after each action (to write stateHashes into a log). */
+  /**
+   * Present iff options.recordHashes: hash after each action (to write stateHashes into a log). With `from`, the
+   * hashes before `from.actionCount` are the log's own, verified through the snapshot's checkpoint.
+   */
   readonly stateHashes?: readonly StateHash[];
+}
+
+/** Options of `replay` (API note §14.2, §20 Q7). */
+export interface ReplayOptions {
+  /** Return the hash after each action in `stateHashes`. */
+  readonly recordHashes?: boolean;
+  /**
+   * Resume from a snapshot (a state from `parseState`) instead of the initial state. It is used only if
+   * `stateHash(from)` equals the log's checkpoint at `from.actionCount` (`stateHashes[from.actionCount − 1]`,
+   * or the initial state's hash for 0); otherwise `HASH_MISMATCH` with `index: 'from'`. Then only the tail
+   * `actions[from.actionCount…]` is applied.
+   */
+  readonly from?: MatchState;
+  /**
+   * Which stored checkpoints are verified: 'all' (default) every `stateHashes[i]` that is applied; 'final' only
+   * the last action's stored hash, plus `final` (the fast resume path; on a mismatch, replay again with 'all' to
+   * locate the first divergent index).
+   */
+  readonly verify?: 'all' | 'final';
 }
 
 /** Options of `parseActionLog`. `draft` opts in to a draft rules version (ADR-0014 §D4). */
@@ -216,7 +244,7 @@ function sameJson(a: unknown, b: unknown): boolean {
 }
 
 function hashMismatch(
-  index: number | 'final',
+  index: number | 'final' | 'from',
   expected: StateHash,
   actual: StateHash,
 ): ReplayError {
@@ -231,12 +259,14 @@ function hashMismatch(
 /**
  * `createMatch(header)`, then `apply` per action, verifying the stored checkpoints (first divergence wins) and
  * `final.stateHash`. The rules version (draft opt-in and candidate from `ctx.draft`) and the lexicon are checked
- * once, before the first action.
+ * once, before the first action. With `options.from`, the snapshot is verified against the log's checkpoint and
+ * only the tail is applied (API note §20 Q7): resuming from any verified snapshot reaches the same final state and
+ * hash as a full replay.
  */
 export function replay(
   log: ActionLog,
   ctx: EngineContext,
-  options?: { readonly recordHashes?: boolean },
+  options?: ReplayOptions,
 ): Result<ReplayOutcome, ReplayError> {
   const resolved = resolveRules(log.header.engineRulesVersion, ctx.draft);
   if (!resolved.ok) return err(replayVersionError(resolved.error));
@@ -257,10 +287,30 @@ export function replay(
     return err(malformedLog(`header.${String(e.details?.['field'] ?? '')}`));
   }
   const record = options?.recordHashes === true;
-  const verify = log.stateHashes;
+  const stored = log.stateHashes;
+  const verifyAll = options?.verify !== 'final';
+  const last = log.actions.length - 1;
   const hashes: StateHash[] = [];
   let state = created.value.state;
-  for (let i = 0; i < log.actions.length; i += 1) {
+  let start = 0;
+
+  const from = options?.from;
+  if (from !== undefined) {
+    const k = from.actionCount;
+    if (!Number.isSafeInteger(k) || k < 0 || k > log.actions.length) {
+      return err(malformedLog('from.actionCount'));
+    }
+    const expected = k === 0 ? stateHash(state) : stored?.[k - 1];
+    if (expected === undefined) return err(malformedLog('stateHashes'));
+    const actual = stateHash(from);
+    if (actual !== expected) return err(hashMismatch('from', expected, actual));
+    if (record) hashes.push(...(stored ?? []).slice(0, k));
+    state = from;
+    start = k;
+  }
+
+  let finalHash: StateHash | undefined;
+  for (let i = start; i <= last; i += 1) {
     const action = log.actions[i] as Action;
     const applied = apply(state, action, ctx);
     if (!applied.ok) {
@@ -276,17 +326,18 @@ export function replay(
       return err(malformedLog(`actions[${String(i)}]`));
     }
     state = applied.value.state;
-    if (record || verify !== undefined) {
+    const expected = verifyAll || i === last ? stored?.[i] : undefined;
+    if (record || expected !== undefined) {
       const actual = stateHash(state);
-      const expected = verify?.[i];
       if (expected !== undefined && expected !== actual)
         return err(hashMismatch(i, expected, actual));
       hashes.push(actual);
+      if (i === last) finalHash = actual;
     }
   }
   // A final checkpoint exists only once the match is over (ADR-0013 §D2; review R1 n5).
   if (log.final !== undefined && state.status !== 'finished') return err(malformedLog('final'));
-  const finalHash = stateHash(state);
+  finalHash ??= stateHash(state);
   if (log.final !== undefined && log.final.stateHash !== finalHash) {
     return err(hashMismatch('final', log.final.stateHash, finalHash));
   }
