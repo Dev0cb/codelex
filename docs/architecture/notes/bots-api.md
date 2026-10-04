@@ -5,6 +5,10 @@
 - Reviewed-by: pending solution-architect, game-designer; lexicon-engineer delivered the §4.3 DAWG accessor (L5, #47)
 - Updated 2026-10-03 (B2): §4.3 DAWG fallback implemented, §6 Q-A2 measured, §9 O-1 closed, §5.4 first
   calibration readout (`docs/game/sim/2026-10-b2-readout.md`).
+- Updated 2026-10-04 (sprint 3, ST0): §5.4 targets restated per b2-response D2 (BG-2a/2b). §5.5 adds the
+  Strategist personality data, specified in `docs/specs/E-1.3-bots/strategist.md`. §5.6 is the `BOT_VERSION` 2
+  plan. §6 replaces the provisional Strategist budget. §7 pins goldens per (`BOT_VERSION`, `engineRulesVersion`).
+  This is a plan only: the code stays at `BOT_VERSION` 1 until B4.
 - Sprint: `docs/sprints/2026-10-03-phase1-bots-app-foundation.md` — B0 (this note). Unblocks B1 (bots), B2
   (simulator), H1 (device timing), S1 (first playable slice).
 - Inputs (normative, this note never overrides them): `docs/adr/0013-determinism-replay-contract.md` (ADR-0013,
@@ -23,7 +27,8 @@ vocabulary filtering, candidate ranking, personality data, the rule-correct fall
 
 **Not in `packages/bots`:** scoring and validation (`evaluateMove`, API-6; never re-implemented), the RNG seed and
 stream derivation (host, ADR-0013 §D1), think delays (presentation, R-MODE-CLASSIC-002), threads/workers (app),
-LLM anything (`services/ai` Coach; never in the gameplay path), Strategist (next sprint; §6 only fixes its budget).
+LLM anything (`services/ai` Coach; never in the gameplay path). Strategist is specified in
+`docs/specs/E-1.3-bots/strategist.md` and §5.5, and implemented in sprint 3 task B4.
 
 ## 2. Decisions
 
@@ -48,7 +53,8 @@ import type { Rng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 
 /** `random-legal` is internal (simulator floor, fuzzing); never offered to players. `greedy` is a simulator yardstick. */
-export type BotPersonalityId = 'random-legal' | 'beginner' | 'greedy';   // 'strategist' added next sprint
+export type BotPersonalityId = 'random-legal' | 'beginner' | 'greedy';
+// BOT_VERSION 2 (§5.6, B4): | 'strategist'. Spec only; the code is unchanged until B4.
 
 export interface BotBudget {
   /** Max automaton transitions (BOT-3). Safe integer ≥ 1. */
@@ -208,6 +214,125 @@ RNG draws happen in a fixed order (sample, Full Stack check, pick), so the decis
   chooses among p50 3, p95 22 moves), and the vocabulary filter forgoes the advanced/expert term bonus, which is
   37–44 % of all points. `BOT_VERSION` stays 1 until game-designer confirms or restates BG-1..BG-5 (O-2) for
   batch 3.
+- **Restated targets (game-designer, `docs/game/decisions/2026-10-b2-response.md` D2; apply from `BOT_VERSION`
+  2, final reading at batch 3):**
+  - BG-1 ≥ 80 %, unchanged.
+  - **BG-2a** (new): vocabulary-matched greedy vs Beginner, **65–85 %**. The yardstick is `greedy` with
+    `maxDifficultyRank` 1, applied as a simulator-side personality override; no new public id.
+  - **BG-2b** (formerly BG-2): full-vocabulary greedy vs Beginner, reported only. The gap is the intended
+    knowledge reward, and human fit is judged by F-9.
+  - BG-3 55–75 %, BG-4 ≥ 90 % and BG-5 ≤ 1 %, all unchanged.
+
+  BG-5 is re-read under the `BOT_VERSION` 2 budget (§5.6). The batch-3 proxy with `[16,6,2,1]` gives BG-1 84.7 %,
+  BG-2a 69.0 %, BG-3 70 % and BG-4 93.8 %.
+
+### 5.5 Strategist (personality data, `BOT_VERSION` 2)
+
+The feature spec is `docs/specs/E-1.3-bots/strategist.md`: persona, the full decision model S-1..S-5, the ST-x
+targets, the budget derivation and the open questions GD-1..GD-8. This section fixes only the **data shape and
+starting values**. B4 tunes the values on tuning seeds before freezing them with `BOT_VERSION` 2.
+
+Strategist uses the same pipeline (§4.1). The differences:
+
+- a deterministic overflow shortlist (attention key, no random draw, no letter values);
+- a utility `U = 10 · breakdown.total + L + C + D` in tenths of a point, instead of `breakdown.total`;
+- a voluntary-exchange rule;
+- a keep-set on the forced (no-word) exchange.
+
+All values are integers; weighted terms use an integer `floorDiv` (ADR-0013 §D4.1).
+
+```ts
+/** Strategist-only knobs (spec S-1..S-4). `null` for every other personality. Units: dp = tenths of a point. */
+export interface StrategyData {
+  // L: leave (S-2)
+  readonly leaveBlankDp: number;              // 150
+  readonly leaveBaseDp: number;               // 20   tileDp(l) = max(leaveFloorDp, leaveBaseDp − leavePerValueDp · v(l)) + bonus[l]
+  readonly leavePerValueDp: number;           // 10
+  readonly leaveFloorDp: number;              // −60
+  readonly leaveLetterBonusDp: readonly number[]; // 26 entries, index = LetterCode: S (18) = 30, others 0
+  readonly vowelIdealPermille: number;        // 350
+  readonly vowelOffDp: number;                // 30
+  readonly vowelAllOrNoneDp: number;          // 40  (n ≥ 3 and no vowel or only vowels)
+  readonly duplicateDp: number;               // 25  per extra copy, blanks exempt
+  readonly leaveLowBagPermille: number;       // 400 (bag 1–6; bag ≥ 7 = 1000)
+  readonly endgameRackDp: number;             // 20  per point of value, bag empty
+  // C: chain preference (S-2)
+  readonly chainKeepDp: number;               // 25  × breakdown.chainKAfter
+  readonly chainDegreeDp: number;             // 3   × min(neighbours(mainTerm).length, chainDegreeCap)
+  readonly chainDegreeCap: number;            // 8
+  // D: lane blocking / premium denial (S-2)
+  readonly laneReach: number;                 // 4
+  readonly hotTwDp: number;                   // 60
+  readonly hotDwDp: number;                   // 20
+  readonly leadThreshold: number;             // 30 points
+  readonly trailThreshold: number;            // 50 points
+  readonly denialLeadPermille: number;        // 1500
+  readonly denialEvenPermille: number;        // 1000 (also whenever the bag is empty)
+  readonly denialTrailPermille: number;       // 400
+  // X: voluntary exchange (S-4); RULES.minBagForExchange is read from the engine, not duplicated
+  readonly exchangeMaxScoreless: number;      // 2   obs.scorelessTurns ≤ this
+  readonly exchangeMaxScore: number;          // 14  points, best-U candidate's breakdown.total ≤ this
+  readonly exchangePoorLeaveDp: number;       // −80 raw(best-U leave) ≤ this
+  readonly exchangeGainDp: number;            // 150 raw(K*) − raw(best-U leave) ≥ this
+}
+
+// PersonalityData gains:  readonly strategy: StrategyData | null;
+```
+
+The common `PersonalityData` fields for `strategist`:
+
+| Field | `strategist` | Note |
+|---|---|---|
+| `budget` | **70,000 / 500**, unconditional (§6.1; game-designer GD-7 with the P7 size-gate input) | One budget on every host and both automata |
+| `maxDifficultyRank` | 2 (advanced) | GD-1. Ignored if it empties the set, as for Beginner |
+| `sampleWhenOver` | 0 | With `strategy ≠ null`, overflow uses the attention key `8 · tilesPlaced + 4 · (DW+TW covered) + (DL+TL covered)`, ties by canonical key |
+| `topWeights` | `[10, 6, 3, 1]` over `U` | Best move 50 % (GD-2; tuning range `[8,5,3,2,1]`..`[16,6,2,1]`). This is the first strength lever (ST-1b) |
+| `shortLength` / `shortMultiplier` | 0 / 1 | Neutral |
+| `skipFullStackPermille` | 0 | — |
+| `strategy` | the starting values above | — |
+
+RNG: at most one draw (`topWeights`), taken after the exchange decision. The exchange decision and the shortlist
+use no randomness. Properties to add in B4: P-BOT-01, 02, 03 and 05 extended to `strategist`. P-BOT-06 for
+Strategist reads "no word ⇒ EXCHANGE of `rack − K*` (≥ 1 tile) iff `bagCount ≥ 7`, else PASS". The new P-BOT-09
+is "no voluntary EXCHANGE when `scorelessTurns > exchangeMaxScoreless` or `bagCount < 7`".
+
+### 5.6 `BOT_VERSION` 2 plan (sprint 3, B4)
+
+A single bump carries every behaviour change of the sprint. The sprint plan makes one decision: device numbers
+come later and mean `BOT_VERSION` 3.
+
+| # | Change | Source |
+|---|---|---|
+| V2-1 | Beginner `topWeights` `[8, 5, 3, 2, 1]` → **`[16, 6, 2, 1]`**; every other Beginner field unchanged | b2-response D2, T-1 |
+| V2-2 | Beginner `budget` 200,000 / 300 → **70,000 / 300** (device worst case 1.29 s on f1, 1.71 s on f0, against 2.85 s / 4.05 s before). BG-5 is re-read in B4; if it exceeds 1 % because of two-blank racks, 100,000 / 300 instead (f0 worst case 2.25 s) | §6, spec GD-7 |
+| V2-3 | `BotPersonalityId` gains **`'strategist'`**; `PERSONALITIES.strategist` per §5.5; `PersonalityData.strategy` (`null` for the others) | spec ST0 |
+| V2-4 | Strategist budget 70,000 / 500 on both automata | §6.1 |
+| V2-5 | `random-legal` and `greedy` unchanged (simulator only, server class). The BG-2a yardstick is a simulator override of `greedy`, not a new id | T-1 |
+| V2-6 | `BOT_VERSION` = 2, reported in `bot_match_started.bot_version` | BOT-7 |
+
+Order inside B4:
+
+1. **Cheaper key build** as a pure refactor under `BOT_VERSION` 1. Full canonical keys (§4.4) are built only for
+   candidates kept for evaluation; dedupe uses a packed integer placement signature. `decisions-v1.json` must
+   pass unchanged, and P-BOT-03 must hold. Re-measure the Node `c_node`.
+2. If P3 has landed Hermes-CLI constants, or step 1 moved the Node `c_node`, re-apply the §6 formula once and
+   record the result in §6 and in the spec.
+3. Apply V2-1..V2-6 together and re-pin the goldens (§7).
+4. Run the ST-x runs and the BG re-read on tuning seeds. Freeze the data. Run the pre-registered ST-1 (B-07)
+   confirmation on its own seeds.
+
+**Goldens, pinned per (`BOT_VERSION`, `engineRulesVersion`):**
+
+- `test/golden/decisions-v1.json` stays as the frozen record of (1, 1). It is no longer executed once the code is
+  at 2, because bot reasoning is never replayed (ADR-0013 §D2).
+- B4 adds `decisions-b2-r1.json`, and `decisions-b2-r2.json` once `engineRulesVersion` 2 is frozen (R4). While v2
+  is a draft, a `decisions-b2-r2-draft.json` may exist; it is not a required check.
+- Each file holds 20 seeded positions × each personality (Strategist included). Positions are chosen so that no
+  cap binds, and the test asserts that f1 and f0 give the same decision on them. Expected decisions are computed
+  on the automaton the app ships (f0 unless P7 locks f1), and the file records it; any position where a cap binds
+  is labelled and asserted on that automaton only (P-BOT-03 guarantees equality only when no cap binds).
+- A changed golden without a version bump fails review. The P3 golden-immutability check is the natural place to
+  enforce it.
 
 ## 6. Node budget ↔ device latency (toward E-1.5 AC-8)
 
@@ -226,7 +351,7 @@ them with measured constants on Hermes and a real low-end Android):
 | Personality | `maxNodes` | `maxCandidates` | Worst case on device | Target |
 |---|---|---|---|---|
 | Beginner | 200,000 | 300 | 150 + 400 + 300 = **850 ms** | compute p95 ≤ 1 s (hidden under the 1.2 s minimum delay) |
-| Strategist (provisional) | 400,000 | 800 | 150 + 800 + 800 = **1.75 s** | AC-8 p95 ≤ 2 s |
+| Strategist (provisional, superseded 2026-10-04 by §6.1) | ~~400,000~~ | ~~800~~ | 150 + 800 + 800 = 1.75 s (at the disproved 2 µs `c_node`) | AC-8 p95 ≤ 2 s |
 
 Expected usage (estimate): full GADDAG generation ≤ 20,000 nodes for a mid-game rack at 2,000 forms, so the
 Beginner cap is a safety net (BG-5), not a strength knob; it binds only on blank-heavy racks. Rule for later
@@ -275,6 +400,38 @@ indicative only); they include the fixed cost (board view and cross-checks).
 - Mobile may ship without the GADDAG section from the bots' point of view (lexicon-index §5 size gate); the
   decision stays with lexicon-engineer and mobile-engineer once H1 has device numbers.
 
+### 6.1 Provisional budgets for `BOT_VERSION` 2 (sprint 3 decision, ST0)
+
+H1 has no device yet. Per the sprint 3 decision, the device constants are the **Node measurement × a Hermes factor
+of 10**: `T_fixed` 150 ms (estimate kept as margin) and `c_cand` 1.1 ms (`evaluateMove` 1 ms plus Strategist's
+terms 0.1 ms; Beginner 1 ms). `c_node` is **12 µs on f1** (GADDAG, 1.2 µs × 10) and **18 µs on f0** (DAWG only:
+f1 × 1.5, consistent with 1.9 µs × 10). Each cap is sized so that the worst case, with the cap reached, fits the
+target.
+
+| Personality | Artefact | `maxNodes` | `maxCandidates` | Worst case on device | Target |
+|---|---|---|---|---|---|
+| Strategist | f1 | 70,000 | 500 | 150 + 840 + 550 = 1,540 ms | AC-8 compute p95 ≤ 2 s |
+| Strategist | f0 | 70,000 | 500 | 150 + 1,260 + 550 = 1,960 ms | same |
+| Strategist | f1-only sizing on f0 (dropped) | 70,000 | 900 | 2,400 ms (**misses**) | — |
+| Beginner | f1 / f0 | 70,000 | 300 | 1,290 / 1,710 ms | compute p95 ≤ 1 s (typical ≈ 0.2 s); worst case hidden under the 4 s total |
+
+**Frozen value.** `BOT_VERSION` 2 freezes **Strategist 70,000 / 500 on every host and both automata**, with no
+exception (game-designer review GD-7, 2026-10-04). The earlier 70,000 / 900 option for a locked f1 is dropped: P7
+sets the f1 size gate at ≤ 215 B/form with a batch-3 ceiling of 2,550 forms and recommends sizing for f0 from the
+start. A budget that is safe on f0 means a later f0 switch (lexicon P7 rule) needs no version bump. One budget per
+version keeps server, simulator and device decisions identical whenever no cap binds (P-BOT-03). When a cap binds,
+the DAWG and GADDAG paths may choose different moves, so goldens are pinned on the automaton the app ships (§5.6,
+spec AC-12).
+
+**Change rules:**
+
+- Before B4 merges, the constants may be replaced once. The sources are Hermes-CLI constants (P3), or a Node
+  re-measurement after the cheaper key build (§5.6 step 1).
+- After B4 merges, **H1 device numbers trigger `BOT_VERSION` 3**. No other path changes a budget.
+
+Typical batch-3 cost: synthetic 2,000 p95 is 4,118 / 4,273 nodes and 94 candidates, i.e. ≈ 0.30 s (f1) and
+≈ 0.33 s (f0). The cap binds only on two-blank racks. The full derivation is in the Strategist spec (§ Budget).
+
 ## 7. Test obligations (B1)
 
 | ID | Property | Kind |
@@ -288,8 +445,8 @@ indicative only); they include the fixed cost (board view and cross-checks).
 | P-BOT-07 | Beginner: main word ≤ intermediate whenever an evaluated candidate qualifies; never a voluntary exchange | PBT |
 | P-BOT-08 | Error order of §3 on spectator/finished/off-turn/foreign-lexicon observations | unit |
 
-Golden: 20 seeded positions × personality → expected canonical key, pinned per `BOT_VERSION` (a change is
-intentional and reviewed). Bench (`vitest bench`): §6 tables, JSON artefact in CI (L6).
+Golden: 20 seeded positions × personality → expected canonical key. From `BOT_VERSION` 2 these are pinned per
+(`BOT_VERSION`, `engineRulesVersion`) (§5.6). A change is intentional and reviewed. Bench (`vitest bench`): §6 tables, JSON artefact in CI (L6).
 
 ## 8. Consumers
 
