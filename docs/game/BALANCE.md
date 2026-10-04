@@ -88,7 +88,7 @@ below are design targets: a miss triggers a layout/table review, not an automati
 | ID | Metric | Target | Lever if missed |
 |---|---|---|---|
 | C-01 | Rack-only formability (any playable form), as above | ≥ 75 % | counts (step 5a/e), lexicon short forms |
-| C-02 | Turns where the bot finds no legal PlaceWord | ≤ 15 % | counts; 11×11 fallback rule below |
+| C-02 | Turns where the bot finds no legal PlaceWord, *(v0.4)* counted over turns taken while the bag is not empty (the all-turns rate is reported next to it but is not the target: every R-TURN-004 ending adds a tail of ≈ 5 forced turns at batch-2/3 lexicon sizes, decision note `docs/game/decisions/2026-10-b2-response.md` D1) | ≤ 15 % | counts; lexicon short forms; 11×11 fallback rule below |
 | C-03 | Mean points per accepted PlaceWord | 15–30 | value exponent (step 4) |
 | C-04 | Premium share: Σ(turn score − same turn on a plain board) / Σ turn scores | 20–40 % | layout density |
 | C-05 | Term-bonus share of all points | ≤ 35 % | value exponent; term bonus constants |
@@ -96,6 +96,8 @@ below are design targets: a miss triggers a layout/table review, not an automati
 | C-07 | Stuck letters: per letter, share of matches ending with it in a rack, ÷ mean over letters | ≤ 2.0 for every letter | that letter's count/value |
 | C-08 | First-mover mean score lead (B-01 companion), start DW vs plain start (R-BOARD-004 variant) | ≤ 8 points | start-square premium |
 | C-09 | **Hook re-scoring tripwire** (E-1.7 R-3, C-GD-2): term-bonus points earned by cross-words formed by adding exactly one tile to an existing word whose canonical term is unchanged (e.g. POD → PODS), ÷ all term-bonus points. Measured from E-1.7 batch 1 in the simulator, then in the playtest | ≤ 10 % | pre-decided fallback in R-SCORE-003 (no term bonus when a word is extended into an inflection of the same term), new `engineRulesVersion` |
+| C-10 | *(v0.4)* **Premature lock-up:** matches ending on R-TURN-004 while the bag still holds ≥ 7 tiles (tiles that could still have been exchanged into play), ÷ all matches. This, not the raw share of R-TURN-004 endings, is the lock-up signal: R-TURN-004 is the normal ending whenever nobody goes out (55–67 % of matches even on a 60,000-word English lexicon) | ≤ 5 % | lexicon short forms and hooks (batch content); 11×11 fallback rule below |
+| C-11 | *(v0.4)* Mean tiles played on the board per 1v1 match (of 100) | ≥ 90 | as C-10 |
 
 ## Simulation protocol
 - ≥ 10,000 games per variant, identical seed sets for baseline and variant, seats swapped half the time.
@@ -108,7 +110,18 @@ E-1.5 playtest **only if** the 15×15 simulation shows any of: > 10 % of games e
 (R-TURN-004), > 15 % of turns with no legal word, or the 20 most-played terms making up > 40 % of words played.
 It is never used for ranked play.
 
+*Measurement note (game-designer, 2026-10-04; the rule above is unchanged and stays a product-owner decision).*
+The first trigger cannot separate a thin lexicon from a healthy one: in simulation, R-TURN-004 ends 99.6 % of
+matches on the batch-2 lexicon, ≈ 94–98 % on a batch-3 proxy and still 55–67 % on a 60,000-word English lexicon,
+because a scoreless ending is the normal ending whenever nobody goes out. A restatement ("> 10 % of games ending on
+R-TURN-004 with ≥ 7 tiles in the bag", i.e. C-10, and/or C-11 < 90 tiles) is **proposed to the product owner** in
+`docs/game/decisions/2026-10-b2-response.md` D1. Until the product owner decides, the trigger is read literally.
+
 ## Changelog
+- 0.4 — 2026-10-04 — `game-designer` (B2 follow-up, decision note `docs/game/decisions/2026-10-b2-response.md`,
+  evidence `docs/game/sim/2026-10-b2-response/`): C-02 measured over turns with a non-empty bag (all-turns rate
+  still reported); new C-10 (premature lock-up ≤ 5 %) and C-11 (tiles played ≥ 90); measurement note on the
+  11×11 trigger (restatement proposed to the product owner, rule unchanged). Invariants B-01..B-07 unchanged.
 - 0.3 — 2026-10-02 — `game-designer` (sprint D3, product-owner delegation): derivation procedure made
   explicit (unweighted corpus, largest remainder, exponent 0.75, listed playability adjustments, frozen per
   `engineRulesVersion`, re-derived at ≥ 2,000 forms); derivation record and evidence for `letters-v1`;

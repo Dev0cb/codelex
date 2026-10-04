@@ -1,0 +1,6307 @@
+{
+ "b01_plainstart_gmirror_real": {
+  "a": {
+   "easyPct": 41.47,
+   "meanScore": 405,
+   "ppw": 20.6
+  },
+  "aWinCI": [
+   48.62,
+   50.58
+  ],
+  "aWinPct": null,
+  "actionsMean": 49.5,
+  "b": {
+   "easyPct": 41.41,
+   "meanScore": 405.6,
+   "ppw": 20.6
+  },
+  "bagEnd": {
+   "ge7Pct": 6.52,
+   "lt7Pct": 20.04,
+   "mean": 1.8,
+   "zeroPct": 73.44
+  },
+  "deadTurnsAtEndMean": 5.53,
+  "decisive": 9956,
+  "draws": 44,
+  "ends": {
+   "going_out": 130,
+   "resign": 0,
+   "scoreless_turns": 9870,
+   "too_long": 0
+  },
+  "exchanges": 24981,
+  "firstExtraTurnPct": 50.2,
+  "firstLeadMean": -0.7,
+  "firstWinCI": [
+   49.11,
+   51.07
+  ],
+  "firstWinK": 4987,
+  "firstWinPct": 50.09,
+  "matches": 10000,
+  "meanAbsMargin": 67.9,
+  "meanTotalScore": 810.5,
+  "noWordBagPct": 9.49,
+  "noWordPct": 17.78,
+  "passes": 63093,
+  "ppw": 20.6,
+  "rackEndMean": 10.3,
+  "scorelessPct": 98.7,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 49.5,
+  "tilesPlayedMean": 88,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.7
+ },
+ "b01_plainstart_gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 39.63,
+   "meanScore": 423.5,
+   "ppw": 21.9
+  },
+  "aWinCI": [
+   48.8,
+   50.77
+  ],
+  "aWinPct": null,
+  "actionsMean": 46.9,
+  "b": {
+   "easyPct": 39.65,
+   "meanScore": 424.2,
+   "ppw": 21.9
+  },
+  "bagEnd": {
+   "ge7Pct": 1.57,
+   "lt7Pct": 5.86,
+   "mean": 0.5,
+   "zeroPct": 92.57
+  },
+  "deadTurnsAtEndMean": 5.52,
+  "decisive": 9949,
+  "draws": 51,
+  "ends": {
+   "going_out": 644,
+   "resign": 0,
+   "scoreless_turns": 9356,
+   "too_long": 0
+  },
+  "exchanges": 8799,
+  "firstExtraTurnPct": 50.12,
+  "firstLeadMean": -1.2,
+  "firstWinCI": [
+   48.5,
+   50.46
+  ],
+  "firstWinK": 4923,
+  "firstWinPct": 49.48,
+  "matches": 10000,
+  "meanAbsMargin": 66.6,
+  "meanTotalScore": 847.7,
+  "noWordBagPct": 3.7,
+  "noWordPct": 15.13,
+  "passes": 62176,
+  "ppw": 21.9,
+  "rackEndMean": 7.3,
+  "scorelessPct": 93.56,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 48.26,
+  "tilesPlayedMean": 92.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 39.8
+ },
+ "b01_plainstart_mirror_real": {
+  "a": {
+   "easyPct": 87.77,
+   "meanScore": 289.3,
+   "ppw": 13.6
+  },
+  "aWinCI": [
+   49.64,
+   51.6
+  ],
+  "aWinPct": null,
+  "actionsMean": 55.4,
+  "b": {
+   "easyPct": 87.67,
+   "meanScore": 288.5,
+   "ppw": 13.6
+  },
+  "bagEnd": {
+   "ge7Pct": 14.84,
+   "lt7Pct": 31.85,
+   "mean": 3.2,
+   "zeroPct": 53.31
+  },
+  "deadTurnsAtEndMean": 5.08,
+  "decisive": 9939,
+  "draws": 61,
+  "ends": {
+   "going_out": 41,
+   "resign": 0,
+   "scoreless_turns": 9959,
+   "too_long": 0
+  },
+  "exchanges": 45197,
+  "firstExtraTurnPct": 50.76,
+  "firstLeadMean": -0.3,
+  "firstWinCI": [
+   48.07,
+   50.03
+  ],
+  "firstWinK": 4875,
+  "firstWinPct": 49.05,
+  "matches": 10000,
+  "meanAbsMargin": 53.4,
+  "meanTotalScore": 577.8,
+  "noWordBagPct": 13.59,
+  "noWordPct": 18.69,
+  "passes": 58303,
+  "ppw": 13.6,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.59,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.67,
+  "tilesPlayedMean": 84.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45
+ },
+ "b01_plainstart_mirror_realb3_2000": {
+  "a": {
+   "easyPct": 91.67,
+   "meanScore": 298.3,
+   "ppw": 14.2
+  },
+  "aWinCI": [
+   48.05,
+   50.01
+  ],
+  "aWinPct": null,
+  "actionsMean": 52.4,
+  "b": {
+   "easyPct": 91.75,
+   "meanScore": 299.3,
+   "ppw": 14.2
+  },
+  "bagEnd": {
+   "ge7Pct": 3.62,
+   "lt7Pct": 13.3,
+   "mean": 1,
+   "zeroPct": 83.08
+  },
+  "deadTurnsAtEndMean": 5.64,
+  "decisive": 9953,
+  "draws": 47,
+  "ends": {
+   "going_out": 234,
+   "resign": 0,
+   "scoreless_turns": 9766,
+   "too_long": 0
+  },
+  "exchanges": 17103,
+  "firstExtraTurnPct": 49.38,
+  "firstLeadMean": 0.4,
+  "firstWinCI": [
+   49.37,
+   51.34
+  ],
+  "firstWinK": 5012,
+  "firstWinPct": 50.36,
+  "matches": 10000,
+  "meanAbsMargin": 56.5,
+  "meanTotalScore": 597.6,
+  "noWordBagPct": 6.35,
+  "noWordPct": 15.55,
+  "passes": 64403,
+  "ppw": 14.2,
+  "rackEndMean": 9.2,
+  "scorelessPct": 97.66,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 35.64,
+  "tilesPlayedMean": 89.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.3
+ },
+ "bg1_base_real": {
+  "a": {
+   "easyPct": 88.22,
+   "meanScore": 308.7,
+   "ppw": 13.9
+  },
+  "aWinCI": [
+   61.21,
+   65.45
+  ],
+  "aWinPct": 63.36,
+  "actionsMean": 58,
+  "b": {
+   "easyPct": 60.64,
+   "meanScore": 286,
+   "ppw": 12.9
+  },
+  "bagEnd": {
+   "ge7Pct": 16.7,
+   "lt7Pct": 34.5,
+   "mean": 3.6,
+   "zeroPct": 48.8
+  },
+  "deadTurnsAtEndMean": 4.98,
+  "decisive": 1984,
+  "draws": 16,
+  "ends": {
+   "going_out": 6,
+   "resign": 0,
+   "scoreless_turns": 1994,
+   "too_long": 0
+  },
+  "exchanges": 10116,
+  "firstExtraTurnPct": 50.45,
+  "firstLeadMean": 5.4,
+  "firstWinCI": [
+   50.98,
+   55.36
+  ],
+  "firstWinK": 1055,
+  "firstWinPct": 53.18,
+  "matches": 2000,
+  "meanAbsMargin": 55.9,
+  "meanTotalScore": 594.7,
+  "noWordBagPct": 14.12,
+  "noWordPct": 18.56,
+  "passes": 11431,
+  "ppw": 13.4,
+  "rackEndMean": 12.3,
+  "scorelessPct": 99.7,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 988
+  },
+  "termBonusSharePct": 41.44,
+  "tilesPlayedMean": 84.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 47.3
+ },
+ "bg1_base_realb3_2000": {
+  "a": {
+   "easyPct": 91.87,
+   "meanScore": 325.7,
+   "ppw": 14.5
+  },
+  "aWinCI": [
+   72.33,
+   76.17
+  ],
+  "aWinPct": 74.3,
+  "actionsMean": 55.6,
+  "b": {
+   "easyPct": 63.42,
+   "meanScore": 280.1,
+   "ppw": 12.6
+  },
+  "bagEnd": {
+   "ge7Pct": 5.45,
+   "lt7Pct": 16.7,
+   "mean": 1.4,
+   "zeroPct": 77.85
+  },
+  "deadTurnsAtEndMean": 5.6,
+  "decisive": 1988,
+  "draws": 12,
+  "ends": {
+   "going_out": 24,
+   "resign": 0,
+   "scoreless_turns": 1976,
+   "too_long": 0
+  },
+  "exchanges": 4183,
+  "firstExtraTurnPct": 48.9,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   49.16,
+   53.55
+  ],
+  "firstWinK": 1021,
+  "firstWinPct": 51.36,
+  "matches": 2000,
+  "meanAbsMargin": 67.4,
+  "meanTotalScore": 605.7,
+  "noWordBagPct": 7.18,
+  "noWordPct": 15.36,
+  "passes": 12889,
+  "ppw": 13.6,
+  "rackEndMean": 9.9,
+  "scorelessPct": 98.8,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 39.57,
+  "tilesPlayedMean": 88.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 47
+ },
+ "bg1_base_realplus_2000": {
+  "a": {
+   "easyPct": 96.37,
+   "meanScore": 388.8,
+   "ppw": 16.6
+  },
+  "aWinCI": [
+   83.45,
+   86.57
+  ],
+  "aWinPct": 85.08,
+  "actionsMean": 55.2,
+  "b": {
+   "easyPct": 62.67,
+   "meanScore": 311.4,
+   "ppw": 13.4
+  },
+  "bagEnd": {
+   "ge7Pct": 1.1,
+   "lt7Pct": 4.1,
+   "mean": 0.3,
+   "zeroPct": 94.8
+  },
+  "deadTurnsAtEndMean": 5.47,
+  "decisive": 1997,
+  "draws": 3,
+  "ends": {
+   "going_out": 153,
+   "resign": 0,
+   "scoreless_turns": 1847,
+   "too_long": 0
+  },
+  "exchanges": 1147,
+  "firstExtraTurnPct": 51.05,
+  "firstLeadMean": 4.8,
+  "firstWinCI": [
+   49.03,
+   53.41
+  ],
+  "firstWinK": 1023,
+  "firstWinPct": 51.23,
+  "matches": 2000,
+  "meanAbsMargin": 90.3,
+  "meanTotalScore": 700.1,
+  "noWordBagPct": 2.1,
+  "noWordPct": 12.33,
+  "passes": 12457,
+  "ppw": 15,
+  "rackEndMean": 6.4,
+  "scorelessPct": 92.35,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 42.02,
+  "tilesPlayedMean": 93.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 48.4
+ },
+ "bg1_mdr2_real": {
+  "a": {
+   "easyPct": 54.14,
+   "meanScore": 366.4,
+   "ppw": 16.7
+  },
+  "aWinCI": [
+   90.39,
+   92.81
+  ],
+  "aWinPct": 91.68,
+  "actionsMean": 56.8,
+  "b": {
+   "easyPct": 62.61,
+   "meanScore": 271.6,
+   "ppw": 12.5
+  },
+  "bagEnd": {
+   "ge7Pct": 14.6,
+   "lt7Pct": 34.7,
+   "mean": 3.5,
+   "zeroPct": 50.7
+  },
+  "deadTurnsAtEndMean": 5.12,
+  "decisive": 1995,
+  "draws": 5,
+  "ends": {
+   "going_out": 3,
+   "resign": 0,
+   "scoreless_turns": 1997,
+   "too_long": 0
+  },
+  "exchanges": 9435,
+  "firstExtraTurnPct": 50.5,
+  "firstLeadMean": 4.6,
+  "firstWinCI": [
+   49.33,
+   53.72
+  ],
+  "firstWinK": 1028,
+  "firstWinPct": 51.53,
+  "matches": 2000,
+  "meanAbsMargin": 99.6,
+  "meanTotalScore": 638,
+  "noWordBagPct": 13.9,
+  "noWordPct": 18.63,
+  "passes": 11727,
+  "ppw": 14.6,
+  "rackEndMean": 12.1,
+  "scorelessPct": 99.85,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 2
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 988
+  },
+  "termBonusSharePct": 45.17,
+  "tilesPlayedMean": 84.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.2
+ },
+ "bg1_mdr2_realb3_2000": {
+  "a": {
+   "easyPct": 53.81,
+   "meanScore": 389.6,
+   "ppw": 17.6
+  },
+  "aWinCI": [
+   94.66,
+   96.46
+  ],
+  "aWinPct": 95.65,
+  "actionsMean": 54.7,
+  "b": {
+   "easyPct": 64.64,
+   "meanScore": 271.7,
+   "ppw": 12.5
+  },
+  "bagEnd": {
+   "ge7Pct": 4.1,
+   "lt7Pct": 15.85,
+   "mean": 1.2,
+   "zeroPct": 80.05
+  },
+  "deadTurnsAtEndMean": 5.66,
+  "decisive": 1998,
+  "draws": 2,
+  "ends": {
+   "going_out": 32,
+   "resign": 0,
+   "scoreless_turns": 1968,
+   "too_long": 0
+  },
+  "exchanges": 3945,
+  "firstExtraTurnPct": 47.95,
+  "firstLeadMean": 7.8,
+  "firstWinCI": [
+   49.21,
+   53.59
+  ],
+  "firstWinK": 1027,
+  "firstWinPct": 51.4,
+  "matches": 2000,
+  "meanAbsMargin": 120.5,
+  "meanTotalScore": 661.3,
+  "noWordBagPct": 7.02,
+  "noWordPct": 15.58,
+  "passes": 13091,
+  "ppw": 15,
+  "rackEndMean": 9.8,
+  "scorelessPct": 98.4,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 2
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 43.69,
+  "tilesPlayedMean": 89,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.1
+ },
+ "bg1_mdr2_realplus_2000": {
+  "a": {
+   "easyPct": 53.1,
+   "meanScore": 458.5,
+   "ppw": 19.9
+  },
+  "aWinCI": [
+   96.32,
+   97.79
+  ],
+  "aWinPct": 97.15,
+  "actionsMean": 53.9,
+  "b": {
+   "easyPct": 63.35,
+   "meanScore": 303.8,
+   "ppw": 13.3
+  },
+  "bagEnd": {
+   "ge7Pct": 1.3,
+   "lt7Pct": 3.25,
+   "mean": 0.3,
+   "zeroPct": 95.45
+  },
+  "deadTurnsAtEndMean": 5.34,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 194,
+   "resign": 0,
+   "scoreless_turns": 1806,
+   "too_long": 0
+  },
+  "exchanges": 1071,
+  "firstExtraTurnPct": 51,
+  "firstLeadMean": 6.9,
+  "firstWinCI": [
+   47.98,
+   52.36
+  ],
+  "firstWinK": 1003,
+  "firstWinPct": 50.18,
+  "matches": 2000,
+  "meanAbsMargin": 156.3,
+  "meanTotalScore": 762.3,
+  "noWordBagPct": 1.92,
+  "noWordPct": 12.19,
+  "passes": 12076,
+  "ppw": 16.6,
+  "rackEndMean": 6.2,
+  "scorelessPct": 90.3,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 2
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 45.9,
+  "tilesPlayedMean": 93.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 47.4
+ },
+ "bg1_mdr2sharp_real": {
+  "a": {
+   "easyPct": 51.83,
+   "meanScore": 387.1,
+   "ppw": 17.9
+  },
+  "aWinCI": [
+   94.11,
+   96
+  ],
+  "aWinPct": 95.14,
+  "actionsMean": 55.6,
+  "b": {
+   "easyPct": 62.56,
+   "meanScore": 264.7,
+   "ppw": 12.5
+  },
+  "bagEnd": {
+   "ge7Pct": 14.95,
+   "lt7Pct": 33.45,
+   "mean": 3.3,
+   "zeroPct": 51.6
+  },
+  "deadTurnsAtEndMean": 5.09,
+  "decisive": 1996,
+  "draws": 4,
+  "ends": {
+   "going_out": 4,
+   "resign": 0,
+   "scoreless_turns": 1996,
+   "too_long": 0
+  },
+  "exchanges": 9025,
+  "firstExtraTurnPct": 51,
+  "firstLeadMean": 8.6,
+  "firstWinCI": [
+   49.56,
+   53.94
+  ],
+  "firstWinK": 1033,
+  "firstWinPct": 51.75,
+  "matches": 2000,
+  "meanAbsMargin": 125.3,
+  "meanTotalScore": 651.8,
+  "noWordBagPct": 13.68,
+  "noWordPct": 18.61,
+  "passes": 11663,
+  "ppw": 15.2,
+  "rackEndMean": 12,
+  "scorelessPct": 99.8,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 2,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 988
+  },
+  "termBonusSharePct": 45.05,
+  "tilesPlayedMean": 84.6,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.2
+ },
+ "bg1_mdr2sharp_realb3_2000": {
+  "a": {
+   "easyPct": 51.59,
+   "meanScore": 412.8,
+   "ppw": 18.9
+  },
+  "aWinCI": [
+   96.95,
+   98.27
+  ],
+  "aWinPct": 97.7,
+  "actionsMean": 53.7,
+  "b": {
+   "easyPct": 64.68,
+   "meanScore": 264.7,
+   "ppw": 12.4
+  },
+  "bagEnd": {
+   "ge7Pct": 3.5,
+   "lt7Pct": 14.95,
+   "mean": 0.9,
+   "zeroPct": 81.55
+  },
+  "deadTurnsAtEndMean": 5.71,
+  "decisive": 2000,
+  "draws": 0,
+  "ends": {
+   "going_out": 28,
+   "resign": 0,
+   "scoreless_turns": 1972,
+   "too_long": 0
+  },
+  "exchanges": 3657,
+  "firstExtraTurnPct": 49.65,
+  "firstLeadMean": 7.8,
+  "firstWinCI": [
+   48.71,
+   53.09
+  ],
+  "firstWinK": 1018,
+  "firstWinPct": 50.9,
+  "matches": 2000,
+  "meanAbsMargin": 149.6,
+  "meanTotalScore": 677.5,
+  "noWordBagPct": 6.7,
+  "noWordPct": 15.58,
+  "passes": 13077,
+  "ppw": 15.7,
+  "rackEndMean": 9.6,
+  "scorelessPct": 98.6,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 2,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 43.62,
+  "tilesPlayedMean": 89.5,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.3
+ },
+ "bg1_mdr2sharp_realplus_2000": {
+  "a": {
+   "easyPct": 51.1,
+   "meanScore": 483.3,
+   "ppw": 21.3
+  },
+  "aWinCI": [
+   98.64,
+   99.47
+  ],
+  "aWinPct": 99.15,
+  "actionsMean": 52.8,
+  "b": {
+   "easyPct": 63.73,
+   "meanScore": 292.5,
+   "ppw": 13.2
+  },
+  "bagEnd": {
+   "ge7Pct": 0.9,
+   "lt7Pct": 3.95,
+   "mean": 0.3,
+   "zeroPct": 95.15
+  },
+  "deadTurnsAtEndMean": 5.3,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 214,
+   "resign": 0,
+   "scoreless_turns": 1786,
+   "too_long": 0
+  },
+  "exchanges": 1026,
+  "firstExtraTurnPct": 48.95,
+  "firstLeadMean": 4.2,
+  "firstWinCI": [
+   47.89,
+   52.26
+  ],
+  "firstWinK": 1001,
+  "firstWinPct": 50.08,
+  "matches": 2000,
+  "meanAbsMargin": 191.4,
+  "meanTotalScore": 775.8,
+  "noWordBagPct": 2.01,
+  "noWordPct": 12.34,
+  "passes": 12008,
+  "ppw": 17.3,
+  "rackEndMean": 6.2,
+  "scorelessPct": 89.3,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 2,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 45.81,
+  "tilesPlayedMean": 93.5,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.3
+ },
+ "bg1_mdr3_real": {
+  "a": {
+   "easyPct": 48.24,
+   "meanScore": 394.8,
+   "ppw": 17.9
+  },
+  "aWinCI": [
+   93.78,
+   95.73
+  ],
+  "aWinPct": 94.84,
+  "actionsMean": 56.7,
+  "b": {
+   "easyPct": 62.55,
+   "meanScore": 274.5,
+   "ppw": 12.6
+  },
+  "bagEnd": {
+   "ge7Pct": 13.8,
+   "lt7Pct": 35.25,
+   "mean": 3.2,
+   "zeroPct": 50.95
+  },
+  "deadTurnsAtEndMean": 5.16,
+  "decisive": 1997,
+  "draws": 3,
+  "ends": {
+   "going_out": 4,
+   "resign": 0,
+   "scoreless_turns": 1996,
+   "too_long": 0
+  },
+  "exchanges": 8829,
+  "firstExtraTurnPct": 46.8,
+  "firstLeadMean": 7.5,
+  "firstWinCI": [
+   49.18,
+   53.56
+  ],
+  "firstWinK": 1026,
+  "firstWinPct": 51.38,
+  "matches": 2000,
+  "meanAbsMargin": 123,
+  "meanTotalScore": 669.3,
+  "noWordBagPct": 13.46,
+  "noWordPct": 18.3,
+  "passes": 11931,
+  "ppw": 15.2,
+  "rackEndMean": 12.2,
+  "scorelessPct": 99.8,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 3
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 988
+  },
+  "termBonusSharePct": 47.54,
+  "tilesPlayedMean": 84.6,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.3
+ },
+ "bg1_mdr3_realplus_2000": {
+  "a": {
+   "easyPct": 35.93,
+   "meanScore": 544.3,
+   "ppw": 23.8
+  },
+  "aWinCI": [
+   99.28,
+   99.83
+  ],
+  "aWinPct": 99.65,
+  "actionsMean": 53.1,
+  "b": {
+   "easyPct": 63.86,
+   "meanScore": 296,
+   "ppw": 13.2
+  },
+  "bagEnd": {
+   "ge7Pct": 0.85,
+   "lt7Pct": 2.35,
+   "mean": 0.2,
+   "zeroPct": 96.8
+  },
+  "deadTurnsAtEndMean": 5.33,
+  "decisive": 2000,
+  "draws": 0,
+  "ends": {
+   "going_out": 207,
+   "resign": 0,
+   "scoreless_turns": 1793,
+   "too_long": 0
+  },
+  "exchanges": 807,
+  "firstExtraTurnPct": 51.35,
+  "firstLeadMean": 11,
+  "firstWinCI": [
+   48.16,
+   52.54
+  ],
+  "firstWinK": 1007,
+  "firstWinPct": 50.35,
+  "matches": 2000,
+  "meanAbsMargin": 248.4,
+  "meanTotalScore": 840.3,
+  "noWordBagPct": 1.46,
+  "noWordPct": 12.09,
+  "passes": 12048,
+  "ppw": 18.5,
+  "rackEndMean": 5.9,
+  "scorelessPct": 89.65,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 3
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 50.61,
+  "tilesPlayedMean": 93.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.7
+ },
+ "bg1_mdr3sharp_real": {
+  "a": {
+   "easyPct": 45.47,
+   "meanScore": 420.8,
+   "ppw": 19.3
+  },
+  "aWinCI": [
+   96.44,
+   97.88
+  ],
+  "aWinPct": 97.25,
+  "actionsMean": 55.7,
+  "b": {
+   "easyPct": 62.65,
+   "meanScore": 268.6,
+   "ppw": 12.6
+  },
+  "bagEnd": {
+   "ge7Pct": 13.75,
+   "lt7Pct": 31.85,
+   "mean": 3.1,
+   "zeroPct": 54.4
+  },
+  "deadTurnsAtEndMean": 5.16,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 5,
+   "resign": 0,
+   "scoreless_turns": 1995,
+   "too_long": 0
+  },
+  "exchanges": 8502,
+  "firstExtraTurnPct": 51.75,
+  "firstLeadMean": 8.2,
+  "firstWinCI": [
+   48.48,
+   52.86
+  ],
+  "firstWinK": 1013,
+  "firstWinPct": 50.68,
+  "matches": 2000,
+  "meanAbsMargin": 153.7,
+  "meanTotalScore": 689.4,
+  "noWordBagPct": 12.99,
+  "noWordPct": 18.23,
+  "passes": 11821,
+  "ppw": 15.9,
+  "rackEndMean": 12,
+  "scorelessPct": 99.75,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 3,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 988
+  },
+  "termBonusSharePct": 47.63,
+  "tilesPlayedMean": 85,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.6
+ },
+ "bg1_mdr3sharp_realb3_2000": {
+  "a": {
+   "easyPct": 45.03,
+   "meanScore": 449,
+   "ppw": 20.4
+  },
+  "aWinCI": [
+   98.52,
+   99.39
+  ],
+  "aWinPct": 99.05,
+  "actionsMean": 53.7,
+  "b": {
+   "easyPct": 64.67,
+   "meanScore": 266.5,
+   "ppw": 12.4
+  },
+  "bagEnd": {
+   "ge7Pct": 3.2,
+   "lt7Pct": 14.15,
+   "mean": 0.9,
+   "zeroPct": 82.65
+  },
+  "deadTurnsAtEndMean": 5.67,
+  "decisive": 1998,
+  "draws": 2,
+  "ends": {
+   "going_out": 47,
+   "resign": 0,
+   "scoreless_turns": 1953,
+   "too_long": 0
+  },
+  "exchanges": 3431,
+  "firstExtraTurnPct": 50.9,
+  "firstLeadMean": 6.8,
+  "firstWinCI": [
+   48.01,
+   52.39
+  ],
+  "firstWinK": 1003,
+  "firstWinPct": 50.2,
+  "matches": 2000,
+  "meanAbsMargin": 183,
+  "meanTotalScore": 715.5,
+  "noWordBagPct": 6.34,
+  "noWordPct": 15.29,
+  "passes": 13000,
+  "ppw": 16.4,
+  "rackEndMean": 9.4,
+  "scorelessPct": 97.65,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 3,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 46.18,
+  "tilesPlayedMean": 89.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.5
+ },
+ "bg1_mdr3sharp_realplus_2000": {
+  "a": {
+   "easyPct": 32.67,
+   "meanScore": 574,
+   "ppw": 25.4
+  },
+  "aWinCI": [
+   99.81,
+   100
+  ],
+  "aWinPct": 100,
+  "actionsMean": 52.1,
+  "b": {
+   "easyPct": 64.14,
+   "meanScore": 290.8,
+   "ppw": 13.2
+  },
+  "bagEnd": {
+   "ge7Pct": 0.7,
+   "lt7Pct": 2.6,
+   "mean": 0.2,
+   "zeroPct": 96.7
+  },
+  "deadTurnsAtEndMean": 5.11,
+  "decisive": 2000,
+  "draws": 0,
+  "ends": {
+   "going_out": 284,
+   "resign": 0,
+   "scoreless_turns": 1716,
+   "too_long": 0
+  },
+  "exchanges": 758,
+  "firstExtraTurnPct": 51.25,
+  "firstLeadMean": 7.3,
+  "firstWinCI": [
+   47.91,
+   52.29
+  ],
+  "firstWinK": 1002,
+  "firstWinPct": 50.1,
+  "matches": 2000,
+  "meanAbsMargin": 283.2,
+  "meanTotalScore": 864.7,
+  "noWordBagPct": 1.44,
+  "noWordPct": 11.77,
+  "passes": 11517,
+  "ppw": 19.3,
+  "rackEndMean": 5.6,
+  "scorelessPct": 85.8,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "maxDifficultyRank": 3,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 50.74,
+  "tilesPlayedMean": 94.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46
+ },
+ "bg1_sharp_real": {
+  "a": {
+   "easyPct": 88.46,
+   "meanScore": 324,
+   "ppw": 14.8
+  },
+  "aWinCI": [
+   73.4,
+   77.18
+  ],
+  "aWinPct": 75.34,
+  "actionsMean": 57.1,
+  "b": {
+   "easyPct": 61.01,
+   "meanScore": 276.3,
+   "ppw": 12.7
+  },
+  "bagEnd": {
+   "ge7Pct": 16.7,
+   "lt7Pct": 35.5,
+   "mean": 3.7,
+   "zeroPct": 47.8
+  },
+  "deadTurnsAtEndMean": 4.99,
+  "decisive": 1987,
+  "draws": 13,
+  "ends": {
+   "going_out": 3,
+   "resign": 0,
+   "scoreless_turns": 1997,
+   "too_long": 0
+  },
+  "exchanges": 9975,
+  "firstExtraTurnPct": 50.35,
+  "firstLeadMean": 5.9,
+  "firstWinCI": [
+   49.99,
+   54.38
+  ],
+  "firstWinK": 1037,
+  "firstWinPct": 52.19,
+  "matches": 2000,
+  "meanAbsMargin": 68.2,
+  "meanTotalScore": 600.3,
+  "noWordBagPct": 14.41,
+  "noWordPct": 18.85,
+  "passes": 11549,
+  "ppw": 13.8,
+  "rackEndMean": 12.3,
+  "scorelessPct": 99.85,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 988
+  },
+  "termBonusSharePct": 41.4,
+  "tilesPlayedMean": 84,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.3
+ },
+ "bg1_sharp_realb3_2000": {
+  "a": {
+   "easyPct": 92.03,
+   "meanScore": 344.8,
+   "ppw": 15.6
+  },
+  "aWinCI": [
+   83.02,
+   86.18
+  ],
+  "aWinPct": 84.67,
+  "actionsMean": 54.7,
+  "b": {
+   "easyPct": 63.3,
+   "meanScore": 273.9,
+   "ppw": 12.6
+  },
+  "bagEnd": {
+   "ge7Pct": 4.65,
+   "lt7Pct": 14.5,
+   "mean": 1.1,
+   "zeroPct": 80.85
+  },
+  "deadTurnsAtEndMean": 5.64,
+  "decisive": 1996,
+  "draws": 4,
+  "ends": {
+   "going_out": 26,
+   "resign": 0,
+   "scoreless_turns": 1974,
+   "too_long": 0
+  },
+  "exchanges": 4022,
+  "firstExtraTurnPct": 49.45,
+  "firstLeadMean": 4.3,
+  "firstWinCI": [
+   50.06,
+   54.44
+  ],
+  "firstWinK": 1043,
+  "firstWinPct": 52.25,
+  "matches": 2000,
+  "meanAbsMargin": 82.1,
+  "meanTotalScore": 618.7,
+  "noWordBagPct": 6.87,
+  "noWordPct": 15.52,
+  "passes": 12965,
+  "ppw": 14.1,
+  "rackEndMean": 9.7,
+  "scorelessPct": 98.7,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 39.45,
+  "tilesPlayedMean": 89.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.2
+ },
+ "bg1_sharp_realplus_2000": {
+  "a": {
+   "easyPct": 96.73,
+   "meanScore": 413.9,
+   "ppw": 18
+  },
+  "aWinCI": [
+   90.55,
+   92.96
+  ],
+  "aWinPct": 91.83,
+  "actionsMean": 53.9,
+  "b": {
+   "easyPct": 62.86,
+   "meanScore": 305.1,
+   "ppw": 13.4
+  },
+  "bagEnd": {
+   "ge7Pct": 0.5,
+   "lt7Pct": 2.7,
+   "mean": 0.2,
+   "zeroPct": 96.8
+  },
+  "deadTurnsAtEndMean": 5.36,
+  "decisive": 1996,
+  "draws": 4,
+  "ends": {
+   "going_out": 202,
+   "resign": 0,
+   "scoreless_turns": 1798,
+   "too_long": 0
+  },
+  "exchanges": 903,
+  "firstExtraTurnPct": 51.15,
+  "firstLeadMean": 7.7,
+  "firstWinCI": [
+   49.21,
+   53.59
+  ],
+  "firstWinK": 1026,
+  "firstWinPct": 51.4,
+  "matches": 2000,
+  "meanAbsMargin": 115.1,
+  "meanTotalScore": 719.1,
+  "noWordBagPct": 1.63,
+  "noWordPct": 12.08,
+  "passes": 12108,
+  "ppw": 15.7,
+  "rackEndMean": 6.2,
+  "scorelessPct": 89.9,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "terms": 1486
+  },
+  "termBonusSharePct": 41.85,
+  "tilesPlayedMean": 93.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 47.4
+ },
+ "bg2_base_real": {
+  "a": {
+   "easyPct": 40.88,
+   "meanScore": 433.5,
+   "ppw": 21
+  },
+  "aWinCI": [
+   97.98,
+   99.03
+  ],
+  "aWinPct": 98.6,
+  "actionsMean": 52.3,
+  "b": {
+   "easyPct": 90.09,
+   "meanScore": 270.3,
+   "ppw": 13.4
+  },
+  "bagEnd": {
+   "ge7Pct": 9.45,
+   "lt7Pct": 26.75,
+   "mean": 2.3,
+   "zeroPct": 63.8
+  },
+  "deadTurnsAtEndMean": 5.4,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 12,
+   "resign": 0,
+   "scoreless_turns": 1988,
+   "too_long": 0
+  },
+  "exchanges": 6509,
+  "firstExtraTurnPct": 50.5,
+  "firstLeadMean": 6.1,
+  "firstWinCI": [
+   47.89,
+   52.26
+  ],
+  "firstWinK": 1001,
+  "firstWinPct": 50.08,
+  "matches": 2000,
+  "meanAbsMargin": 163.9,
+  "meanTotalScore": 703.9,
+  "noWordBagPct": 11.38,
+  "noWordPct": 18.07,
+  "passes": 12405,
+  "ppw": 17.2,
+  "rackEndMean": 11.2,
+  "scorelessPct": 99.4,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 44.22,
+  "tilesPlayedMean": 86.6,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.9
+ },
+ "bg2_base_realb3_2000": {
+  "a": {
+   "easyPct": 39.58,
+   "meanScore": 450.5,
+   "ppw": 22.2
+  },
+  "aWinCI": [
+   97.69,
+   98.82
+  ],
+  "aWinPct": 98.35,
+  "actionsMean": 49.4,
+  "b": {
+   "easyPct": 93.54,
+   "meanScore": 281.1,
+   "ppw": 14.1
+  },
+  "bagEnd": {
+   "ge7Pct": 2.3,
+   "lt7Pct": 9.65,
+   "mean": 0.7,
+   "zeroPct": 88.05
+  },
+  "deadTurnsAtEndMean": 5.62,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 81,
+   "resign": 0,
+   "scoreless_turns": 1919,
+   "too_long": 0
+  },
+  "exchanges": 2401,
+  "firstExtraTurnPct": 50.85,
+  "firstLeadMean": 4.5,
+  "firstWinCI": [
+   48.43,
+   52.81
+  ],
+  "firstWinK": 1012,
+  "firstWinPct": 50.63,
+  "matches": 2000,
+  "meanAbsMargin": 170.6,
+  "meanTotalScore": 731.6,
+  "noWordBagPct": 5.05,
+  "noWordPct": 15.46,
+  "passes": 12883,
+  "ppw": 18.1,
+  "rackEndMean": 8.2,
+  "scorelessPct": 95.95,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 42.58,
+  "tilesPlayedMean": 91.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.8
+ },
+ "bg2_base_realplus_2000": {
+  "a": {
+   "easyPct": 28.02,
+   "meanScore": 555.9,
+   "ppw": 27
+  },
+  "aWinCI": [
+   99.64,
+   99.97
+  ],
+  "aWinPct": 99.9,
+  "actionsMean": 47.2,
+  "b": {
+   "easyPct": 97.1,
+   "meanScore": 322.1,
+   "ppw": 15.9
+  },
+  "bagEnd": {
+   "ge7Pct": 0.8,
+   "lt7Pct": 1.65,
+   "mean": 0.2,
+   "zeroPct": 97.55
+  },
+  "deadTurnsAtEndMean": 4.54,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 471,
+   "resign": 0,
+   "scoreless_turns": 1529,
+   "too_long": 0
+  },
+  "exchanges": 540,
+  "firstExtraTurnPct": 50.4,
+  "firstLeadMean": 4,
+  "firstWinCI": [
+   47.49,
+   51.87
+  ],
+  "firstWinK": 993,
+  "firstWinPct": 49.67,
+  "matches": 2000,
+  "meanAbsMargin": 233.8,
+  "meanTotalScore": 878,
+  "noWordBagPct": 1.14,
+  "noWordPct": 11.52,
+  "passes": 10323,
+  "ppw": 21.4,
+  "rackEndMean": 4.8,
+  "scorelessPct": 76.45,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 47.04,
+  "tilesPlayedMean": 95,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.7
+ },
+ "bg2_mdr2_real": {
+  "a": {
+   "easyPct": 41.68,
+   "meanScore": 418.5,
+   "ppw": 20.8
+  },
+  "aWinCI": [
+   85.38,
+   88.34
+  ],
+  "aWinPct": 86.93,
+  "actionsMean": 51.1,
+  "b": {
+   "easyPct": 54.39,
+   "meanScore": 327.3,
+   "ppw": 16.4
+  },
+  "bagEnd": {
+   "ge7Pct": 9.25,
+   "lt7Pct": 24.8,
+   "mean": 2.3,
+   "zeroPct": 65.95
+  },
+  "deadTurnsAtEndMean": 5.38,
+  "decisive": 1997,
+  "draws": 3,
+  "ends": {
+   "going_out": 20,
+   "resign": 0,
+   "scoreless_turns": 1980,
+   "too_long": 0
+  },
+  "exchanges": 6049,
+  "firstExtraTurnPct": 49.6,
+  "firstLeadMean": 6.1,
+  "firstWinCI": [
+   49.23,
+   53.61
+  ],
+  "firstWinK": 1027,
+  "firstWinPct": 51.43,
+  "matches": 2000,
+  "meanAbsMargin": 101.2,
+  "meanTotalScore": 745.8,
+  "noWordBagPct": 10.9,
+  "noWordPct": 18,
+  "passes": 12339,
+  "ppw": 18.6,
+  "rackEndMean": 11,
+  "scorelessPct": 99,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 2
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 47.21,
+  "tilesPlayedMean": 86.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.9
+ },
+ "bg2_mdr2_realb3_2000": {
+  "a": {
+   "easyPct": 40.33,
+   "meanScore": 439.1,
+   "ppw": 22
+  },
+  "aWinCI": [
+   86.8,
+   89.63
+  ],
+  "aWinPct": 88.29,
+  "actionsMean": 48.4,
+  "b": {
+   "easyPct": 52.96,
+   "meanScore": 342.2,
+   "ppw": 17.3
+  },
+  "bagEnd": {
+   "ge7Pct": 1.45,
+   "lt7Pct": 8.7,
+   "mean": 0.6,
+   "zeroPct": 89.85
+  },
+  "deadTurnsAtEndMean": 5.62,
+  "decisive": 1998,
+  "draws": 2,
+  "ends": {
+   "going_out": 99,
+   "resign": 0,
+   "scoreless_turns": 1901,
+   "too_long": 0
+  },
+  "exchanges": 2058,
+  "firstExtraTurnPct": 50.35,
+  "firstLeadMean": 4.4,
+  "firstWinCI": [
+   48.76,
+   53.14
+  ],
+  "firstWinK": 1018,
+  "firstWinPct": 50.95,
+  "matches": 2000,
+  "meanAbsMargin": 106.3,
+  "meanTotalScore": 781.3,
+  "noWordBagPct": 4.49,
+  "noWordPct": 15.27,
+  "passes": 12727,
+  "ppw": 19.7,
+  "rackEndMean": 8,
+  "scorelessPct": 95.05,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 2
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 45.95,
+  "tilesPlayedMean": 91.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41
+ },
+ "bg2_mdr2_realplus_2000": {
+  "a": {
+   "easyPct": 28.29,
+   "meanScore": 542.1,
+   "ppw": 26.8
+  },
+  "aWinCI": [
+   96.66,
+   98.05
+  ],
+  "aWinPct": 97.45,
+  "actionsMean": 46.3,
+  "b": {
+   "easyPct": 52.26,
+   "meanScore": 386.7,
+   "ppw": 19.3
+  },
+  "bagEnd": {
+   "ge7Pct": 0.75,
+   "lt7Pct": 1.8,
+   "mean": 0.3,
+   "zeroPct": 97.45
+  },
+  "deadTurnsAtEndMean": 4.48,
+  "decisive": 1998,
+  "draws": 2,
+  "ends": {
+   "going_out": 493,
+   "resign": 0,
+   "scoreless_turns": 1507,
+   "too_long": 0
+  },
+  "exchanges": 614,
+  "firstExtraTurnPct": 49.2,
+  "firstLeadMean": 2.4,
+  "firstWinCI": [
+   47.96,
+   52.34
+  ],
+  "firstWinK": 1002,
+  "firstWinPct": 50.15,
+  "matches": 2000,
+  "meanAbsMargin": 156.8,
+  "meanTotalScore": 928.8,
+  "noWordBagPct": 1.26,
+  "noWordPct": 11.58,
+  "passes": 10100,
+  "ppw": 23.1,
+  "rackEndMean": 4.7,
+  "scorelessPct": 75.35,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 2
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 49.73,
+  "tilesPlayedMean": 95,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.9
+ },
+ "bg2_mdr2sharp_real": {
+  "a": {
+   "easyPct": 41.96,
+   "meanScore": 411.3,
+   "ppw": 20.7
+  },
+  "aWinCI": [
+   75.12,
+   78.81
+  ],
+  "aWinPct": 77.02,
+  "actionsMean": 50.6,
+  "b": {
+   "easyPct": 51.68,
+   "meanScore": 352,
+   "ppw": 17.7
+  },
+  "bagEnd": {
+   "ge7Pct": 8.05,
+   "lt7Pct": 22.15,
+   "mean": 1.9,
+   "zeroPct": 69.8
+  },
+  "deadTurnsAtEndMean": 5.45,
+  "decisive": 1993,
+  "draws": 7,
+  "ends": {
+   "going_out": 21,
+   "resign": 0,
+   "scoreless_turns": 1979,
+   "too_long": 0
+  },
+  "exchanges": 5818,
+  "firstExtraTurnPct": 48.65,
+  "firstLeadMean": 4.5,
+  "firstWinCI": [
+   49.08,
+   53.47
+  ],
+  "firstWinK": 1022,
+  "firstWinPct": 51.28,
+  "matches": 2000,
+  "meanAbsMargin": 80.6,
+  "meanTotalScore": 763.3,
+  "noWordBagPct": 10.54,
+  "noWordPct": 18.18,
+  "passes": 12566,
+  "ppw": 19.2,
+  "rackEndMean": 10.6,
+  "scorelessPct": 98.95,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 2,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 46.92,
+  "tilesPlayedMean": 87.5,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.4
+ },
+ "bg2_mdr2sharp_realb3_2000": {
+  "a": {
+   "easyPct": 40.24,
+   "meanScore": 427.1,
+   "ppw": 21.8
+  },
+  "aWinCI": [
+   77.14,
+   80.72
+  ],
+  "aWinPct": 78.99,
+  "actionsMean": 47.9,
+  "b": {
+   "easyPct": 50.83,
+   "meanScore": 364.9,
+   "ppw": 18.7
+  },
+  "bagEnd": {
+   "ge7Pct": 2.25,
+   "lt7Pct": 7.8,
+   "mean": 0.7,
+   "zeroPct": 89.95
+  },
+  "deadTurnsAtEndMean": 5.62,
+  "decisive": 1994,
+  "draws": 6,
+  "ends": {
+   "going_out": 82,
+   "resign": 0,
+   "scoreless_turns": 1918,
+   "too_long": 0
+  },
+  "exchanges": 2074,
+  "firstExtraTurnPct": 47.55,
+  "firstLeadMean": 6.7,
+  "firstWinCI": [
+   50.46,
+   54.84
+  ],
+  "firstWinK": 1050,
+  "firstWinPct": 52.66,
+  "matches": 2000,
+  "meanAbsMargin": 82.6,
+  "meanTotalScore": 791.9,
+  "noWordBagPct": 4.48,
+  "noWordPct": 15.52,
+  "passes": 12780,
+  "ppw": 20.2,
+  "rackEndMean": 7.9,
+  "scorelessPct": 95.9,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 2,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 45.76,
+  "tilesPlayedMean": 91.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.4
+ },
+ "bg2_mdr2sharp_realplus_2000": {
+  "a": {
+   "easyPct": 28.14,
+   "meanScore": 529.3,
+   "ppw": 26.6
+  },
+  "aWinCI": [
+   91.46,
+   93.75
+  ],
+  "aWinPct": 92.69,
+  "actionsMean": 45.4,
+  "b": {
+   "easyPct": 49.53,
+   "meanScore": 410.9,
+   "ppw": 20.9
+  },
+  "bagEnd": {
+   "ge7Pct": 1.15,
+   "lt7Pct": 1.6,
+   "mean": 0.4,
+   "zeroPct": 97.25
+  },
+  "deadTurnsAtEndMean": 4.3,
+  "decisive": 1996,
+  "draws": 4,
+  "ends": {
+   "going_out": 543,
+   "resign": 0,
+   "scoreless_turns": 1457,
+   "too_long": 0
+  },
+  "exchanges": 618,
+  "firstExtraTurnPct": 51.25,
+  "firstLeadMean": 6.1,
+  "firstWinCI": [
+   49.31,
+   53.69
+  ],
+  "firstWinK": 1028,
+  "firstWinPct": 51.5,
+  "matches": 2000,
+  "meanAbsMargin": 123.6,
+  "meanTotalScore": 940.3,
+  "noWordBagPct": 1.28,
+  "noWordPct": 11.4,
+  "passes": 9731,
+  "ppw": 23.7,
+  "rackEndMean": 4.5,
+  "scorelessPct": 72.85,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 2,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 49.51,
+  "tilesPlayedMean": 95.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.2
+ },
+ "bg2_mdr3_real": {
+  "a": {
+   "easyPct": 41.54,
+   "meanScore": 421.3,
+   "ppw": 20.8
+  },
+  "aWinCI": [
+   77.07,
+   80.65
+  ],
+  "aWinPct": 78.92,
+  "actionsMean": 51.2,
+  "b": {
+   "easyPct": 48.8,
+   "meanScore": 354.2,
+   "ppw": 17.7
+  },
+  "bagEnd": {
+   "ge7Pct": 6.85,
+   "lt7Pct": 26.85,
+   "mean": 1.9,
+   "zeroPct": 66.3
+  },
+  "deadTurnsAtEndMean": 5.52,
+  "decisive": 1992,
+  "draws": 8,
+  "ends": {
+   "going_out": 24,
+   "resign": 0,
+   "scoreless_turns": 1976,
+   "too_long": 0
+  },
+  "exchanges": 5646,
+  "firstExtraTurnPct": 51.35,
+  "firstLeadMean": 7.1,
+  "firstWinCI": [
+   49.76,
+   54.15
+  ],
+  "firstWinK": 1035,
+  "firstWinPct": 51.96,
+  "matches": 2000,
+  "meanAbsMargin": 87.9,
+  "meanTotalScore": 775.5,
+  "noWordBagPct": 10.78,
+  "noWordPct": 17.95,
+  "passes": 12719,
+  "ppw": 19.2,
+  "rackEndMean": 11,
+  "scorelessPct": 98.8,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 3
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 49.03,
+  "tilesPlayedMean": 87.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42
+ },
+ "bg2_mdr3_realplus_2000": {
+  "a": {
+   "easyPct": 28.27,
+   "meanScore": 539.4,
+   "ppw": 27
+  },
+  "aWinCI": [
+   80.32,
+   83.69
+  ],
+  "aWinPct": 82.06,
+  "actionsMean": 45.6,
+  "b": {
+   "easyPct": 34.59,
+   "meanScore": 461.4,
+   "ppw": 23.2
+  },
+  "bagEnd": {
+   "ge7Pct": 0.7,
+   "lt7Pct": 1.05,
+   "mean": 0.2,
+   "zeroPct": 98.25
+  },
+  "deadTurnsAtEndMean": 4.37,
+  "decisive": 1996,
+  "draws": 4,
+  "ends": {
+   "going_out": 531,
+   "resign": 0,
+   "scoreless_turns": 1469,
+   "too_long": 0
+  },
+  "exchanges": 430,
+  "firstExtraTurnPct": 49.45,
+  "firstLeadMean": 7.4,
+  "firstWinCI": [
+   51.87,
+   56.23
+  ],
+  "firstWinK": 1079,
+  "firstWinPct": 54.06,
+  "matches": 2000,
+  "meanAbsMargin": 92.1,
+  "meanTotalScore": 1000.9,
+  "noWordBagPct": 0.87,
+  "noWordPct": 11.21,
+  "passes": 9791,
+  "ppw": 25.1,
+  "rackEndMean": 4.3,
+  "scorelessPct": 73.45,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 3
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 53.1,
+  "tilesPlayedMean": 95.5,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.5
+ },
+ "bg2_mdr3sharp_real": {
+  "a": {
+   "easyPct": 41.7,
+   "meanScore": 414.9,
+   "ppw": 20.8
+  },
+  "aWinCI": [
+   65.47,
+   69.57
+  ],
+  "aWinPct": 67.55,
+  "actionsMean": 50.4,
+  "b": {
+   "easyPct": 45.54,
+   "meanScore": 377.8,
+   "ppw": 19
+  },
+  "bagEnd": {
+   "ge7Pct": 8.6,
+   "lt7Pct": 22.3,
+   "mean": 2,
+   "zeroPct": 69.1
+  },
+  "deadTurnsAtEndMean": 5.42,
+  "decisive": 1994,
+  "draws": 6,
+  "ends": {
+   "going_out": 20,
+   "resign": 0,
+   "scoreless_turns": 1980,
+   "too_long": 0
+  },
+  "exchanges": 5649,
+  "firstExtraTurnPct": 47.2,
+  "firstLeadMean": 2.6,
+  "firstWinCI": [
+   49.56,
+   53.94
+  ],
+  "firstWinK": 1032,
+  "firstWinPct": 51.76,
+  "matches": 2000,
+  "meanAbsMargin": 75.1,
+  "meanTotalScore": 792.7,
+  "noWordBagPct": 10.32,
+  "noWordPct": 17.95,
+  "passes": 12453,
+  "ppw": 19.9,
+  "rackEndMean": 10.7,
+  "scorelessPct": 99,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 3,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 49.13,
+  "tilesPlayedMean": 87.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.4
+ },
+ "bg2_mdr3sharp_realb3_2000": {
+  "a": {
+   "easyPct": 40.08,
+   "meanScore": 433.3,
+   "ppw": 22
+  },
+  "aWinCI": [
+   64.75,
+   68.88
+  ],
+  "aWinPct": 66.85,
+  "actionsMean": 47.7,
+  "b": {
+   "easyPct": 43.9,
+   "meanScore": 395.2,
+   "ppw": 20.1
+  },
+  "bagEnd": {
+   "ge7Pct": 1.7,
+   "lt7Pct": 7.2,
+   "mean": 0.6,
+   "zeroPct": 91.1
+  },
+  "deadTurnsAtEndMean": 5.57,
+  "decisive": 1991,
+  "draws": 9,
+  "ends": {
+   "going_out": 111,
+   "resign": 0,
+   "scoreless_turns": 1889,
+   "too_long": 0
+  },
+  "exchanges": 1843,
+  "firstExtraTurnPct": 49.7,
+  "firstLeadMean": 3.3,
+  "firstWinCI": [
+   49.08,
+   53.47
+  ],
+  "firstWinK": 1021,
+  "firstWinPct": 51.28,
+  "matches": 2000,
+  "meanAbsMargin": 74.2,
+  "meanTotalScore": 828.5,
+  "noWordBagPct": 4.02,
+  "noWordPct": 15.18,
+  "passes": 12631,
+  "ppw": 21.1,
+  "rackEndMean": 7.7,
+  "scorelessPct": 94.45,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 3,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 47.84,
+  "tilesPlayedMean": 91.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.4
+ },
+ "bg2_mdr3sharp_realplus_2000": {
+  "a": {
+   "easyPct": 27.67,
+   "meanScore": 532.8,
+   "ppw": 27
+  },
+  "aWinCI": [
+   68.17,
+   72.18
+  ],
+  "aWinPct": 70.22,
+  "actionsMean": 44.8,
+  "b": {
+   "easyPct": 30.88,
+   "meanScore": 491.6,
+   "ppw": 24.9
+  },
+  "bagEnd": {
+   "ge7Pct": 0.45,
+   "lt7Pct": 1,
+   "mean": 0.2,
+   "zeroPct": 98.55
+  },
+  "deadTurnsAtEndMean": 4.19,
+  "decisive": 1991,
+  "draws": 9,
+  "ends": {
+   "going_out": 594,
+   "resign": 0,
+   "scoreless_turns": 1406,
+   "too_long": 0
+  },
+  "exchanges": 327,
+  "firstExtraTurnPct": 50.5,
+  "firstLeadMean": 6.2,
+  "firstWinCI": [
+   51.55,
+   55.92
+  ],
+  "firstWinK": 1070,
+  "firstWinPct": 53.74,
+  "matches": 2000,
+  "meanAbsMargin": 71.6,
+  "meanTotalScore": 1024.3,
+  "noWordBagPct": 0.72,
+  "noWordPct": 10.89,
+  "passes": 9443,
+  "ppw": 25.9,
+  "rackEndMean": 4,
+  "scorelessPct": 70.3,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "maxDifficultyRank": 3,
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 53.22,
+  "tilesPlayedMean": 95.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40
+ },
+ "bg2_sharp_real": {
+  "a": {
+   "easyPct": 40.28,
+   "meanScore": 425.2,
+   "ppw": 20.9
+  },
+  "aWinCI": [
+   94.99,
+   96.72
+  ],
+  "aWinPct": 95.94,
+  "actionsMean": 51.5,
+  "b": {
+   "easyPct": 90.49,
+   "meanScore": 288.1,
+   "ppw": 14.5
+  },
+  "bagEnd": {
+   "ge7Pct": 8.3,
+   "lt7Pct": 24.85,
+   "mean": 2.1,
+   "zeroPct": 66.85
+  },
+  "deadTurnsAtEndMean": 5.45,
+  "decisive": 1997,
+  "draws": 3,
+  "ends": {
+   "going_out": 19,
+   "resign": 0,
+   "scoreless_turns": 1981,
+   "too_long": 0
+  },
+  "exchanges": 6250,
+  "firstExtraTurnPct": 48.9,
+  "firstLeadMean": 7.1,
+  "firstWinCI": [
+   48.73,
+   53.12
+  ],
+  "firstWinK": 1017,
+  "firstWinPct": 50.93,
+  "matches": 2000,
+  "meanAbsMargin": 139.6,
+  "meanTotalScore": 713.3,
+  "noWordBagPct": 11.03,
+  "noWordPct": 18.14,
+  "passes": 12423,
+  "ppw": 17.7,
+  "rackEndMean": 10.8,
+  "scorelessPct": 99.05,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 44.01,
+  "tilesPlayedMean": 87.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.1
+ },
+ "bg2_sharp_realb3_2000": {
+  "a": {
+   "easyPct": 39.08,
+   "meanScore": 438.7,
+   "ppw": 22
+  },
+  "aWinCI": [
+   95.21,
+   96.9
+  ],
+  "aWinPct": 96.14,
+  "actionsMean": 48.5,
+  "b": {
+   "easyPct": 93.75,
+   "meanScore": 303,
+   "ppw": 15.3
+  },
+  "bagEnd": {
+   "ge7Pct": 2.6,
+   "lt7Pct": 9.3,
+   "mean": 0.7,
+   "zeroPct": 88.1
+  },
+  "deadTurnsAtEndMean": 5.53,
+  "decisive": 1997,
+  "draws": 3,
+  "ends": {
+   "going_out": 104,
+   "resign": 0,
+   "scoreless_turns": 1896,
+   "too_long": 0
+  },
+  "exchanges": 2234,
+  "firstExtraTurnPct": 50.75,
+  "firstLeadMean": 5.4,
+  "firstWinCI": [
+   48.43,
+   52.82
+  ],
+  "firstWinK": 1011,
+  "firstWinPct": 50.63,
+  "matches": 2000,
+  "meanAbsMargin": 138,
+  "meanTotalScore": 741.7,
+  "noWordBagPct": 4.75,
+  "noWordPct": 15.19,
+  "passes": 12498,
+  "ppw": 18.7,
+  "rackEndMean": 8,
+  "scorelessPct": 94.8,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 42.64,
+  "tilesPlayedMean": 91.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.1
+ },
+ "bg2_sharp_realplus_2000": {
+  "a": {
+   "easyPct": 27.72,
+   "meanScore": 543.6,
+   "ppw": 26.8
+  },
+  "aWinCI": [
+   99.02,
+   99.69
+  ],
+  "aWinPct": 99.45,
+  "actionsMean": 46.3,
+  "b": {
+   "easyPct": 97.33,
+   "meanScore": 347.2,
+   "ppw": 17.3
+  },
+  "bagEnd": {
+   "ge7Pct": 0.7,
+   "lt7Pct": 1.85,
+   "mean": 0.2,
+   "zeroPct": 97.45
+  },
+  "deadTurnsAtEndMean": 4.38,
+  "decisive": 2000,
+  "draws": 0,
+  "ends": {
+   "going_out": 527,
+   "resign": 0,
+   "scoreless_turns": 1473,
+   "too_long": 0
+  },
+  "exchanges": 546,
+  "firstExtraTurnPct": 51.15,
+  "firstLeadMean": 4.5,
+  "firstWinCI": [
+   47.86,
+   52.24
+  ],
+  "firstWinK": 1001,
+  "firstWinPct": 50.05,
+  "matches": 2000,
+  "meanAbsMargin": 196.7,
+  "meanTotalScore": 890.8,
+  "noWordBagPct": 1.17,
+  "noWordPct": 11.37,
+  "passes": 9976,
+  "ppw": 22.1,
+  "rackEndMean": 4.5,
+  "scorelessPct": 73.65,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 46.86,
+  "tilesPlayedMean": 95.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41
+ },
+ "bg2v_base_real": {
+  "a": {
+   "easyPct": 88.89,
+   "meanScore": 330.4,
+   "ppw": 16.1
+  },
+  "aWinCI": [
+   77.08,
+   80.66
+  ],
+  "aWinPct": 78.92,
+  "actionsMean": 53.1,
+  "b": {
+   "easyPct": 88.35,
+   "meanScore": 274.6,
+   "ppw": 13.5
+  },
+  "bagEnd": {
+   "ge7Pct": 12.7,
+   "lt7Pct": 28.4,
+   "mean": 3.2,
+   "zeroPct": 58.9
+  },
+  "deadTurnsAtEndMean": 5.2,
+  "decisive": 1988,
+  "draws": 12,
+  "ends": {
+   "going_out": 13,
+   "resign": 0,
+   "scoreless_turns": 1987,
+   "too_long": 0
+  },
+  "exchanges": 7910,
+  "firstExtraTurnPct": 51.25,
+  "firstLeadMean": 5.8,
+  "firstWinCI": [
+   49.36,
+   53.75
+  ],
+  "firstWinK": 1025,
+  "firstWinPct": 51.56,
+  "matches": 2000,
+  "meanAbsMargin": 71.8,
+  "meanTotalScore": 605,
+  "noWordBagPct": 12.71,
+  "noWordPct": 18.64,
+  "passes": 11872,
+  "ppw": 14.8,
+  "rackEndMean": 11.5,
+  "scorelessPct": 99.35,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataA": {
+    "maxDifficultyRank": 1
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 37.08,
+  "tilesPlayedMean": 85.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 43.2
+ },
+ "bg2v_base_realb3_2000": {
+  "a": {
+   "easyPct": 92.83,
+   "meanScore": 346.6,
+   "ppw": 17
+  },
+  "aWinCI": [
+   77.41,
+   80.97
+  ],
+  "aWinPct": 79.25,
+  "actionsMean": 50.1,
+  "b": {
+   "easyPct": 92.29,
+   "meanScore": 286.8,
+   "ppw": 14.2
+  },
+  "bagEnd": {
+   "ge7Pct": 2.8,
+   "lt7Pct": 11.75,
+   "mean": 0.9,
+   "zeroPct": 85.45
+  },
+  "deadTurnsAtEndMean": 5.6,
+  "decisive": 1995,
+  "draws": 5,
+  "ends": {
+   "going_out": 78,
+   "resign": 0,
+   "scoreless_turns": 1922,
+   "too_long": 0
+  },
+  "exchanges": 2714,
+  "firstExtraTurnPct": 51.75,
+  "firstLeadMean": 4.6,
+  "firstWinCI": [
+   50.64,
+   55.02
+  ],
+  "firstWinK": 1054,
+  "firstWinPct": 52.83,
+  "matches": 2000,
+  "meanAbsMargin": 76.9,
+  "meanTotalScore": 633.4,
+  "noWordBagPct": 5.53,
+  "noWordPct": 15.38,
+  "passes": 12695,
+  "ppw": 15.6,
+  "rackEndMean": 8.5,
+  "scorelessPct": 96.1,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataA": {
+    "maxDifficultyRank": 1
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 34.95,
+  "tilesPlayedMean": 90.6,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.4
+ },
+ "bg2v_sharp_real": {
+  "a": {
+   "easyPct": 88.99,
+   "meanScore": 322.6,
+   "ppw": 16
+  },
+  "aWinCI": [
+   65.21,
+   69.33
+  ],
+  "aWinPct": 67.3,
+  "actionsMean": 52.2,
+  "b": {
+   "easyPct": 88.65,
+   "meanScore": 291.6,
+   "ppw": 14.5
+  },
+  "bagEnd": {
+   "ge7Pct": 12.1,
+   "lt7Pct": 25.4,
+   "mean": 2.9,
+   "zeroPct": 62.5
+  },
+  "deadTurnsAtEndMean": 5.23,
+  "decisive": 1991,
+  "draws": 9,
+  "ends": {
+   "going_out": 15,
+   "resign": 0,
+   "scoreless_turns": 1985,
+   "too_long": 0
+  },
+  "exchanges": 7582,
+  "firstExtraTurnPct": 50.3,
+  "firstLeadMean": 3.5,
+  "firstWinCI": [
+   49.94,
+   54.32
+  ],
+  "firstWinK": 1038,
+  "firstWinPct": 52.13,
+  "matches": 2000,
+  "meanAbsMargin": 61.5,
+  "meanTotalScore": 614.2,
+  "noWordBagPct": 12.21,
+  "noWordPct": 18.65,
+  "passes": 11903,
+  "ppw": 15.2,
+  "rackEndMean": 11.2,
+  "scorelessPct": 99.25,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataA": {
+    "maxDifficultyRank": 1
+   },
+   "dataB": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 988
+  },
+  "termBonusSharePct": 37.03,
+  "tilesPlayedMean": 85.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.5
+ },
+ "bg2v_sharp_realb3_2000": {
+  "a": {
+   "easyPct": 93.01,
+   "meanScore": 339.2,
+   "ppw": 16.9
+  },
+  "aWinCI": [
+   66.91,
+   70.97
+  ],
+  "aWinPct": 68.98,
+  "actionsMean": 49.3,
+  "b": {
+   "easyPct": 92.79,
+   "meanScore": 302.8,
+   "ppw": 15.2
+  },
+  "bagEnd": {
+   "ge7Pct": 3,
+   "lt7Pct": 10.3,
+   "mean": 0.8,
+   "zeroPct": 86.7
+  },
+  "deadTurnsAtEndMean": 5.59,
+  "decisive": 1992,
+  "draws": 8,
+  "ends": {
+   "going_out": 77,
+   "resign": 0,
+   "scoreless_turns": 1923,
+   "too_long": 0
+  },
+  "exchanges": 2662,
+  "firstExtraTurnPct": 48.65,
+  "firstLeadMean": 0.6,
+  "firstWinCI": [
+   49.41,
+   53.8
+  ],
+  "firstWinK": 1028,
+  "firstWinPct": 51.61,
+  "matches": 2000,
+  "meanAbsMargin": 65,
+  "meanTotalScore": 642.1,
+  "noWordBagPct": 5.39,
+  "noWordPct": 15.56,
+  "passes": 12678,
+  "ppw": 16.1,
+  "rackEndMean": 8.4,
+  "scorelessPct": 96.15,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataA": {
+    "maxDifficultyRank": 1
+   },
+   "dataB": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "terms": 1486
+  },
+  "termBonusSharePct": 34.87,
+  "tilesPlayedMean": 90.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.6
+ },
+ "gmirror_enable_60000": {
+  "a": {
+   "easyPct": 14.3,
+   "meanScore": 547.7,
+   "ppw": 36.5
+  },
+  "aWinCI": [
+   45.73,
+   50.11
+  ],
+  "aWinPct": null,
+  "actionsMean": 34.1,
+  "b": {
+   "easyPct": 14.69,
+   "meanScore": 551.4,
+   "ppw": 36.6
+  },
+  "bagEnd": {
+   "ge7Pct": 0.05,
+   "lt7Pct": 0.05,
+   "mean": 0,
+   "zeroPct": 99.9
+  },
+  "deadTurnsAtEndMean": 3.3,
+  "decisive": 1995,
+  "draws": 5,
+  "ends": {
+   "going_out": 900,
+   "resign": 0,
+   "scoreless_turns": 1100,
+   "too_long": 0
+  },
+  "exchanges": 178,
+  "firstExtraTurnPct": 48.55,
+  "firstLeadMean": 9.3,
+  "firstWinCI": [
+   50.99,
+   55.36
+  ],
+  "firstWinK": 1061,
+  "firstWinPct": 53.18,
+  "matches": 2000,
+  "meanAbsMargin": 84.4,
+  "meanTotalScore": 1099.1,
+  "noWordBagPct": 0.38,
+  "noWordPct": 11.25,
+  "passes": 7501,
+  "ppw": 36.5,
+  "rackEndMean": 3.3,
+  "scorelessPct": 55,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 60000,
+   "lex": "enable:60000",
+   "matches": 2000,
+   "terms": 60000
+  },
+  "termBonusSharePct": 45.54,
+  "tilesPlayedMean": 96.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 30.3
+ },
+ "gmirror_real": {
+  "a": {
+   "easyPct": 41.63,
+   "meanScore": 407.7,
+   "ppw": 20.8
+  },
+  "aWinCI": [
+   48.84,
+   50.8
+  ],
+  "aWinPct": null,
+  "actionsMean": 49.5,
+  "b": {
+   "easyPct": 41.73,
+   "meanScore": 407.7,
+   "ppw": 20.8
+  },
+  "bagEnd": {
+   "ge7Pct": 6.2,
+   "lt7Pct": 20.11,
+   "mean": 1.7,
+   "zeroPct": 73.69
+  },
+  "deadTurnsAtEndMean": 5.55,
+  "decisive": 9966,
+  "draws": 34,
+  "ends": {
+   "going_out": 130,
+   "resign": 0,
+   "scoreless_turns": 9870,
+   "too_long": 0
+  },
+  "exchanges": 24485,
+  "firstExtraTurnPct": 50.27,
+  "firstLeadMean": 4.8,
+  "firstWinCI": [
+   51.53,
+   53.49
+  ],
+  "firstWinK": 5233,
+  "firstWinPct": 52.51,
+  "matches": 10000,
+  "meanAbsMargin": 68.5,
+  "meanTotalScore": 815.4,
+  "noWordBagPct": 9.41,
+  "noWordPct": 17.75,
+  "passes": 63325,
+  "ppw": 20.8,
+  "rackEndMean": 10.2,
+  "scorelessPct": 98.7,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "terms": 988
+  },
+  "termBonusSharePct": 49.02,
+  "tilesPlayedMean": 88.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.7
+ },
+ "gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 39.83,
+   "meanScore": 425.7,
+   "ppw": 22
+  },
+  "aWinCI": [
+   48.71,
+   50.68
+  ],
+  "aWinPct": null,
+  "actionsMean": 46.8,
+  "b": {
+   "easyPct": 39.88,
+   "meanScore": 426.4,
+   "ppw": 22
+  },
+  "bagEnd": {
+   "ge7Pct": 1.56,
+   "lt7Pct": 5.68,
+   "mean": 0.5,
+   "zeroPct": 92.76
+  },
+  "deadTurnsAtEndMean": 5.53,
+  "decisive": 9951,
+  "draws": 49,
+  "ends": {
+   "going_out": 626,
+   "resign": 0,
+   "scoreless_turns": 9374,
+   "too_long": 0
+  },
+  "exchanges": 8626,
+  "firstExtraTurnPct": 50.5,
+  "firstLeadMean": 4.7,
+  "firstWinCI": [
+   51.24,
+   53.21
+  ],
+  "firstWinK": 5197,
+  "firstWinPct": 52.23,
+  "matches": 10000,
+  "meanAbsMargin": 66.7,
+  "meanTotalScore": 852.1,
+  "noWordBagPct": 3.63,
+  "noWordPct": 15.15,
+  "passes": 62327,
+  "ppw": 22,
+  "rackEndMean": 7.3,
+  "scorelessPct": 93.74,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "terms": 1486
+  },
+  "termBonusSharePct": 47.83,
+  "tilesPlayedMean": 92.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 39.7
+ },
+ "gmirror_realplus_2000": {
+  "a": {
+   "easyPct": 27.85,
+   "meanScore": 520.6,
+   "ppw": 26.8
+  },
+  "aWinCI": [
+   48.95,
+   50.91
+  ],
+  "aWinPct": null,
+  "actionsMean": 43.9,
+  "b": {
+   "easyPct": 27.62,
+   "meanScore": 520.2,
+   "ppw": 26.8
+  },
+  "bagEnd": {
+   "ge7Pct": 0.43,
+   "lt7Pct": 0.72,
+   "mean": 0.2,
+   "zeroPct": 98.85
+  },
+  "deadTurnsAtEndMean": 4.01,
+  "decisive": 9944,
+  "draws": 56,
+  "ends": {
+   "going_out": 3271,
+   "resign": 0,
+   "scoreless_turns": 6729,
+   "too_long": 0
+  },
+  "exchanges": 1692,
+  "firstExtraTurnPct": 49.04,
+  "firstLeadMean": 5,
+  "firstWinCI": [
+   52.09,
+   54.05
+  ],
+  "firstWinK": 5277,
+  "firstWinPct": 53.07,
+  "matches": 10000,
+  "meanAbsMargin": 62.4,
+  "meanTotalScore": 1040.7,
+  "noWordBagPct": 0.68,
+  "noWordPct": 10.67,
+  "passes": 45215,
+  "ppw": 26.8,
+  "rackEndMean": 3.9,
+  "scorelessPct": 67.29,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 10000,
+   "terms": 1486
+  },
+  "termBonusSharePct": 53.16,
+  "tilesPlayedMean": 95.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 39.3
+ },
+ "lex_enable_20000": {
+  "a": {
+   "easyPct": 92.9,
+   "meanScore": 257,
+   "ppw": 15.4
+  },
+  "aWinCI": [
+   48.39,
+   51.98
+  ],
+  "aWinPct": null,
+  "actionsMean": 43.1,
+  "b": {
+   "easyPct": 93.02,
+   "meanScore": 255.7,
+   "ppw": 15.4
+  },
+  "bagEnd": {
+   "ge7Pct": 1.23,
+   "lt7Pct": 10.5,
+   "mean": 0.6,
+   "zeroPct": 88.27
+  },
+  "deadTurnsAtEndMean": 5.79,
+  "decisive": 2985,
+  "draws": 15,
+  "ends": {
+   "going_out": 66,
+   "resign": 0,
+   "scoreless_turns": 2934,
+   "too_long": 0
+  },
+  "exchanges": 3731,
+  "firstExtraTurnPct": 50.97,
+  "firstLeadMean": 7.5,
+  "firstWinCI": [
+   52.98,
+   56.55
+  ],
+  "firstWinK": 1635,
+  "firstWinPct": 54.77,
+  "matches": 3000,
+  "meanAbsMargin": 54.7,
+  "meanTotalScore": 512.7,
+  "noWordBagPct": 6.22,
+  "noWordPct": 18.17,
+  "passes": 19773,
+  "ppw": 15.4,
+  "rackEndMean": 9,
+  "scorelessPct": 97.8,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 20000,
+   "lex": "enable:20000",
+   "matches": 3000,
+   "terms": 20000
+  },
+  "termBonusSharePct": 27.82,
+  "tilesPlayedMean": 90.5,
+  "tooLongPct": 0,
+  "wordsPerMatch": 35.3
+ },
+ "lex_enable_60000": {
+  "a": {
+   "easyPct": 95.84,
+   "meanScore": 353.4,
+   "ppw": 21.3
+  },
+  "aWinCI": [
+   46.45,
+   50.03
+  ],
+  "aWinPct": null,
+  "actionsMean": 38.3,
+  "b": {
+   "easyPct": 95.83,
+   "meanScore": 356.3,
+   "ppw": 21.5
+  },
+  "bagEnd": {
+   "ge7Pct": 0,
+   "lt7Pct": 0.13,
+   "mean": 0,
+   "zeroPct": 99.87
+  },
+  "deadTurnsAtEndMean": 4,
+  "decisive": 2983,
+  "draws": 17,
+  "ends": {
+   "going_out": 1001,
+   "resign": 0,
+   "scoreless_turns": 1999,
+   "too_long": 0
+  },
+  "exchanges": 300,
+  "firstExtraTurnPct": 50.8,
+  "firstLeadMean": 8.3,
+  "firstWinCI": [
+   51.11,
+   54.69
+  ],
+  "firstWinK": 1578,
+  "firstWinPct": 52.9,
+  "matches": 3000,
+  "meanAbsMargin": 69.5,
+  "meanTotalScore": 709.7,
+  "noWordBagPct": 0.41,
+  "noWordPct": 12.12,
+  "passes": 13627,
+  "ppw": 21.4,
+  "rackEndMean": 3.9,
+  "scorelessPct": 66.63,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 60000,
+   "lex": "enable:60000",
+   "matches": 3000,
+   "terms": 60000
+  },
+  "termBonusSharePct": 29.95,
+  "tilesPlayedMean": 96.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 33.6
+ },
+ "lex_real": {
+  "a": {
+   "easyPct": 87.76,
+   "meanScore": 292,
+   "ppw": 13.8
+  },
+  "aWinCI": [
+   48.99,
+   50.95
+  ],
+  "aWinPct": null,
+  "actionsMean": 55.4,
+  "b": {
+   "easyPct": 87.7,
+   "meanScore": 291.2,
+   "ppw": 13.7
+  },
+  "bagEnd": {
+   "ge7Pct": 14.93,
+   "lt7Pct": 31.85,
+   "mean": 3.2,
+   "zeroPct": 53.22
+  },
+  "deadTurnsAtEndMean": 5.08,
+  "decisive": 9926,
+  "draws": 74,
+  "ends": {
+   "going_out": 43,
+   "resign": 0,
+   "scoreless_turns": 9957,
+   "too_long": 0
+  },
+  "exchanges": 45299,
+  "firstExtraTurnPct": 50.41,
+  "firstLeadMean": 4.9,
+  "firstWinCI": [
+   51.36,
+   53.33
+  ],
+  "firstWinK": 5196,
+  "firstWinPct": 52.35,
+  "matches": 10000,
+  "meanAbsMargin": 53.9,
+  "meanTotalScore": 583.2,
+  "noWordBagPct": 13.61,
+  "noWordPct": 18.7,
+  "passes": 58266,
+  "ppw": 13.7,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "terms": 988
+  },
+  "termBonusSharePct": 37.27,
+  "tilesPlayedMean": 84.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45
+ },
+ "lex_realb3_2000": {
+  "a": {
+   "easyPct": 91.68,
+   "meanScore": 301.2,
+   "ppw": 14.3
+  },
+  "aWinCI": [
+   47.8,
+   49.77
+  ],
+  "aWinPct": null,
+  "actionsMean": 52.4,
+  "b": {
+   "easyPct": 91.73,
+   "meanScore": 302.1,
+   "ppw": 14.3
+  },
+  "bagEnd": {
+   "ge7Pct": 3.63,
+   "lt7Pct": 13.04,
+   "mean": 1,
+   "zeroPct": 83.33
+  },
+  "deadTurnsAtEndMean": 5.64,
+  "decisive": 9950,
+  "draws": 50,
+  "ends": {
+   "going_out": 243,
+   "resign": 0,
+   "scoreless_turns": 9757,
+   "too_long": 0
+  },
+  "exchanges": 17021,
+  "firstExtraTurnPct": 49.59,
+  "firstLeadMean": 6.1,
+  "firstWinCI": [
+   52.4,
+   54.36
+  ],
+  "firstWinK": 5311,
+  "firstWinPct": 53.38,
+  "matches": 10000,
+  "meanAbsMargin": 56.7,
+  "meanTotalScore": 603.3,
+  "noWordBagPct": 6.3,
+  "noWordPct": 15.54,
+  "passes": 64373,
+  "ppw": 14.3,
+  "rackEndMean": 9.2,
+  "scorelessPct": 97.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "terms": 1486
+  },
+  "termBonusSharePct": 35.25,
+  "tilesPlayedMean": 89.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.2
+ },
+ "lex_realb3_2500": {
+  "a": {
+   "easyPct": 94.29,
+   "meanScore": 314.4,
+   "ppw": 15.2
+  },
+  "aWinCI": [
+   49.16,
+   51.13
+  ],
+  "aWinPct": null,
+  "actionsMean": 49.7,
+  "b": {
+   "easyPct": 94.4,
+   "meanScore": 314.2,
+   "ppw": 15.2
+  },
+  "bagEnd": {
+   "ge7Pct": 1.06,
+   "lt7Pct": 4.6,
+   "mean": 0.3,
+   "zeroPct": 94.34
+  },
+  "deadTurnsAtEndMean": 5.45,
+  "decisive": 9961,
+  "draws": 39,
+  "ends": {
+   "going_out": 811,
+   "resign": 0,
+   "scoreless_turns": 9189,
+   "too_long": 0
+  },
+  "exchanges": 7075,
+  "firstExtraTurnPct": 49.99,
+  "firstLeadMean": 5.1,
+  "firstWinCI": [
+   52.24,
+   54.2
+  ],
+  "firstWinK": 5301,
+  "firstWinPct": 53.22,
+  "matches": 10000,
+  "meanAbsMargin": 56.4,
+  "meanTotalScore": 628.6,
+  "noWordBagPct": 2.82,
+  "noWordPct": 13.81,
+  "passes": 61588,
+  "ppw": 15.2,
+  "rackEndMean": 6.8,
+  "scorelessPct": 91.89,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 2499,
+   "lex": "realb3:2500",
+   "matches": 10000,
+   "terms": 1986
+  },
+  "termBonusSharePct": 33.74,
+  "tilesPlayedMean": 92.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.8
+ },
+ "lex_realplus_2000": {
+  "a": {
+   "easyPct": 96.23,
+   "meanScore": 347.7,
+   "ppw": 16
+  },
+  "aWinCI": [
+   49.12,
+   51.09
+  ],
+  "aWinPct": null,
+  "actionsMean": 50.8,
+  "b": {
+   "easyPct": 96.27,
+   "meanScore": 347.5,
+   "ppw": 16
+  },
+  "bagEnd": {
+   "ge7Pct": 1.24,
+   "lt7Pct": 3.46,
+   "mean": 0.3,
+   "zeroPct": 95.3
+  },
+  "deadTurnsAtEndMean": 5.09,
+  "decisive": 9959,
+  "draws": 41,
+  "ends": {
+   "going_out": 1389,
+   "resign": 0,
+   "scoreless_turns": 8611,
+   "too_long": 0
+  },
+  "exchanges": 4728,
+  "firstExtraTurnPct": 48.97,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   51.07,
+   53.03
+  ],
+  "firstWinK": 5184,
+  "firstWinPct": 52.05,
+  "matches": 10000,
+  "meanAbsMargin": 62.1,
+  "meanTotalScore": 695.2,
+  "noWordBagPct": 1.9,
+  "noWordPct": 12.24,
+  "passes": 57513,
+  "ppw": 16,
+  "rackEndMean": 5.8,
+  "scorelessPct": 86.11,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 10000,
+   "terms": 1486
+  },
+  "termBonusSharePct": 37.21,
+  "tilesPlayedMean": 93.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.6
+ },
+ "lex_realplus_3000": {
+  "a": {
+   "easyPct": 97.34,
+   "meanScore": 444.9,
+   "ppw": 21.5
+  },
+  "aWinCI": [
+   48.75,
+   50.72
+  ],
+  "aWinPct": null,
+  "actionsMean": 45.5,
+  "b": {
+   "easyPct": 97.32,
+   "meanScore": 445.2,
+   "ppw": 21.5
+  },
+  "bagEnd": {
+   "ge7Pct": 0.18,
+   "lt7Pct": 0.56,
+   "mean": 0.1,
+   "zeroPct": 99.26
+  },
+  "deadTurnsAtEndMean": 3.17,
+  "decisive": 9949,
+  "draws": 51,
+  "ends": {
+   "going_out": 4695,
+   "resign": 0,
+   "scoreless_turns": 5305,
+   "too_long": 0
+  },
+  "exchanges": 822,
+  "firstExtraTurnPct": 50.24,
+  "firstLeadMean": 1.5,
+  "firstWinCI": [
+   49.91,
+   51.87
+  ],
+  "firstWinK": 5063,
+  "firstWinPct": 50.89,
+  "matches": 10000,
+  "meanAbsMargin": 66.8,
+  "meanTotalScore": 890.1,
+  "noWordBagPct": 0.36,
+  "noWordPct": 8.23,
+  "passes": 36659,
+  "ppw": 21.5,
+  "rackEndMean": 3.2,
+  "scorelessPct": 53.05,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 2999,
+   "lex": "realplus:3000",
+   "matches": 10000,
+   "terms": 2486
+  },
+  "termBonusSharePct": 43.38,
+  "tilesPlayedMean": 96.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.8
+ },
+ "lex_realsub_50": {
+  "a": {
+   "easyPct": 78.67,
+   "meanScore": 231.6,
+   "ppw": 12.3
+  },
+  "aWinCI": [
+   48.98,
+   50.95
+  ],
+  "aWinPct": null,
+  "actionsMean": 57.2,
+  "b": {
+   "easyPct": 78.58,
+   "meanScore": 231.5,
+   "ppw": 12.3
+  },
+  "bagEnd": {
+   "ge7Pct": 67.79,
+   "lt7Pct": 24.78,
+   "mean": 14.8,
+   "zeroPct": 7.43
+  },
+  "deadTurnsAtEndMean": 1.93,
+  "decisive": 9937,
+  "draws": 63,
+  "ends": {
+   "going_out": 0,
+   "resign": 0,
+   "scoreless_turns": 10000,
+   "too_long": 0
+  },
+  "exchanges": 142555,
+  "firstExtraTurnPct": 49.88,
+  "firstLeadMean": 5.4,
+  "firstWinCI": [
+   52.44,
+   54.41
+  ],
+  "firstWinK": 5309,
+  "firstWinPct": 53.43,
+  "matches": 10000,
+  "meanAbsMargin": 43.9,
+  "meanTotalScore": 463.1,
+  "noWordBagPct": 28.06,
+  "noWordPct": 28.61,
+  "passes": 21146,
+  "ppw": 12.3,
+  "rackEndMean": 13.8,
+  "scorelessPct": 100,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 747,
+   "lex": "realsub:50",
+   "matches": 10000,
+   "terms": 494
+  },
+  "termBonusSharePct": 42.01,
+  "tilesPlayedMean": 71.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.8
+ },
+ "lex_realsub_75": {
+  "a": {
+   "easyPct": 85.82,
+   "meanScore": 265.6,
+   "ppw": 13.2
+  },
+  "aWinCI": [
+   49.01,
+   50.98
+  ],
+  "aWinPct": null,
+  "actionsMean": 55.9,
+  "b": {
+   "easyPct": 85.66,
+   "meanScore": 265.6,
+   "ppw": 13.2
+  },
+  "bagEnd": {
+   "ge7Pct": 30.95,
+   "lt7Pct": 40.43,
+   "mean": 5.9,
+   "zeroPct": 28.62
+  },
+  "deadTurnsAtEndMean": 4.14,
+  "decisive": 9929,
+  "draws": 71,
+  "ends": {
+   "going_out": 8,
+   "resign": 0,
+   "scoreless_turns": 9992,
+   "too_long": 0
+  },
+  "exchanges": 79650,
+  "firstExtraTurnPct": 50.62,
+  "firstLeadMean": 4.5,
+  "firstWinCI": [
+   51.81,
+   53.78
+  ],
+  "firstWinK": 5242,
+  "firstWinPct": 52.79,
+  "matches": 10000,
+  "meanAbsMargin": 49.8,
+  "meanTotalScore": 531.2,
+  "noWordBagPct": 20.07,
+  "noWordPct": 22.55,
+  "passes": 46493,
+  "ppw": 13.2,
+  "rackEndMean": 13.2,
+  "scorelessPct": 99.92,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1133,
+   "lex": "realsub:75",
+   "matches": 10000,
+   "terms": 741
+  },
+  "termBonusSharePct": 38.13,
+  "tilesPlayedMean": 80.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 43.3
+ },
+ "lex_synth_2000": {
+  "a": {
+   "easyPct": 95.53,
+   "meanScore": 452.2,
+   "ppw": 21.4
+  },
+  "aWinCI": [
+   49.15,
+   51.12
+  ],
+  "aWinPct": null,
+  "actionsMean": 47.1,
+  "b": {
+   "easyPct": 95.62,
+   "meanScore": 452,
+   "ppw": 21.4
+  },
+  "bagEnd": {
+   "ge7Pct": 0.23,
+   "lt7Pct": 0.67,
+   "mean": 0.1,
+   "zeroPct": 99.1
+  },
+  "deadTurnsAtEndMean": 3.73,
+  "decisive": 9957,
+  "draws": 43,
+  "ends": {
+   "going_out": 3760,
+   "resign": 0,
+   "scoreless_turns": 6240,
+   "too_long": 0
+  },
+  "exchanges": 1062,
+  "firstExtraTurnPct": 50.67,
+  "firstLeadMean": 0.1,
+  "firstWinCI": [
+   49.81,
+   51.77
+  ],
+  "firstWinK": 5057,
+  "firstWinPct": 50.79,
+  "matches": 10000,
+  "meanAbsMargin": 72.7,
+  "meanTotalScore": 904.1,
+  "noWordBagPct": 0.45,
+  "noWordPct": 9.3,
+  "passes": 42698,
+  "ppw": 21.4,
+  "rackEndMean": 3.6,
+  "scorelessPct": 62.4,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 2000,
+   "lex": "synth:2000",
+   "matches": 10000,
+   "terms": 2000
+  },
+  "termBonusSharePct": 47.67,
+  "tilesPlayedMean": 96.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.7
+ },
+ "lex_synth_5000": {
+  "a": {
+   "easyPct": 98.35,
+   "meanScore": 548.7,
+   "ppw": 28.9
+  },
+  "aWinCI": [
+   49.91,
+   51.87
+  ],
+  "aWinPct": null,
+  "actionsMean": 39.8,
+  "b": {
+   "easyPct": 98.39,
+   "meanScore": 547.6,
+   "ppw": 28.9
+  },
+  "bagEnd": {
+   "ge7Pct": 0.07,
+   "lt7Pct": 0.17,
+   "mean": 0,
+   "zeroPct": 99.76
+  },
+  "deadTurnsAtEndMean": 1.47,
+  "decisive": 9953,
+  "draws": 47,
+  "ends": {
+   "going_out": 7548,
+   "resign": 0,
+   "scoreless_turns": 2452,
+   "too_long": 0
+  },
+  "exchanges": 246,
+  "firstExtraTurnPct": 50.22,
+  "firstLeadMean": -6.2,
+  "firstWinCI": [
+   45.76,
+   47.72
+  ],
+  "firstWinK": 4652,
+  "firstWinPct": 46.74,
+  "matches": 10000,
+  "meanAbsMargin": 64.6,
+  "meanTotalScore": 1096.3,
+  "noWordBagPct": 0.12,
+  "noWordPct": 4.47,
+  "passes": 17544,
+  "ppw": 28.9,
+  "rackEndMean": 2.1,
+  "scorelessPct": 24.52,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 5000,
+   "lex": "synth:5000",
+   "matches": 10000,
+   "terms": 5000
+  },
+  "termBonusSharePct": 47.75,
+  "tilesPlayedMean": 97.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 38
+ },
+ "ps_bg1_sharp_realb3_2000": {
+  "a": {
+   "easyPct": 92.04,
+   "meanScore": 341.3,
+   "ppw": 15.5
+  },
+  "aWinCI": [
+   82.93,
+   86.1
+  ],
+  "aWinPct": 84.58,
+  "actionsMean": 54.7,
+  "b": {
+   "easyPct": 63.26,
+   "meanScore": 271.9,
+   "ppw": 12.5
+  },
+  "bagEnd": {
+   "ge7Pct": 4.7,
+   "lt7Pct": 14.45,
+   "mean": 1.1,
+   "zeroPct": 80.85
+  },
+  "deadTurnsAtEndMean": 5.64,
+  "decisive": 1998,
+  "draws": 2,
+  "ends": {
+   "going_out": 27,
+   "resign": 0,
+   "scoreless_turns": 1973,
+   "too_long": 0
+  },
+  "exchanges": 4047,
+  "firstExtraTurnPct": 49.55,
+  "firstLeadMean": -1.5,
+  "firstWinCI": [
+   48.41,
+   52.79
+  ],
+  "firstWinK": 1011,
+  "firstWinPct": 50.6,
+  "matches": 2000,
+  "meanAbsMargin": 80.7,
+  "meanTotalScore": 613.3,
+  "noWordBagPct": 6.88,
+  "noWordPct": 15.52,
+  "passes": 12935,
+  "ppw": 14,
+  "rackEndMean": 9.7,
+  "scorelessPct": 98.65,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "sim": {
+    "plainStart": true
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 39.79,
+  "tilesPlayedMean": 89.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46.2
+ },
+ "ps_tb50_gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 47.45,
+   "meanScore": 315.5,
+   "ppw": 16.9
+  },
+  "aWinCI": [
+   49.93,
+   51.89
+  ],
+  "aWinPct": null,
+  "actionsMean": 45,
+  "b": {
+   "easyPct": 47.36,
+   "meanScore": 314.9,
+   "ppw": 16.9
+  },
+  "bagEnd": {
+   "ge7Pct": 1.1,
+   "lt7Pct": 3.95,
+   "mean": 0.4,
+   "zeroPct": 94.95
+  },
+  "deadTurnsAtEndMean": 5.21,
+  "decisive": 9945,
+  "draws": 55,
+  "ends": {
+   "going_out": 1215,
+   "resign": 0,
+   "scoreless_turns": 8785,
+   "too_long": 0
+  },
+  "exchanges": 6228,
+  "firstExtraTurnPct": 50.55,
+  "firstLeadMean": -0.7,
+  "firstWinCI": [
+   48.42,
+   50.38
+  ],
+  "firstWinK": 4913,
+  "firstWinPct": 49.4,
+  "matches": 10000,
+  "meanAbsMargin": 53,
+  "meanTotalScore": 630.4,
+  "noWordBagPct": 2.76,
+  "noWordPct": 14.46,
+  "passes": 58778,
+  "ppw": 16.9,
+  "rackEndMean": 6.3,
+  "scorelessPct": 87.85,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true,
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 27.91,
+  "tilesPlayedMean": 93.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 38.5
+ },
+ "ps_tb50_mirror_realb3_2000": {
+  "a": {
+   "easyPct": 91.89,
+   "meanScore": 242,
+   "ppw": 11.7
+  },
+  "aWinCI": [
+   49.55,
+   51.52
+  ],
+  "aWinPct": null,
+  "actionsMean": 51.9,
+  "b": {
+   "easyPct": 91.92,
+   "meanScore": 241.2,
+   "ppw": 11.7
+  },
+  "bagEnd": {
+   "ge7Pct": 3.13,
+   "lt7Pct": 12.45,
+   "mean": 0.9,
+   "zeroPct": 84.42
+  },
+  "deadTurnsAtEndMean": 5.66,
+  "decisive": 9938,
+  "draws": 62,
+  "ends": {
+   "going_out": 253,
+   "resign": 0,
+   "scoreless_turns": 9747,
+   "too_long": 0
+  },
+  "exchanges": 15613,
+  "firstExtraTurnPct": 50.6,
+  "firstLeadMean": 0.1,
+  "firstWinCI": [
+   48.96,
+   50.92
+  ],
+  "firstWinK": 4963,
+  "firstWinPct": 49.94,
+  "matches": 10000,
+  "meanAbsMargin": 49.2,
+  "meanTotalScore": 483.2,
+  "noWordBagPct": 5.98,
+  "noWordPct": 15.48,
+  "passes": 64629,
+  "ppw": 11.7,
+  "rackEndMean": 9,
+  "scorelessPct": 97.47,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true,
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 20.39,
+  "tilesPlayedMean": 90.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 43.8
+ },
+ "ps_tb75_bg1_realb3_2000": {
+  "a": {
+   "easyPct": 92.21,
+   "meanScore": 310.8,
+   "ppw": 14.2
+  },
+  "aWinCI": [
+   87.05,
+   89.85
+  ],
+  "aWinPct": 88.52,
+  "actionsMean": 54.5,
+  "b": {
+   "easyPct": 63.09,
+   "meanScore": 236.5,
+   "ppw": 11
+  },
+  "bagEnd": {
+   "ge7Pct": 4,
+   "lt7Pct": 15.65,
+   "mean": 1,
+   "zeroPct": 80.35
+  },
+  "deadTurnsAtEndMean": 5.67,
+  "decisive": 1995,
+  "draws": 5,
+  "ends": {
+   "going_out": 30,
+   "resign": 0,
+   "scoreless_turns": 1970,
+   "too_long": 0
+  },
+  "exchanges": 3917,
+  "firstExtraTurnPct": 51.3,
+  "firstLeadMean": 2.2,
+  "firstWinCI": [
+   49.03,
+   53.42
+  ],
+  "firstWinK": 1022,
+  "firstWinPct": 51.23,
+  "matches": 2000,
+  "meanAbsMargin": 81.5,
+  "meanTotalScore": 547.3,
+  "noWordBagPct": 6.96,
+  "noWordPct": 15.53,
+  "passes": 13012,
+  "ppw": 12.6,
+  "rackEndMean": 9.7,
+  "scorelessPct": 98.5,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "dataA": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "sim": {
+    "plainStart": true,
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 32.71,
+  "tilesPlayedMean": 89.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 46
+ },
+ "ps_tb75_bg2_realb3_2000": {
+  "a": {
+   "easyPct": 42.38,
+   "meanScore": 382.3,
+   "ppw": 19.4
+  },
+  "aWinCI": [
+   94.16,
+   96.05
+  ],
+  "aWinPct": 95.19,
+  "actionsMean": 48,
+  "b": {
+   "easyPct": 93.83,
+   "meanScore": 268.6,
+   "ppw": 13.8
+  },
+  "bagEnd": {
+   "ge7Pct": 1.9,
+   "lt7Pct": 7.75,
+   "mean": 0.6,
+   "zeroPct": 90.35
+  },
+  "deadTurnsAtEndMean": 5.47,
+  "decisive": 1997,
+  "draws": 3,
+  "ends": {
+   "going_out": 139,
+   "resign": 0,
+   "scoreless_turns": 1861,
+   "too_long": 0
+  },
+  "exchanges": 2054,
+  "firstExtraTurnPct": 49.3,
+  "firstLeadMean": -0.6,
+  "firstWinCI": [
+   47.63,
+   52.02
+  ],
+  "firstWinK": 995,
+  "firstWinPct": 49.82,
+  "matches": 2000,
+  "meanAbsMargin": 116.9,
+  "meanTotalScore": 650.9,
+  "noWordBagPct": 4.34,
+  "noWordPct": 15.07,
+  "passes": 12414,
+  "ppw": 16.5,
+  "rackEndMean": 7.7,
+  "scorelessPct": 93.05,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "dataB": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "sim": {
+    "plainStart": true,
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 34.66,
+  "tilesPlayedMean": 91.8,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.8
+ },
+ "ps_tb75_gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 43.04,
+   "meanScore": 367,
+   "ppw": 19.3
+  },
+  "aWinCI": [
+   48,
+   49.96
+  ],
+  "aWinPct": null,
+  "actionsMean": 46.1,
+  "b": {
+   "easyPct": 42.92,
+   "meanScore": 367.8,
+   "ppw": 19.3
+  },
+  "bagEnd": {
+   "ge7Pct": 1.37,
+   "lt7Pct": 5.01,
+   "mean": 0.4,
+   "zeroPct": 93.62
+  },
+  "deadTurnsAtEndMean": 5.42,
+  "decisive": 9949,
+  "draws": 51,
+  "ends": {
+   "going_out": 826,
+   "resign": 0,
+   "scoreless_turns": 9174,
+   "too_long": 0
+  },
+  "exchanges": 7603,
+  "firstExtraTurnPct": 50.33,
+  "firstLeadMean": -0.3,
+  "firstWinCI": [
+   49.31,
+   51.28
+  ],
+  "firstWinK": 5004,
+  "firstWinPct": 50.3,
+  "matches": 10000,
+  "meanAbsMargin": 59.1,
+  "meanTotalScore": 734.9,
+  "noWordBagPct": 3.27,
+  "noWordPct": 14.91,
+  "passes": 61144,
+  "ppw": 19.3,
+  "rackEndMean": 6.9,
+  "scorelessPct": 91.74,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true,
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 39.34,
+  "tilesPlayedMean": 92.7,
+  "tooLongPct": 0,
+  "wordsPerMatch": 39.2
+ },
+ "ps_tb75_mirror_realb3_2000": {
+  "a": {
+   "easyPct": 91.87,
+   "meanScore": 269.8,
+   "ppw": 12.9
+  },
+  "aWinCI": [
+   49.08,
+   51.05
+  ],
+  "aWinPct": null,
+  "actionsMean": 52.1,
+  "b": {
+   "easyPct": 91.95,
+   "meanScore": 269.8,
+   "ppw": 12.9
+  },
+  "bagEnd": {
+   "ge7Pct": 3.74,
+   "lt7Pct": 12.77,
+   "mean": 1,
+   "zeroPct": 83.49
+  },
+  "deadTurnsAtEndMean": 5.62,
+  "decisive": 9929,
+  "draws": 71,
+  "ends": {
+   "going_out": 265,
+   "resign": 0,
+   "scoreless_turns": 9735,
+   "too_long": 0
+  },
+  "exchanges": 16821,
+  "firstExtraTurnPct": 49.6,
+  "firstLeadMean": -1,
+  "firstWinCI": [
+   48.31,
+   50.27
+  ],
+  "firstWinK": 4894,
+  "firstWinPct": 49.29,
+  "matches": 10000,
+  "meanAbsMargin": 52.6,
+  "meanTotalScore": 539.6,
+  "noWordBagPct": 6.27,
+  "noWordPct": 15.55,
+  "passes": 64239,
+  "ppw": 12.9,
+  "rackEndMean": 9.1,
+  "scorelessPct": 97.35,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "plainStart": true,
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 28.65,
+  "tilesPlayedMean": 89.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44
+ },
+ "rule_K10_real": {
+  "a": {
+   "easyPct": 87.66,
+   "meanScore": 293.9,
+   "ppw": 13.8
+  },
+  "aWinCI": [
+   49.17,
+   51.13
+  ],
+  "aWinPct": null,
+  "actionsMean": 70.2,
+  "b": {
+   "easyPct": 87.61,
+   "meanScore": 293.1,
+   "ppw": 13.7
+  },
+  "bagEnd": {
+   "ge7Pct": 12.49,
+   "lt7Pct": 33.76,
+   "mean": 2.7,
+   "zeroPct": 53.75
+  },
+  "deadTurnsAtEndMean": 17.42,
+  "decisive": 9930,
+  "draws": 70,
+  "ends": {
+   "going_out": 43,
+   "resign": 0,
+   "scoreless_turns": 9957,
+   "too_long": 0
+  },
+  "exchanges": 66764,
+  "firstExtraTurnPct": 50.52,
+  "firstLeadMean": 5,
+  "firstWinCI": [
+   51.35,
+   53.32
+  ],
+  "firstWinK": 5197,
+  "firstWinPct": 52.34,
+  "matches": 10000,
+  "meanAbsMargin": 54.2,
+  "meanTotalScore": 586.9,
+  "noWordBagPct": 23.99,
+  "noWordPct": 35.42,
+  "passes": 181726,
+  "ppw": 13.7,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 10
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.28,
+  "tilesPlayedMean": 85.3,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.3
+ },
+ "rule_K10_realplus_2000": {
+  "a": {
+   "easyPct": 96.22,
+   "meanScore": 348.1,
+   "ppw": 16
+  },
+  "aWinCI": [
+   49.04,
+   51.01
+  ],
+  "aWinPct": null,
+  "actionsMean": 63,
+  "b": {
+   "easyPct": 96.26,
+   "meanScore": 347.9,
+   "ppw": 16
+  },
+  "bagEnd": {
+   "ge7Pct": 0.92,
+   "lt7Pct": 3.54,
+   "mean": 0.3,
+   "zeroPct": 95.54
+  },
+  "deadTurnsAtEndMean": 17.04,
+  "decisive": 9959,
+  "draws": 41,
+  "ends": {
+   "going_out": 1390,
+   "resign": 0,
+   "scoreless_turns": 8610,
+   "too_long": 0
+  },
+  "exchanges": 6310,
+  "firstExtraTurnPct": 48.94,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   50.99,
+   52.95
+  ],
+  "firstWinK": 5176,
+  "firstWinPct": 51.97,
+  "matches": 10000,
+  "meanAbsMargin": 62.1,
+  "meanTotalScore": 696,
+  "noWordBagPct": 3.49,
+  "noWordPct": 29.09,
+  "passes": 176967,
+  "ppw": 16,
+  "rackEndMean": 5.7,
+  "scorelessPct": 86.1,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 10
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 37.21,
+  "tilesPlayedMean": 94,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.7
+ },
+ "rule_K4_real": {
+  "a": {
+   "easyPct": 87.72,
+   "meanScore": 292.8,
+   "ppw": 13.8
+  },
+  "aWinCI": [
+   49.22,
+   51.18
+  ],
+  "aWinPct": null,
+  "actionsMean": 57.6,
+  "b": {
+   "easyPct": 87.66,
+   "meanScore": 291.9,
+   "ppw": 13.7
+  },
+  "bagEnd": {
+   "ge7Pct": 14.11,
+   "lt7Pct": 32.47,
+   "mean": 3,
+   "zeroPct": 53.42
+  },
+  "deadTurnsAtEndMean": 6.84,
+  "decisive": 9928,
+  "draws": 72,
+  "ends": {
+   "going_out": 43,
+   "resign": 0,
+   "scoreless_turns": 9957,
+   "too_long": 0
+  },
+  "exchanges": 49051,
+  "firstExtraTurnPct": 50.53,
+  "firstLeadMean": 4.9,
+  "firstWinCI": [
+   51.29,
+   53.26
+  ],
+  "firstWinK": 5190,
+  "firstWinPct": 52.28,
+  "matches": 10000,
+  "meanAbsMargin": 54.1,
+  "meanTotalScore": 584.7,
+  "noWordBagPct": 15.36,
+  "noWordPct": 21.67,
+  "passes": 75876,
+  "ppw": 13.7,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 4
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.28,
+  "tilesPlayedMean": 85.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.1
+ },
+ "rule_K4_realplus_2000": {
+  "a": {
+   "easyPct": 96.22,
+   "meanScore": 347.8,
+   "ppw": 16
+  },
+  "aWinCI": [
+   49.1,
+   51.07
+  ],
+  "aWinPct": null,
+  "actionsMean": 52.6,
+  "b": {
+   "easyPct": 96.27,
+   "meanScore": 347.6,
+   "ppw": 16
+  },
+  "bagEnd": {
+   "ge7Pct": 1.16,
+   "lt7Pct": 3.49,
+   "mean": 0.3,
+   "zeroPct": 95.35
+  },
+  "deadTurnsAtEndMean": 6.8,
+  "decisive": 9959,
+  "draws": 41,
+  "ends": {
+   "going_out": 1390,
+   "resign": 0,
+   "scoreless_turns": 8610,
+   "too_long": 0
+  },
+  "exchanges": 4997,
+  "firstExtraTurnPct": 48.94,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   51.01,
+   52.97
+  ],
+  "firstWinK": 5178,
+  "firstWinPct": 51.99,
+  "matches": 10000,
+  "meanAbsMargin": 62.1,
+  "meanTotalScore": 695.4,
+  "noWordBagPct": 2.14,
+  "noWordPct": 15.12,
+  "passes": 74544,
+  "ppw": 16,
+  "rackEndMean": 5.7,
+  "scorelessPct": 86.1,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 4
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 37.21,
+  "tilesPlayedMean": 93.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.6
+ },
+ "rule_K6_real": {
+  "a": {
+   "easyPct": 87.69,
+   "meanScore": 293.4,
+   "ppw": 13.8
+  },
+  "aWinCI": [
+   48.99,
+   50.96
+  ],
+  "aWinPct": null,
+  "actionsMean": 61.9,
+  "b": {
+   "easyPct": 87.62,
+   "meanScore": 292.6,
+   "ppw": 13.7
+  },
+  "bagEnd": {
+   "ge7Pct": 13.32,
+   "lt7Pct": 33.1,
+   "mean": 2.9,
+   "zeroPct": 53.58
+  },
+  "deadTurnsAtEndMean": 10.35,
+  "decisive": 9929,
+  "draws": 71,
+  "ends": {
+   "going_out": 43,
+   "resign": 0,
+   "scoreless_turns": 9957,
+   "too_long": 0
+  },
+  "exchanges": 55427,
+  "firstExtraTurnPct": 50.48,
+  "firstLeadMean": 4.9,
+  "firstWinCI": [
+   51.3,
+   53.26
+  ],
+  "firstWinK": 5191,
+  "firstWinPct": 52.28,
+  "matches": 10000,
+  "meanAbsMargin": 54.1,
+  "meanTotalScore": 586,
+  "noWordBagPct": 18.49,
+  "noWordPct": 26.9,
+  "passes": 111042,
+  "ppw": 13.7,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 6
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.28,
+  "tilesPlayedMean": 85.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.2
+ },
+ "rule_K6_realb3_2000": {
+  "a": {
+   "easyPct": 91.66,
+   "meanScore": 301.7,
+   "ppw": 14.3
+  },
+  "aWinCI": [
+   47.87,
+   49.83
+  ],
+  "aWinPct": null,
+  "actionsMean": 58.4,
+  "b": {
+   "easyPct": 91.72,
+   "meanScore": 302.7,
+   "ppw": 14.3
+  },
+  "bagEnd": {
+   "ge7Pct": 3.09,
+   "lt7Pct": 13.37,
+   "mean": 0.9,
+   "zeroPct": 83.54
+  },
+  "deadTurnsAtEndMean": 11.34,
+  "decisive": 9949,
+  "draws": 51,
+  "ends": {
+   "going_out": 243,
+   "resign": 0,
+   "scoreless_turns": 9757,
+   "too_long": 0
+  },
+  "exchanges": 19375,
+  "firstExtraTurnPct": 49.55,
+  "firstLeadMean": 6.1,
+  "firstWinCI": [
+   52.37,
+   54.33
+  ],
+  "firstWinK": 5308,
+  "firstWinPct": 53.35,
+  "matches": 10000,
+  "meanAbsMargin": 56.9,
+  "meanTotalScore": 604.4,
+  "noWordBagPct": 8.49,
+  "noWordPct": 24.11,
+  "passes": 121413,
+  "ppw": 14.3,
+  "rackEndMean": 9.2,
+  "scorelessPct": 97.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 6
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 35.25,
+  "tilesPlayedMean": 90,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.3
+ },
+ "rule_K6_realplus_2000": {
+  "a": {
+   "easyPct": 96.22,
+   "meanScore": 347.9,
+   "ppw": 16
+  },
+  "aWinCI": [
+   49.12,
+   51.09
+  ],
+  "aWinPct": null,
+  "actionsMean": 56.1,
+  "b": {
+   "easyPct": 96.26,
+   "meanScore": 347.7,
+   "ppw": 16
+  },
+  "bagEnd": {
+   "ge7Pct": 1.05,
+   "lt7Pct": 3.51,
+   "mean": 0.3,
+   "zeroPct": 95.44
+  },
+  "deadTurnsAtEndMean": 10.21,
+  "decisive": 9959,
+  "draws": 41,
+  "ends": {
+   "going_out": 1390,
+   "resign": 0,
+   "scoreless_turns": 8610,
+   "too_long": 0
+  },
+  "exchanges": 5495,
+  "firstExtraTurnPct": 48.99,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   51.07,
+   53.03
+  ],
+  "firstWinK": 5184,
+  "firstWinPct": 52.05,
+  "matches": 10000,
+  "meanAbsMargin": 62.1,
+  "meanTotalScore": 695.6,
+  "noWordBagPct": 2.61,
+  "noWordPct": 20.36,
+  "passes": 108657,
+  "ppw": 16,
+  "rackEndMean": 5.7,
+  "scorelessPct": 86.1,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 10000,
+   "sim": {
+    "limitUnits": 6
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 37.21,
+  "tilesPlayedMean": 94,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.7
+ },
+ "rule_X0_real": {
+  "a": {
+   "easyPct": 87.63,
+   "meanScore": 296.4,
+   "ppw": 13.6
+  },
+  "aWinCI": [
+   46.61,
+   51.25
+  ],
+  "aWinPct": null,
+  "actionsMean": 57.9,
+  "b": {
+   "easyPct": 87.62,
+   "meanScore": 298,
+   "ppw": 13.7
+  },
+  "bagEnd": {
+   "ge7Pct": 0,
+   "lt7Pct": 38.89,
+   "mean": 1.4,
+   "zeroPct": 61.11
+  },
+  "deadTurnsAtEndMean": 5.97,
+  "decisive": 1776,
+  "draws": 11,
+  "ends": {
+   "going_out": 9,
+   "resign": 0,
+   "scoreless_turns": 1778,
+   "too_long": 213
+  },
+  "exchanges": 85399,
+  "firstExtraTurnPct": 52.21,
+  "firstLeadMean": 5.9,
+  "firstWinCI": [
+   49.87,
+   54.51
+  ],
+  "firstWinK": 927,
+  "firstWinPct": 52.2,
+  "matches": 2000,
+  "meanAbsMargin": 56.1,
+  "meanTotalScore": 594.4,
+  "noWordBagPct": 50.57,
+  "noWordPct": 51.74,
+  "passes": 12238,
+  "ppw": 13.7,
+  "rackEndMean": 11.7,
+  "scorelessPct": 88.9,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "maxActions": 400,
+   "sim": {
+    "exchangeUnits": 0
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.37,
+  "tilesPlayedMean": 86.9,
+  "tooLongPct": 10.65,
+  "wordsPerMatch": 45.5
+ },
+ "rule_X0_realplus_2000": {
+  "a": {
+   "easyPct": 96.19,
+   "meanScore": 347.9,
+   "ppw": 16
+  },
+  "aWinCI": [
+   45.87,
+   50.26
+  ],
+  "aWinPct": null,
+  "actionsMean": 51.3,
+  "b": {
+   "easyPct": 96.27,
+   "meanScore": 351.1,
+   "ppw": 16.2
+  },
+  "bagEnd": {
+   "ge7Pct": 0,
+   "lt7Pct": 3.47,
+   "mean": 0.1,
+   "zeroPct": 96.53
+  },
+  "deadTurnsAtEndMean": 5.12,
+  "decisive": 1985,
+  "draws": 5,
+  "ends": {
+   "going_out": 291,
+   "resign": 0,
+   "scoreless_turns": 1699,
+   "too_long": 10
+  },
+  "exchanges": 5091,
+  "firstExtraTurnPct": 50.8,
+  "firstLeadMean": 4.5,
+  "firstWinCI": [
+   49.24,
+   53.63
+  ],
+  "firstWinK": 1021,
+  "firstWinPct": 51.44,
+  "matches": 2000,
+  "meanAbsMargin": 62.8,
+  "meanTotalScore": 699,
+  "noWordBagPct": 6.73,
+  "noWordPct": 15.73,
+  "passes": 11604,
+  "ppw": 16.1,
+  "rackEndMean": 5.7,
+  "scorelessPct": 84.95,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 2000,
+   "maxActions": 400,
+   "sim": {
+    "exchangeUnits": 0
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 37.27,
+  "tilesPlayedMean": 94.2,
+  "tooLongPct": 0.5,
+  "wordsPerMatch": 44.7
+ },
+ "rule_XH_real": {
+  "a": {
+   "easyPct": 87.69,
+   "meanScore": 293.4,
+   "ppw": 13.8
+  },
+  "aWinCI": [
+   48.99,
+   50.96
+  ],
+  "aWinPct": null,
+  "actionsMean": 56.7,
+  "b": {
+   "easyPct": 87.62,
+   "meanScore": 292.6,
+   "ppw": 13.7
+  },
+  "bagEnd": {
+   "ge7Pct": 13.32,
+   "lt7Pct": 33.1,
+   "mean": 2.9,
+   "zeroPct": 53.58
+  },
+  "deadTurnsAtEndMean": 5.17,
+  "decisive": 9929,
+  "draws": 71,
+  "ends": {
+   "going_out": 43,
+   "resign": 0,
+   "scoreless_turns": 9957,
+   "too_long": 0
+  },
+  "exchanges": 55427,
+  "firstExtraTurnPct": 50.48,
+  "firstLeadMean": 4.9,
+  "firstWinCI": [
+   51.3,
+   53.26
+  ],
+  "firstWinK": 5191,
+  "firstWinPct": 52.28,
+  "matches": 10000,
+  "meanAbsMargin": 54.1,
+  "meanTotalScore": 586,
+  "noWordBagPct": 15.38,
+  "noWordPct": 20.23,
+  "passes": 59292,
+  "ppw": 13.7,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.57,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "exchangeUnits": 1,
+    "limitUnits": 6,
+    "passUnits": 2
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.28,
+  "tilesPlayedMean": 85.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.2
+ },
+ "rule_XH_realplus_2000": {
+  "a": {
+   "easyPct": 96.22,
+   "meanScore": 347.9,
+   "ppw": 16
+  },
+  "aWinCI": [
+   49.12,
+   51.09
+  ],
+  "aWinPct": null,
+  "actionsMean": 51,
+  "b": {
+   "easyPct": 96.26,
+   "meanScore": 347.7,
+   "ppw": 16
+  },
+  "bagEnd": {
+   "ge7Pct": 1.05,
+   "lt7Pct": 3.51,
+   "mean": 0.3,
+   "zeroPct": 95.44
+  },
+  "deadTurnsAtEndMean": 5.1,
+  "decisive": 9959,
+  "draws": 41,
+  "ends": {
+   "going_out": 1390,
+   "resign": 0,
+   "scoreless_turns": 8610,
+   "too_long": 0
+  },
+  "exchanges": 5495,
+  "firstExtraTurnPct": 48.99,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   51.07,
+   53.03
+  ],
+  "firstWinK": 5184,
+  "firstWinPct": 52.05,
+  "matches": 10000,
+  "meanAbsMargin": 62.1,
+  "meanTotalScore": 695.6,
+  "noWordBagPct": 2.1,
+  "noWordPct": 12.39,
+  "passes": 57627,
+  "ppw": 16,
+  "rackEndMean": 5.7,
+  "scorelessPct": 86.1,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realplus:2000",
+   "matches": 10000,
+   "sim": {
+    "exchangeUnits": 1,
+    "limitUnits": 6,
+    "passUnits": 2
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 37.21,
+  "tilesPlayedMean": 94,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.7
+ },
+ "sharp_mirror_vs_base_real": {
+  "a": {
+   "easyPct": 87.98,
+   "meanScore": 308.9,
+   "ppw": 14.7
+  },
+  "aWinCI": [
+   62.34,
+   66.55
+  ],
+  "aWinPct": 64.47,
+  "actionsMean": 54.5,
+  "b": {
+   "easyPct": 88.09,
+   "meanScore": 284.8,
+   "ppw": 13.6
+  },
+  "bagEnd": {
+   "ge7Pct": 13.5,
+   "lt7Pct": 30.1,
+   "mean": 3.1,
+   "zeroPct": 56.4
+  },
+  "deadTurnsAtEndMean": 5.16,
+  "decisive": 1990,
+  "draws": 10,
+  "ends": {
+   "going_out": 9,
+   "resign": 0,
+   "scoreless_turns": 1991,
+   "too_long": 0
+  },
+  "exchanges": 8519,
+  "firstExtraTurnPct": 49.2,
+  "firstLeadMean": 4.6,
+  "firstWinCI": [
+   50.67,
+   55.05
+  ],
+  "firstWinK": 1052,
+  "firstWinPct": 52.86,
+  "matches": 2000,
+  "meanAbsMargin": 57.3,
+  "meanTotalScore": 593.7,
+  "noWordBagPct": 13.2,
+  "noWordPct": 18.72,
+  "passes": 11894,
+  "ppw": 14.2,
+  "rackEndMean": 11.7,
+  "scorelessPct": 99.55,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "dataA": {
+    "topWeights": [
+     16,
+     6,
+     2,
+     1
+    ]
+   },
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 3,
+   "terms": 988
+  },
+  "termBonusSharePct": 37.31,
+  "tilesPlayedMean": 85.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.3
+ },
+ "tb50_bg1_real": {
+  "a": {
+   "easyPct": 88.15,
+   "meanScore": 246.2,
+   "ppw": 11.3
+  },
+  "aWinCI": [
+   68.51,
+   72.51
+  ],
+  "aWinPct": 70.55,
+  "actionsMean": 57.8,
+  "b": {
+   "easyPct": 60.54,
+   "meanScore": 214.9,
+   "ppw": 9.9
+  },
+  "bagEnd": {
+   "ge7Pct": 16.55,
+   "lt7Pct": 34.9,
+   "mean": 3.5,
+   "zeroPct": 48.55
+  },
+  "deadTurnsAtEndMean": 4.99,
+  "decisive": 1990,
+  "draws": 10,
+  "ends": {
+   "going_out": 5,
+   "resign": 0,
+   "scoreless_turns": 1995,
+   "too_long": 0
+  },
+  "exchanges": 9921,
+  "firstExtraTurnPct": 51.5,
+  "firstLeadMean": 6.1,
+  "firstWinCI": [
+   51.57,
+   55.95
+  ],
+  "firstWinK": 1070,
+  "firstWinPct": 53.77,
+  "matches": 2000,
+  "meanAbsMargin": 51.3,
+  "meanTotalScore": 461,
+  "noWordBagPct": 14.06,
+  "noWordPct": 18.49,
+  "passes": 11458,
+  "ppw": 10.6,
+  "rackEndMean": 12.3,
+  "scorelessPct": 99.75,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "sim": {
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 25.8,
+  "tilesPlayedMean": 84.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 47.1
+ },
+ "tb50_bg2_real": {
+  "a": {
+   "easyPct": 47.16,
+   "meanScore": 324.5,
+   "ppw": 16.1
+  },
+  "aWinCI": [
+   94.92,
+   96.67
+  ],
+  "aWinPct": 95.89,
+  "actionsMean": 51.3,
+  "b": {
+   "easyPct": 90.09,
+   "meanScore": 213.5,
+   "ppw": 10.8
+  },
+  "bagEnd": {
+   "ge7Pct": 7.7,
+   "lt7Pct": 22.45,
+   "mean": 2,
+   "zeroPct": 69.85
+  },
+  "deadTurnsAtEndMean": 5.47,
+  "decisive": 1994,
+  "draws": 6,
+  "ends": {
+   "going_out": 22,
+   "resign": 0,
+   "scoreless_turns": 1978,
+   "too_long": 0
+  },
+  "exchanges": 5659,
+  "firstExtraTurnPct": 48.4,
+  "firstLeadMean": 3.5,
+  "firstWinCI": [
+   48.16,
+   52.54
+  ],
+  "firstWinK": 1004,
+  "firstWinPct": 50.35,
+  "matches": 2000,
+  "meanAbsMargin": 113.6,
+  "meanTotalScore": 537.9,
+  "noWordBagPct": 10.13,
+  "noWordPct": 17.67,
+  "passes": 12475,
+  "ppw": 13.5,
+  "rackEndMean": 10.6,
+  "scorelessPct": 98.9,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "sim": {
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 25.95,
+  "tilesPlayedMean": 87.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.2
+ },
+ "tb50_gmirror_real": {
+  "a": {
+   "easyPct": 48.4,
+   "meanScore": 301.8,
+   "ppw": 15.9
+  },
+  "aWinCI": [
+   47.91,
+   52.3
+  ],
+  "aWinPct": null,
+  "actionsMean": 47.9,
+  "b": {
+   "easyPct": 48.54,
+   "meanScore": 301.9,
+   "ppw": 15.9
+  },
+  "bagEnd": {
+   "ge7Pct": 5.45,
+   "lt7Pct": 15.25,
+   "mean": 1.5,
+   "zeroPct": 79.3
+  },
+  "deadTurnsAtEndMean": 5.47,
+  "decisive": 1990,
+  "draws": 10,
+  "ends": {
+   "going_out": 68,
+   "resign": 0,
+   "scoreless_turns": 1932,
+   "too_long": 0
+  },
+  "exchanges": 4057,
+  "firstExtraTurnPct": 50.35,
+  "firstLeadMean": 2,
+  "firstWinCI": [
+   49.01,
+   53.4
+  ],
+  "firstWinK": 1019,
+  "firstWinPct": 51.21,
+  "matches": 2000,
+  "meanAbsMargin": 55.2,
+  "meanTotalScore": 603.7,
+  "noWordBagPct": 8.02,
+  "noWordPct": 17.26,
+  "passes": 12466,
+  "ppw": 15.9,
+  "rackEndMean": 9.3,
+  "scorelessPct": 96.6,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "sim": {
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 28.94,
+  "tilesPlayedMean": 89.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 39.6
+ },
+ "tb50_gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 47.73,
+   "meanScore": 318.3,
+   "ppw": 17.1
+  },
+  "aWinCI": [
+   48.46,
+   52.85
+  ],
+  "aWinPct": null,
+  "actionsMean": 44.9,
+  "b": {
+   "easyPct": 47.61,
+   "meanScore": 317.6,
+   "ppw": 17
+  },
+  "bagEnd": {
+   "ge7Pct": 0.85,
+   "lt7Pct": 3.3,
+   "mean": 0.4,
+   "zeroPct": 95.85
+  },
+  "deadTurnsAtEndMean": 5.24,
+  "decisive": 1988,
+  "draws": 12,
+  "ends": {
+   "going_out": 236,
+   "resign": 0,
+   "scoreless_turns": 1764,
+   "too_long": 0
+  },
+  "exchanges": 1240,
+  "firstExtraTurnPct": 48.8,
+  "firstLeadMean": 2.9,
+  "firstWinCI": [
+   48.56,
+   52.95
+  ],
+  "firstWinK": 1009,
+  "firstWinPct": 50.75,
+  "matches": 2000,
+  "meanAbsMargin": 51.9,
+  "meanTotalScore": 635.9,
+  "noWordBagPct": 2.63,
+  "noWordPct": 14.54,
+  "passes": 11817,
+  "ppw": 17.1,
+  "rackEndMean": 6.3,
+  "scorelessPct": 88.2,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "sim": {
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 27.51,
+  "tilesPlayedMean": 93.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 38.4
+ },
+ "tb50_mirror_real": {
+  "a": {
+   "easyPct": 87.89,
+   "meanScore": 233.6,
+   "ppw": 11.2
+  },
+  "aWinCI": [
+   49.14,
+   51.1
+  ],
+  "aWinPct": null,
+  "actionsMean": 55,
+  "b": {
+   "easyPct": 87.88,
+   "meanScore": 233.5,
+   "ppw": 11.2
+  },
+  "bagEnd": {
+   "ge7Pct": 13.41,
+   "lt7Pct": 31.45,
+   "mean": 3,
+   "zeroPct": 55.14
+  },
+  "deadTurnsAtEndMean": 5.17,
+  "decisive": 9936,
+  "draws": 64,
+  "ends": {
+   "going_out": 37,
+   "resign": 0,
+   "scoreless_turns": 9963,
+   "too_long": 0
+  },
+  "exchanges": 42430,
+  "firstExtraTurnPct": 49.82,
+  "firstLeadMean": 5.2,
+  "firstWinCI": [
+   52.37,
+   54.33
+  ],
+  "firstWinK": 5301,
+  "firstWinPct": 53.35,
+  "matches": 10000,
+  "meanAbsMargin": 46.6,
+  "meanTotalScore": 467.1,
+  "noWordBagPct": 13.11,
+  "noWordPct": 18.45,
+  "passes": 59026,
+  "ppw": 11.2,
+  "rackEndMean": 11.8,
+  "scorelessPct": 99.63,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 21.97,
+  "tilesPlayedMean": 85.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.8
+ },
+ "tb50_mirror_realb3_2000": {
+  "a": {
+   "easyPct": 91.85,
+   "meanScore": 245.1,
+   "ppw": 11.8
+  },
+  "aWinCI": [
+   49.53,
+   51.5
+  ],
+  "aWinPct": null,
+  "actionsMean": 51.8,
+  "b": {
+   "easyPct": 91.95,
+   "meanScore": 244.5,
+   "ppw": 11.8
+  },
+  "bagEnd": {
+   "ge7Pct": 3.08,
+   "lt7Pct": 12.37,
+   "mean": 0.9,
+   "zeroPct": 84.55
+  },
+  "deadTurnsAtEndMean": 5.66,
+  "decisive": 9940,
+  "draws": 60,
+  "ends": {
+   "going_out": 265,
+   "resign": 0,
+   "scoreless_turns": 9735,
+   "too_long": 0
+  },
+  "exchanges": 15503,
+  "firstExtraTurnPct": 50.62,
+  "firstLeadMean": 6.3,
+  "firstWinCI": [
+   52.94,
+   54.9
+  ],
+  "firstWinK": 5360,
+  "firstWinPct": 53.92,
+  "matches": 10000,
+  "meanAbsMargin": 49.5,
+  "meanTotalScore": 489.5,
+  "noWordBagPct": 5.94,
+  "noWordPct": 15.43,
+  "passes": 64482,
+  "ppw": 11.8,
+  "rackEndMean": 9,
+  "scorelessPct": 97.35,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "termBonus": {
+     "advanced": 4,
+     "expert": 8,
+     "intermediate": 2,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 20.12,
+  "tilesPlayedMean": 90.2,
+  "tooLongPct": 0,
+  "wordsPerMatch": 43.8
+ },
+ "tb75_bg1_real": {
+  "a": {
+   "easyPct": 88.11,
+   "meanScore": 277.5,
+   "ppw": 12.5
+  },
+  "aWinCI": [
+   67.16,
+   71.22
+  ],
+  "aWinPct": 69.23,
+  "actionsMean": 58,
+  "b": {
+   "easyPct": 60.78,
+   "meanScore": 249.7,
+   "ppw": 11.4
+  },
+  "bagEnd": {
+   "ge7Pct": 17.55,
+   "lt7Pct": 34.7,
+   "mean": 3.6,
+   "zeroPct": 47.75
+  },
+  "deadTurnsAtEndMean": 4.94,
+  "decisive": 1992,
+  "draws": 8,
+  "ends": {
+   "going_out": 3,
+   "resign": 0,
+   "scoreless_turns": 1997,
+   "too_long": 0
+  },
+  "exchanges": 10215,
+  "firstExtraTurnPct": 50.5,
+  "firstLeadMean": 4.9,
+  "firstWinCI": [
+   51.22,
+   55.6
+  ],
+  "firstWinK": 1064,
+  "firstWinPct": 53.41,
+  "matches": 2000,
+  "meanAbsMargin": 52.8,
+  "meanTotalScore": 527.2,
+  "noWordBagPct": 14.27,
+  "noWordPct": 18.61,
+  "passes": 11375,
+  "ppw": 11.9,
+  "rackEndMean": 12.3,
+  "scorelessPct": 99.85,
+  "spec": {
+   "a": "beginner",
+   "b": "random-legal",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 1,
+   "sim": {
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 34.53,
+  "tilesPlayedMean": 84.1,
+  "tooLongPct": 0,
+  "wordsPerMatch": 47.2
+ },
+ "tb75_bg2_real": {
+  "a": {
+   "easyPct": 43.55,
+   "meanScore": 376.5,
+   "ppw": 18.5
+  },
+  "aWinCI": [
+   96.38,
+   97.84
+  ],
+  "aWinPct": 97.2,
+  "actionsMean": 52,
+  "b": {
+   "easyPct": 90.13,
+   "meanScore": 242,
+   "ppw": 12.1
+  },
+  "bagEnd": {
+   "ge7Pct": 8.7,
+   "lt7Pct": 24.95,
+   "mean": 2.1,
+   "zeroPct": 66.35
+  },
+  "deadTurnsAtEndMean": 5.44,
+  "decisive": 1999,
+  "draws": 1,
+  "ends": {
+   "going_out": 12,
+   "resign": 0,
+   "scoreless_turns": 1988,
+   "too_long": 0
+  },
+  "exchanges": 6223,
+  "firstExtraTurnPct": 50,
+  "firstLeadMean": 1.5,
+  "firstWinCI": [
+   47.64,
+   52.02
+  ],
+  "firstWinK": 996,
+  "firstWinPct": 49.82,
+  "matches": 2000,
+  "meanAbsMargin": 136,
+  "meanTotalScore": 618.5,
+  "noWordBagPct": 11,
+  "noWordPct": 18.05,
+  "passes": 12554,
+  "ppw": 15.3,
+  "rackEndMean": 11,
+  "scorelessPct": 99.4,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "sim": {
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 36.15,
+  "tilesPlayedMean": 86.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 42.6
+ },
+ "tb75_gmirror_real": {
+  "a": {
+   "easyPct": 44.28,
+   "meanScore": 352.4,
+   "ppw": 18.2
+  },
+  "aWinCI": [
+   49.59,
+   53.97
+  ],
+  "aWinPct": null,
+  "actionsMean": 48.8,
+  "b": {
+   "easyPct": 44.42,
+   "meanScore": 351.6,
+   "ppw": 18.3
+  },
+  "bagEnd": {
+   "ge7Pct": 6.1,
+   "lt7Pct": 18.35,
+   "mean": 1.6,
+   "zeroPct": 75.55
+  },
+  "deadTurnsAtEndMean": 5.56,
+  "decisive": 1993,
+  "draws": 7,
+  "ends": {
+   "going_out": 26,
+   "resign": 0,
+   "scoreless_turns": 1974,
+   "too_long": 0
+  },
+  "exchanges": 4627,
+  "firstExtraTurnPct": 47.15,
+  "firstLeadMean": 3.2,
+  "firstWinCI": [
+   49.24,
+   53.62
+  ],
+  "firstWinK": 1025,
+  "firstWinPct": 51.43,
+  "matches": 2000,
+  "meanAbsMargin": 61,
+  "meanTotalScore": 704,
+  "noWordBagPct": 8.95,
+  "noWordPct": 17.71,
+  "passes": 12661,
+  "ppw": 18.2,
+  "rackEndMean": 10,
+  "scorelessPct": 98.7,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "sim": {
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 40.43,
+  "tilesPlayedMean": 88.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.2
+ },
+ "tb75_gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 43.39,
+   "meanScore": 369.8,
+   "ppw": 19.4
+  },
+  "aWinCI": [
+   47.6,
+   52
+  ],
+  "aWinPct": null,
+  "actionsMean": 46.1,
+  "b": {
+   "easyPct": 43.38,
+   "meanScore": 368.8,
+   "ppw": 19.4
+  },
+  "bagEnd": {
+   "ge7Pct": 1.5,
+   "lt7Pct": 5.7,
+   "mean": 0.5,
+   "zeroPct": 92.8
+  },
+  "deadTurnsAtEndMean": 5.44,
+  "decisive": 1982,
+  "draws": 18,
+  "ends": {
+   "going_out": 158,
+   "resign": 0,
+   "scoreless_turns": 1842,
+   "too_long": 0
+  },
+  "exchanges": 1595,
+  "firstExtraTurnPct": 49.6,
+  "firstLeadMean": 6.2,
+  "firstWinCI": [
+   50.73,
+   55.12
+  ],
+  "firstWinK": 1049,
+  "firstWinPct": 52.93,
+  "matches": 2000,
+  "meanAbsMargin": 59.5,
+  "meanTotalScore": 738.6,
+  "noWordBagPct": 3.49,
+  "noWordPct": 15.04,
+  "passes": 12276,
+  "ppw": 19.4,
+  "rackEndMean": 6.9,
+  "scorelessPct": 92.1,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "sim": {
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 38.98,
+  "tilesPlayedMean": 92.6,
+  "tooLongPct": 0,
+  "wordsPerMatch": 39.2
+ },
+ "tb75_mirror_real": {
+  "a": {
+   "easyPct": 87.73,
+   "meanScore": 262.5,
+   "ppw": 12.5
+  },
+  "aWinCI": [
+   49.88,
+   51.84
+  ],
+  "aWinPct": null,
+  "actionsMean": 55.2,
+  "b": {
+   "easyPct": 87.83,
+   "meanScore": 261.2,
+   "ppw": 12.4
+  },
+  "bagEnd": {
+   "ge7Pct": 14.02,
+   "lt7Pct": 33.02,
+   "mean": 3.1,
+   "zeroPct": 52.96
+  },
+  "deadTurnsAtEndMean": 5.14,
+  "decisive": 9937,
+  "draws": 63,
+  "ends": {
+   "going_out": 33,
+   "resign": 0,
+   "scoreless_turns": 9967,
+   "too_long": 0
+  },
+  "exchanges": 43969,
+  "firstExtraTurnPct": 49.72,
+  "firstLeadMean": 4.6,
+  "firstWinCI": [
+   51.74,
+   53.7
+  ],
+  "firstWinK": 5239,
+  "firstWinPct": 52.72,
+  "matches": 10000,
+  "meanAbsMargin": 49.8,
+  "meanTotalScore": 523.8,
+  "noWordBagPct": 13.52,
+  "noWordPct": 18.64,
+  "passes": 58890,
+  "ppw": 12.4,
+  "rackEndMean": 11.9,
+  "scorelessPct": 99.67,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 30.39,
+  "tilesPlayedMean": 84.9,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44.9
+ },
+ "tb75_mirror_realb3_2000": {
+  "a": {
+   "easyPct": 91.84,
+   "meanScore": 272.9,
+   "ppw": 13.1
+  },
+  "aWinCI": [
+   49.67,
+   51.64
+  ],
+  "aWinPct": null,
+  "actionsMean": 52.1,
+  "b": {
+   "easyPct": 91.92,
+   "meanScore": 272.7,
+   "ppw": 13.1
+  },
+  "bagEnd": {
+   "ge7Pct": 3.57,
+   "lt7Pct": 12.84,
+   "mean": 1,
+   "zeroPct": 83.59
+  },
+  "deadTurnsAtEndMean": 5.62,
+  "decisive": 9946,
+  "draws": 54,
+  "ends": {
+   "going_out": 272,
+   "resign": 0,
+   "scoreless_turns": 9728,
+   "too_long": 0
+  },
+  "exchanges": 16628,
+  "firstExtraTurnPct": 49.82,
+  "firstLeadMean": 5.2,
+  "firstWinCI": [
+   51.78,
+   53.74
+  ],
+  "firstWinK": 5248,
+  "firstWinPct": 52.76,
+  "matches": 10000,
+  "meanAbsMargin": 52.9,
+  "meanTotalScore": 545.6,
+  "noWordBagPct": 6.24,
+  "noWordPct": 15.53,
+  "passes": 64281,
+  "ppw": 13.1,
+  "rackEndMean": 9.1,
+  "scorelessPct": 97.28,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 10000,
+   "sim": {
+    "termBonus": {
+     "advanced": 6,
+     "expert": 12,
+     "intermediate": 3,
+     "novice": 0
+    }
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 28.32,
+  "tilesPlayedMean": 90,
+  "tooLongPct": 0,
+  "wordsPerMatch": 44
+ },
+ "tbmain_bg2_real": {
+  "a": {
+   "easyPct": 35.82,
+   "meanScore": 390.4,
+   "ppw": 18.7
+  },
+  "aWinCI": [
+   97.92,
+   98.99
+  ],
+  "aWinPct": 98.55,
+  "actionsMean": 52.5,
+  "b": {
+   "easyPct": 90.35,
+   "meanScore": 241.4,
+   "ppw": 11.9
+  },
+  "bagEnd": {
+   "ge7Pct": 7.2,
+   "lt7Pct": 23.9,
+   "mean": 1.8,
+   "zeroPct": 68.9
+  },
+  "deadTurnsAtEndMean": 5.51,
+  "decisive": 1998,
+  "draws": 2,
+  "ends": {
+   "going_out": 20,
+   "resign": 0,
+   "scoreless_turns": 1980,
+   "too_long": 0
+  },
+  "exchanges": 5598,
+  "firstExtraTurnPct": 48.2,
+  "firstLeadMean": 5.3,
+  "firstWinCI": [
+   47.91,
+   52.29
+  ],
+  "firstWinK": 1001,
+  "firstWinPct": 50.1,
+  "matches": 2000,
+  "meanAbsMargin": 149.8,
+  "meanTotalScore": 631.8,
+  "noWordBagPct": 10.08,
+  "noWordPct": 17.4,
+  "passes": 12680,
+  "ppw": 15.3,
+  "rackEndMean": 10.7,
+  "scorelessPct": 99,
+  "spec": {
+   "a": "greedy",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "pairingIndex": 2,
+   "sim": {
+    "tbMainOnly": true
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 37.14,
+  "tilesPlayedMean": 87.5,
+  "tooLongPct": 0,
+  "wordsPerMatch": 43.4
+ },
+ "tbmain_gmirror_real": {
+  "a": {
+   "easyPct": 36.84,
+   "meanScore": 372.6,
+   "ppw": 18.5
+  },
+  "aWinCI": [
+   49.81,
+   54.2
+  ],
+  "aWinPct": null,
+  "actionsMean": 50,
+  "b": {
+   "easyPct": 37.24,
+   "meanScore": 370.2,
+   "ppw": 18.4
+  },
+  "bagEnd": {
+   "ge7Pct": 5.1,
+   "lt7Pct": 16.35,
+   "mean": 1.5,
+   "zeroPct": 78.55
+  },
+  "deadTurnsAtEndMean": 5.58,
+  "decisive": 1992,
+  "draws": 8,
+  "ends": {
+   "going_out": 38,
+   "resign": 0,
+   "scoreless_turns": 1962,
+   "too_long": 0
+  },
+  "exchanges": 4012,
+  "firstExtraTurnPct": 48,
+  "firstLeadMean": 4.1,
+  "firstWinCI": [
+   51.12,
+   55.5
+  ],
+  "firstWinK": 1062,
+  "firstWinPct": 53.31,
+  "matches": 2000,
+  "meanAbsMargin": 59.3,
+  "meanTotalScore": 742.9,
+  "noWordBagPct": 7.75,
+  "noWordPct": 16.69,
+  "passes": 12686,
+  "ppw": 18.5,
+  "rackEndMean": 9.6,
+  "scorelessPct": 98.1,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 2000,
+   "sim": {
+    "tbMainOnly": true
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 43.29,
+  "tilesPlayedMean": 89,
+  "tooLongPct": 0,
+  "wordsPerMatch": 41.7
+ },
+ "tbmain_gmirror_realb3_2000": {
+  "a": {
+   "easyPct": 35.09,
+   "meanScore": 386.5,
+   "ppw": 19.7
+  },
+  "aWinCI": [
+   46.55,
+   50.94
+  ],
+  "aWinPct": null,
+  "actionsMean": 46.9,
+  "b": {
+   "easyPct": 34.98,
+   "meanScore": 387.4,
+   "ppw": 19.7
+  },
+  "bagEnd": {
+   "ge7Pct": 1.1,
+   "lt7Pct": 3.7,
+   "mean": 0.4,
+   "zeroPct": 95.2
+  },
+  "deadTurnsAtEndMean": 5.36,
+  "decisive": 1992,
+  "draws": 8,
+  "ends": {
+   "going_out": 191,
+   "resign": 0,
+   "scoreless_turns": 1809,
+   "too_long": 0
+  },
+  "exchanges": 1255,
+  "firstExtraTurnPct": 48.2,
+  "firstLeadMean": 5.6,
+  "firstWinCI": [
+   51.27,
+   55.65
+  ],
+  "firstWinK": 1065,
+  "firstWinPct": 53.46,
+  "matches": 2000,
+  "meanAbsMargin": 58.5,
+  "meanTotalScore": 773.9,
+  "noWordBagPct": 2.64,
+  "noWordPct": 14.25,
+  "passes": 12124,
+  "ppw": 19.7,
+  "rackEndMean": 6.6,
+  "scorelessPct": 90.45,
+  "spec": {
+   "a": "greedy",
+   "b": "greedy",
+   "forms": 1999,
+   "lex": "realb3:2000",
+   "matches": 2000,
+   "sim": {
+    "tbMainOnly": true
+   },
+   "terms": 1486
+  },
+  "termBonusSharePct": 41.89,
+  "tilesPlayedMean": 93,
+  "tooLongPct": 0,
+  "wordsPerMatch": 40.3
+ },
+ "tbmain_mirror_real": {
+  "a": {
+   "easyPct": 88.11,
+   "meanScore": 258.4,
+   "ppw": 12.2
+  },
+  "aWinCI": [
+   49.32,
+   51.29
+  ],
+  "aWinPct": null,
+  "actionsMean": 55.2,
+  "b": {
+   "easyPct": 88.01,
+   "meanScore": 258,
+   "ppw": 12.2
+  },
+  "bagEnd": {
+   "ge7Pct": 12.66,
+   "lt7Pct": 30.62,
+   "mean": 2.9,
+   "zeroPct": 56.72
+  },
+  "deadTurnsAtEndMean": 5.21,
+  "decisive": 9922,
+  "draws": 78,
+  "ends": {
+   "going_out": 47,
+   "resign": 0,
+   "scoreless_turns": 9953,
+   "too_long": 0
+  },
+  "exchanges": 40577,
+  "firstExtraTurnPct": 50.34,
+  "firstLeadMean": 7.3,
+  "firstWinCI": [
+   54.69,
+   56.65
+  ],
+  "firstWinK": 5524,
+  "firstWinPct": 55.67,
+  "matches": 10000,
+  "meanAbsMargin": 45.4,
+  "meanTotalScore": 516.4,
+  "noWordBagPct": 12.64,
+  "noWordPct": 18.16,
+  "passes": 59652,
+  "ppw": 12.2,
+  "rackEndMean": 11.7,
+  "scorelessPct": 99.53,
+  "spec": {
+   "a": "beginner",
+   "b": "beginner",
+   "forms": 1501,
+   "lex": "real",
+   "matches": 10000,
+   "sim": {
+    "tbMainOnly": true
+   },
+   "terms": 988
+  },
+  "termBonusSharePct": 28.79,
+  "tilesPlayedMean": 85.4,
+  "tooLongPct": 0,
+  "wordsPerMatch": 45.2
+ }
+}
