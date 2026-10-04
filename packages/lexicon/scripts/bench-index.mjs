@@ -5,16 +5,44 @@
 // Reporting only: it never fails on a slow result. The hard gates stay in test/index-speed.test.mjs
 // (has() 10 µs, crossCheck 50 µs) and are not duplicated here. CI uploads the file as an artefact for trending.
 // Needs `build` and `build:index` first (Turborepo `bench:index` depends on both).
+// Also reports the size gate (scripts/size-gate.mjs) of each artefact and a scale table: f1/f0 bytes of seeded
+// `synthetic` and `real+synthetic` corpora (scripts/scale-corpus.mjs) at SCALE_FORMS (sprint 3 P7, note §5.1).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { lexiconContentDocument } from './canonical.mjs';
 import { readIndexManifest, resolveIndexArtefact } from './indexes.mjs';
+import { SCALE_CORPUS_KINDS, scaleCorpus } from './scale-corpus.mjs';
+import { SIZE_GATE, sizeGateFailures } from './size-gate.mjs';
+import { loadLexicon } from './validate.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const { decodeLexiconIndex } = await import('../dist/index/index.js');
+const { buildLexiconIndex, decodeLexiconIndex } = await import('../dist/index/index.js');
 
 const BATCHES = 5;
+const SCALE_FORMS = [2_000, 2_500, 3_000];
+const SCALE_SEED = 1;
+
+/** Byte length of the sections at these indexes of the header section table (format.ts SECTIONS order). */
+const sectionBytes = (bytes, ...indexes) => {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  return indexes.reduce((sum, i) => sum + view.getUint32(56 + i * 8 + 4, true), 0);
+};
+const DAWG_SECTIONS = [11, 12];
+const GADDAG_SECTIONS = [13, 14];
+const gateOf = (bytes, forms, gaddag) =>
+  sizeGateFailures({
+    bytes: bytes.length,
+    forms,
+    gaddag,
+    ...(gaddag
+      ? {
+          dawgBytes: sectionBytes(bytes, ...DAWG_SECTIONS),
+          gaddagBytes: sectionBytes(bytes, ...GADDAG_SECTIONS),
+        }
+      : {}),
+  });
 
 /** Median over BATCHES timed runs after one warm-up; `fn` returns the number of operations it performed. */
 const median = (fn) => {
@@ -66,6 +94,8 @@ for (const entry of profiles) {
     lookupCodesHitNs: median(
       loop(formCodes, (c) => index.lookupCodes(c, 0, c.length) !== undefined),
     ),
+    bytesPerForm: Math.round((entry.bytes / index.size) * 10) / 10,
+    sizeGateFailures: gateOf(bytes, index.size, entry.gaddag),
   };
   if (entry.gaddag) {
     const contexts = formCodes.map((c, i) => {
@@ -79,6 +109,56 @@ for (const entry of profiles) {
   results.push(row);
 }
 
+// Scale table: same builder, seeded corpora, both variants. Reporting only; the hard gate on the real artefact and
+// on the real+synthetic projection lives in src/index/clxi/clxi.test.ts.
+const lex = loadLexicon();
+const { terms: realTerms } = lexiconContentDocument(lex);
+const profile = { id: 'global-ranked', kind: 'global', definitionHash: '0000000000000000' };
+const scale = [];
+for (const kind of SCALE_CORPUS_KINDS) {
+  for (const forms of SCALE_FORMS) {
+    const terms = scaleCorpus({
+      terms: realTerms,
+      blocklist: lex.blocklist,
+      kind,
+      forms,
+      seed: SCALE_SEED,
+    });
+    const row = { kind, forms, seed: SCALE_SEED };
+    for (const gaddag of [true, false]) {
+      const start = performance.now();
+      const result = buildLexiconIndex(
+        {
+          version: '0000000000000000',
+          profile,
+          document: { terms },
+          blocklist: [...lex.blocklist],
+        },
+        { formatVersion: 1, gaddag },
+      );
+      const buildMs = Math.round(performance.now() - start);
+      if (!result.ok)
+        throw new Error(`bench:index: scale ${kind} ${forms}: ${result.error.message}`);
+      const b = result.value;
+      const key = gaddag ? 'f1' : 'f0';
+      row[key] = {
+        bytes: b.length,
+        bytesPerForm: Math.round((b.length / forms) * 10) / 10,
+        buildMs,
+        sizeGateFailures: gateOf(b, forms, gaddag),
+      };
+      if (gaddag) {
+        const dawg = sectionBytes(b, ...DAWG_SECTIONS);
+        const gaddagBytes = sectionBytes(b, ...GADDAG_SECTIONS);
+        row.f1.dawgBytes = dawg;
+        row.f1.gaddagBytes = gaddagBytes;
+        row.f1.gaddagToDawg = Math.round((gaddagBytes / dawg) * 100) / 100;
+      }
+    }
+    scale.push(row);
+  }
+}
+
 const report = {
   lexiconVersion,
   node: process.version,
@@ -86,6 +166,10 @@ const report = {
   batches: BATCHES,
   note: 'median ns per call over all forms (hits) and form+Q (misses); reporting only, gates live in test/index-speed.test.mjs',
   results,
+  sizeGate: SIZE_GATE,
+  scaleNote:
+    'seeded corpora fitted on the real lexicon (scripts/scale-corpus.mjs): synthetic = generated terms only, real+synthetic = real terms plus generated ones; they show scaling trends, not real sharing ratios',
+  scale,
 };
 const outDir = join(ROOT, 'dist', 'bench');
 mkdirSync(outDir, { recursive: true });
