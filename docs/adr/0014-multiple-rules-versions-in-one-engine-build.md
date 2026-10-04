@@ -1,6 +1,6 @@
 # 0014 — Multiple rules versions in one engine build
 
-- Status: Proposed (written 2026-10-04 for sprint task P1; becomes Accepted on product-owner confirmation)
+- Status: Accepted (delegated by the product owner, 2026-10-04; sprint task P1)
 - Date: 2026-10-04
 - Deciders: product owner (human), solution-architect, game-engine-engineer, ai-engineer, lexicon-engineer,
   mobile-engineer

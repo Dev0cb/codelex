@@ -1,6 +1,6 @@
 # 0013 — Determinism and replay contract
 
-- Status: Accepted (delegated by the product owner, 2026-10-02)
+- Status: Accepted (delegated by the product owner, 2026-10-02); partly superseded by ADR-0014 (§D6 single version per build, and the §D5 lexicon↔constants coupling sentence)
 - Date: 2026-10-02
 - Deciders: product owner (human, delegated), solution-architect, game-engine-engineer
 - Reversibility: **One-way door** for anything written into a published action log or golden replay (log
