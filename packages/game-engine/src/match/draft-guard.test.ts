@@ -144,9 +144,55 @@ describe('draft guard at every entry point (ADR-0014 §D4)', () => {
       error: DRAFT_REFUSED,
     });
     expect(evaluateMove(obs, { seat, type: 'PLACE_WORD', tiles }, DRAFT).ok).toBe(true);
-    // previewScore has no context: it projects geometry and premiums for every registered version.
-    expect(previewScore(obs, tiles)?.total).toBe(0);
-    expect(previewScore({ ...obs, engineRulesVersion: 3 as 1 }, tiles)).toBeNull();
+    // previewScore has no context: a draft needs options.draft, like parseState (review of E6).
+    expect(previewScore(obs, tiles)).toBeNull();
+    expect(previewScore(obs, tiles, OPT_IN)?.total).toBe(0);
+    expect(previewScore({ ...obs, engineRulesVersion: 3 as 1 }, tiles, OPT_IN)).toBeNull();
+  });
+});
+
+describe('no bypass through the tables: a version only runs with its own layout and letters (ADR-0014 §D2)', () => {
+  const v1 = created(config(1), CTX);
+  const seat = v1.seatOnTurn;
+  const tiles: Placement[] = [
+    { row: 7, col: 6, tile: 'P' },
+    { row: 7, col: 7, tile: 'O' },
+    { row: 7, col: 8, tile: 'D' },
+  ];
+  const place = { seat, type: 'PLACE_WORD' as const, tiles };
+
+  it.each<[string, Partial<Pick<MatchSetup, 'layout' | 'letters'>>, string]>([
+    ['v1 with the draft layout classic-v2', { layout: 'classic-v2' }, 'config.layout'],
+    ['v1 with the draft letters-v2', { letters: 'letters-v2' }, 'config.letters'],
+    ['v1 with both draft tables', { layout: 'classic-v2', letters: 'letters-v2' }, 'config.layout'],
+  ])(
+    '%s: apply, evaluateMove and previewScore refuse it, with or without the opt-in',
+    (_name, tables, field) => {
+      const forged: MatchState = { ...v1, config: { ...v1.config, ...tables } };
+      const obs: Observation = { ...observe(forged, seat), rack: 'DOP' };
+      const refused = {
+        ok: false,
+        error: { kind: 'engine', code: 'INVALID_CONFIG', details: { field } },
+      };
+      for (const ctx of [CTX, DRAFT]) {
+        expect(apply(forged, { seat, type: 'PASS' }, ctx)).toMatchObject(refused);
+        expect(evaluateMove(obs, place, ctx)).toMatchObject(refused);
+      }
+      expect(previewScore(obs, tiles)).toBeNull();
+      expect(previewScore(obs, tiles, OPT_IN)).toBeNull();
+      // The genuine v1 match still plays and previews.
+      expect(evaluateMove({ ...observe(v1, seat), rack: 'DOP' }, place, CTX).ok).toBe(true);
+      expect(previewScore({ ...observe(v1, seat), rack: 'DOP' }, tiles)?.total).toBe(12);
+    },
+  );
+
+  it('a v2 state with v1 letters is refused even with the opt-in', () => {
+    const v2 = created(config(2), DRAFT);
+    const forged: MatchState = { ...v2, config: { ...v2.config, letters: 'letters-v1' } };
+    expect(apply(forged, { seat: v2.seatOnTurn, type: 'PASS' }, DRAFT)).toMatchObject({
+      ok: false,
+      error: { code: 'INVALID_CONFIG', details: { field: 'config.letters' } },
+    });
   });
 });
 

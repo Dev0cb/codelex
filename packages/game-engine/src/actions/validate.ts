@@ -8,7 +8,7 @@ import { exchangeTiles, type Exchanged } from '../bag/bag.js';
 import { assertNever, lexiconMismatch, matchOver, notYourTurn } from '../errors.js';
 import { checkPlacement, type CheckedPlacement } from '../placement/check.js';
 import { getLayout } from '../rules/constants.js';
-import { resolveRules } from '../rules/registry.js';
+import { resolveSetup } from '../rules/registry.js';
 import type {
   ApplyFailure,
   EngineContext,
@@ -37,7 +37,7 @@ type ValidatedKind =
 /**
  * Checks `input` against `state` in the order of API note §8.3:
  * 1. `RULES_VERSION_UNSUPPORTED` (unregistered version, draft without `ctx.draft`, unknown candidate),
- *    `LEXICON_MISMATCH`; 2. `match_over`; 3. `malformed`; 4. `not_your_turn`
+ *    `INVALID_CONFIG` (layout or letters outside the version's lists), `LEXICON_MISMATCH`; 2. `match_over`; 3. `malformed`; 4. `not_your_turn`
  * (skipped for RESIGN from an active seat; a resigned seat gets it with `seatInactive: true` for every action);
  * 5. PLACE_WORD placement/rack/lexicon checks, EXCHANGE exchange/rack checks.
  */
@@ -46,8 +46,8 @@ export function validateAction(
   input: unknown,
   ctx: EngineContext,
 ): Result<ValidatedAction, ApplyFailure> {
-  // Typed, but a hand-built or future state may carry another version (ADR-0014 §D2).
-  const resolved = resolveRules(state.engineRulesVersion, ctx.draft);
+  // Typed, but a hand-built or future state may carry another version, or tables outside it (ADR-0014 §D2).
+  const resolved = resolveSetup(state.engineRulesVersion, state.config, ctx.draft);
   if (!resolved.ok) return resolved;
   const { rules } = resolved.value;
   const mismatch = lexiconMismatch(state, ctx);

@@ -10,6 +10,7 @@ import type {
   DraftContext,
   EngineError,
   EngineRulesVersion,
+  MatchSetup,
   Rules,
   RulesSet,
   RulesVersionDetails,
@@ -155,4 +156,34 @@ export function resolveRules(
     return err(rulesVersionError(version, { status: set.status, candidate }));
   }
   return ok({ set, rules: found.rules });
+}
+
+/**
+ * `resolveRules` for an input that already carries a setup (a state or an observation): the version must resolve
+ * AND its `layout` / `letters` must be in the set's lists (ADR-0014 §D2). Without the second check, a frozen
+ * version could be paired with draft tables (`engineRulesVersion: 1` with `classic-v2`) and bypass the draft guard
+ * (review of E6). A mismatch is `INVALID_CONFIG` with `details.field`, as in `createMatch`.
+ */
+export function resolveSetup(
+  version: unknown,
+  setup: Pick<MatchSetup, 'layout' | 'letters'>,
+  draft: DraftContext | undefined,
+): Result<ResolvedRules, EngineError> {
+  const resolved = resolveRules(version, draft);
+  if (!resolved.ok) return resolved;
+  const { set } = resolved.value;
+  for (const [field, id, allowed] of [
+    ['config.layout', setup.layout, set.layouts],
+    ['config.letters', setup.letters, set.letterTables],
+  ] as const) {
+    if (!(allowed as readonly string[]).includes(id)) {
+      return err({
+        kind: 'engine',
+        code: 'INVALID_CONFIG',
+        message: `invalid match config at ${field}`,
+        details: { field },
+      });
+    }
+  }
+  return resolved;
 }

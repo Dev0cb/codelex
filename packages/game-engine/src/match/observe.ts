@@ -8,11 +8,12 @@ import { parseAction } from '../actions/parse.js';
 import { lexiconMismatch, malformed, matchOver, notYourTurn } from '../errors.js';
 import { checkPlacement, checkPlacementGeometry } from '../placement/check.js';
 import { getLayout, getLetterTable } from '../rules/constants.js';
-import { isRulesVersion, resolveRules, rulesFor } from '../rules/registry.js';
+import { resolveSetup } from '../rules/registry.js';
 import { previewPlacement, scorePlacement } from '../scoring/score.js';
 import { BLANK_SLOT, countTiles, isBlankOnBoard } from '../tiles.js';
 import type {
   ApplyFailure,
+  DraftContext,
   EngineContext,
   MatchEvent,
   MatchState,
@@ -125,7 +126,7 @@ export function evaluateMove(
   ctx: EngineContext,
 ): Result<MoveEvaluation, ApplyFailure> {
   // Same resolution as `apply` (draft opt-in and candidate included), so P-API-01 holds for every version.
-  const resolved = resolveRules(observation.engineRulesVersion, ctx.draft);
+  const resolved = resolveSetup(observation.engineRulesVersion, observation.config, ctx.draft);
   if (!resolved.ok) return resolved;
   const { rules } = resolved.value;
   const mismatch = lexiconMismatch(observation, ctx);
@@ -166,18 +167,20 @@ export function evaluateMove(
 
 /**
  * R-SCORE-009: projected score of a tentative placement for the viewer, or `null` when the match is over, the
- * viewer is a spectator or no longer active, the version is not registered, or the placement fails geometry or
- * the viewer's rack (P-SCORE-009-d). No lexicon and no context: it reads the set's default `rules`, whose rack
- * size, first-move minimum and Full Stack are literal types shared by every candidate (ADR-0014 §D2); a
- * candidate only changes the term bonus, which a preview never shows.
+ * viewer is a spectator or no longer active, the rules do not resolve (unregistered version, a draft without
+ * `options.draft`, layout or letters outside the version's lists: the same guard as `evaluateMove`, ADR-0014
+ * §D4), or the placement fails geometry or the viewer's rack (P-SCORE-009-d). No lexicon (API-7). A candidate
+ * only changes the term bonus, which a preview never shows.
  */
 export function previewScore(
   observation: Observation,
   tiles: readonly Placement[],
+  options?: { readonly draft?: DraftContext },
 ): PreviewScore | null {
   if (observation.status === 'finished' || observation.viewer === 'spectator') return null;
-  if (!isRulesVersion(observation.engineRulesVersion)) return null;
-  const { rules } = rulesFor(observation.engineRulesVersion);
+  const resolved = resolveSetup(observation.engineRulesVersion, observation.config, options?.draft);
+  if (!resolved.ok) return null;
+  const { rules } = resolved.value;
   // A resigned seat can never move again: no preview (review R1 n7).
   if (observation.seats[observation.viewer]?.status !== 'active') return null;
   const parsed = parseAction(
