@@ -1,9 +1,11 @@
 # Classic match vs bot (offline, guest)
 
 - Epic: E-1.5 (depends on E-1.1, E-1.2, E-1.3, E-1.4; feeds E-1.6) · Vision refs: V-01, V-02, V-03, V-07, V-13, V-15 · Status: Ready for design
-- Owner: product-strategist · Last update: 2026-10-02
+- Owner: product-strategist · Last update: 2026-10-04 (sprint 3 SP1: game-designer findings F-1/F-2 folded into
+  AC-3/AC-5, every AC re-checked against GAME_RULES 0.3.1 and BALANCE 0.4, analytics moved into the catalogue)
 - Next reviews: `game-designer` (rules, bot feel), `ux-ui-designer` (flows, FTUE, copy), then `data-analyst`,
-  `privacy-compliance`, `mobile-engineer`, `solution-architect` (see end of document).
+  `privacy-compliance`, `mobile-engineer`, `solution-architect` (see end of document). SP1 re-review: `game-designer`
+  (AC-3, AC-5, AC-7, AC-10 wording), `data-analyst` (catalogue entries), `privacy-compliance` (FYI, new fields).
 
 ## Problem
 
@@ -78,51 +80,98 @@ all rules are applied by the engine, never re-implemented in the app (CLAUDE.md 
 - **AC-2 Fully offline.** Given the device is in airplane mode for the whole session, When the player completes a
   match, views the summary and opens Knowledge Cards, Then every step works with no network error, spinner or
   degraded copy, and analytics are buffered locally (AC-17).
-- **AC-3 Match setup.** Given a new match, When it is created, Then the engine is initialised with: Classic 15×15
-  board and premium layout (R-BOARD-001, R-BOARD-002, tech squares R-BOARD-003 as shipped by E-1.1), a bag seeded
-  from a 64-bit seed (R-CORE-001) with the frozen distribution, values and 2 blanks (R-BAG-001, R-BAG-002), 7-tile
-  hidden racks (R-BAG-003), the bundled `lexiconVersion` pinned to the match, Tech Powers disabled, and the
-  first player determined from the seed and announced ("You start" / "Strategist starts").
+- **AC-3 Match setup.** *(SP1: F-2 folded in, rules version pinned per ADR-0014.)* Given a new match, When it is
+  created, Then:
+  - the match header pins `engineRulesVersion` to the app constant **`PLAY_RULES_VERSION`** (ADR-0014 "Multiple
+    rules versions in one engine build"). It defaults to **1** until the sprint-3 v1/v2 decision (task BC, due
+    D0+9; b2-response §9.1 item 2), must name a frozen version (never a draft: `createMatch` refuses drafts outside
+    the simulator) and changes only with a new build, never through remote config;
+  - the pinned version selects every outcome constant (R-CORE-005): the Classic 15×15 board (R-BOARD-001), its
+    premium layout (R-BOARD-002; version 1 = `classic-v1` with the DW start square, R-BOARD-004), and the letter
+    table and bag (R-BAG-001, R-BAG-002; version 1 = `letters-v1`, 98 lettered tiles + 2 blanks = 100 tiles);
+  - **tech squares are off** (R-BOARD-003 inactive). Flag `board.tech_squares.enabled` exists with default **off**.
+    No layout the app can pin carries tech squares (GAME_RULES §2.1), so turning the flag on changes nothing:
+    no tech-square rendering, no breakdown line, no score change. The flag can only expose tech squares that the
+    pinned `engineRulesVersion` defines. It never adds them at runtime, because that would change outcomes
+    without a version bump (R-CORE-005);
+  - the bag is shuffled once from the `bag` stream of a 64-bit seed (R-CORE-001, R-CORE-005, R-BAG-005) and 7-tile
+    hidden racks are dealt (R-BAG-003);
+  - the bundled `lexiconVersion` and lexicon profile are pinned (R-CORE-001, R-CORE-003);
+  - the format is `untimed-vs-bot` (R-MODE-CLASSIC-002): no clock, Tech Powers disabled, free rejections;
+  - the first seat is drawn from the `first-player` stream (R-CORE-004) and announced ("You start" / "Strategist
+    starts").
+
+  Per ADR-0014 (accepted), a saved match resumes under its own header version as long as that version is frozen in
+  the build's rules registry. A version missing from the registry, or still a draft, leads to the `version_mismatch`
+  state (States table).
 - **AC-4 Valid move and score explanation.** Given it is the player's turn, When they place tiles that satisfy
-  R-TURN-002 and form only playable terms (R-TURN-003, R-CORE-003) and tap PLAY, Then the engine applies the move,
-  the score shown equals the engine score (R-SCORE-001, R-SCORE-002, R-SCORE-007), the breakdown shows each
-  applicable component (letter/word multipliers, term bonus R-SCORE-003, Full Stack R-SCORE-004, chain
-  R-SCORE-005 with the linked term, tech square R-BOARD-003), the rack is refilled from the bag (R-BAG-003) and
-  tile conservation holds (R-BAG-004).
-- **AC-5 Live preview (flagged).** Given `match.live_score_preview` is on, When the player has tentatively placed
-  tiles, Then the projected score is displayed only if the placement is geometrically legal (R-TURN-002), and
-  validity of the words is revealed only when PLAY is tapped. ASSUMPTION: no live "word is valid" indicator before
-  commit, to keep vocabulary central; `game-designer` to confirm.
+  R-TURN-002 and form only playable forms (R-TURN-003, R-CORE-003) and tap PLAY, Then:
+  - the engine applies the move;
+  - the score shown equals the engine score (R-SCORE-001, R-SCORE-002, R-SCORE-007);
+  - the breakdown renders the engine's `ScoreBreakdown` verbatim, in R-SCORE-008 order with each step floored, and
+    shows each applicable component: letter/word multipliers, term bonus R-SCORE-003 (the canonical term's, also
+    for an inflection, R-CORE-006), Full Stack R-SCORE-004 (exactly 7 tiles placed), and chain R-SCORE-005 with
+    the linked term. It never shows a tech-square line while tech squares are off (AC-3);
+  - the rack is refilled from the bag (R-BAG-003) and tile conservation holds (R-BAG-004).
+- **AC-5 Live preview (flagged).** *(SP1: F-1 folded in.)* Given `match.live_score_preview` is on, When the player
+  has tentatively placed tiles, Then:
+  - a projected score is displayed only if the placement passes the geometric checks of R-TURN-002, with the
+    lexicon not consulted;
+  - the value comes from the engine's preview function, which omits every lexicon-dependent component: term bonus,
+    tech-square bonus and chain bonus (**R-SCORE-009**). It therefore shows letter/word premiums and Full Stack
+    only, labelled as a base score ("Base N"), and can never reveal whether a word is valid or how difficult it is;
+  - no validity indicator of any kind (colour, check mark, wording) appears before PLAY. Validity is revealed only
+    when PLAY is tapped;
+  - the preview is never authoritative: the committed score is the result of `apply` (AC-4) and may exceed it.
+
+  Given the flag is off, Then no preview is rendered. (Q-5 decided; the earlier assumption is closed.)
 - **AC-6 Rejection without penalty.** Given the player taps PLAY with an illegal placement or a non-playable word,
-  When the engine rejects it, Then the game state is unchanged (R-TURN-003), the tiles stay where the player put
-  them for editing, a short reason is shown ("Not in the CODELEX lexicon: KUBECTL" / "Tiles must be in one line"),
-  no points or time are lost, and it is still the player's turn. ASSUMPTION: in vs-bot casual play a rejected
-  attempt does **not** count toward R-TURN-004 (see Open questions, Q-3).
-- **AC-7 Rack actions.** Given it is the player's turn, Then: Shuffle reorders the rack locally (no turn used);
-  Exchange is enabled only when the bag holds ≥ 7 tiles (R-TURN-001) and otherwise shows why it is disabled; Pass
-  asks for one confirmation; placing a blank opens an A–Z letter picker and the blank scores 0 (R-BAG-002); and
-  after six consecutive scoreless turns across both players the match ends (R-TURN-004).
-- **AC-8 Bot turn: pace and fairness.** Given it is the bot's turn, When the bot computes its move, Then a
-  "thinking" indicator is shown, the move is applied within a perceived delay of 1.2–4 s ⚙ (minimum delay so
-  the bot never feels instant; p95 total ≤ 4 s and compute p95 ≤ 2 s for Strategist on the reference device), the
-  bot only receives its legal observation (board, own rack, unseen-tile counts; never the player's rack or bag
-  order), its action goes through the same engine `apply` as the player's, and the UI stays responsive (player
-  can scroll the move log and inspect the board) while it thinks.
+  When the engine rejects it, Then:
+  - the game state is unchanged, byte for byte (R-TURN-003, R-TURN-005);
+  - the tiles stay where the player put them for editing;
+  - a short reason is shown, naming every offending form returned by the engine with ICU pluralisation ("Not in
+    the CODELEX lexicon: KUBECTL" / "Tiles must be in one line");
+  - no points or time are lost, and it is still the player's turn;
+  - the rejected attempt never counts toward R-TURN-004 (R-TURN-005; Q-3 decided).
+- **AC-7 Rack actions.** Given it is the player's turn, Then:
+  - Shuffle reorders the rack locally and uses no turn;
+  - Exchange lets the player pick 1–7 tiles (R-BAG-005), is enabled only when the bag holds ≥ 7 tiles (R-TURN-001)
+    and otherwise shows why it is disabled;
+  - Pass asks for one confirmation;
+  - placing a blank opens an A–Z letter picker; the designation is permanent and visible to the bot, and the blank
+    scores 0 (R-BAG-002, R-BAG-006);
+  - the first PlaceWord must cover the start square with ≥ 2 tiles (R-TURN-002, R-BOARD-004);
+  - after **3 × nSeats = 6** consecutive scoreless turns across both players, the match ends (R-TURN-004). Pass
+    and Exchange both count (b2-response D1-a); rejected attempts never count.
+- **AC-8 Bot turn: pace and fairness.** Given it is the bot's turn, When the bot computes its move, Then:
+  - a "thinking" indicator is shown;
+  - the move is applied within a perceived delay of 1.2–4 s ⚙. The minimum delay keeps the bot from feeling
+    instant; on the reference device the total p95 is ≤ 4 s and Strategist's compute p95 is ≤ 2 s;
+  - the bot receives only its legal observation (board, own rack, unseen-tile counts; never the player's rack or
+    bag order) and a fresh `bot:<seat>:<n>` stream (R-CORE-005), never the seed;
+  - its search is bounded by a node-count budget, never by wall-clock time (bots-api BOT-3/BOT-4; F-7);
+  - its action goes through the same engine `apply` as the player's;
+  - the UI stays responsive while it thinks: the player can scroll the move log and inspect the board.
+
+  Compute time and budget exhaustion are measured on device through `bot_decision_made` (catalogue).
 - **AC-9 Bot personalities.** Given the player has completed their first match, When they open the opponent
   selector from home, Then Beginner Bot and Strategist are offered with a one-line style description and the last
   choice is remembered; Given `bots.<personality>.enabled` is off, Then that personality is hidden for new
   matches while an in-progress match against it can still be finished.
-- **AC-10 End of match and summary.** Given the bag is empty and a player empties their rack, or R-TURN-004
-  triggers, or the player resigns (one confirmation; counts as a loss), When the match ends, Then final scores
-  apply R-SCORE-006 and R-SCORE-007, the result is Victory / Defeat / Draw (equal scores), and the summary shows:
+- **AC-10 End of match and summary.** Given the bag is empty and a player empties their rack (R-END-001), or
+  R-TURN-004 triggers, or the player resigns (R-END-002; one confirmation; counts as a loss, R-SCORE-006 not
+  applied), When the match ends, Then final scores apply R-SCORE-006 (R-END-001 and R-TURN-004 endings only) and
+  R-SCORE-007, the result is Victory / Defeat / Draw (equal final scores are a draw, no tie-break in casual play,
+  R-END-003), and the summary shows:
   final scores with rack adjustments, best word (highest scoring), all terms played by both sides as tappable
-  chips, a "New to you" count of terms played for the first time on this device, the bot's remaining rack, and
-  three actions: Play again (primary, same opponent), Change opponent, Home.
+  chips, a "New to you" count of terms played for the first time on this device, the bot's remaining rack (final
+  racks are public, R-END-003), and three actions: Play again (primary, same opponent), Change opponent, Home.
 - **AC-11 Interruption and resume.** Given a match in progress, When the app is backgrounded for any duration, the
   OS kills the process, or the phone reboots, and the player returns, Then the match restores exactly (board,
   both racks, scores, bag, whose turn, move log) with zero committed moves lost; uncommitted tiles on the board
-  return to the rack; if the bot was thinking, it recomputes and plays the same deterministic move. The match
-  state is persisted atomically after every applied action.
+  return to the rack; if the bot was thinking, it re-derives the same `bot:<seat>:<n>` stream and, under the same
+  node-count budget, plays the same deterministic move (R-CORE-005, F-7). The match state is persisted atomically
+  after every applied action.
 - **AC-12 One match at a time.** Given an in-progress match exists, When the home screen is shown, Then a resume
   card ("vs Strategist · Your turn · 142–128") is the primary action and PLAY NOW resumes it; starting a new match
   requires confirming that the current one will be abandoned (recorded as abandoned, not as a loss).
@@ -163,9 +212,10 @@ all rules are applied by the engine, never re-implemented in the app (CLAUDE.md 
   background only if a network is available (never blocking play); Given `play_vs_bot.enabled` is off, Then PLAY
   NOW shows "Matches are paused for an update — back soon" instead of starting a match, and an in-progress match
   can still be resumed and finished.
-- **AC-20 Determinism and bug reports.** Given a saved match (seed, `lexiconVersion`, engine version, ordered
-  action log), When it is replayed through the engine, Then the final state hash equals the stored hash; and a
-  playtest-only "Send match log" action in Settings exports this data (no PII) for bug reports.
+- **AC-20 Determinism and bug reports.** Given a saved match (seed, `engineRulesVersion`, `lexiconVersion`, lexicon
+  profile, ordered action log; R-CORE-005), When it is replayed through the engine, Then the final state hash equals
+  the stored hash; and a playtest-only "Send match log" action in Settings exports this data (no PII) for bug
+  reports.
 
 ## Non-goals
 
@@ -226,7 +276,7 @@ Later launches ─► Home: Resume card (if match in progress) │ PLAY NOW (las
 | Loading (cold start, lexicon index and engine init) | Branded splash; if > 3 s, a progress indicator; never a blank screen. |
 | Bot thinking | Animated indicator on the bot avatar; board remains scrollable; no input blocked except PLAY. |
 | Error: lexicon index missing/corrupt | Full-screen message "We could not load the CODELEX lexicon. Restart the app; if it persists, reinstall." + crash report; no partial play. |
-| Error: saved match unreadable or created with another `lexiconVersion`/engine version | Message "This match was saved with an older version and can't be resumed." + Start new match; event `bot_match_abandoned` reason `version_mismatch` or `state_corrupt`. |
+| Error: saved match unreadable, or created with a `lexiconVersion` not bundled or an `engineRulesVersion` missing from the build's rules registry (AC-3) | Message "This match was saved with an older version and can't be resumed." + Start new match; event `bot_match_abandoned` reason `version_mismatch` or `state_corrupt`. |
 | Offline | Not a state: everything works. Remote config and analytics upload silently wait for a network. |
 | Backgrounded mid-match | Persist on every action; on return restore (AC-11). No "You were away" punishment of any kind. |
 | Low storage | If the state write fails, show a non-blocking warning "Low storage: your match may not be saved"; play continues. |
@@ -254,17 +304,19 @@ ASSUMPTION: FR uses informal "tu" consistent with a game tone; `ux-ui-designer` 
 
 ## Rules impact
 
-No rule is added or changed by this spec. The feature consumes Classic rules from `docs/game/GAME_RULES.md` v0.1
-through the engine. Requests to `game-designer` (to be resolved in GAME_RULES.md, not here):
+No rule is added or changed by this spec. The feature consumes Classic rules from `docs/game/GAME_RULES.md`
+(0.3.1 = `engineRulesVersion` 1 at SP1) through the engine, pinned by `PLAY_RULES_VERSION` (AC-3). The original
+requests to `game-designer` are all resolved:
 
-1. **Match end on going out**: R-SCORE-006 implies the match ends when the bag is empty and a player empties
-   their rack, but no rule ID states it. Request an explicit rule (e.g. `R-END-001`) so AC-10 can cite it.
-2. **First player**: no rule defines who starts. ASSUMPTION: seeded coin flip (R-CORE-001). Request a rule ID.
-3. **Rejected attempts vs R-TURN-004**: R-TURN-003 says the state is unchanged on rejection, R-TURN-004 counts
-   rejected attempts as scoreless turns. These conflict for casual play (Q-3).
-4. **Vs-bot Classic format**: R-MODE-CLASSIC-001 lists 24 h correspondence or 25 min live clock. Request an
-   "untimed vs bot" format (casual only, never ranked).
-5. Tech Powers: disabled in this format (casual Classic allows them per §7, but they are out of scope).
+1. Match end on going out → R-END-001 (with R-END-002 resign and R-END-003 result/draws), cited by AC-10.
+2. First player → R-CORE-004 (`first-player` stream), cited by AC-3.
+3. Rejected attempts vs R-TURN-004 → R-TURN-005 (rejections never count, in every mode), cited by AC-6/AC-7.
+4. Vs-bot Classic format → R-MODE-CLASSIC-002 `untimed-vs-bot`, cited by AC-3.
+5. Tech Powers: disabled in this format (R-MODE-CLASSIC-002). Tech squares: off (AC-3, F-2; GAME_RULES §2.1).
+
+If the v1/v2 decision (sprint 3, BC) picks `engineRulesVersion` 2 (GAME_RULES 0.4 proposal: plain start square
+`classic-v2`, lower term bonuses, `letters-v2`), only `PLAY_RULES_VERSION` changes in the app. The ACs above cite
+rule IDs, not constants, so they hold for either version; AC-7's "6 scoreless turns" is unchanged in v2.
 
 ## Analytics & KPIs
 
@@ -273,9 +325,9 @@ through the engine. Requests to `game-designer` (to be resolved in GAME_RULES.md
 | KPI | Type | Target | Source |
 |---|---|---|---|
 | "Would play again" = Yes | **Primary** (phase exit) | ≥ 70% of testers who answered (last answer per install) | `playtest_survey_answered` + debrief interviews |
-| Median session length | Exit | ≥ 8 min | `app_opened` + session envelope. ASSUMPTION: session ends after 30 min in background; length = foreground time |
+| Median session length | Exit | ≥ 8 min | `app_opened` + `app_backgrounded.foreground_ms` (session closes after 30 min in background, Q-12; length = sum of foreground intervals) |
 | Active playtesters | Exit | ≥ 30 installs with ≥ 1 completed match | `bot_match_finished` |
-| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | TestFlight / Play Console crash stats; `app_start` after unclean exit |
+| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | TestFlight / Play Console crash stats; `app_opened.previous_exit_unclean` |
 | First-player win rate (simulation) | Exit (dependency) | ≤ 52% (B-01) | E-1.3 simulator / E-1.6 report, not this app |
 | Time-to-first-match | Secondary | p50 ≤ 60 s, p90 ≤ 120 s | `onboarding_step_completed` (`first_launch` → `first_move`) |
 | Match completion rate | Secondary | ≥ 65% of started matches finished (not abandoned) ⚙ | `bot_match_started` / `bot_match_finished` |
@@ -283,6 +335,10 @@ through the engine. Requests to `game-designer` (to be resolved in GAME_RULES.md
 | Play again rate (summary → new match) | Secondary | baseline | `match_summary_action` |
 | Knowledge Card open rate (post-match) | Secondary | baseline; ≥ 20% of completed matches with ≥ 1 card ⚙ | `knowledge_card_opened` |
 | Terms discovered per tester per week | Secondary | baseline | distinct `term_id` in `bot_word_played` (actor = player) |
+| Score margin per personality (F-9) | Secondary | baseline; investigate if the median loss vs Beginner is > 100 points | `bot_match_finished.score_margin` |
+| Bag count at match end (b2-response T-9; C-10 read on humans) | Secondary | baseline; share of R-TURN-004 endings with ≥ 7 tiles in the bag compared with the simulator's C-10 | `bot_match_finished.bag_count_at_end`, `end_reason` |
+| Tiles on the board at match end (C-11 read on humans) | Secondary | baseline vs C-11 ≥ 90 | `bot_match_finished.tiles_on_board_at_end` |
+| Forced-pass tail (P-1 input) | Secondary | baseline | `bot_match_finished.forced_pass_tail` |
 
 ### Guardrails (halt or investigate if breached)
 
@@ -292,7 +348,8 @@ through the engine. Requests to `game-designer` (to be resolved in GAME_RULES.md
 | ANR rate (Android) | > 0.47% of sessions (Play "bad behaviour" threshold) |
 | Resume failure (state lost or `state_corrupt`) | > 0.5% of resumes |
 | Engine/app score mismatch | any occurrence (score shown ≠ engine score; detected by state hash in AC-20) |
-| Bot response time | p95 > 4 s on reference device |
+| Bot response time | total p95 > 4 s, or Strategist compute p95 > 2 s, on the reference device (`bot_decision_made.compute_ms_bucket`) |
+| Bot budget exhaustion | > 1 % of decisions per personality (BG-5 read on devices; `bot_decision_made.budget_exhausted`) |
 | Rejected attempts per player turn | > 1.0 median (frustration / lexicon gap signal) |
 | Human win rate vs Beginner Bot | < 55% (too hard) ⚙ |
 | Human win rate vs Strategist | outside 20–50% ⚙ |
@@ -320,20 +377,26 @@ Not reused: `match_started`, `match_finished`, `word_played`, `term_discovered` 
 competitive facts. Emitting them from an offline client would pollute server-authoritative metrics, so local
 equivalents are proposed below with a distinct `bot_` prefix.
 
-### Proposed catalogue additions (for `data-analyst`; ANALYTICS_EVENTS.md not edited by this spec)
+### Catalogue entries (accepted into the catalogue in sprint 3 SP1)
 
-| Event | Trigger | Properties | PII | Owner | v |
-|---|---|---|---|---|---|
-| `bot_match_started` | Local match vs bot created | `local_match_id`, `mode` (classic), `bot_personality`, `first_player` (player/bot), `lexicon_version`, `engine_version`, `bot_version`, `is_first_match` | pseudonymous | mobile-engineer | 1 |
-| `bot_match_finished` | Local match ends | `local_match_id`, `result` (win/loss/draw), `end_reason` (out/scoreless_turns/resign), `player_score`, `bot_score`, `active_duration_ms`, `turns`, `words_played`, `rejected_attempts`, `exchanges`, `passes`, `resume_count` | pseudonymous | mobile-engineer | 1 |
-| `bot_match_abandoned` | In-progress match discarded | `local_match_id`, `reason` (replaced_by_new/version_mismatch/state_corrupt), `turns`, `active_duration_ms` | pseudonymous | mobile-engineer | 1 |
-| `bot_match_resumed` | Match restored after background or cold start | `local_match_id`, `resume_source` (background/cold_start), `away_ms`, `restore_ms` | pseudonymous | mobile-engineer | 1 |
-| `bot_word_played` | Valid word applied locally (player or bot) | `local_match_id`, `actor` (player/bot), `term_id`, `category`, `difficulty`, `points`, `bonus_flags` (term/full_stack/chain/tech_square), `think_ms`, `turn` | pseudonymous | mobile-engineer | 1 |
-| `word_rejected` | Player's PLAY rejected by engine | `local_match_id`, `reason` (not_in_lexicon/placement/cross_word), `word_length`, `think_ms`, `turn` (attempted form excluded — Q-8) | pseudonymous | mobile-engineer | 1 |
-| `match_summary_action` | Action tapped on summary | `local_match_id`, `action` (play_again/change_opponent/home/discover), `ms_on_summary` | pseudonymous | mobile-engineer | 1 |
-| `knowledge_card_closed` | Card dismissed | `term_id`, `source`, `dwell_ms`, `related_taps` | pseudonymous | mobile-engineer | 1 |
-| `playtest_survey_answered` | One-tap survey answered or dismissed | `survey_id`, `question_id` (would_play_again), `answer` (yes/maybe/no/dismissed), `matches_completed` | pseudonymous | mobile-engineer | 1 |
-| `analytics_buffer_flushed` | Batch uploaded | `events_sent`, `events_dropped_since_last`, `oldest_event_age_ms` | none | mobile-engineer | 1 |
+The `bot_*` events and the other client-local playtest events proposed here now live in
+`docs/standards/ANALYTICS_EVENTS.md`, section "Client-local playtest events (E-1.5)". **The catalogue is the only
+source of truth for names, types, PII class and retention; this spec no longer keeps a copy.** Changes made at
+SP1:
+
+- `bot_match_started.engine_version` is renamed `engine_rules_version` (the integer pinned by AC-3); `bot_version`
+  is kept.
+- `bot_match_finished` gains:
+  - `bot_personality`, `bot_version` and `engine_rules_version`, so an event survives queue drops on its own;
+  - `bag_count_at_end`, `tiles_on_board_at_end` and `forced_pass_tail` (b2-response T-9; C-10/C-11 read on humans);
+  - `score_margin` (F-9).
+- New `bot_decision_made`: one per bot decision, with compute and total latency buckets, `budget_exhausted`,
+  `bot_version` and `engine_rules_version`. It covers AC-8 and the Strategist budget check on device (sprint 3 ST0
+  and H1).
+- New `app_backgrounded { foreground_ms }` and new property `app_opened.previous_exit_unclean` (session length and
+  local crash-free; playtest plan §4.1, OQ-3).
+- `bot_word_played.form_kind` from E-1.7 is added. The `tech_square` value of `bonus_flags` stays reserved: it is
+  never set while tech squares are off.
 
 Rules for these events: client-local, explicitly **non-competitive**; never consumed by rating, progression or
 integrity pipelines; schema owned by `data-analyst`.
@@ -350,11 +413,15 @@ at the next launch with network; the hard fallback is pulling the build from the
 | `bots.beginner.enabled` | on | Personality availability |
 | `bots.strategist.enabled` | on | Personality availability (kill if a bot bug or broken difficulty is found) |
 | `bots.think_delay_ms` (config) | min 1200, max 4000 | Perceived bot pace, tunable without a build |
-| `match.live_score_preview` | on | AC-5 |
+| `match.live_score_preview` | on | AC-5 (lexicon-free preview, R-SCORE-009) |
+| `board.tech_squares.enabled` | **off** | AC-3 (F-2). No effect while the pinned layout has no tech squares; turning it on never adds tech squares at runtime |
 | `knowledge_card.post_match.enabled` | on | AC-13/AC-14 kill switch |
 | `knowledge_card.in_match.enabled` | off | Reserved for a later experiment (Q-6); not built in slice 1–6 |
 | `playtest.survey.enabled` | on | AC-18 |
 | `analytics.upload.enabled` | on | Stop uploads without a build (buffer still respects consent) |
+
+`PLAY_RULES_VERSION` is **not** a flag. It is a build constant (AC-3, ADR-0014): the rules version that new matches
+pin cannot be changed by remote config. Switching v1 ↔ v2 means shipping a new build.
 
 ### Thin slices (each behind a flag, each measurable)
 
@@ -468,6 +535,16 @@ the playtest starts.
 - **Q-10** No migration of local results or ratings, ever; terms-discovered migration decided in E-2.1.
 - **Q-11** Hide modes that are not playable (no "Coming soon").
 - **Q-12** Session = foreground time, closed after 30 min in background (as in KPIs).
+- **Q-13 (SP1, 2026-10-04) Rules version is a build constant, not a flag.** `PLAY_RULES_VERSION` (default 1) pins
+  new matches (AC-3). Rejected: a remote-config rules version. It would let one build produce matches under two
+  rule sets without a build trail, it gains nothing because the playtest ships at most one planned rebuild
+  (playtest plan §3.4), and it would weaken the "Send match log" reproduction. ICE: impact high (data integrity)
+  × confidence high ÷ effort low.
+- **Q-14 (SP1) Bot latency is measured per decision in buckets, not as raw milliseconds.** Buckets are enough to
+  read p95 against the 2 s / 4 s thresholds and are kinder to the 5,000-event queue cap and to fingerprinting. Raw
+  timings stay in the H1 device benchmark. Rejected: per-match histograms on `bot_match_finished` only. Abandoned
+  and in-progress matches would lose their latency data, and that data is exactly what the slow-device cases
+  produce.
 - `LEGAL_REVIEW_REQUIRED`: Senegal Law 2008-12 (prior declaration to the CDP? legal ground for the Senegal → EU
   transfer), validity of employee consent, retention periods above.
 
@@ -477,14 +554,14 @@ the playtest starts.
 |---|---|
 | AC-1 | Maestro E2E fresh install → PLAY NOW → board interactive (no intermediate screens); perf benchmark cold start and tap→interactive on reference device; playtest metric time-to-first-match |
 | AC-2 | Maestro E2E full match + summary + card in airplane mode; unit: no network call on gameplay path |
-| AC-3 | Engine unit/property tests (E-1.1) for R-BOARD-001/002/003, R-BAG-001..003, R-CORE-001; app integration test asserting match config (powers off, lexiconVersion pinned, first player announced) |
-| AC-4 | Property tests R-SCORE-001..005/007, R-BAG-003/004 (E-1.1); component test score breakdown renders engine breakdown verbatim; golden scoring cases |
-| AC-5 | Component test preview shown only on legal geometry; flag on/off test |
-| AC-6 | Engine tests R-TURN-002/003; Maestro rejection flow (tiles stay, still player's turn, reason shown in EN/FR) |
-| AC-7 | Engine tests R-TURN-001/004, R-BAG-002; component tests Exchange disabled when bag < 7, blank picker, Pass confirmation |
-| AC-8 | Bots contract test: observation contains no opponent rack/bag order (E-1.3); perf test bot compute p95 on reference device; UI test responsiveness while thinking |
+| AC-3 | Engine unit/property tests (E-1.1) for R-BOARD-001/002/004, R-BAG-001..003/005, R-CORE-001/004/005; app integration test asserting the match header: `engineRulesVersion` === `PLAY_RULES_VERSION`, layout and letter table of that version, format `untimed-vs-bot`, powers off, `lexiconVersion` and profile pinned, first player announced; unit test that `PLAY_RULES_VERSION` names a frozen (non-draft) registry version; flag test: `board.tech_squares.enabled` on and off give identical state hashes and identical rendering for a scripted match |
+| AC-4 | Property tests R-SCORE-001..005/007/008, R-BAG-003/004 (E-1.1); component test: the score breakdown renders the engine breakdown verbatim in R-SCORE-008 order, with no tech-square line; golden scoring cases |
+| AC-5 | Engine property P-SCORE-009-a..d and golden GC-SCORE-05 (E-1.1); component test: preview shown only on legal geometry, value equals the engine preview (premiums + Full Stack), no validity styling or wording, and the preview path never calls the lexicon (spy lexicon throws); flag on/off test |
+| AC-6 | Engine tests R-TURN-002/003/005; Maestro rejection flow (tiles stay, still player's turn, reason with every offending form shown in EN/FR, scoreless counter unchanged) |
+| AC-7 | Engine tests R-TURN-001/004 (incl. the "R-TURN-004 terminates" property, T-3), R-BAG-002/005/006, R-BOARD-004; component tests Exchange 1–7 tiles and disabled when bag < 7, blank picker, Pass confirmation |
+| AC-8 | Bots contract test: observation contains no opponent rack/bag order (E-1.3); P-BOT-02/05 (determinism, node-count budget); perf test bot compute p95 on reference device; UI test responsiveness while thinking; schema test `bot_decision_made` |
 | AC-9 | Component test selector + remembered choice; flag test hides personality, in-progress match continues |
-| AC-10 | Engine tests R-SCORE-006/007 and end conditions; Maestro play-to-end with scripted seed; component test summary contents and actions; resign flow |
+| AC-10 | Engine tests R-SCORE-006/007, R-END-001..003 and end conditions; Maestro play-to-end with scripted seed; component test summary contents and actions; resign flow |
 | AC-11 | Maestro: background/foreground, process kill mid-player-turn and mid-bot-turn, reboot (manual); unit: atomic persistence after each action; deterministic bot re-computation |
 | AC-12 | Component test home resume card; Maestro new-match confirmation → `bot_match_abandoned` |
 | AC-13 | Component test card contents and locale fallback; perf ≤ 300 ms open; Maestro summary → card → related → back → Play again; test card never auto-opens |
@@ -537,6 +614,21 @@ the owner (`product-strategist`) folds these findings in.
 | F-8 | Non-blocking | Bot feel (AC-8/AC-9): personalities must differ by **behaviour**, not only strength. Beginner: picks among the top-N moves weighted toward short, novice/intermediate terms, never exchanges before turn 5, ignores leave quality, misses Full Stacks on purpose ~50%. Strategist: maximises score + rack-leave value, blocks open TW lanes when leading, exchanges when leave is poor, favours chain-extending terms. Both draw think time from a per-personality distribution (Beginner slower and more variable) so the pace reads as "human". | `ai-engineer` encodes as config; B-07 checks Beginner < Strategist ≥ 60%. |
 | F-9 | Non-blocking | Human win-rate guardrails (vs Beginner ≥ 55%, vs Strategist 20–50%) are sensible; also track **average score margin** — a 30-point loss feels very different from a 200-point loss and drives "would play again". | Add `score_margin` (derivable from `bot_match_finished`) to the readout. |
 | F-10 | Non-blocking | AC-10 "Draw (equal scores)" matches R-END-003; no tie-break in casual. | Cite R-END-003. |
+
+**Fold-in status (product-strategist, sprint 3 SP1, 2026-10-04):**
+
+| Finding | Folded into | Note |
+|---|---|---|
+| F-1 | AC-5, AC-5 tests | Cites R-SCORE-009; the preview omits term, tech-square and chain bonuses |
+| F-2 | AC-3, Flags table, AC-3 tests | Tech squares off; flag `board.tech_squares.enabled` defaults off and cannot add tech squares at runtime. The human's OK is covered by GAME_RULES 0.3 §2.1 ("off for the Phase 1 playtest") and the sprint 3 deferral of tech squares |
+| F-3 | E-1.7 AC-14 / KPIs (C-02, C-10, C-11) | Stage 1 gate is the sprint 3 batch-3 readout (AC-20 of E-1.7) |
+| F-4 | AC-4 | R-SCORE-008 order, verbatim render |
+| F-5 | AC-6 | Every offending form, ICU plural |
+| F-6 | AC-7 | R-BAG-005, R-BAG-006, R-BOARD-004 |
+| F-7 | AC-8, AC-11 | Per-decision stream, node-count budget |
+| F-8 | — | Owned by bots-api §5 and the Strategist spec (ST0); no AC change |
+| F-9 | KPIs, catalogue `bot_match_finished.score_margin` | |
+| F-10 | AC-10 | R-END-003 |
 
 ### R-1 — minimum playable lexicon for a fun 15×15 Classic game (recommendation, not a decision)
 
