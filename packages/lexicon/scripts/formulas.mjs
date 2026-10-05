@@ -1,7 +1,12 @@
 // Single source of truth for lexicon-derived values (docs/game/LEXICON_SPEC.md §4).
-// Pure functions: used by the validator, the index build and (via re-export) the game engine.
-
-// letters-v1, frozen for engineRulesVersion 1 (docs/game/GAME_RULES.md §3.1, ADR-0013).
+// Pure functions: used by the validator and the index build. The game engine never reads `gameValue`.
+//
+// ADR-0014 §D5 (T-6): `gameValue` is a lexicon value that does not depend on any `engineRulesVersion`.
+// LETTER_VALUES and DIFFICULTY_BONUS below are frozen LEXICON constants. They equal `letters-v1` and the v1 term
+// bonus by history only; they do NOT follow the engine's letter tables or term bonuses (`letters-v2`, the v2
+// candidates), so a rules version never changes a `gameValue` or the `lexiconVersion`. In-game numbers come from
+// the engine (`rulesFor(v)`, `getLetterTable(id)`). Changing these constants changes every `gameValue` and the
+// `lexiconVersion`: it needs a LEXICON_SPEC change and game-designer approval.
 export const LETTER_VALUES = Object.freeze({
   A: 1,
   B: 3,
@@ -31,6 +36,7 @@ export const LETTER_VALUES = Object.freeze({
   Z: 10,
 });
 
+// Lexicon constant (ADR-0014 §D5), not the in-game term bonus (GAME_RULES R-SCORE-003, per engineRulesVersion).
 export const DIFFICULTY_BONUS = Object.freeze({
   novice: 0,
   intermediate: 4,

@@ -657,7 +657,8 @@ General diagnostics (all variants, needed for R-1 and the E-1.5 playtest):
   `engineRulesVersion` 1, derived offline from the unweighted lexicon (largest-remainder counts, exponent 0.75,
   listed playability adjustments); the engine never derives at runtime; the old default table is retired from the
   engine. Residual hand-off: `lexicon-engineer` aligns LEXICON_SPEC §4 / `formulas.mjs` `LETTER_VALUES` on
-  `letters-v1` so card `gameValue` matches in-game letter values (A-13 stays open). Original question:
+  `letters-v1` so card `gameValue` matches in-game letter values (A-13 stays open). *(Withdrawn 2026-10-04:
+  ADR-0014 §D5 decouples `gameValue` from the in-game tables; see A-13.)* Original question:
   **A-01 R-BAG-001.** Derived vs default letter values: which one does the bundled `lexiconVersion` use? The
   lexicon `gameValue` uses the fixed default table (LEXICON_SPEC §4), so derived values would make in-game scores
   diverge from displayed game values. BALANCE.md step 1 weights by "term frequency class", a field the schema does
@@ -693,7 +694,10 @@ General diagnostics (all variants, needed for R-1 and the E-1.5 playtest):
   per-locale profile question stays open.)*
 - **A-13 LEXICON gameValue vs in-game score.** `gameValue` includes a length term `2 × max(0, len − 5)` that
   in-game scoring does not have. Either rename gameValue (e.g. "term value" for cards) or add a length bonus to
-  scoring. [Default: no length bonus in game; gameValue is display/XP only.]
+  scoring. [Default: no length bonus in game; gameValue is display/XP only.] *(2026-10-04, L7: the default is
+  confirmed by ADR-0014 §D5 (T-6): `gameValue` is a lexicon value independent of every rules version; the engine
+  scores from `rulesFor(v)` and its letter table and never reads `gameValue`; LEXICON_SPEC §4 updated. The A-01
+  hand-off "align `gameValue` on in-game values" is withdrawn for the same reason.)*
 - **A-14 BALANCE B-04/B-05/B-06.** "Human-paced" requires a think-time model and human data (none before the E-1.5
   playtest); B-06 needs a named test. [Proposal: log-normal think time per personality, calibrated on playtest
   data; Brown–Forsythe.] Targets themselves unchanged (human gate).
@@ -752,10 +756,10 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-BOARD-003 | out-of-scope | — | — / a,b,c,d,e | Out of scope: Tech squares are not part of classic-v1 and are off for the Phase 1 playtest (GAME_RULES section 2.1); positions and categories are open (A-02). Revisit with the first layout that has tech squares. |
 | R-BOARD-004 | covered | `packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts` | — / a,b |  |
 | R-BAG-001 | covered | `packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | a,d / b,c,e,f |  |
-| R-BAG-002 | covered | `packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | b / a |  |
-| R-BAG-003 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts` | a / b,c |  |
+| R-BAG-002 | covered | `packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | b / a |  |
+| R-BAG-003 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts` | a / b,c |  |
 | R-BAG-004 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/state/state.test.ts`<br>`packages/game-engine/test/phase1/tagged-rules.test.ts` | a / — |  |
-| R-BAG-005 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` | a,c,d / b,e |  |
+| R-BAG-005 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` | a,c,d / b,e |  |
 | R-BAG-006 | covered | `packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | d / a,b,c |  |
 | R-TURN-001 | covered | `packages/game-engine/src/actions/parse.test.ts` | — / a,b,c,d,e |  |
 | R-TURN-002 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/placement/check.test.ts` | — / a,b,c,d |  |

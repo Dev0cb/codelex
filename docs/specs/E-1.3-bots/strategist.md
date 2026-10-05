@@ -283,6 +283,10 @@ AC-8's 4 s perceived bound) before the freeze. No other Beginner field changes.
      a pure refactor.
 
    B4 re-applies the formula and records the result here.
+
+   *B4 record (2026-10-05):* the cheaper key build moved Node two-blank `c_node` on the 2,000-form fixture from
+   0.84 to 0.77–0.80 µs (GADDAG) and 1.31 to 1.27–1.33 µs (DAWG), within host noise of the B2 basis. P3 constants
+   had not landed. The formula is not re-applied; 70,000 / 500 stands (`docs/game/sim/2026-10-b4-strategist/`).
 2. **After B4 merges**, the budget is frozen with `BOT_VERSION` 2. **Device numbers from H1 trigger
    `BOT_VERSION` 3**, which re-applies the formula with measured `T_fixed`, `c_node` and `c_cand`. No other path
    changes the budget, and wall-clock stopping stays banned (BOT-3).
@@ -388,6 +392,14 @@ Written before any Strategist run, so the gate cannot be tuned against itself:
   also reported.
 - **Output:** results JSON and a digest committed next to the B4 PR (sprint rule: full runs leave PR CI).
 
+### B4 result (2026-10-05)
+
+Readout: `docs/game/sim/2026-10-b4-strategist/readout.md`. ST-1 82.83 % [81.11, 84.43] (pass). ST-1b, ST-2,
+ST-4a–d, ST-5, ST-6 and ST-7 meet their targets on tuning seeds. ST-8 gap +1.02 points (> 1.0): accepted
+without retune by game-designer sign-off (2026-10-05; AC-9, R-5), see the readout § Game-designer sign-off. Tuned away from the starting values: `denialEvenPermille` and
+`denialTrailPermille` 0 (denial only while leading), `exchangeMaxScore` 20, `exchangeGainDp` 120. BG-5 0.00 %:
+Beginner keeps 70,000 / 300.
+
 ## Human-win guardrail (playtest)
 
 | Guardrail | Threshold | Reading rule | Action |
@@ -430,6 +442,8 @@ trips more than once.
   ST-1b, ST-2, ST-4a–d, ST-5, ST-6 and ST-7 meet their targets and ST-8 is reported, or a miss is recorded with
   game-designer's sign-off before S4 enables the bot. Given the BG re-read under the `BOT_VERSION` 2 Beginner
   budget, Then BG-5 ≤ 1 % (or the GD-7 fallback 100,000 / 300 is applied before the freeze).
+  *B4 (2026-10-05):* ST-8 +1.02 points accepted by game-designer sign-off, no retune (readout § Game-designer
+  sign-off; R-5 risk carried to BC).
 - **AC-10 Kill switch.** Given `bots.strategist.enabled` is off, When the opponent selector opens, Then Strategist
   is not offered for new matches. Given a match against Strategist is in progress, Then it can still be finished
   and resumed (E-1.5 AC-9). The bots package knows nothing about flags; the app reads the flag.

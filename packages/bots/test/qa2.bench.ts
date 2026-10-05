@@ -14,6 +14,7 @@ import { getLayout, type Observation } from '@codelex/game-engine';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 import { describe, test } from 'vitest';
 import { boardView } from '../src/board.js';
+import { candidateKey } from '../src/key.js';
 import { generateFor } from './support/generation.js';
 import type { Generation } from '../src/movegen/index.js';
 import { realIndex, syntheticIndex } from './support/lexicons.js';
@@ -98,7 +99,7 @@ const FIXTURES: readonly Fixture[] = [
 function sameKeys(a: Generation, b: Generation): boolean {
   const keys = (g: Generation): string =>
     g.candidates
-      .map((c) => c.key)
+      .map((c) => candidateKey(c))
       .sort((x, y) => (x < y ? -1 : x > y ? 1 : 0))
       .join(',');
   return keys(a) === keys(b);

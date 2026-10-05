@@ -1,7 +1,7 @@
 /**
  * Q4 gating run: full matches on the REAL `global-ranked` index (`createReferenceIndex` over the real lexicon data,
  * native GADDAG from L5) and the real `classic-v1` premium layout, every move chosen by `chooseAction`
- * (random-legal, Beginner, greedy), mixing 1v1 (40 %), 2v2, FFA-3 and FFA-4 (20 % each).
+ * (random-legal, Beginner, greedy, Strategist), mixing 1v1 (40 %), 2v2, FFA-3 and FFA-4 (20 % each).
  *
  * The full 1,000-match run is `test/full/real-lexicon-1000.full.ts` (`pnpm --filter @codelex/bots test:full`);
  * this file runs the first GATING_MATCHES of the same sequence (same seeds, same mix) inside `pnpm test`.
@@ -60,7 +60,7 @@ describe(`${String(GATING_MATCHES)} full matches with bots on the real lexicon`,
     expect(oneVOne.every((r) => r.ended && r.endReason !== 'none')).toBe(true);
   });
 
-  it('every personality plays in the run (random-legal, beginner, greedy)', () => {
+  it('every personality plays in the run (random-legal, beginner, greedy, strategist)', () => {
     const s = summarize(records);
     expect(Object.values(s.personalitySeats).every((n) => n >= GATING_MATCHES / 3)).toBe(true);
   });

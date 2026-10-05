@@ -88,7 +88,8 @@ describe('ctx.draft: bots play a draft rules version with the host candidate', (
       let words = 0;
       for (let n = 0; n < 12 && state.status === 'in_progress'; n += 1) {
         const obs = observe(state, state.seatOnTurn);
-        const personality = (['beginner', 'greedy', 'random-legal'] as const)[n % 3] ?? 'greedy';
+        const personality =
+          (['beginner', 'greedy', 'random-legal', 'strategist'] as const)[n % 4] ?? 'greedy';
         const action = decide(obs, ctx(obs, seed, personality, { draft }));
         if (action.type === 'PLACE_WORD') {
           words += 1;
@@ -116,7 +117,7 @@ describe('ctx.draft: bots play a draft rules version with the host candidate', (
       decided.ok && decided.value.candidatesEvaluated,
     );
     expect(decide(obs, ctx(obs, seed, 'greedy', { draft })).type).toBe('PLACE_WORD');
-    for (const personality of ['greedy', 'beginner', 'random-legal'] as const) {
+    for (const personality of ['greedy', 'beginner', 'random-legal', 'strategist'] as const) {
       const ok = chooseAction(obs, ctx(obs, seed, personality, { draft }));
       expect(ok.ok && ok.value.candidatesRefused).toBe(0);
       const refused = chooseAction(obs, ctx(obs, seed, personality));

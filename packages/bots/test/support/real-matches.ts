@@ -46,7 +46,12 @@ const SHAPES: readonly Shape[] = [
   '1v1',
 ];
 
-const PERSONALITY_IDS: readonly BotPersonalityId[] = ['random-legal', 'beginner', 'greedy'];
+const PERSONALITY_IDS: readonly BotPersonalityId[] = [
+  'random-legal',
+  'beginner',
+  'greedy',
+  'strategist',
+];
 
 /** The real lexicon through `createReferenceIndex`, with L5's native GADDAG (asserted by the caller). */
 export function realRankedIndex(): LexiconIndex {
@@ -65,7 +70,9 @@ export function seatsOf(shape: Shape): number {
 export function personalitiesFor(i: number, seats: number): BotPersonalityId[] {
   return Array.from(
     { length: seats },
-    (_, seat) => PERSONALITY_IDS[(Math.floor(i / SHAPES.length) + seat * 2 + i) % 3] ?? 'greedy',
+    (_, seat) =>
+      PERSONALITY_IDS[(Math.floor(i / SHAPES.length) + seat * 2 + i) % PERSONALITY_IDS.length] ??
+      'greedy',
   );
 }
 
@@ -238,6 +245,7 @@ export function summarize(records: readonly MatchRecord[]): RunSummary {
     'random-legal': 0,
     beginner: 0,
     greedy: 0,
+    strategist: 0,
   };
   let totalActions = 0;
   let placedWords = 0;

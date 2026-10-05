@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { gameValue, knowledgeXp, letterSum, LETTER_VALUES } from '../scripts/formulas.mjs';
+import {
+  DIFFICULTY_BONUS,
+  gameValue,
+  knowledgeXp,
+  letterSum,
+  LETTER_VALUES,
+} from '../scripts/formulas.mjs';
 
 test('KUBERNETES reproduces the vision example (V-05): game value 43, knowledge XP 85', () => {
   assert.equal(gameValue('KUBERNETES', 'expert'), 43);
@@ -27,4 +33,19 @@ test('knowledge XP length component is capped at 10', () => {
 
 test('invalid letters are rejected', () => {
   assert.throws(() => letterSum('K8S'), RangeError);
+});
+
+test('ADR-0014 §D5 (T-6): gameValue tables are frozen lexicon constants (LEXICON_SPEC §4), independent of rules versions', () => {
+  // A change here changes every gameValue and the lexiconVersion; it never follows an engine letter table.
+  assert.equal(
+    Object.entries(LETTER_VALUES)
+      .map(([l, v]) => `${l}${v}`)
+      .join(' '),
+    'A1 B3 C2 D3 E1 F4 G3 H3 I1 J8 K5 L2 M3 N1 O1 P2 Q8 R1 S1 T1 U2 V6 W5 X8 Y4 Z10',
+  );
+  assert.deepEqual(
+    { ...DIFFICULTY_BONUS },
+    { novice: 0, intermediate: 4, advanced: 8, expert: 16 },
+  );
+  assert.ok(Object.isFrozen(LETTER_VALUES) && Object.isFrozen(DIFFICULTY_BONUS));
 });

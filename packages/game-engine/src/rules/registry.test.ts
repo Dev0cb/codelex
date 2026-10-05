@@ -102,7 +102,7 @@ describe('registry contents (ADR-0014 §D1, §D2)', () => {
   });
 });
 
-describe('classic-v2 and letters-v2 (R-BOARD-004 v2 draft, b2-response §6; T-4a placeholder)', () => {
+describe('classic-v2 and letters-v2 (R-BOARD-004 v2 draft, b2-response §6; T-4a, L7)', () => {
   it('R-BOARD-004: classic-v2 equals classic-v1 except the start square (7,7), which is plain', () => {
     const v1 = getLayout('classic-v1');
     const v2 = getLayout('classic-v2');
@@ -118,11 +118,29 @@ describe('classic-v2 and letters-v2 (R-BOARD-004 v2 draft, b2-response §6; T-4a
     expect(v2.squares.filter((k) => k !== 'plain')).toHaveLength(60);
   });
 
-  it('R-BAG-001: letters-v2 is a placeholder copy of letters-v1 until L7 derives it', () => {
-    const v1 = getLetterTable('letters-v1');
+  it('R-BAG-001: letters-v2 equals the L7 derivation record (BALANCE.md, lexiconVersion e568477b5592a994)', () => {
     const v2 = getLetterTable('letters-v2');
     expect(v2.id).toBe('letters-v2');
-    expect({ ...v2, id: v1.id }).toEqual(v1);
+    // prettier-ignore
+    expect(v2.values).toEqual([1, 3, 2, 2, 1, 4, 3, 3, 1, 8, 4, 2, 2, 1, 1, 2, 10, 1, 1, 1, 2, 6, 5, 8, 5, 8]);
+    // prettier-ignore
+    expect(v2.counts).toEqual([8, 2, 5, 4, 10, 1, 2, 2, 6, 1, 2, 4, 3, 5, 7, 4, 1, 7, 9, 7, 3, 1, 1, 1, 1, 1]);
+    expect(v2.blanks).toBe(2);
+    expect(v2.blankValue).toBe(0);
+  });
+
+  it('R-BAG-001/R-BAG-002: letters-v2 keeps 98 lettered tiles + 2 blanks, values 1–10, one 10 (step 5c)', () => {
+    const v2 = getLetterTable('letters-v2');
+    expect(v2.counts.reduce((s, n) => s + n, 0) + v2.blanks).toBe(100);
+    expect(v2.counts.every((n) => Number.isInteger(n) && n >= 1)).toBe(true);
+    expect(v2.values.every((v) => Number.isInteger(v) && v >= 1 && v <= 10)).toBe(true);
+    expect(v2.values.filter((v) => v === 10)).toHaveLength(1);
+    // P-BAG-001-c: E, A, I, O, N, R, S, T are worth 1. Step 5b: vowels A E I O U are worth at most 2.
+    for (const l of ['E', 'A', 'I', 'O', 'N', 'R', 'S', 'T'])
+      expect(v2.values[l.charCodeAt(0) - 65]).toBe(1);
+    for (const i of [0, 4, 8, 14, 20]) expect(v2.values[i]).toBeLessThanOrEqual(2);
+    // A draft table, distinct from the frozen v1 table.
+    expect(v2.values).not.toEqual(getLetterTable('letters-v1').values);
   });
 });
 

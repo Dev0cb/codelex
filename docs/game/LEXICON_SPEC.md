@@ -66,13 +66,24 @@ artefact. The field is optional, so schema v2 files without it stay valid (no `s
 
 ## 4. Formulas (single source, implemented in `packages/lexicon/scripts/formulas.mjs`)
 ```
-letterValue: A1 B3 C2 D3 E1 F4 G3 H3 I1 J8 K5 L2 M3 N1 O1 P2 Q8 R1 S1 T1 U2 V6 W5 X8 Y4 Z10   (letters-v1 = in-game values, GAME_RULES §3.1)
+letterValue: A1 B3 C2 D3 E1 F4 G3 H3 I1 J8 K5 L2 M3 N1 O1 P2 Q8 R1 S1 T1 U2 V6 W5 X8 Y4 Z10   (lexicon constant, frozen)
 difficultyBonus = { novice: 0, intermediate: 4, advanced: 8, expert: 16 }
 gameValue   = Σ letterValue(form) + 2 × max(0, len(form) − 5) + difficultyBonus[difficulty]
 xpBase      = { novice: 10, intermediate: 25, advanced: 50, expert: 75 }
 knowledgeXp = xpBase[difficulty] + min(len(form), 10)
 ```
 Check: KUBERNETES (expert) → 17 + 10 + 16 = **43** game value, 75 + 10 = **85** Knowledge XP (vision V-05).
+
+**`gameValue` is a lexicon value, not an in-game score (ADR-0014 §D5, T-6; 2026-10-04, sprint 3 L7).** The
+`letterValue` and `difficultyBonus` tables above are **frozen lexicon constants**. They equal `letters-v1` and the
+`engineRulesVersion` 1 term bonus (GAME_RULES §3.1, R-SCORE-003) by history only, and they do not follow later
+rules versions: `engineRulesVersion` 2 uses `letters-v2` (BALANCE.md derivation record) and a lower term bonus
+(0/2/4/8 or 0/3/6/12), and `gameValue` does not change. The engine scores from the match's rules version and never
+reads `gameValue`. UI copy that states what a term scores in a match reads the engine values for the pinned
+version, never `gameValue` (T-8). Consequences for versioning (§7): no rules version, draft or frozen, changes a
+`gameValue`, the `lexiconVersion`, the `.clxi` index or `contentFormat`; batch-3 `lexiconVersion`
+`e568477b5592a994` is unchanged by L7. Changing either table here is a lexicon change (every `gameValue` and the
+`lexiconVersion` change) and needs `game-designer` approval.
 
 ## 5. Validator rules
 **Errors (fail CI):**

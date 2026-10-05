@@ -186,6 +186,45 @@ describe('golden scoring cases (RULE_PROPERTIES §3.1, §3.2; R-SCORE-001, R-SCO
   });
 });
 
+describe('ADR-0014 §D5 (T-6, L7): rules version 2 scores from letters-v2 and its term bonus, never from gameValue (R-SCORE-001, R-SCORE-003)', () => {
+  const lexiconWithGameValue = (gameValue: number): EngineLexicon =>
+    createReferenceIndex({
+      version: '3333333333333333' as LexiconVersion,
+      profile: {
+        id: 'global-ranked',
+        kind: 'global',
+        definitionHash: '2222222222222222' as DefinitionHash,
+      },
+      document: { terms: [{ ...stubTerm('PYTHON', 'intermediate'), gameValue }] },
+    });
+
+  // PYTHON across the plain start of classic-v2, row 7 cols 4–9: no premium square on the way.
+  const score = (lexicon: EngineLexicon, candidate: 'tb-0-2-4-8' | 'tb-0-3-6-12'): number => {
+    const rules = rulesFor(2).candidates.find((c) => c.id === candidate)?.rules;
+    if (rules === undefined) throw new Error(candidate);
+    const v2Layout = getLayout('classic-v2');
+    const tiles = (['P', 'Y', 'T', 'H', 'O', 'N'] as const).map((tile, i) => ({
+      row: 7,
+      col: 4 + i,
+      tile,
+    }));
+    const r = checkPlacement(
+      { board: boardWith([]), layout: v2Layout, rack: 'PYTHON', tiles, rules },
+      lexicon,
+    );
+    if (!r.ok) throw new Error(JSON.stringify(r.error));
+    const context = { lastMainForm: '', chainK: 0 };
+    return scorePlacement(r.value, v2Layout, getLetterTable('letters-v2'), context, lexicon, rules)
+      .total;
+  };
+
+  it('letter sum from letters-v2 (P2 Y5 T1 H3 O1 N1 = 13) plus the candidate bonus; gameValue is ignored', () => {
+    expect(score(lexiconWithGameValue(1), 'tb-0-2-4-8')).toBe(13 + 2);
+    expect(score(lexiconWithGameValue(999), 'tb-0-2-4-8')).toBe(13 + 2);
+    expect(score(lexiconWithGameValue(1), 'tb-0-3-6-12')).toBe(13 + 3);
+  });
+});
+
 describe('chain (R-SCORE-005)', () => {
   const ref = (form: string): NonNullable<ReturnType<EngineLexicon['lookup']>> => {
     const r = STUB.lookup(form);

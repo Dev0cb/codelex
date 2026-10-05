@@ -218,7 +218,8 @@ placed later as category tags on existing or plain squares in a new layout id (e
   of newly covered squares). Premiums apply only on the turn they are covered.
 - **R-SCORE-002** Cross-words are scored with the same rule and added.
 - **R-SCORE-003** **Term bonus**: each scored word adds a difficulty bonus: novice 0, intermediate +4,
-  advanced +8, expert +16 ⚙ (same constants as the lexicon game value, `LEXICON_SPEC.md` §4).
+  advanced +8, expert +16 ⚙ (rules constants of the match's `engineRulesVersion`; the lexicon `gameValue`,
+  `LEXICON_SPEC.md` §4, is a separate lexicon value that does not follow them, ADR-0014 §D5).
   *(v0.3)* An inflected form gets the full bonus of its canonical term (R-CORE-006), including when it is a
   cross-word created by a hook (one tile added to an existing word, e.g. POD + S → PODS re-scores PODS with +8).
   This is monitored by tripwire C-09 (BALANCE.md); the pre-decided fallback if it fires is "a formed word whose
@@ -324,6 +325,12 @@ Powers are out of scope for Phase 1 (E-1.5). Their open questions (tile conserva
 Container targets, Compile timing) are listed in `docs/game/RULE_PROPERTIES.md` and must be resolved before E-3.2.
 
 ## 9. Changelog
+- 0.3.1, editorial note — 2026-10-04 · `game-designer` (sprint 3 task L7; ADR-0014 §D5, T-6) · No rule, value or
+  outcome change, so no version bump: the frozen `engineRulesVersion` 1 registry entry keeps naming GAME_RULES
+  0.3.1 and its rules digest. R-SCORE-003 no longer says its constants are "the same as the lexicon game value":
+  the term bonus is a rules constant per `engineRulesVersion`, and `gameValue` is a lexicon value independent of
+  rules versions (LEXICON_SPEC §4). The draft `letters-v2` table (`engineRulesVersion` 2) is recorded in
+  BALANCE.md "Derivation record — `letters-v2`"; it enters §3.1 with rules PR 0.4 (R4), not before.
 - 0.3.1 — 2026-10-03 · `game-designer` (decided under product-owner delegation; sprint task G1) · Still
   `engineRulesVersion` 1: every decision matches what the engine implements, no outcome changes for any log.
   - Decided API note §16 Q-GD-1..5: R-TURN-004 (limit counts active seats; Resign never triggers it), R-SCORE-006

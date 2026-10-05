@@ -53,8 +53,7 @@ import type { Rng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 
 /** `random-legal` is internal (simulator floor, fuzzing); never offered to players. `greedy` is a simulator yardstick. */
-export type BotPersonalityId = 'random-legal' | 'beginner' | 'greedy';
-// BOT_VERSION 2 (§5.6, B4): | 'strategist'. Spec only; the code is unchanged until B4.
+export type BotPersonalityId = 'random-legal' | 'beginner' | 'greedy' | 'strategist'; // 'strategist': BOT_VERSION 2 (B4)
 
 export interface BotBudget {
   /** Max automaton transitions (BOT-3). Safe integer ≥ 1. */
@@ -297,6 +296,10 @@ Strategist reads "no word ⇒ EXCHANGE of `rack − K*` (≥ 1 tile) iff `bagCou
 is "no voluntary EXCHANGE when `scorelessTurns > exchangeMaxScoreless` or `bagCount < 7`".
 
 ### 5.6 `BOT_VERSION` 2 plan (sprint 3, B4)
+
+*Implemented in B4 (2026-10-05).* Frozen Strategist values differ from §5.5's starting values in four fields
+(`denialEvenPermille` 0, `denialTrailPermille` 0, `exchangeMaxScore` 20, `exchangeGainDp` 120; ST-2); BG-5 held,
+so Beginner is 70,000 / 300. Readout: `docs/game/sim/2026-10-b4-strategist/readout.md`.
 
 A single bump carries every behaviour change of the sprint. The sprint plan makes one decision: device numbers
 come later and mean `BOT_VERSION` 3.

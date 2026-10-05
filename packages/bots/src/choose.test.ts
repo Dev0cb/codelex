@@ -3,7 +3,7 @@
  * P-BOT-05 (budgets reported), P-BOT-06 (fallback), BOT-1.
  */
 import fc from 'fast-check';
-import { apply, observe, type MatchState, type Observation } from '@codelex/game-engine';
+import { apply, getLayout, observe, type MatchState, type Observation } from '@codelex/game-engine';
 import { describe, expect, it } from 'vitest';
 import { generateFor, observeOnTurn } from '../test/support/generation.js';
 import { lexiconOf, realIndex, tinyIndex, TINY_TERMS } from '../test/support/lexicons.js';
@@ -17,6 +17,8 @@ import {
   seedOf,
   spell,
 } from '../test/support/match.js';
+import { boardView } from './board.js';
+import { mainDifficultyRank } from './main-word.js';
 import {
   BOT_VERSION,
   chooseAction,
@@ -27,7 +29,12 @@ import {
 
 const REAL = realIndex();
 const TINY = tinyIndex();
-const PERSONALITY_IDS: readonly BotPersonalityId[] = ['random-legal', 'beginner', 'greedy'];
+const PERSONALITY_IDS: readonly BotPersonalityId[] = [
+  'random-legal',
+  'beginner',
+  'greedy',
+  'strategist',
+];
 
 function midGame(seed = 11, actions = 8): MatchState {
   const state = positionAfter(REAL, seedOf(seed), actions, ['beginner', 'greedy']);
@@ -167,13 +174,22 @@ describe('P-BOT-05 budgets', () => {
 
           const full = generateFor(obs, REAL);
           const nodeCapHit = full.nodesUsed > maxNodes;
-          const generated = generateFor(obs, REAL, maxNodes).candidates.length;
+          const candidates = generateFor(obs, REAL, maxNodes).candidates;
+          const generated = candidates.length;
+          // Strategist shortlists after its vocabulary filter (rank ≤ 2, empty ⇒ unfiltered).
+          const view = boardView(obs, getLayout(obs.config.layout), REAL);
+          const known = candidates.filter(
+            (c) => mainDifficultyRank(view, c.action.tiles, REAL) <= 2,
+          );
+          const pool = known.length > 0 ? known.length : generated;
           const capDroppedEvaluations =
             personality === 'greedy'
               ? generated > maxCandidates
-              : personality === 'random-legal'
-                ? d.action.type !== 'PLACE_WORD' && generated > 0
-                : false;
+              : personality === 'strategist'
+                ? pool > maxCandidates
+                : personality === 'random-legal'
+                  ? d.action.type !== 'PLACE_WORD' && generated > 0
+                  : false;
           expect(d.budgetExhausted).toBe(nodeCapHit || capDroppedEvaluations);
         },
       ),
@@ -181,9 +197,10 @@ describe('P-BOT-05 budgets', () => {
     );
   });
 
-  it('reports the default budgets and BOT_VERSION', () => {
-    expect(BOT_VERSION).toBe(1);
-    expect(PERSONALITIES.beginner.budget).toEqual({ maxNodes: 200_000, maxCandidates: 300 });
+  it('reports the default budgets and BOT_VERSION (2: bots-api §5.6, §6.1)', () => {
+    expect(BOT_VERSION).toBe(2);
+    expect(PERSONALITIES.beginner.budget).toEqual({ maxNodes: 70_000, maxCandidates: 300 });
+    expect(PERSONALITIES.strategist.budget).toEqual({ maxNodes: 70_000, maxCandidates: 500 });
     expect(PERSONALITIES['random-legal'].budget).toEqual({ maxNodes: 200_000, maxCandidates: 8 });
     expect(PERSONALITIES.greedy.budget).toEqual({ maxNodes: 400_000, maxCandidates: 2_000 });
     for (const data of Object.values(PERSONALITIES)) {
@@ -196,6 +213,11 @@ describe('P-BOT-05 budgets', () => {
         data.shortMultiplier,
         data.skipFullStackPermille,
         ...data.topWeights,
+        ...(data.strategy === null
+          ? []
+          : Object.values(data.strategy).flatMap((v: number | readonly number[]) =>
+              typeof v === 'number' ? [Math.abs(v)] : v,
+            )),
       ];
       expect(numbers.every((n) => Number.isSafeInteger(n) && n >= 0)).toBe(true);
       expect(Object.isFrozen(data)).toBe(true);

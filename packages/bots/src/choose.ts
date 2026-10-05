@@ -10,6 +10,7 @@ import { selectGenerator } from './movegen/index.js';
 import { PERSONALITIES } from './personalities.js';
 import { randomLegal } from './policy/random-legal.js';
 import { ranked } from './policy/ranked.js';
+import { strategist, type StrategistOptions } from './policy/strategist.js';
 import type { PolicyInput, PolicyResult } from './policy/types.js';
 import type { BotBudget, BotContext, BotDecision, BotError, BotErrorCode } from './types.js';
 
@@ -48,17 +49,36 @@ export function checkPreconditions(obs: Observation, ctx: BotContext): BotError 
   return undefined;
 }
 
-function runPolicy(ctx: BotContext, input: PolicyInput): PolicyResult {
+/**
+ * Host-side variants for the simulator only (never the app): the ST-2 ablation. The personality data override is
+ * `BotContext.data` (one override path for `chooseAction` and `decide`).
+ */
+export type DecideOptions = StrategistOptions;
+
+/** A decision plus what the readouts need to know about it (spec ST-4b). Not part of the public API. */
+export interface Decided {
+  readonly decision: BotDecision;
+  readonly voluntaryExchange: boolean;
+}
+
+function runPolicy(ctx: BotContext, input: PolicyInput, options: DecideOptions): PolicyResult {
+  if (input.data.strategy !== null) return strategist(input, input.data.strategy, options);
   switch (ctx.personality) {
     case 'random-legal':
       return randomLegal(input);
     case 'beginner':
     case 'greedy':
+    case 'strategist':
       return ranked(input);
   }
 }
 
-export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecision, BotError> {
+/** `chooseAction` with simulator options; same guards, pipeline and determinism (BOT-1). */
+export function decide(
+  obs: Observation,
+  ctx: BotContext,
+  options: DecideOptions = {},
+): Result<Decided, BotError> {
   const failure = checkPreconditions(obs, ctx);
   if (failure !== undefined) return err(failure);
   const seat = obs.seatOnTurn;
@@ -70,24 +90,36 @@ export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecis
     seat,
     maxNodes: ctx.budget.maxNodes,
   });
-  const policy = runPolicy(ctx, {
-    obs,
-    lexicon: ctx.lexicon,
-    engine:
-      ctx.draft === undefined
-        ? { lexicon: ctx.lexicon }
-        : { lexicon: ctx.lexicon, draft: ctx.draft },
-    rng: ctx.rng,
-    budget: ctx.budget,
-    data,
-    view,
-    candidates: generation.candidates,
-  });
+  const policy = runPolicy(
+    ctx,
+    {
+      obs,
+      lexicon: ctx.lexicon,
+      engine:
+        ctx.draft === undefined
+          ? { lexicon: ctx.lexicon }
+          : { lexicon: ctx.lexicon, draft: ctx.draft },
+      rng: ctx.rng,
+      budget: ctx.budget,
+      data,
+      view,
+      candidates: generation.candidates,
+    },
+    options,
+  );
   return ok({
-    action: policy.action ?? fallbackAction(obs, seat),
-    nodesUsed: generation.nodesUsed,
-    candidatesEvaluated: policy.candidatesEvaluated,
-    candidatesRefused: policy.refused,
-    budgetExhausted: generation.exhausted || policy.exhausted,
+    decision: {
+      action: policy.action ?? fallbackAction(obs, seat),
+      nodesUsed: generation.nodesUsed,
+      candidatesEvaluated: policy.candidatesEvaluated,
+      candidatesRefused: policy.refused,
+      budgetExhausted: generation.exhausted || policy.exhausted,
+    },
+    voluntaryExchange: policy.voluntaryExchange === true,
   });
+}
+
+export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecision, BotError> {
+  const decided = decide(obs, ctx);
+  return decided.ok ? ok(decided.value.decision) : decided;
 }

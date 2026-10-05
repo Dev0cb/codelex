@@ -348,7 +348,9 @@ describe('review items 3, 4, 7, 8', () => {
   it('item 4: the suite report carries engineRulesVersions and the Strategist budget', () => {
     const report = smokeReport();
     expect(report.engineRulesVersions).toEqual([1, 2]);
-    expect(report.strategistBudget).toBe(strategistAvailable() ? expect.anything() : null);
+    // B4 (BOT_VERSION 2) ships Strategist with the provisional 70,000 / 500 budget (bots-api §5.5).
+    expect(strategistAvailable()).toBe(true);
+    expect(report.strategistBudget).toEqual({ maxNodes: 70_000, maxCandidates: 500 });
   }, 300_000);
 
   it('item 7: an unknown candidate throws instead of falling back to the default rules', () => {
@@ -438,7 +440,7 @@ describe('V1 readout', () => {
     const r = readout(validFrom(smoke), 'greedy', PROVENANCE, { wallTimeSeconds: 2_700 });
     expect(r.run).toEqual({
       engineRulesVersions: [1, 2],
-      strategistBudget: null,
+      strategistBudget: { maxNodes: 70_000, maxCandidates: 500 },
       wallTimeSeconds: 2_700,
       lexiconVersion: smoke.variants[0]?.lexiconVersion,
       profileId: 'global-ranked',

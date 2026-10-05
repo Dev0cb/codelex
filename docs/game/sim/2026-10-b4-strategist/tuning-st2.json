@@ -1,0 +1,197 @@
+[
+  {
+    "run": "s0",
+    "patch": "{}",
+    "matches": 2000,
+    "st2": {
+      "k": 1043,
+      "n": 1987,
+      "bp": 5249,
+      "ci95": {
+        "lo": 5029,
+        "hi": 5469
+      }
+    },
+    "voluntaryExchangeBp": 148
+  },
+  {
+    "run": "w0",
+    "patch": "{}",
+    "matches": 4000,
+    "st2": {
+      "k": 2085,
+      "n": 3977,
+      "bp": 5243,
+      "ci95": {
+        "lo": 5087,
+        "hi": 5398
+      }
+    },
+    "voluntaryExchangeBp": 151
+  },
+  {
+    "run": "wF",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2147,
+      "n": 3972,
+      "bp": 5405,
+      "ci95": {
+        "lo": 5250,
+        "hi": 5560
+      }
+    },
+    "voluntaryExchangeBp": 134
+  },
+  {
+    "run": "wK",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":20}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2175,
+      "n": 3975,
+      "bp": 5472,
+      "ci95": {
+        "lo": 5316,
+        "hi": 5626
+      }
+    },
+    "voluntaryExchangeBp": 197
+  },
+  {
+    "run": "wL",
+    "patch": "{\"strategy\":{\"leaveBaseDp\":30,\"leavePerValueDp\":15,\"leaveFloorDp\":-90,\"leaveBlankDp\":225,\"leaveLetterBonusDp\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,45,0,0,0,0,0,0,0],\"vowelOffDp\":45,\"vowelAllOrNoneDp\":60,\"duplicateDp\":37,\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeGainDp\":225,\"exchangePoorLeaveDp\":-120}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2113,
+      "n": 3980,
+      "bp": 5309,
+      "ci95": {
+        "lo": 5153,
+        "hi": 5464
+      }
+    },
+    "voluntaryExchangeBp": 106
+  },
+  {
+    "run": "x1",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":24}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2163,
+      "n": 3975,
+      "bp": 5442,
+      "ci95": {
+        "lo": 5286,
+        "hi": 5596
+      }
+    },
+    "voluntaryExchangeBp": 249
+  },
+  {
+    "run": "x2",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":20,\"exchangeGainDp\":120}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2239,
+      "n": 3973,
+      "bp": 5636,
+      "ci95": {
+        "lo": 5480,
+        "hi": 5790
+      }
+    },
+    "voluntaryExchangeBp": 390
+  },
+  {
+    "run": "x3",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":20,\"leaveLowBagPermille\":1000}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2169,
+      "n": 3972,
+      "bp": 5461,
+      "ci95": {
+        "lo": 5305,
+        "hi": 5616
+      }
+    },
+    "voluntaryExchangeBp": 197
+  },
+  {
+    "run": "x4",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":20,\"chainKeepDp\":40,\"chainDegreeDp\":5}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2159,
+      "n": 3973,
+      "bp": 5434,
+      "ci95": {
+        "lo": 5278,
+        "hi": 5589
+      }
+    },
+    "voluntaryExchangeBp": 199
+  },
+  {
+    "run": "x5",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":20,\"exchangeGainDp\":100}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2297,
+      "n": 3982,
+      "bp": 5768,
+      "ci95": {
+        "lo": 5614,
+        "hi": 5922
+      }
+    },
+    "voluntaryExchangeBp": 539
+  },
+  {
+    "run": "x6",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":24,\"exchangeGainDp\":120}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2212,
+      "n": 3974,
+      "bp": 5566,
+      "ci95": {
+        "lo": 5411,
+        "hi": 5721
+      }
+    },
+    "voluntaryExchangeBp": 474
+  },
+  {
+    "run": "x7",
+    "patch": "{\"strategy\":{\"denialEvenPermille\":0,\"denialTrailPermille\":0,\"exchangeMaxScore\":20,\"exchangeGainDp\":120,\"exchangePoorLeaveDp\":-60}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2244,
+      "n": 3975,
+      "bp": 5645,
+      "ci95": {
+        "lo": 5490,
+        "hi": 5799
+      }
+    },
+    "voluntaryExchangeBp": 410
+  },
+  {
+    "run": "x8",
+    "patch": "{\"strategy\":{\"exchangeMaxScore\":20,\"exchangeGainDp\":120}}",
+    "matches": 4000,
+    "st2": {
+      "k": 2149,
+      "n": 3977,
+      "bp": 5404,
+      "ci95": {
+        "lo": 5248,
+        "hi": 5558
+      }
+    },
+    "voluntaryExchangeBp": 421
+  }
+]
