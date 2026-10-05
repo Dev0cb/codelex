@@ -32,8 +32,17 @@ gh workflow run balance-check.yml --ref main \
 
 The `prepare` job fails fast (before any simulation) if the ref is not `main`, a SHA is malformed, the code commit is
 not on `main`, the lexicon data differs, or the blob does not match. It computes `lexiconVersion` and `definitionHash`
-from the checkout (`tools/balance-check/lexicon-identity.mjs`); nobody types them. A second dispatch queues behind
-the running one (`concurrency: balance-check`, no cancellation).
+from the checkout (`tools/balance-check/lexicon-identity.mjs`); nobody types them. Only one registered run may exist
+(§5.4): `prepare` also fails fast if another run of this workflow is queued or in progress (there is no `concurrency`
+group, because it would queue a second dispatch without running that check). Do not dispatch twice; use "Re-run
+failed jobs" on the existing run for an infrastructure failure.
+
+`prepare` takes `lexiconVersion` and `definitionHash` from the code commit's `packages/lexicon/scripts/canonical.mjs`
+and `validate.mjs`, while only `packages/lexicon/data` is diffed against the lexicon commit. This is consistent with the
+simulator, which builds the index with the same scripts from the same checkout, and I-3 compares the two.
+
+Recommended repo setting (optional, owner): a protected `balance-check` environment with required reviewers. The
+workflow does not reference an environment, so it never blocks if that is not configured.
 
 Jobs: `prepare`, then in parallel `simulate` for `v1`, `v2-3612`, `v2-248` and `diagnostics` (`dx-dw-3612`,
 `dx-dw-248`), then `merge`, which runs `readout --merge`. The merged readout is also written to the run summary.
@@ -42,11 +51,12 @@ Jobs: `prepare`, then in parallel `simulate` for `v1`, `v2-3612`, `v2-248` and `
 
 Runner crash, timeout or cancelled job. Do not dispatch a new run and do not edit anything.
 
-1. Open the failed run, "Re-run failed jobs". Inputs and commit are identical by construction (they come from the same
+1. Open the failed run, "Re-run failed jobs". A failed attempt's files are kept as
+   `balance-check-failed-<job>-attempt-<n>`; successful jobs keep `balance-check-job-<job>` and are not re-run. Inputs and commit are identical by construction (they come from the same
    run). Completed jobs are kept; `merge` runs when all jobs are green.
 2. If the run cannot be re-run (retention, repository settings), dispatch again with exactly the same three inputs.
 3. Determinism: completed parts must reproduce byte for byte. Compare the new results JSON with the failed attempt's
-   artifacts (kept 90 days) for any job that finished in both. A mismatch is an I-class failure: stop, report to
+   artifacts (kept 90 days) for any job that finished in both (compare with the `balance-check-failed-*` artifact, if it holds results). A mismatch is an I-class failure: stop, report to
    `ai-engineer`, and treat the run as invalid (§5.4 b).
 4. The digest records the failure (run URL, job, cause) and any mismatch.
 
@@ -58,7 +68,7 @@ An I-1..I-3 failure or a defect in the simulator or readout is **not** an infras
 The workflow commits nothing. After a green run:
 
 1. Download the artifacts: `balance-check-readout` (merged `balance-check-results.json`, `balance-check-readout.md`,
-   `log-merge.txt`) and `balance-check-<job>` (per-job results JSON, readout, log, `job-seconds-<job>.txt`).
+   `log-merge.txt`; named `balance-check-readout-attempt-<n>`) and `balance-check-job-<job>` (per-job results JSON, readout, log, `job-seconds-<job>.txt`).
 2. Open a PR with `game-designer` and `ai-engineer` as reviewers adding, under
    `docs/game/sim/2026-10-v2-balance-check/`: `results.json` (the merged results JSON, unchanged), `digest.md`
    (verdict table, §5.1 decision path, surprises against §1.2, risks), and `jobs.tsv` (the exact job specs: variants

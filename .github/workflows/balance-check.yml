@@ -23,10 +23,9 @@ on:
 permissions:
   contents: read
 
-# One dispatch at a time, and never cancel a run in progress (an infra re-run is §5.4 a, not a new dispatch).
-concurrency:
-  group: balance-check
-  cancel-in-progress: false
+# No `concurrency` group on purpose: a group keeps one pending run and cancels older pending ones, and a pending run
+# would not execute `prepare`. Instead `prepare` fails fast when another run of this workflow is queued or running
+# (only one registered run may exist, §5.4); a re-run of failed jobs is the same run and is not counted.
 
 env:
   PREREG_PATH: docs/specs/E-1.6-balance/v2-balance-check.md
@@ -37,6 +36,9 @@ jobs:
     name: Verify inputs and derive provenance
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
     outputs:
       code_commit: ${{ steps.verify.outputs.code_commit }}
       lexicon_commit: ${{ steps.verify.outputs.lexicon_commit }}
@@ -47,10 +49,27 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
+      - name: Refuse a second concurrent run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          others=""
+          for status in queued in_progress waiting pending requested; do
+            found=$(gh api "repos/$REPO/actions/workflows/balance-check.yml/runs?status=$status&per_page=100" \
+              --jq ".workflow_runs[] | select(.id != $RUN_ID) | .html_url")
+            others="$others$found"
+          done
+          if [ -n "$others" ]; then
+            echo "::error::another balance-check run is queued or running: $others"; exit 1
+          fi
       - name: Verify commits and pre-registration blob
         id: verify
         env:
@@ -116,6 +135,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ needs.prepare.outputs.code_commit }}
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -151,11 +171,19 @@ jobs:
             2>&1 | tee "packages/bots/sim-results/log-$JOB_ID.txt"
           echo "$(( $(date +%s) - start ))" | tee "packages/bots/sim-results/job-seconds-$JOB_ID.txt"
       - name: Upload job results
-        # Also on failure: partial logs are evidence for the §5.4 a record. Never evaluated against §3.
-        if: always()
+        if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: balance-check-${{ matrix.id }}
+          name: balance-check-job-${{ matrix.id }}
+          path: packages/bots/sim-results/
+          if-no-files-found: error
+          retention-days: ${{ env.RETENTION_DAYS }}
+      - name: Upload failed attempt (evidence for the §5.4 a record, never evaluated against §3)
+        # Own name per attempt: "Re-run failed jobs" never clashes with, or overwrites, the failed attempt.
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: balance-check-failed-${{ matrix.id }}-attempt-${{ github.run_attempt }}
           path: packages/bots/sim-results/
           if-no-files-found: warn
           retention-days: ${{ env.RETENTION_DAYS }}
@@ -168,6 +196,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ needs.prepare.outputs.code_commit }}
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -180,7 +209,8 @@ jobs:
       - name: Download job results
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: balance-check-*
+          # Success artifacts only: a job that succeeded is never re-run, so there is exactly one per variant set.
+          pattern: balance-check-job-*
           path: packages/bots/sim-inputs
       - name: Merge (readout --merge)
         env:
@@ -209,7 +239,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: balance-check-readout
+          name: balance-check-readout-attempt-${{ github.run_attempt }}
           path: packages/bots/sim-results/
           if-no-files-found: warn
           retention-days: ${{ env.RETENTION_DAYS }}
