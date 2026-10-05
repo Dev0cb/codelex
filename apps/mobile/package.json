@@ -17,10 +17,12 @@
     "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist"
   },
   "dependencies": {
+    "@codelex/bots": "workspace:*",
     "@codelex/design-system": "workspace:*",
     "@codelex/game-engine": "workspace:*",
     "@codelex/i18n": "workspace:*",
     "@codelex/lexicon": "workspace:*",
+    "@shopify/react-native-skia": "2.6.2",
     "expo": "57.0.26",
     "expo-asset": "57.0.18",
     "expo-constants": "57.0.20",
