@@ -55,7 +55,7 @@ export interface StrategistOptions {
 
 /**
  * Own team score minus the best other team score (`obs.teamScores`), for the seat on turn (the guards make it the
- * viewer). Every Classic match has at least two teams.
+ * viewer). 0 when there is no other team.
  */
 export function leadOf(obs: Observation): number {
   const own = obs.seats[obs.seatOnTurn]?.team ?? 0;
@@ -63,6 +63,8 @@ export function leadOf(obs: Observation): number {
   obs.teamScores.forEach((score, team) => {
     if (team !== own && score > best) best = score;
   });
+  // A single team (no opponent) has no lead: denial stays in the "even" mode.
+  if (best === Number.MIN_SAFE_INTEGER) return 0;
   return (obs.teamScores[own] ?? 0) - best;
 }
 

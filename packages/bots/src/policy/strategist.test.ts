@@ -219,6 +219,7 @@ describe('S-2 lane blocking D (AC-6)', () => {
   it('lead = own team − best other team', () => {
     expect(leadOf(at([10, 40]))).toBe(-30);
     expect(leadOf({ ...at([10, 40]), viewer: 1, seatOnTurn: 1 })).toBe(30);
+    expect(leadOf({ ...at([10, 40]), teamScores: [10] })).toBe(0);
   });
 });
 
