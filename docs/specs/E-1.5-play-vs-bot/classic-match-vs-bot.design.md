@@ -1033,6 +1033,10 @@ operable through the accessible grid when a screen reader or switch tool is acti
 
 ## 10. Copy (EN / FR) and message keys
 
+Keys added by `mobile-engineer` in slice S1 (PR #73), pending translation review: `match.score.a11y`, `match.error`,
+`a11y.rack.label`, `a11y.blank.letter`, `a11y.thinking`. `coach.*` keys stay out of the catalogues until drag-to-place
+exists (coach.1 mentions dragging; S1 ships the tap path only).
+
 All user-facing strings live in `packages/i18n` catalogues, ICU MessageFormat. `{…}` = argument. French uses *tu*.
 Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` resolves to `bot.<id>.name`.
 
@@ -1173,6 +1177,8 @@ Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` reso
 | match.tiles_returned | Tiles returned to your rack | Lettres remises sur ton chevalet |
 | match.tile_conflict | A tile went back to your rack: that square was taken. | Une lettre est revenue sur ton chevalet : la case a été prise. |
 | match.resume.restored | Match restored. {status} {you} to {them}. | Partie restaurée. {status} {you} à {them}. |
+| match.score.a11y | {name}: {points, plural, one {# point} other {# points}} | {name} : {points, plural, one {# point} other {# points}} |
+| match.error | Something went wrong in this match. | Un problème est survenu dans cette partie. |
 | match.low_storage | Low storage: your match may not be saved | Espace faible : ta partie risque de ne pas être sauvegardée |
 | legend.title | Board squares | Cases du plateau |
 | legend.dl | Double letter | Lettre compte double |
@@ -1356,6 +1362,9 @@ Category names come from `categories.json` (`name.en` / `name.fr`); difficulty s
 | a11y.chip.state.new | new to you, double tap to open | nouveau pour toi, touche deux fois pour ouvrir |
 | a11y.chip.state.known | double tap to open | touche deux fois pour ouvrir |
 | a11y.chip.state.inert | no card available | aucune fiche disponible |
+| a11y.rack.label | Rack | Chevalet |
+| a11y.blank.letter | Letter {letter} | Lettre {letter} |
+| a11y.thinking | {bot} is thinking | {bot} réfléchit |
 | a11y.coach.dismiss | Dismiss tip | Fermer l'astuce |
 | a11y.zoom.level | Zoom {percent} percent | Zoom {percent} pour cent |
 

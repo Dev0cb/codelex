@@ -12,7 +12,7 @@ import {
   type MatchState,
   type SeedHex,
 } from '@codelex/game-engine';
-import type { Locale } from '@codelex/i18n';
+import { CATALOGS, type Locale } from '@codelex/i18n';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { router, Stack } from 'expo-router';
@@ -377,6 +377,17 @@ describe('Match vs Beginner (E-1.5 S1)', () => {
     }
     expect(screen.getByTestId('match.action.recall')).toBeTruthy();
     expect(screen.getAllByLabelText(/^Rack, tile \d+ of 6: /)).toHaveLength(6);
+  });
+});
+
+describe('coach marks (D-26)', () => {
+  // coach.1 says "Tap a tile, then a square — or drag it onto the board". Drag-to-place is not built yet (S1 has the
+  // tap path only), so no coach mark and no coach copy may ship until it is: add the keys with the drag gesture.
+  it('ships no coach copy and shows no drag hint while drag-to-place does not exist', async () => {
+    expect(Object.keys(CATALOGS.en).filter((key) => key.startsWith('coach.'))).toEqual([]);
+    await renderApp({ seed: humanStarts(lexicon, 901) });
+    await startMatch();
+    expect(screen.queryByText(/drag/i)).toBeNull();
   });
 });
 

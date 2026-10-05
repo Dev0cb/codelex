@@ -164,6 +164,16 @@ function MatchSession(): JSX.Element {
 
   const botName = t('bot.beginner.name');
   const names = useMemo(() => ({ you: t('match.you'), bot: botName }), [t, botName]);
+  // Stable props keep the memoised Skia board picture from rebuilding on every render (E-1.4 §2.4).
+  const premiumLabels = useMemo(
+    () => ({
+      DL: t('board.premium.dl.label'),
+      TL: t('board.premium.tl.label'),
+      DW: t('board.premium.dw.label'),
+      TW: t('board.premium.tw.label'),
+    }),
+    [t],
+  );
   const finished = model?.state.status === 'finished';
 
   const finishedState = finished ? model.state : null;
@@ -269,12 +279,7 @@ function MatchSession(): JSX.Element {
           squares={squares}
           size={boardSize}
           tokens={tokens}
-          premiumLabels={{
-            DL: t('board.premium.dl.label'),
-            TL: t('board.premium.tl.label'),
-            DW: t('board.premium.dw.label'),
-            TW: t('board.premium.tw.label'),
-          }}
+          premiumLabels={premiumLabels}
           motion={motion}
           a11yMode={screenReader ? 'screenReader' : 'off'}
           labels={{
