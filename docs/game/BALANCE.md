@@ -79,6 +79,69 @@ share of racks that can form at least one playable form of the current lexicon *
 The lexicon-matched bag is best on every measure; raising vowels costs formability. This is not a substitute
 for the E-1.6 simulation (no board, no hooks, thin 310-form lexicon).
 
+### Derivation record — `letters-v2` (`engineRulesVersion` 2, DRAFT; sprint 3 task L7, T-4a)
+
+Status: **draft** table of the v2 draft (ADR-0014 §D4). Frozen only by rules PR 0.4 (R4), and only if the v2
+`/balance-check` (`docs/specs/E-1.6-balance/v2-balance-check.md`) picks v2.
+
+- **Method:** steps 1–5 above, unchanged, implemented by the committed tool `tools/letters/derive.mjs` (no
+  throwaway script this time). Reproduce: `node tools/letters/derive.mjs` (table) or `--json` (full record) at the
+  input commit. Tests (`tools/letters/derive.test.mjs`, run by `pnpm validate`) check that the same code reproduces
+  the frozen `letters-v1` table and its five recorded adjustments from the v1 occurrences above, and that it
+  reproduces this table from its input lexicon.
+- **Input:** `packages/lexicon/data` at `main` commit `b3ab7bb` (batch 3, #62; validator: 0 errors), the same
+  lexicon commit the pre-registration §4.3 requires. **`lexiconVersion` `e568477b5592a994`**, profile
+  `global-ranked` (`definitionHash` `da1f36a3747e0dfe`) with inflections: **2,154 distinct playable forms**
+  (1,432 canonical + 722 inflections), **14,745 letters**, unweighted. `f_min` = N 5.54 %, `k` = 0.170165.
+- **Rounding conventions** (implicit in v1, now explicit in code): `round` is half-up; the step-5a donor is the
+  rounded-up letter with the highest count (ties: larger `98 · f`, then A–Z); in 5c a tie for the rarest letter
+  leaves no letter at 10; in 5d a vowel capped by 5b is exempt and listed (none here).
+
+| | E | S | A | T | R | O | I | N | C | L | P | D | M | U | G | B | H | K | F | Y | W | V | X | J | Z | Q |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| occurrences | 1540 | 1459 | 1176 | 1140 | 1103 | 1051 | 963 | 817 | 716 | 631 | 581 | 565 | 449 | 417 | 404 | 324 | 321 | 251 | 224 | 164 | 146 | 128 | 70 | 43 | 34 | 28 |
+| f (%) | 10.44 | 9.89 | 7.98 | 7.73 | 7.48 | 7.13 | 6.53 | 5.54 | 4.86 | 4.28 | 3.94 | 3.83 | 3.05 | 2.83 | 2.74 | 2.20 | 2.18 | 1.70 | 1.52 | 1.11 | 0.99 | 0.87 | 0.47 | 0.29 | 0.23 | 0.19 |
+| 98 · f | 10.24 | 9.70 | 7.82 | 7.58 | 7.33 | 6.99 | 6.40 | 5.43 | 4.76 | 4.19 | 3.86 | 3.76 | 2.98 | 2.77 | 2.69 | 2.15 | 2.13 | 1.67 | 1.49 | 1.09 | 0.97 | 0.85 | 0.47 | 0.29 | 0.23 | 0.19 |
+| counts (step 3) | 10 | 10 | 8 | 7 | 7 | 7 | 6 | 5 | 5 | 4 | 4 | 4 | 3 | 3 | 2 | 2 | 2 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| **counts v2** | 10 | **9** | 8 | 7 | 7 | 7 | 6 | 5 | 5 | 4 | 4 | 4 | 3 | 3 | 2 | 2 | 2 | **2** | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| values (step 4) | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 4 | 4 | 5 | 5 | 6 | 9 | 10 | 10 | 10 |
+| **values v2** | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 4 | 4 | 5 | 5 | 6 | **8** | **8** | **8** | 10 |
+
+Adjustments applied (all procedural, from steps 5a–5d; **no manual adjustment**): (a) K 1 → 2 tiles
+(`98 · f = 1.67`), taken from S (10 → 9, `98 · f = 9.70`: the highest count among rounded-up letters); (b) none
+(U's raw value is 2); (c) X 9 → 8, J 10 → 8, Z 10 → 8 (Q, the single rarest letter with 28 occurrences, keeps 10);
+(d) none needed. Result: **100 tiles** (98 + 2 blanks, value 0), 34 vowels (34.7 %), lettered value sum 185 (mean
+1.89), range 1–10, monotonic.
+
+Compact form (A–Z): values `A1 B3 C2 D2 E1 F4 G3 H3 I1 J8 K4 L2 M2 N1 O1 P2 Q10 R1 S1 T1 U2 V6 W5 X8 Y5 Z8`;
+tiles `A8 B2 C5 D4 E10 F1 G2 H2 I6 J1 K2 L4 M3 N5 O7 P4 Q1 R7 S9 T7 U3 V1 W1 X1 Y1 Z1`.
+
+Changes vs `letters-v1` (same procedure, bigger corpus with inflections): values D 3 → 2, M 3 → 2, K 5 → 4,
+Y 4 → 5, Z 10 → 8, Q 8 → 10; tiles E +1, S +3, D +1, K +1, N −1, I −1, R −1, T −1, G −1, Y −1. Plurals raise S
+(as predicted in step 1); Q replaces Z as the single 10.
+
+**Sensitivity (reported, not adjusted):** F sits at `98 · f = 1.489`, 0.011 under the 5a threshold (1 tile; 3
+more F occurrences in the corpus would give it a second tile, taken from S). G (raw 2.53 → 3) and U (raw
+2.47 → 2) are within 0.05 of a rounding boundary. Any later lexicon commit can move them; that is why the table is
+pinned to its input `lexiconVersion` and frozen per `engineRulesVersion`.
+
+**`lexiconVersion` effect (sprint acceptance criterion):**
+
+1. *Input pinning.* `letters-v2` is a function of `lexiconVersion` `e568477b5592a994` only. A later lexicon
+   release never changes it (R-BAG-001: tables are frozen per `engineRulesVersion`, never per `lexiconVersion`;
+   P-BAG-001-d). While v2 is a draft, re-deriving from a newer lexicon is allowed only before the v2
+   `/balance-check` run, and only from the commit its §4.3 names; after the run it needs a new pre-registration.
+2. *No lexicon change.* L7 changes no term, no `gameValue`, no `.clxi` and no `contentFormat`:
+   `pnpm lexicon:validate` reports the same `lexiconVersion` `e568477b5592a994` before and after.
+3. *`gameValue` decoupled (T-6, ADR-0014 §D5).* `gameValue` keeps its LEXICON_SPEC §4 formula and the frozen
+   lexicon constants (`letters-v1` letter values, 0/4/8/16 bonus). Under `engineRulesVersion` 2 the in-game
+   numbers come from `letters-v2` and the v2 term bonus, so `gameValue` and the in-game score of a term differ
+   (KUBERNETES: `gameValue` 43; in a v2 match its letters sum 16 instead of 17 before premiums, plus +8 or +12).
+   UI copy for in-match numbers reads the engine values (T-8).
+4. *Matches and replays.* A match pins both `lexiconVersion` and `engineRulesVersion`; the pair, not the
+   lexicon alone, determines the bag. v1 matches and goldens are unaffected (`rulesDigest(1)` and GC-DET-01
+   unchanged).
+
 ## Classic `classic-v1` / `letters-v1` calibration targets (E-1.6; non-blocking)
 
 No `/balance-check` is possible yet (no engine). E-1.6 validates `classic-v1` + `letters-v1` on the ≥ 2,000-form
@@ -118,6 +181,10 @@ R-TURN-004 with ≥ 7 tiles in the bag", i.e. C-10, and/or C-11 < 90 tiles) is *
 `docs/game/decisions/2026-10-b2-response.md` D1. Until the product owner decides, the trigger is read literally.
 
 ## Changelog
+- 0.5 — 2026-10-04 — `game-designer` (sprint 3 task L7, T-4a/T-6): derivation record for the draft `letters-v2`
+  (batch 3, `lexiconVersion` e568477b5592a994) with the committed tool `tools/letters/derive.mjs`; implicit
+  tie and rounding conventions made explicit; `lexiconVersion` effect and `gameValue` decoupling (ADR-0014 §D5)
+  documented. Procedure steps 1–7, invariants and targets unchanged.
 - 0.4 — 2026-10-04 — `game-designer` (B2 follow-up, decision note `docs/game/decisions/2026-10-b2-response.md`,
   evidence `docs/game/sim/2026-10-b2-response/`): C-02 measured over turns with a non-empty bag (all-turns rate
   still reported); new C-10 (premature lock-up ≤ 5 %) and C-11 (tiles played ≥ 90); measurement note on the

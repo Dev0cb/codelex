@@ -197,7 +197,9 @@ describe('no bypass through the tables: a version only runs with its own layout 
 });
 
 describe('v2 draft outcomes (R-BOARD-004 v2, R-SCORE-003 v2; b2-response D3, D4)', () => {
-  // POD (advanced) on the start square: P3 + O1 + D2 = 6 letter points.
+  // POD (advanced) on the start square. Letter points: letters-v1 P2 + O1 + D3 = 6; letters-v2 (L7) P2 + O1 + D2 = 5.
+  const V1_LETTERS = 6;
+  const V2_LETTERS = 5;
   const POD: Placement[] = [
     { row: 7, col: 6, tile: 'P' },
     { row: 7, col: 7, tile: 'O' },
@@ -214,18 +216,18 @@ describe('v2 draft outcomes (R-BOARD-004 v2, R-SCORE-003 v2; b2-response D3, D4)
   }
 
   it('R-BOARD-004: the start square is a DW in classic-v1 and plain in classic-v2', () => {
-    expect(firstMove(config(1), CTX)).toEqual({ wordMult: 2, total: 6 * 2 + 8 });
-    expect(firstMove(config(2), DRAFT)).toEqual({ wordMult: 1, total: 6 + 4 });
-    // dx-dw: the v2 draft also runs the DW start (classic-v1) with v2 bonuses.
+    expect(firstMove(config(1), CTX)).toEqual({ wordMult: 2, total: V1_LETTERS * 2 + 8 });
+    expect(firstMove(config(2), DRAFT)).toEqual({ wordMult: 1, total: V2_LETTERS + 4 });
+    // dx-dw: the v2 draft also runs the DW start (classic-v1) with letters-v2 and v2 bonuses.
     expect(firstMove(config(2, { layout: 'classic-v1' }), DRAFT)).toEqual({
       wordMult: 2,
-      total: 6 * 2 + 4,
+      total: V2_LETTERS * 2 + 4,
     });
   });
 
   it('R-SCORE-003: the candidate picks the term bonus (advanced: v1 +8, tb-0-3-6-12 +6, tb-0-2-4-8 +4)', () => {
-    expect(firstMove(config(2), draftCtx('tb-0-3-6-12', CTX)).total).toBe(6 + 6);
-    expect(firstMove(config(2), draftCtx('tb-0-2-4-8', CTX)).total).toBe(6 + 4);
-    expect(firstMove(config(2), DRAFT).total).toBe(6 + 4);
+    expect(firstMove(config(2), draftCtx('tb-0-3-6-12', CTX)).total).toBe(V2_LETTERS + 6);
+    expect(firstMove(config(2), draftCtx('tb-0-2-4-8', CTX)).total).toBe(V2_LETTERS + 4);
+    expect(firstMove(config(2), DRAFT).total).toBe(V2_LETTERS + 4);
   });
 });

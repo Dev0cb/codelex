@@ -3,7 +3,8 @@
  * - `engineRulesVersion` 1 (GAME_RULES v0.3.1, frozen): the `classic-v1` premium layout (§2.1), the `letters-v1`
  *   letter table (§3.1) and `RULES_V1`. Changing any value is forbidden (ADR-0013 §D5, ADR-0014 §D1).
  * - `engineRulesVersion` 2 (draft, ADR-0014 §D4): `classic-v2` (plain start, b2-response D4 / §6), the
- *   `letters-v2` placeholder and the two term-bonus candidates (D3). May change until the freeze (R4).
+ *   `letters-v2` table derived from batch 3 (L7) and the two term-bonus candidates (D3). May change until the
+ *   freeze (R4).
  * There is no runtime derivation path (P-BAG-001-f).
  */
 import type { Layout, LayoutId, LetterTable, LetterTableId, Rules, SquareKind } from '../types.js';
@@ -137,14 +138,18 @@ const LETTERS_V1: LetterTable = Object.freeze({
 });
 
 /**
- * PLACEHOLDER (ADR-0014 §D1, T-4a): `letters-v2` is derived from batch 3 by task L7 (BALANCE.md R-BAG-001).
- * Until L7 fills it, it holds a copy of the `letters-v1` values and counts, and `engineRulesVersion` 2 stays a
- * draft. Do not freeze v2 with this table.
+ * `letters-v2` (DRAFT, `engineRulesVersion` 2; task L7, b2-response T-4a). Derived by `tools/letters/derive.mjs`
+ * (BALANCE.md R-BAG-001 steps 1–5) from the batch-3 lexicon: `lexiconVersion` e568477b5592a994, profile
+ * `global-ranked` with inflections, 2,154 forms. Adjustments: 5a K 1 → 2 tiles (from S), 5c J/X/Z → 8 (Q, the
+ * rarest letter, keeps 10). Derivation record: BALANCE.md "Derivation record — `letters-v2`". May change until
+ * the freeze (R4); never derived at runtime. Independent of the lexicon `gameValue` (ADR-0014 §D5).
  */
 const LETTERS_V2: LetterTable = Object.freeze({
   id: 'letters-v2',
-  values: LETTERS_V1.values,
-  counts: LETTERS_V1.counts,
+  // prettier-ignore
+  values: Object.freeze([1, 3, 2, 2, 1, 4, 3, 3, 1, 8, 4, 2, 2, 1, 1, 2, 10, 1, 1, 1, 2, 6, 5, 8, 5, 8]),
+  // prettier-ignore
+  counts: Object.freeze([8, 2, 5, 4, 10, 1, 2, 2, 6, 1, 2, 4, 3, 5, 7, 4, 1, 7, 9, 7, 3, 1, 1, 1, 1, 1]),
   blanks: 2,
   blankValue: 0,
 });

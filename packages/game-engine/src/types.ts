@@ -84,7 +84,7 @@ export type BoardRow = string;
 
 /** `classic-v2` = `classic-v1` with a plain start square (R-BOARD-004 v2, b2-response D4). */
 export type LayoutId = 'classic-v1' | 'classic-v2';
-/** `letters-v2`: derived from batch 3 by task L7 (T-4a); a placeholder copy of `letters-v1` until then. */
+/** `letters-v2`: derived from batch 3 by task L7 (T-4a; BALANCE.md derivation record), draft until R4. */
 export type LetterTableId = 'letters-v1' | 'letters-v2';
 export type SquareKind = 'plain' | 'DL' | 'TL' | 'DW' | 'TW';
 

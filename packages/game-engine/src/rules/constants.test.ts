@@ -125,7 +125,7 @@ describe('letters-v1 table (R-BAG-001, R-BAG-002; GC-BAG-02)', () => {
   });
 
   it('rejects unknown table ids (programmer error)', () => {
-    // letters-v2 is registered since ADR-0014 (v2 draft placeholder): probe an id that no version defines.
+    // letters-v2 is registered since ADR-0014 (v2 draft): probe an id that no version defines.
     expect(() => getLetterTable('letters-v9' as LetterTableId)).toThrow(RangeError);
   });
 });

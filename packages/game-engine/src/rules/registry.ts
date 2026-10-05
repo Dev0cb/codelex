@@ -38,7 +38,7 @@ const V1: RulesSet = Object.freeze({
 /**
  * Version 2: DRAFT until rules PR GAME_RULES 0.4 (task R4). `classic-v2` (plain start, D4); `classic-v1` is also
  * allowed while drafting, for the pre-registered DW-vs-plain confirmation (v2-balance-check §2 `dx-dw-*`).
- * `letters-v2` is a placeholder copy of `letters-v1` until L7. Term-bonus candidates (D3): `tb-0-3-6-12` and
+ * `letters-v2` is derived from batch 3 (L7, BALANCE.md R-BAG-001). Term-bonus candidates (D3): `tb-0-3-6-12` and
  * `tb-0-2-4-8`; without a candidate the default is `tb-0-2-4-8` (the D3 lead candidate). At the freeze the losing
  * candidate and the draft-only layout are removed (ADR-0014 §D4).
  */
