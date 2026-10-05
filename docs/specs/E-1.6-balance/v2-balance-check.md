@@ -252,6 +252,8 @@ seed, variant, sample size or class. It is legitimate under §5.4 because no reg
     results JSON.
   - The decision is always labelled "provisional (greedy proxy)", whichever version ran.
   - With Strategist as the primary bot, I-3 still requires `BOT_VERSION` 2.
+  - game-designer sign-off 2026-10-05: accepted before any registered run; the registered text is this file at the
+    BC run's prereg blob.
 
 ### 5.3 Procedure, timing and outcomes
 
