@@ -74,6 +74,13 @@ Notes:
 - Strategist two-blank decisions: 0.4 % of its decisions (1,976 of 493,070 in the ST-7 mirror); they carry 48 % of its `budgetExhausted`
   decisions (R-3).
 
+## Game-designer sign-off
+
+> game-designer sign-off (2026-10-05): ST-8 +1.02 points accepted without retune. The gap's ~95 % CI is about [−0.4, +2.4] (mirrors not paired), so the trigger was hit but the bias is not shown.
+> Tuning departures from GD-3 are confirmed: denial only while leading (even/trail 0), `exchangeMaxScore` 20, `exchangeGainDp` 120. ST-4b, ST-4c and ST-7 hold.
+> Risk recorded before BC: a real +1-point Strategist seat bias could put 0/3/6/12 over P-1's 52 % upper bound. BC criteria and thresholds stay unchanged.
+> Re-check at `BOT_VERSION` 3 with the human F-9 data.
+
 ## BG-5 re-read and the Beginner budget (GD-7)
 
 | Run | Beginner decisions with a cap hit | Two-blank |
