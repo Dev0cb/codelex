@@ -13,7 +13,7 @@
     "validate": "pnpm framework:validate && pnpm lexicon:validate && pnpm test:framework && pnpm traceability:check && pnpm test:traceability",
     "framework:validate": "node tools/framework/validate.mjs",
     "lexicon:validate": "node packages/lexicon/scripts/validate.mjs",
-    "test:framework": "node --test \"tools/framework/*.test.mjs\" \"tools/scaffold/*.test.mjs\" \"tools/golden/*.test.mjs\"",
+    "test:framework": "node --test \"tools/framework/*.test.mjs\" \"tools/scaffold/*.test.mjs\" \"tools/golden/*.test.mjs\" \"tools/letters/*.test.mjs\"",
     "golden:immutability": "node tools/golden/immutability.mjs --base origin/main",
     "build": "turbo run build",
     "lint": "turbo run lint",

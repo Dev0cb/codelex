@@ -225,7 +225,7 @@ export interface EngineContext {
 | `engineRulesVersion` | status | `layouts` | `letterTables` | `rules.termBonus` nov/int/adv/exp | other `rules` |
 |---|---|---|---|---|---|
 | 1 | frozen (GAME_RULES 0.3.1) | `classic-v1` | `letters-v1` | 0/4/8/16 | as above |
-| 2 | **draft** until rules PR 0.4 (R4) | `classic-v2`; while draft also `classic-v1` (D4 DW-vs-plain confirmation) | `letters-v2` (a copy of `letters-v1` until L7 fills it) | candidates `tb-0-3-6-12`, `tb-0-2-4-8`; one remains at the freeze | unchanged from v1 |
+| 2 | **draft** until rules PR 0.4 (R4) | `classic-v2`; while draft also `classic-v1` (D4 DW-vs-plain confirmation) | `letters-v2` (derived from batch 3 by L7; BALANCE.md record) | candidates `tb-0-3-6-12`, `tb-0-2-4-8`; one remains at the freeze | unchanged from v1 |
 
 - **Draft rule.** `createMatch`, `parseState`, `parseActionLog` and `replay` refuse a draft version with
   `RULES_VERSION_UNSUPPORTED`, `details { actual, status: 'draft' }`, unless `ctx.draft.optIn ===
