@@ -8,6 +8,7 @@
  * the shipped artefact shape: a built and decoded `.clxi`, with the GADDAG section (f1, what the app bundles,
  * lexicon P7) and without it (f0, the DAWG fallback).
  */
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -40,7 +41,9 @@ describe('golden decisions', () => {
     expect(golden.engineRulesVersion).toBe(ENGINE_RULES_VERSION);
     expect(golden.automaton).toBe('gaddag');
     expect(golden.decisions).toHaveLength(20 * GOLDEN_PERSONALITIES.length);
-    expect(golden.capBoundDecisions).toBe(golden.decisions.filter((d) => d.budgetExhausted).length);
+    // Positions are chosen so that no cap binds (bots-api §5.6): every decision is also asserted on f0.
+    expect(golden.capBoundDecisions).toBe(0);
+    expect(golden.decisions.every((d) => !d.budgetExhausted)).toBe(true);
   });
 
   it('reproduces every pinned decision on the shipped automaton (f1)', () => {
@@ -65,7 +68,14 @@ describe('golden decisions', () => {
     expect(compared).toBe(golden.decisions.length - golden.capBoundDecisions);
   });
 
+  // decisions-v1.json last reproduced at commit 67361da (B4 cheaper key build, still BOT_VERSION 1): the proof that
+  // the key build was a pure refactor. From BOT_VERSION 2 it is a frozen record; its SHA-256 is pinned so any edit
+  // fails here, not only in review.
   it('keeps the BOT_VERSION 1 record frozen (not executed: bot reasoning is never replayed)', () => {
+    const bytes = readFileSync(join(import.meta.dirname, 'golden', 'decisions-v1.json'));
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+      'cd063d6e78c479506e1ad8fabcaa68d139ebbcadb6a3c8bd5f5584739905c6fc',
+    );
     const v1 = read('decisions-v1.json') as GoldenFileV1;
     expect(v1.botVersion).toBe(1);
     expect(v1.decisions).toHaveLength(60);

@@ -57,7 +57,11 @@ export interface GoldenPosition {
   readonly state: MatchState;
 }
 
-/** 20 positions after 0, 2, …, 18 actions of Beginner mirror games; a seed whose match ends earlier is skipped. */
+/**
+ * 20 positions after 0, 2, …, 18 actions of Beginner mirror games, chosen so that no cap binds for any personality
+ * on `lexicon` (bots-api §5.6, spec AC-12): a seed whose match ends earlier, or whose position makes a decision
+ * exhaust a budget, is skipped.
+ */
 export function goldenPositions(lexicon: LexiconIndex): GoldenPosition[] {
   const positions: GoldenPosition[] = [];
   for (let i = 0; positions.length < 20; i += 1) {
@@ -66,7 +70,10 @@ export function goldenPositions(lexicon: LexiconIndex): GoldenPosition[] {
     const state = positionAfter(lexicon, seed, actions);
     if (i > 200) throw new Error('not enough golden positions');
     if (state === undefined) continue;
-    positions.push({ seed, actions, state });
+    const position = { seed, actions, state };
+    if (GOLDEN_PERSONALITIES.some((p) => decisionAt(lexicon, position, p).budgetExhausted))
+      continue;
+    positions.push(position);
   }
   return positions;
 }

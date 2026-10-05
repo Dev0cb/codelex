@@ -104,8 +104,9 @@ otherwise. Wall time is measured by the caller (`time pnpm … simulate`). Reado
 - `test/matches.test.ts`: full matches through `createMatch`/`apply` on the real lexicon, a 2,000-form synthetic
   lexicon and a tiny one (P-BOT-01, P-BOT-07). `test/golden.test.ts`: 20 positions × 4 personalities pinned per
   (`BOT_VERSION`, `engineRulesVersion`) in `test/golden/decisions-b<V>-r<R>.json`, computed on the synthetic
-  fixture built as the shipped f1 `.clxi`; f0 must decide the same wherever no cap binds (cap-bound decisions are
-  counted in `capBoundDecisions` and asserted on f1 only). `decisions-v1.json` is the frozen (1, 1) record, no
+  fixture built as the shipped f1 `.clxi`; positions are chosen so that no cap binds for any personality
+  (`capBoundDecisions` 0), and f0 must decide the same on every one. `decisions-v1.json` is the frozen (1, 1) record
+  (SHA-256 pinned in the test), no
   longer executed. Published golden files are never edited: a change needs a version bump and a new file.
 - `src/policy/strategist.test.ts`, `src/strategy/*.test.ts`: Strategist terms on crafted positions (leave, chain,
   lane denial, X-1..X-5 boundaries, forced keep, overflow shortlist, the single draw, P-BOT-09). `test/purity.test.ts`: source scan backing the lint rule.
