@@ -41,6 +41,12 @@ export interface BotDecision {
   readonly action: Action;
   readonly nodesUsed: number;
   readonly candidatesEvaluated: number;
+  /**
+   * Evaluations the engine refused (`evaluateMove` not ok). Instrumentation only, never an input to a decision:
+   * hosts read it as an integrity signal (a wrong draft context, or a generator/engine disagreement), which a
+   * voluntary EXCHANGE never produces.
+   */
+  readonly candidatesRefused: number;
   readonly budgetExhausted: boolean;
 }
 

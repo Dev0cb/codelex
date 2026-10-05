@@ -218,6 +218,7 @@ describe('P-BOT-06 fallback', () => {
           action: { seat: 0, type: 'EXCHANGE', tiles: ['Q', 'V', 'W', 'X', 'Y', 'Z'] },
           nodesUsed: expect.any(Number) as number,
           candidatesEvaluated: 0,
+          candidatesRefused: 0,
           budgetExhausted: false,
         },
       });

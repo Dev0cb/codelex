@@ -22,6 +22,8 @@ export interface PolicyResult {
   /** Canonical action returned by `evaluateMove`, or undefined ⇒ fallback (BOT-6). */
   readonly action: PlaceWordAction | undefined;
   readonly candidatesEvaluated: number;
+  /** `evaluateMove` calls the engine refused (instrumentation, `BotDecision.candidatesRefused`). */
+  readonly refused: number;
   /** True iff `maxCandidates` dropped work (BOT-4). */
   readonly exhausted: boolean;
 }

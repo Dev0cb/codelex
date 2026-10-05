@@ -87,6 +87,7 @@ export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecis
     action: policy.action ?? fallbackAction(obs, seat),
     nodesUsed: generation.nodesUsed,
     candidatesEvaluated: policy.candidatesEvaluated,
+    candidatesRefused: policy.refused,
     budgetExhausted: generation.exhausted || policy.exhausted,
   });
 }

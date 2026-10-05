@@ -111,7 +111,17 @@ describe('ctx.draft: bots play a draft rules version with the host candidate', (
     const decided = chooseAction(obs, ctx(obs, seed, 'greedy'));
     expect(decided.ok && decided.value.action.type).toBe('EXCHANGE');
     expect(decided.ok && decided.value.candidatesEvaluated).toBeGreaterThan(0);
+    // Every evaluation was an engine refusal, and the decision says so (the I-2 signal).
+    expect(decided.ok && decided.value.candidatesRefused).toBe(
+      decided.ok && decided.value.candidatesEvaluated,
+    );
     expect(decide(obs, ctx(obs, seed, 'greedy', { draft })).type).toBe('PLACE_WORD');
+    for (const personality of ['greedy', 'beginner', 'random-legal'] as const) {
+      const ok = chooseAction(obs, ctx(obs, seed, personality, { draft }));
+      expect(ok.ok && ok.value.candidatesRefused).toBe(0);
+      const refused = chooseAction(obs, ctx(obs, seed, personality));
+      expect(refused.ok && refused.value.candidatesRefused).toBeGreaterThan(0);
+    }
   });
 });
 
