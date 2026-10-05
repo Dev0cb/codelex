@@ -467,8 +467,10 @@ see `docs/game/LEXICON_SPEC.md` §7 (`lexiconVersion` and `cardsVersion`, `scrip
   definition, so the option applied is always the one hashed. `global-no-inflections` (`00d1ebcc16bb3489`) is
   the AC-20 "without inflections" variant: `build:index` builds it, and the simulator builds it with the same
   builder call, instead of stripping inflections itself. Tests: `test/canonical.test.mjs` (pinned hashes, refused
-  values), `src/index/clxi/clxi.test.ts` (`all` ≡ absent bytes, `none` ≡ stripped document) and
-  `test/build-index.test.mjs` (the real artefacts equal the pre-P8 builds byte for byte).
+  values), `src/index/clxi/clxi.test.ts` (`all` ≡ absent bytes, `none` ≡ stripped document, both lists of option
+  values equal) and `test/build-index.test.mjs`. For `lexiconVersion` `e568477b5592a994` that last test pins the
+  sha256 of all four artefacts to the values built by the pre-P8 code. For any lexiconVersion, it also checks
+  that the option paths give the same bytes as the option-less builder calls.
 
 ### 4.3 Build determinism (same input ⇒ same bytes)
 Inputs sorted (forms by UTF-16 code unit, ids, categories, edges); automaton minimisation assigns node ids in a

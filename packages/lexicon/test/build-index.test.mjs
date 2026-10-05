@@ -89,9 +89,37 @@ test('the build:index output decodes and matches its manifest (sha256, bytes, fl
 
 // Sprint 3 P8 (E-1.7 D-14): the `inflections` profile option must not move a single byte of the default
 // artefacts (batch 3 and letters-v2 are frozen balance-check inputs), and the no-inflection artefacts must be the
-// very bytes the simulator built by stripping inflections before P8. Both baselines call the builder the pre-P8
-// way: a profile reference without the option, and (for `none`) a document with every inflection removed.
-test('profile option inflections: default artefacts unchanged; `none` = pre-P8 stripping, real build', () => {
+// very bytes the simulator built by stripping inflections before P8.
+//
+// 1. Pinned bytes. sha256 of the four artefacts built by the pre-P8 code (origin/main at 00dad89) for
+//    lexiconVersion e568477b5592a994: global-ranked from `build:index`, global-no-inflections from the pre-P8
+//    simulator call (profile without the option, document with every inflection removed). Only meaningful for
+//    that lexiconVersion; any later data change is a new version and skips this pin.
+const PRE_P8_VERSION = 'e568477b5592a994';
+const PRE_P8_SHA256 = Object.freeze({
+  'global-ranked.f0': '95432a499456f3c7e969744cf5b914621507d6d98a6d520a81c7c249e0889e8a',
+  'global-ranked.f1': 'f81e276042b4954ab4f5a0a6ff3ef81cd91d38b0b514e3bb768b8ec62bb4eb2e',
+  'global-no-inflections.f0': '3a666a4fdeef9c60b14807efcd4031b128d2b161e03caefb896046fc2ca05f5b',
+  'global-no-inflections.f1': '9410c4bda0364233f1f1b3518a6bd6bc44ee3f9599830398dc6a7c0acaba8585',
+});
+test('profile option inflections: the four artefacts equal the pre-P8 builds (pinned sha256)', (t) => {
+  const { lexiconVersion, profiles } = readIndexManifest();
+  if (lexiconVersion !== PRE_P8_VERSION) {
+    t.skip(`pin recorded for ${PRE_P8_VERSION}, data is now ${lexiconVersion}`);
+    return;
+  }
+  const actual = {};
+  for (const p of profiles) {
+    const { bytes } = resolveIndexArtefact({ profileId: p.id, flags: p.flags });
+    actual[`${p.id}.f${p.flags}`] = createHash('sha256').update(bytes).digest('hex');
+    assert.equal(p.sha256, actual[`${p.id}.f${p.flags}`]);
+  }
+  assert.deepEqual(actual, PRE_P8_SHA256);
+});
+
+// 2. Option paths, with the current builder (holds for any data): `all` / the option-less reference give the
+//    same bytes, and `none` gives the same bytes as a document with every inflection removed.
+test('profile option inflections: option paths equal the option-less builder calls; `none` is canonical-only', () => {
   const lex = loadLexicon();
   const version = computeLexiconVersion(lex);
   const document = lexiconContentDocument(lex);

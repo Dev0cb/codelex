@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   GLOBAL_PROFILE,
+  INFLECTION_POLICIES as CANONICAL_INFLECTION_POLICIES,
   computeLexiconVersion,
   lexiconContentDocument,
   profileDefinitionHash,
@@ -29,6 +30,7 @@ import {
   buildLexiconIndex,
   checkBuiltArtefact,
   gaddagPaths,
+  INFLECTION_POLICIES,
   type LexiconBuildInput,
 } from './build.js';
 import { crc32 } from './crc32.js';
@@ -651,6 +653,12 @@ describe('profile option inflections: all | none (E-1.7 D-14)', REAL_DATA_BUILDS
       expect(none.meta(ref)).toEqual(all.meta(ref));
       expect(none.neighbours(ref)).toEqual(all.neighbours(ref));
     }
+  });
+
+  it('the builder and canonical.mjs accept the same option values', () => {
+    // Two definitions on purpose: canonical.mjs stays zero-dependency (runs before the build), and the
+    // compiled builder cannot import from scripts/. This test keeps them equal.
+    expect([...INFLECTION_POLICIES]).toEqual([...CANONICAL_INFLECTION_POLICIES]);
   });
 
   it('an unknown option value is VALIDATION_FAILED', () => {
