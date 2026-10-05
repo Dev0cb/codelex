@@ -88,7 +88,9 @@ Status: **draft** table of the v2 draft (ADR-0014 §D4). Frozen only by rules PR
   throwaway script this time). Reproduce: `node tools/letters/derive.mjs` (table) or `--json` (full record) at the
   input commit. Tests (`tools/letters/derive.test.mjs`, run by `pnpm validate`) check that the same code reproduces
   the frozen `letters-v1` table and its five recorded adjustments from the v1 occurrences above, and that it
-  reproduces this table from its input lexicon.
+  reproduces this table and its adjustments from the occurrences recorded below (always run, whatever the
+  lexicon in the tree). While the tree still holds the input lexicon, an extra test also re-counts those
+  occurrences from it.
 - **Input:** `packages/lexicon/data` at `main` commit `b3ab7bb` (batch 3, #62; validator: 0 errors), the same
   lexicon commit the pre-registration §4.3 requires. **`lexiconVersion` `e568477b5592a994`**, profile
   `global-ranked` (`definitionHash` `da1f36a3747e0dfe`) with inflections: **2,154 distinct playable forms**

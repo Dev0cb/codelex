@@ -266,14 +266,32 @@ export function formatRecord(meta, d) {
   return lines.join("\n");
 }
 
+export const USAGE =
+  "usage: node tools/letters/derive.mjs [--data <packages/lexicon/data dir>] [--json]";
+
+/** Parses the CLI arguments; throws a usage error (never a TypeError) on a bad command line. */
+export function parseArgs(argv) {
+  const opts = { data: undefined, json: false };
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === "--json") opts.json = true;
+    else if (arg === "--data") {
+      const value = argv[i + 1];
+      if (value === undefined || value === "" || value.startsWith("--"))
+        throw new Error(`--data needs a directory path\n${USAGE}`);
+      opts.data = resolve(value);
+      i++;
+    } else throw new Error(`unknown argument: ${arg}\n${USAGE}`);
+  }
+  return opts;
+}
+
 async function main(argv) {
-  const dataIdx = argv.indexOf("--data");
+  const opts = parseArgs(argv);
   const lexicon = await import("../../packages/lexicon/scripts/validate.mjs");
   const canonical =
     await import("../../packages/lexicon/scripts/canonical.mjs");
-  const lex = lexicon.loadLexicon(
-    dataIdx >= 0 ? resolve(argv[dataIdx + 1]) : undefined,
-  );
+  const lex = lexicon.loadLexicon(opts.data);
   const { errors } = lexicon.validateLexicon(lex);
   if (errors.length > 0)
     throw new Error(
@@ -288,7 +306,7 @@ async function main(argv) {
   };
   const derived = deriveLetterTable(forms);
   process.stdout.write(
-    argv.includes("--json")
+    opts.json
       ? `${JSON.stringify({ ...meta, ...derived }, null, 2)}\n`
       : `${formatRecord(meta, derived)}\n`,
   );
