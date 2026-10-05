@@ -13,12 +13,20 @@ ignoredBuiltDependencies:
 # Fail the install when any other dependency wants to run a build script that is not reviewed.
 strictDepBuilds: true
 
+# Security overrides: each one names its advisory and is recorded in docs/security/audit-exceptions.md.
+overrides:
+  # GHSA-w5hq-g745-h8pq (uuid < 11.1.1): xcode 3.0.1 (via expo > @expo/config-plugins) pins uuid ^7.0.3 and only
+  # calls require('uuid').v4(); 11.1.1 is the patched release that still ships a CommonJS build.
+  "xcode>uuid": 11.1.1
+
 # Audit exceptions: each one needs a written justification, an expiry date and a security-engineer review
 # (CLAUDE.md §7). Register: docs/security/audit-exceptions.md. Remove an entry as soon as a fix is published.
 auditConfig:
   ignoreGhsas:
-    # braces <= 3.0.3 (no patched version yet), dev-only via eslint-plugin-boundaries > micromatch. Expires 2026-11-02.
+    # braces <= 3.0.3 (no patched version yet), toolchain only via micromatch under eslint-plugin-boundaries, metro and
+    # jest-haste-map (register class T); absence from the shipped bundles is proven by apps/mobile `bundle:check`
+    # (bundle-forbidden-packages.json). Expires 2026-11-04.
     - GHSA-vfj7-8cjw-p6xm
     # node-forge <= 1.4.0 (no patched version yet), toolchain only via expo > @expo/cli (register class T); absence
-    # from the shipped bundles is proven by apps/mobile `bundle:check` (bundle-forbidden-packages.json). Expires 2026-11-02.
+    # from the shipped bundles is proven by apps/mobile `bundle:check` (bundle-forbidden-packages.json). Expires 2026-11-04.
     - GHSA-86w9-cpqp-85rv
