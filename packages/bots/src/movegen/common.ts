@@ -1,11 +1,10 @@
 /**
  * Bookkeeping shared by the GADDAG and DAWG generators (bots-api §4.1 step 3): rack counts and letter mask, the
- * tiles of the current path, the node budget (BOT-3, BOT-4) and the deduplicated candidate list (§4.4 keys).
+ * tiles of the current path, the node budget (BOT-3, BOT-4) and the deduplicated candidate list (packed signatures, no keys).
  * Per-call state only (no module state, API note §17).
  */
 import type { BoardTile, Placement } from '@codelex/game-engine';
 import { BLANK } from '../board.js';
-import { placementKey } from '../key.js';
 import type { Candidate, Generation, GenerationInput } from './types.js';
 
 const CODE_A = 65;
@@ -22,6 +21,11 @@ export function lowestBit(mask: number): number {
   return 31 - Math.clz32(mask & -mask);
 }
 
+/** Rack size (R-BAG-003): at most this many tiles per placement, the limit of the packed signature. */
+const MAX_PACKED_TILES = 7;
+/** Tile codes 0..51 (A..Z natural, a..z blank), stored + 1 so that placements of different lengths differ. */
+const TILE_RADIX = 53;
+
 export class Workspace {
   /** 27 counts, index 26 = blank. */
   readonly rack: number[];
@@ -30,9 +34,15 @@ export class Workspace {
   rackMask = 0;
   nodes = 0;
   exhausted = false;
-  readonly placed: Placement[] = [];
   readonly candidates: Candidate[] = [];
-  private readonly seen = new Set<string>();
+  /** Current path: squares and tile codes (letter, + 26 for a blank), a stack in placement order. */
+  private readonly squares: number[] = [];
+  private readonly tiles: number[] = [];
+  private depth = 0;
+  /** Scratch for `record`: the path sorted by square. */
+  private readonly sortedSquares: number[] = [];
+  private readonly sortedTiles: number[] = [];
+  private readonly seen = new Set<number>();
   private readonly size: number;
   private readonly firstMove: boolean;
   private readonly seat: number;
@@ -66,16 +76,14 @@ export class Workspace {
   /** Takes a tile (`slot` = letter or BLANK) from the rack and places it as `letter` on square `sq`. */
   place(sq: number, letter: number, slot: number): void {
     this.consume(slot);
-    this.placed.push({
-      row: Math.floor(sq / this.size),
-      col: sq % this.size,
-      tile: String.fromCharCode((slot === BLANK ? CODE_LOWER_A : CODE_A) + letter) as BoardTile,
-    });
+    this.squares[this.depth] = sq;
+    this.tiles[this.depth] = slot === BLANK ? letter + BLANK : letter;
+    this.depth += 1;
   }
 
   /** Undoes the last `place` of a tile from `slot`. */
   unplace(slot: number): void {
-    this.placed.pop();
+    this.depth -= 1;
     this.restore(slot);
   }
 
@@ -92,17 +100,59 @@ export class Workspace {
     if (slot !== BLANK) this.rackMask |= 1 << slot;
   }
 
-  /** Emits the current placement once (by canonical key); first move needs ≥ 2 tiles (R-TURN-002). */
+  /**
+   * Emits the current placement once; first move needs ≥ 2 tiles (R-TURN-002). Dedupe uses a packed integer
+   * signature, so a duplicate (a one-tile move found in both directions) costs no allocation. The tiles of a
+   * generated placement plus the board tiles between them form one run, so its squares are the first `count`
+   * empty squares from its first square along its line: (first square, direction, tile codes in square order)
+   * identifies it on this board. With ≤ 7 tiles the signature stays below 53^7 × 450 < 2^53. A longer placement
+   * needs a rack larger than R-BAG-003 allows (crafted test observations only); it is not deduplicated, which is
+   * exact because only one-tile moves can be generated twice (once per direction; the leftmost-anchor rule makes
+   * every longer placement unique).
+   */
   record(): void {
-    const count = this.placed.length;
+    const count = this.depth;
     if (count === 0 || (this.firstMove && count < MIN_FIRST_MOVE_TILES)) return;
-    const tiles = [...this.placed].sort((a, b) => a.row - b.row || a.col - b.col);
-    const key = placementKey(tiles);
-    if (this.seen.has(key)) return;
-    this.seen.add(key);
+    const sortedSquares = this.sortedSquares;
+    const sortedTiles = this.sortedTiles;
+    // Insertion sort by square (row-major = canonical (row, col) order); ≤ 7 entries.
+    for (let i = 0; i < count; i += 1) {
+      const sq = valueAt(this.squares, i, 0);
+      const tile = valueAt(this.tiles, i, 0);
+      let j = i;
+      while (j > 0 && valueAt(sortedSquares, j - 1, 0) > sq) {
+        sortedSquares[j] = valueAt(sortedSquares, j - 1, 0);
+        sortedTiles[j] = valueAt(sortedTiles, j - 1, 0);
+        j -= 1;
+      }
+      sortedSquares[j] = sq;
+      sortedTiles[j] = tile;
+    }
+    const first = valueAt(sortedSquares, 0, 0);
+    const size = this.size;
+    if (count <= MAX_PACKED_TILES) {
+      let packed = 0;
+      for (let i = 0; i < count; i += 1)
+        packed = packed * TILE_RADIX + valueAt(sortedTiles, i, 0) + 1;
+      const column = count > 1 && valueAt(sortedSquares, 1, 0) - first >= size ? 1 : 0;
+      const signature = (packed * size * size + first) * 2 + column;
+      if (this.seen.has(signature)) return;
+      this.seen.add(signature);
+    }
+    const tiles: Placement[] = [];
+    for (let i = 0; i < count; i += 1) {
+      const sq = valueAt(sortedSquares, i, 0);
+      const code = valueAt(sortedTiles, i, 0);
+      tiles.push({
+        row: Math.floor(sq / size),
+        col: sq % size,
+        tile: String.fromCharCode(
+          code >= BLANK ? CODE_LOWER_A + code - BLANK : CODE_A + code,
+        ) as BoardTile,
+      });
+    }
     this.candidates.push({
       action: { seat: this.seat, type: 'PLACE_WORD', tiles },
-      key,
       tilesPlaced: count,
     });
   }

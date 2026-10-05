@@ -11,9 +11,8 @@
  * RNG draws happen in that fixed order (sample, Full Stack check, pick).
  */
 import { evaluateMove, RULES, type PlaceWordAction } from '@codelex/game-engine';
-import { compareKeys } from '../key.js';
+import { byKey, candidateKey, compareKeys } from '../key.js';
 import { mainDifficultyRank } from '../main-word.js';
-import { byKey } from '../movegen/gaddag.js';
 import type { Candidate } from '../movegen/index.js';
 import type { PolicyInput, PolicyResult } from './types.js';
 
@@ -75,7 +74,7 @@ export function ranked(input: PolicyInput): PolicyResult {
     const { breakdown } = result.value;
     rankedMoves.push({
       action: result.value.action,
-      key: candidate.key,
+      key: candidateKey(candidate),
       total: breakdown.total,
       tilesPlaced: breakdown.tilesPlaced,
       mainLength: breakdown.words[0]?.form.length ?? 0,

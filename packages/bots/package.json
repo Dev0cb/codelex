@@ -2,7 +2,7 @@
   "name": "@codelex/bots",
   "version": "0.1.0",
   "private": true,
-  "description": "Deterministic AI opponents (random-legal, Beginner, greedy yardstick; Strategist\u2192Grandmaster later)",
+  "description": "Deterministic AI opponents (random-legal, Beginner, greedy yardstick, Strategist; Architect\u2192Grandmaster later)",
   "license": "UNLICENSED",
   "type": "module",
   "sideEffects": false,
@@ -23,7 +23,8 @@
     "test": "vitest run --coverage",
     "test:full": "vitest run --config vitest.full.config.ts",
     "bench": "vitest bench --run --config vitest.bench.config.ts",
-    "simulate": "tsc -p tsconfig.sim.json && node dist/simulator/sim/cli.js"
+    "simulate": "tsc -p tsconfig.sim.json && node dist/simulator/sim/cli.js",
+    "simulate:b4": "tsc -p tsconfig.sim.json && node dist/simulator/sim/b4-cli.js"
   },
   "dependencies": {
     "@codelex/config": "workspace:*",

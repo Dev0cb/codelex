@@ -1,11 +1,13 @@
 import type { PlaceWordAction } from '@codelex/game-engine';
 import type { BoardView } from '../board.js';
 
-/** A generated placement, deduplicated by its canonical key (bots-api §4.1 step 3, §4.4). */
+/**
+ * A generated placement, deduplicated by its packed placement signature (bots-api §4.1 step 3). The canonical key
+ * (§4.4) is not stored: `candidateKey` builds it for the candidates a policy keeps.
+ */
 export interface Candidate {
   /** Canonical PLACE_WORD (tiles sorted by (row, col)). */
   readonly action: PlaceWordAction;
-  readonly key: string;
   readonly tilesPlaced: number;
 }
 

@@ -26,6 +26,7 @@ import {
   spell,
 } from '../../test/support/match.js';
 import { chooseAction, type BotDecision, type BotPersonalityId } from '../index.js';
+import { candidateKey } from '../key.js';
 import { selectGenerator } from './index.js';
 
 const TINY = tinyIndex();
@@ -44,7 +45,7 @@ const sortRack = (rack: string): string =>
 
 function keysOf(obs: Observation, lexicon: LexiconIndex): string[] {
   return generateFor(obs, lexicon)
-    .candidates.map((c) => c.key)
+    .candidates.map((c) => candidateKey(c))
     .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 }
 

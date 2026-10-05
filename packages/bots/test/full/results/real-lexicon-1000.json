@@ -1,5 +1,5 @@
 {
-  "lexiconVersion": "4fa5884050b4ea53",
+  "lexiconVersion": "e568477b5592a994",
   "profile": "global-ranked",
   "layout": "classic-v1",
   "matches": 1000,
@@ -10,20 +10,21 @@
     "ffa4": 200
   },
   "byEndReason": {
-    "going_out": 31,
-    "scoreless_turns": 969
+    "going_out": 152,
+    "scoreless_turns": 848
   },
   "personalitySeats": {
-    "random-legal": 1000,
-    "beginner": 1000,
-    "greedy": 1000
+    "random-legal": 750,
+    "beginner": 750,
+    "greedy": 750,
+    "strategist": 750
   },
   "notEnded": 0,
   "conservationBreaks": 0,
   "replayMismatches": 0,
-  "totalActions": 56462,
-  "placedWords": 43789,
-  "minActions": 9,
-  "maxActions": 83,
-  "finalHashesDigest": "c8b8b4655d859ce1"
+  "totalActions": 52438,
+  "placedWords": 42781,
+  "minActions": 13,
+  "maxActions": 69,
+  "finalHashesDigest": "d4412a3f19e4bc8d"
 }
