@@ -10,6 +10,7 @@
   "error.lexicon.retry": "Try again",
   "a11y.tile.letter": "Letter {letter}, {points, plural, one {# point} other {# points}}",
   "common.cancel": "Cancel",
+  "common.retry": "Try again",
   "bot.beginner.name": "Beginner Bot",
   "home.play_now": "PLAY NOW",
   "home.paused": "Matches are paused for an update — back soon",

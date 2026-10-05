@@ -10,6 +10,7 @@
   "error.lexicon.retry": "Réessayer",
   "a11y.tile.letter": "Lettre {letter}, {points, plural, one {# point} other {# points}}",
   "common.cancel": "Annuler",
+  "common.retry": "Réessayer",
   "bot.beginner.name": "Bot Débutant",
   "home.play_now": "JOUER",
   "home.paused": "Les parties sont en pause pour une mise à jour — de retour bientôt",
