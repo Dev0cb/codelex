@@ -9,13 +9,19 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { computeLexiconVersion } from '../scripts/canonical.mjs';
+import {
+  GLOBAL_PROFILE,
+  NO_INFLECTIONS_PROFILE,
+  computeLexiconVersion,
+  lexiconContentDocument,
+  profileDefinitionHash,
+} from '../scripts/canonical.mjs';
 import { INDEXES_DIR, readIndexManifest, resolveIndexArtefact } from '../scripts/indexes.mjs';
 import { loadLexicon } from '../scripts/validate.mjs';
 
 const PKG = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT = join(PKG, 'scripts', 'build-index.mjs');
-const { decodeLexiconIndex } = await import('../dist/index/index.js');
+const { buildLexiconIndex, decodeLexiconIndex } = await import('../dist/index/index.js');
 
 const run = (...args) => spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });
 
@@ -64,6 +70,8 @@ test('the build:index output decodes and matches its manifest (sha256, bytes, fl
     ['manifest.json', ...profiles.map((p) => p.file)].sort(),
   );
   assert.deepEqual(profiles.map((p) => `${p.id}.f${p.flags}`).sort(), [
+    'global-no-inflections.f0',
+    'global-no-inflections.f1',
     'global-ranked.f0',
     'global-ranked.f1',
   ]);
@@ -76,6 +84,62 @@ test('the build:index output decodes and matches its manifest (sha256, bytes, fl
     const decoded = decodeLexiconIndex(bytes, { version: lexiconVersion, profileId: profile.id });
     assert.equal(decoded.ok, true);
     assert.equal(decoded.ok && decoded.value.gaddag !== undefined, profile.gaddag);
+  }
+});
+
+// Sprint 3 P8 (E-1.7 D-14): the `inflections` profile option must not move a single byte of the default
+// artefacts (batch 3 and letters-v2 are frozen balance-check inputs), and the no-inflection artefacts must be the
+// very bytes the simulator built by stripping inflections before P8. Both baselines call the builder the pre-P8
+// way: a profile reference without the option, and (for `none`) a document with every inflection removed.
+test('profile option inflections: default artefacts unchanged; `none` = pre-P8 stripping, real build', () => {
+  const lex = loadLexicon();
+  const version = computeLexiconVersion(lex);
+  const document = lexiconContentDocument(lex);
+  const blocklist = [...lex.blocklist];
+  const stripped = { terms: document.terms.map((t) => ({ ...t, inflections: [] })) };
+  const legacy = (definition, doc, gaddag) => {
+    const r = buildLexiconIndex(
+      {
+        version,
+        profile: {
+          id: definition.id,
+          kind: definition.kind,
+          definitionHash: profileDefinitionHash(definition),
+        },
+        document: doc,
+        blocklist,
+      },
+      { formatVersion: 1, gaddag },
+    );
+    assert.equal(r.ok, true);
+    return r.ok ? r.value : new Uint8Array();
+  };
+  for (const flags of [0, 1]) {
+    const gaddag = flags === 1;
+    const ranked = resolveIndexArtefact({ profileId: GLOBAL_PROFILE.id, flags });
+    assert.deepEqual(
+      new Uint8Array(ranked.bytes),
+      legacy(GLOBAL_PROFILE, document, gaddag),
+      `global-ranked f${flags}`,
+    );
+    const none = resolveIndexArtefact({ profileId: NO_INFLECTIONS_PROFILE.id, flags });
+    assert.deepEqual(
+      new Uint8Array(none.bytes),
+      legacy(NO_INFLECTIONS_PROFILE, stripped, gaddag),
+      `none f${flags}`,
+    );
+    assert.equal(none.entry.definitionHash, profileDefinitionHash(NO_INFLECTIONS_PROFILE));
+    const index = decodeLexiconIndex(none.bytes, {
+      version,
+      profileId: NO_INFLECTIONS_PROFILE.id,
+    });
+    assert.equal(index.ok, true);
+    if (index.ok) {
+      assert.equal(index.value.size, index.value.termCount);
+      for (let f = 0; f < index.value.size; f += 1) {
+        assert.equal(index.value.formMeta(f).kind, 'canonical');
+      }
+    }
   }
 });
 

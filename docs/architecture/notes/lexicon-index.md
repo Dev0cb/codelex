@@ -269,6 +269,7 @@ export interface LexiconProfileDefinition {
   readonly include: { readonly all?: true; readonly tags?: readonly string[];
                       readonly categories?: readonly string[]; readonly ids?: readonly string[] };
   readonly exclude?: { readonly tags?: readonly string[]; readonly ids?: readonly string[] };
+  readonly inflections?: 'all' | 'none';  // E-1.7 D-14, default 'all' (§4.2; added sprint 3 P8)
 }
 export type LexiconBuildErrorCode =
   | 'VALIDATION_FAILED' | 'BLOCKLISTED_FORM' | 'EMPTY_PROFILE' | 'UNKNOWN_PROFILE_REFERENCE' | 'LIMIT_EXCEEDED';
@@ -375,7 +376,9 @@ array reads, which is what makes the < 5 µs budget plausible (§5).
 ### 3.4 Where it runs
 - **Phase 1 (T9, done in sprint L6):** `pnpm turbo run build:index` (Turborepo task `@codelex/lexicon#build:index`,
   defined in `packages/lexicon/turbo.json`) writes, under `packages/lexicon/dist/indexes/`:
-  - `<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server, default), `f0` without it;
+  - `<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server, default), `f0` without it —
+    for every profile of `BUILT_PROFILES` (`scripts/canonical.mjs`): `global-ranked` and, since sprint 3 P8, the
+    simulation-only `global-no-inflections` (§4.2; never bundled: apps pick `global-ranked` explicitly);
   - `<lexiconVersion>/manifest.json` — `{ lexiconVersion, profiles: [{ id, kind, definitionHash, formatVersion,
     flags, gaddag, file, bytes, sha256 }] }`, one entry per (profile, flags), canonical JSON;
   - `current.json` — `{ lexiconVersion, manifest: "<lexiconVersion>/manifest.json" }`, the stable entry point for
@@ -456,6 +459,16 @@ see `docs/game/LEXICON_SPEC.md` §7 (`lexiconVersion` and `cardsVersion`, `scrip
 - `definitionHash` = sha256 (first 16 hex) of the canonical profile definition; it is in the artefact header,
   so the artefact identity is (`lexiconVersion`, profile id, `definitionHash`). Profile content decisions (what a
   season pack contains) belong to `lexicon-curator` + `game-designer`, not to this note.
+- **Option `inflections: all | none`** (E-1.7 D-14, sprint 3 P8). Build-time only: `none` builds canonical forms
+  only, with the same terms, metadata and relations; `all` is the default and is omitted from the canonical
+  definition, so `global-ranked` (which predates the option) keeps its `definitionHash` (`da1f36a3747e0dfe`) and
+  its artefact bytes. Unknown values are refused (`TypeError` in `canonical.mjs`, `VALIDATION_FAILED` in the
+  builder). `profileBuildInput(definition)` derives the builder's profile reference and the hash from one
+  definition, so the option applied is always the one hashed. `global-no-inflections` (`00d1ebcc16bb3489`) is
+  the AC-20 "without inflections" variant: `build:index` builds it, and the simulator builds it with the same
+  builder call, instead of stripping inflections itself. Tests: `test/canonical.test.mjs` (pinned hashes, refused
+  values), `src/index/clxi/clxi.test.ts` (`all` ≡ absent bytes, `none` ≡ stripped document) and
+  `test/build-index.test.mjs` (the real artefacts equal the pre-P8 builds byte for byte).
 
 ### 4.3 Build determinism (same input ⇒ same bytes)
 Inputs sorted (forms by UTF-16 code unit, ids, categories, edges); automaton minimisation assigns node ids in a

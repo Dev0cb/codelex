@@ -263,7 +263,8 @@ added (E-1.5 Q-8 spirit: avoid free text). C-10 and C-11 are also read on humans
   `lexiconVersion` mean two different word sets and break replay determinism (R-CORE-005). The "switch" is
   build-time: a lexicon profile option `inflections: all | none` (part of the profile definition and of its
   `definitionHash`; lexicon-index note §4.2). Profiles shipped: `global` (all) for the playtest; `global-no-inflections`
-  for simulation only (AC-20). Owner of the profile format: `lexicon-engineer` (T1).
+  for simulation only (AC-20). Owner of the profile format: `lexicon-engineer` (T1). Implemented in sprint 3 P8
+  (`NO_INFLECTIONS_PROFILE` in `packages/lexicon/scripts/canonical.mjs`, built by `build:index`; LEXICON_SPEC §7).
 - **Rollout = a new `lexiconVersion` in a new build.** Each playtest build bundles exactly one `lexiconVersion`;
   matches pin it at creation (R-CORE-001); in-progress matches from an older build follow the E-1.5
   `version_mismatch` state. Kill switch for a bad lexicon = `play_vs_bot.enabled` (E-1.5) plus a fix build.

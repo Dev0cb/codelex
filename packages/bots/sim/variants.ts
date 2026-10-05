@@ -6,8 +6,10 @@
  */
 import {
   GLOBAL_PROFILE,
+  NO_INFLECTIONS_PROFILE,
   lexiconContentDocument,
-  profileDefinitionHash,
+  profileBuildInput,
+  type LexiconProfileDefinition,
 } from '@codelex/lexicon/canonical';
 import {
   buildLexiconIndex,
@@ -22,16 +24,10 @@ import { parseRules, RULES_V1, type RulesSelection } from './rules.js';
 import type { Pairing } from './simulate.js';
 
 /**
- * Simulation-only profile (E-1.7 D-14, AC-20): every term, no inflection. The lexicon tooling has no
- * `inflections: none` profile option yet (owner lexicon-engineer); this definition only names the variant and
- * gives it its own definitionHash, so it can never be confused with `global-ranked`.
+ * Simulation-only profile (E-1.7 D-14, AC-20): every term, no inflection. Owned by `@codelex/lexicon`
+ * (`global-no-inflections`, profile option `inflections: none`, built by `build:index`); re-exported here.
  */
-export const NO_INFLECTIONS_PROFILE = Object.freeze({
-  id: 'global-no-inflections',
-  kind: 'global',
-  include: Object.freeze({ all: true }),
-  inflections: 'none',
-});
+export { NO_INFLECTIONS_PROFILE };
 
 export type SuiteId = 'b2' | 'balance-check';
 
@@ -191,12 +187,18 @@ export function parseOptions(args: readonly string[]): Options {
   return options;
 }
 
+/**
+ * Builds and decodes one profile of the real lexicon exactly as `build:index` does (same builder, same
+ * `profileBuildInput`, flags 1): the profile's own options (e.g. `inflections: none`) apply, nothing is
+ * stripped here.
+ */
 function decoded(
   version: string,
-  profile: { readonly id: string; readonly kind: 'global'; readonly definitionHash: string },
+  definition: LexiconProfileDefinition,
   terms: readonly ReferenceTermInput[],
   blocklist: readonly string[],
 ): LexiconIndex {
+  const profile = profileBuildInput(definition);
   const built = buildLexiconIndex(
     { version, profile, document: { terms }, blocklist },
     { formatVersion: 1, gaddag: true },
@@ -216,26 +218,8 @@ export function realVariants(): { readonly with: LexiconIndex; readonly without:
   const terms = lexiconContentDocument(lex).terms;
   const blocklist = [...lex.blocklist];
   return {
-    with: decoded(
-      lex.version,
-      {
-        id: GLOBAL_PROFILE.id,
-        kind: 'global',
-        definitionHash: profileDefinitionHash(GLOBAL_PROFILE),
-      },
-      terms,
-      blocklist,
-    ),
-    without: decoded(
-      lex.version,
-      {
-        id: NO_INFLECTIONS_PROFILE.id,
-        kind: 'global',
-        definitionHash: profileDefinitionHash(NO_INFLECTIONS_PROFILE),
-      },
-      terms.map((t) => ({ ...t, inflections: [] })),
-      blocklist,
-    ),
+    with: decoded(lex.version, GLOBAL_PROFILE, terms, blocklist),
+    without: decoded(lex.version, NO_INFLECTIONS_PROFILE, terms, blocklist),
   };
 }
 

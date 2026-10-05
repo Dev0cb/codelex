@@ -169,6 +169,16 @@ sources (sorted) }] sorted by id }`; it identifies the Knowledge Cards artefact,
 Property tests (`packages/lexicon/test/canonical.test.mjs`) check invariance to all the layout changes above and
 that every playable field changes the version while every display field does not.
 
+**Profiles and `definitionHash`** (lexicon-index note §4.2). An index artefact is identified by (`lexiconVersion`,
+profile id, `definitionHash`), where `definitionHash = hex(SHA-256(UTF-8(JCS(P))))[0..16)` and `P` is the
+canonical profile definition `{ id, kind, include, exclude?, inflections? }` (`canonicalProfileDefinition` in
+`canonical.mjs`). The profile option **`inflections: "all" | "none"`** (E-1.7 D-14) is build-time only:
+`all` (the default) keeps every declared inflection; `none` builds canonical forms only, with the same terms,
+metadata and relations. `all` is omitted from `P`, so spelling it out does not change the hash; any other value
+is refused. There is no runtime switch: the same `lexiconVersion` under another option is another profile.
+Profiles built by `build:index`: `global-ranked` (all; the only one bundled or played) and
+`global-no-inflections` (none; simulation only, AC-20).
+
 ## 8. Schema versions and migrations
 | Term-file `schemaVersion` | Change | Migration |
 |---|---|---|

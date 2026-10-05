@@ -10,6 +10,7 @@ describe('@codelex/lexicon/index public API', () => {
       'FORM_KINDS',
       'GADDAG_SEPARATOR',
       'INFLECTION_KINDS',
+      'INFLECTION_POLICIES',
       'LETTER_COUNT',
       'MAX_FORM_LENGTH',
       'REFERENCE_FORMAT_VERSION',

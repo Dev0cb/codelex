@@ -6,10 +6,16 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
+  BUILT_PROFILES,
+  GLOBAL_PROFILE,
+  NO_INFLECTIONS_PROFILE,
+  canonicalProfileDefinition,
   canonicalize,
   computeCardsVersion,
   computeLexiconVersion,
   lexiconContentDocument,
+  profileBuildInput,
+  profileDefinitionHash,
   sha256Hex16,
 } from '../scripts/canonical.mjs';
 import { loadLexicon, validateLexicon } from '../scripts/validate.mjs';
@@ -495,4 +501,52 @@ test('loadLexicon version is identical across CRLF, indentation, file names and 
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+// ---------- profile definitions (lexicon-index note §4.2, E-1.7 D-14) ----------
+
+test('profile definitionHash: pinned for the built profiles (default artefact identity unchanged)', () => {
+  // global-ranked predates the `inflections` option: its hash must never move (sprint 3 P8).
+  assert.equal(profileDefinitionHash(GLOBAL_PROFILE), 'da1f36a3747e0dfe');
+  // Same value as the simulator's pre-P8 definition (packages/bots/sim/variants.ts before P8).
+  assert.equal(profileDefinitionHash(NO_INFLECTIONS_PROFILE), '00d1ebcc16bb3489');
+  assert.equal(NO_INFLECTIONS_PROFILE.id, 'global-no-inflections');
+  assert.equal(NO_INFLECTIONS_PROFILE.inflections, 'none');
+  assert.equal(GLOBAL_PROFILE.inflections, undefined);
+  assert.deepEqual(BUILT_PROFILES, [GLOBAL_PROFILE, NO_INFLECTIONS_PROFILE]);
+  assert.equal(Object.isFrozen(BUILT_PROFILES), true);
+  for (const p of BUILT_PROFILES) assert.equal(Object.isFrozen(p), true);
+});
+
+test('profile option inflections: `all` is the default and hashes like an absent option; `none` differs', () => {
+  const all = { ...GLOBAL_PROFILE, inflections: 'all' };
+  assert.equal(profileDefinitionHash(all), profileDefinitionHash(GLOBAL_PROFILE));
+  assert.deepEqual(canonicalProfileDefinition(all), canonicalProfileDefinition(GLOBAL_PROFILE));
+  assert.equal('inflections' in canonicalProfileDefinition(GLOBAL_PROFILE), false);
+  const none = { ...GLOBAL_PROFILE, inflections: 'none' };
+  assert.notEqual(profileDefinitionHash(none), profileDefinitionHash(GLOBAL_PROFILE));
+  assert.equal(canonicalProfileDefinition(none).inflections, 'none');
+});
+
+test('profile option inflections: unknown values are refused (fixtures that must fail)', () => {
+  for (const bad of ['All', 'some', '', null, true, 0, ['none']]) {
+    const definition = { ...GLOBAL_PROFILE, inflections: bad };
+    assert.throws(() => profileDefinitionHash(definition), TypeError, String(bad));
+    assert.throws(() => profileBuildInput(definition), TypeError, String(bad));
+  }
+});
+
+test('profileBuildInput: the builder reference carries id, kind, definitionHash and the option', () => {
+  assert.deepEqual(profileBuildInput(GLOBAL_PROFILE), {
+    id: 'global-ranked',
+    kind: 'global',
+    definitionHash: 'da1f36a3747e0dfe',
+    inflections: 'all',
+  });
+  assert.deepEqual(profileBuildInput(NO_INFLECTIONS_PROFILE), {
+    id: 'global-no-inflections',
+    kind: 'global',
+    definitionHash: '00d1ebcc16bb3489',
+    inflections: 'none',
+  });
 });

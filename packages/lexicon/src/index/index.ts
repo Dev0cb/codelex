@@ -29,6 +29,8 @@ export {
   buildDawg,
   buildGaddag,
   buildLexiconIndex,
+  INFLECTION_POLICIES,
+  type InflectionPolicy,
   type DawgTables,
   type GaddagTables,
   type LexiconBuildError,

@@ -160,7 +160,52 @@ export const GLOBAL_PROFILE = Object.freeze({
   include: Object.freeze({ all: true }),
 });
 
+/** Values of the profile option `inflections` (E-1.7 D-14); `all` is the default. */
+export const INFLECTION_POLICIES = Object.freeze(['all', 'none']);
+
+/**
+ * Simulation-only profile (E-1.7 D-14, AC-20): every playable term, canonical forms only. Same lexiconVersion as
+ * `global-ranked`, its own id and definitionHash, so the two can never be confused. Never bundled in an app.
+ */
+export const NO_INFLECTIONS_PROFILE = Object.freeze({
+  id: 'global-no-inflections',
+  kind: 'global',
+  include: Object.freeze({ all: true }),
+  inflections: 'none',
+});
+
+/** Profiles built by `build:index` (lexicon-index note §3.4), in build order. */
+export const BUILT_PROFILES = Object.freeze([GLOBAL_PROFILE, NO_INFLECTIONS_PROFILE]);
+
+/**
+ * Canonical profile definition: the hashed form. `inflections` must be `all` or `none`; the default `all` is
+ * omitted, so a definition that spells it out has the same identity as one that does not (and the
+ * `global-ranked` hash, which predates the option, never moves). Throws TypeError on any other value.
+ */
+export function canonicalProfileDefinition(definition) {
+  const { inflections, ...rest } = definition;
+  if (inflections === undefined || inflections === 'all') return rest;
+  if (inflections === 'none') return { ...rest, inflections };
+  throw new TypeError(
+    `profile ${String(definition.id)}: inflections must be one of ${INFLECTION_POLICIES.join(', ')}`,
+  );
+}
+
 /** definitionHash = sha256 (first 16 hex) of the canonical profile definition (lexicon-index note §4.2). */
 export function profileDefinitionHash(definition) {
-  return sha256Hex16(canonicalize(definition));
+  return sha256Hex16(canonicalize(canonicalProfileDefinition(definition)));
+}
+
+/**
+ * The builder's profile reference (`LexiconBuildInput.profile`), derived from one definition so that the
+ * option the builder applies is always the one covered by `definitionHash`.
+ */
+export function profileBuildInput(definition) {
+  const definitionHash = profileDefinitionHash(definition);
+  return {
+    id: definition.id,
+    kind: definition.kind,
+    definitionHash,
+    inflections: definition.inflections ?? 'all',
+  };
 }
