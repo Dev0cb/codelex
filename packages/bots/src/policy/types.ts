@@ -1,4 +1,4 @@
-import type { Observation, PlaceWordAction } from '@codelex/game-engine';
+import type { EngineContext, Observation, PlaceWordAction } from '@codelex/game-engine';
 import type { Rng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 import type { BoardView } from '../board.js';
@@ -8,6 +8,8 @@ import type { BotBudget, PersonalityData } from '../types.js';
 export interface PolicyInput {
   readonly obs: Observation;
   readonly lexicon: LexiconIndex;
+  /** Context of every `evaluateMove` call: the lexicon and, for a draft rules version, the host's `draft`. */
+  readonly engine: EngineContext;
   readonly rng: Rng;
   readonly budget: BotBudget;
   readonly data: PersonalityData;

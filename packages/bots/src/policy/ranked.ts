@@ -44,7 +44,7 @@ function sample<T>(
 }
 
 export function ranked(input: PolicyInput): PolicyResult {
-  const { obs, lexicon, rng, budget, data, view } = input;
+  const { obs, lexicon, engine, rng, budget, data, view } = input;
 
   // 1. Vocabulary filter.
   let pool: readonly Candidate[] = input.candidates;
@@ -70,7 +70,7 @@ export function ranked(input: PolicyInput): PolicyResult {
   // 3. Evaluate and rank.
   const rankedMoves: Ranked[] = [];
   for (const candidate of shortlist) {
-    const result = evaluateMove(obs, candidate.action, { lexicon });
+    const result = evaluateMove(obs, candidate.action, engine);
     if (!result.ok) continue;
     const { breakdown } = result.value;
     rankedMoves.push({

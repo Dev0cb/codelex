@@ -62,7 +62,7 @@ export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecis
   const failure = checkPreconditions(obs, ctx);
   if (failure !== undefined) return err(failure);
   const seat = obs.seatOnTurn;
-  const data = PERSONALITIES[ctx.personality];
+  const data = ctx.data ?? PERSONALITIES[ctx.personality];
   const view = boardView(obs, getLayout(obs.config.layout), ctx.lexicon);
   const generation = selectGenerator(ctx.lexicon).generate({
     view,
@@ -73,6 +73,10 @@ export function chooseAction(obs: Observation, ctx: BotContext): Result<BotDecis
   const policy = runPolicy(ctx, {
     obs,
     lexicon: ctx.lexicon,
+    engine:
+      ctx.draft === undefined
+        ? { lexicon: ctx.lexicon }
+        : { lexicon: ctx.lexicon, draft: ctx.draft },
     rng: ctx.rng,
     budget: ctx.budget,
     data,

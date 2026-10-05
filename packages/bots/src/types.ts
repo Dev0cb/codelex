@@ -2,7 +2,7 @@
  * Public contract of `@codelex/bots` (docs/architecture/notes/bots-api.md §3, §5.1). Bots see an `Observation`
  * and a context; never a `MatchState`, the seed or the bag (BOT-2, ADR-0013 §D9).
  */
-import type { Action } from '@codelex/game-engine';
+import type { Action, DraftContext } from '@codelex/game-engine';
 import type { Rng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 
@@ -24,6 +24,16 @@ export interface BotContext {
   readonly personality: BotPersonalityId;
   /** Default: `PERSONALITIES[personality].budget`; hosts override only in tests and benchmarks. */
   readonly budget: BotBudget;
+  /**
+   * Draft rules opt-in of the match (ADR-0014 §D4), passed unchanged to every `evaluateMove`. Simulator and tests
+   * only: the host gives the bot the same `draft` it gives `createMatch` / `apply`. Absent for frozen versions.
+   */
+  readonly draft?: DraftContext;
+  /**
+   * Personality data override, simulator yardsticks only (bots-api §5.4 V2-5: BG-2a greedy with
+   * `maxDifficultyRank` 1, no new public id). Default: `PERSONALITIES[personality]`.
+   */
+  readonly data?: PersonalityData;
 }
 
 export interface BotDecision {

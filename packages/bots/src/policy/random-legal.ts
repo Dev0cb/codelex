@@ -8,7 +8,7 @@ import { byKey } from '../movegen/gaddag.js';
 import type { PolicyInput, PolicyResult } from './types.js';
 
 export function randomLegal(input: PolicyInput): PolicyResult {
-  const { obs, lexicon, rng, budget } = input;
+  const { obs, engine, rng, budget } = input;
   const pool = byKey(input.candidates);
   let evaluated = 0;
   while (pool.length > 0) {
@@ -19,7 +19,7 @@ export function randomLegal(input: PolicyInput): PolicyResult {
     const [picked] = pool.splice(i, 1);
     if (picked === undefined) break;
     evaluated += 1;
-    const result = evaluateMove(obs, picked.action, { lexicon });
+    const result = evaluateMove(obs, picked.action, engine);
     if (result.ok) {
       return { action: result.value.action, candidatesEvaluated: evaluated, exhausted: false };
     }
