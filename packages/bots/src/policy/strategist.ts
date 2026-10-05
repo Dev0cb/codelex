@@ -80,7 +80,7 @@ export function rankStrategist(
   s: StrategyData,
   options: StrategistOptions = {},
 ): Scored[] {
-  const { obs, lexicon, view } = input;
+  const { obs, lexicon, engine, view } = input;
   const ablated = options.ablated === true;
   const values = getLetterTable(obs.config.letters).values;
   const squares = getLayout(obs.config.layout).squares;
@@ -91,7 +91,8 @@ export function rankStrategist(
   const unseenValue = countsValue(obs.unseen, values);
   const scored: Scored[] = [];
   for (const candidate of shortlist) {
-    const result = evaluateMove(obs, candidate.action, { lexicon });
+    // The host's engine context: a draft match is evaluated under its own candidate (ADR-0014 §D4).
+    const result = evaluateMove(obs, candidate.action, engine);
     if (!result.ok) continue;
     const { breakdown, leave, goesOut } = result.value;
     const counts = tileCounts(leave);
@@ -201,16 +202,29 @@ export function strategist(
 
   // S-1.3, S-2 Evaluate and rank by U.
   const ranked = rankStrategist(input, shortlist, s, options);
+  // `rankStrategist` drops exactly the candidates the engine refused (instrumentation, I-2).
+  const refused = candidatesEvaluated - ranked.length;
   const best = ranked[0];
   if (best === undefined) {
-    return { action: strategistFallback(obs, obs.seatOnTurn, s), candidatesEvaluated, exhausted };
+    return {
+      action: strategistFallback(obs, obs.seatOnTurn, s),
+      candidatesEvaluated,
+      refused,
+      exhausted,
+    };
   }
 
   // S-4 Voluntary exchange (decided before the draw; no randomness).
   if (options.ablated !== true) {
     const exchange = voluntaryExchange(obs, best, s);
     if (exchange !== undefined) {
-      return { action: exchange, candidatesEvaluated, exhausted, voluntaryExchange: true };
+      return {
+        action: exchange,
+        candidatesEvaluated,
+        refused,
+        exhausted,
+        voluntaryExchange: true,
+      };
     }
   }
 
@@ -218,12 +232,12 @@ export function strategist(
   const top = ranked.slice(0, data.topWeights.length);
   const weights = data.topWeights.slice(0, top.length);
   const totalWeight = weights.reduce((a, b) => a + b, 0);
-  if (totalWeight <= 0) return { action: best.action, candidatesEvaluated, exhausted };
+  if (totalWeight <= 0) return { action: best.action, candidatesEvaluated, refused, exhausted };
   let draw = rng.int(0, totalWeight);
   let picked = 0;
   while (picked < top.length - 1 && draw >= (weights[picked] ?? 0)) {
     draw -= weights[picked] ?? 0;
     picked += 1;
   }
-  return { action: (top[picked] ?? best).action, candidatesEvaluated, exhausted };
+  return { action: (top[picked] ?? best).action, candidatesEvaluated, refused, exhausted };
 }

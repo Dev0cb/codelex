@@ -43,7 +43,7 @@ function sample<T>(
 }
 
 export function ranked(input: PolicyInput): PolicyResult {
-  const { obs, lexicon, rng, budget, data, view } = input;
+  const { obs, lexicon, engine, rng, budget, data, view } = input;
 
   // 1. Vocabulary filter.
   let pool: readonly Candidate[] = input.candidates;
@@ -68,9 +68,13 @@ export function ranked(input: PolicyInput): PolicyResult {
 
   // 3. Evaluate and rank.
   const rankedMoves: Ranked[] = [];
+  let refused = 0;
   for (const candidate of shortlist) {
-    const result = evaluateMove(obs, candidate.action, { lexicon });
-    if (!result.ok) continue;
+    const result = evaluateMove(obs, candidate.action, engine);
+    if (!result.ok) {
+      refused += 1;
+      continue;
+    }
     const { breakdown } = result.value;
     rankedMoves.push({
       action: result.value.action,
@@ -101,12 +105,12 @@ export function ranked(input: PolicyInput): PolicyResult {
       (data.topWeights[i] ?? 0) * (m.mainLength <= data.shortLength ? data.shortMultiplier : 1),
   );
   const totalWeight = weights.reduce((a, b) => a + b, 0);
-  if (totalWeight <= 0) return { action: undefined, candidatesEvaluated, exhausted };
+  if (totalWeight <= 0) return { action: undefined, candidatesEvaluated, refused, exhausted };
   let draw = rng.int(0, totalWeight);
   let picked = 0;
   while (picked < top.length - 1 && draw >= (weights[picked] ?? 0)) {
     draw -= weights[picked] ?? 0;
     picked += 1;
   }
-  return { action: top[picked]?.action, candidatesEvaluated, exhausted };
+  return { action: top[picked]?.action, candidatesEvaluated, refused, exhausted };
 }

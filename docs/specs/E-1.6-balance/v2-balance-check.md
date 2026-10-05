@@ -242,6 +242,19 @@ If B4 has not met its acceptance criteria by **D0+7 (2026-10-11)**, the run may 
   pairing 0 restored) confirms it **before R4 freezes `replays/v2`**. If that confirmation fails, or is not run,
   R4 does not freeze v2 and the build pins v1 (§5.3).
 
+**Pre-run clarification (2026-10-05), I-3 on this path.** This clarifies I-3. It changes no criterion, threshold,
+seed, variant, sample size or class. It is legitimate under §5.4 because no registered run had taken place.
+
+- **Why it is needed.** §3.1 says `BOT_VERSION` 2. A literal I-3 would therefore make every §5.2 run invalid when
+  B4 (which brings `BOT_VERSION` 2) is late, and that is the only case in which this path is used.
+- **The clarification**, recorded by the orchestrator for game-design during the B3 code review (PR #65):
+  - With `greedy` as the primary bot, I-3 accepts `BOT_VERSION` 1 or 2. The value used is recorded in the
+    results JSON.
+  - The decision is always labelled "provisional (greedy proxy)", whichever version ran.
+  - With Strategist as the primary bot, I-3 still requires `BOT_VERSION` 2.
+  - game-designer sign-off 2026-10-05: accepted before any registered run; the registered text is this file at the
+    BC run's prereg blob.
+
 ### 5.3 Procedure, timing and outcomes
 
 D0 = 2026-10-04. **Cutoff D0+9 = 2026-10-13, 23:59 UTC.**
@@ -356,6 +369,8 @@ variant, or swapping the lexicon commit for a later one.
 
 - 2026-10-04 — `game-designer` — Pre-registration (sprint 3 task V1). Master seed `2026100400000e16`. Merged
   before any v2 run.
+- 2026-10-05 — orchestrator (game-design ruling, B3 review) — §5.2 pre-run clarification of I-3: on the greedy
+  path, `BOT_VERSION` 1 or 2 is accepted and recorded. Nothing else changes. Written before any registered run.
 
 ## Orchestrator confirmation (2026-10-04, before any v2 run)
 

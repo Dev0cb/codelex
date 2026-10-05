@@ -6,6 +6,7 @@
 import type { PlaceWordAction, WordScore } from '@codelex/game-engine';
 import { describe, expect, it } from 'vitest';
 import { toJson, toMarkdown } from './report.js';
+import { RULES_V1 } from './rules.js';
 import { isHookedInflection, matchSeed, runSuite, seatsFor, type SuiteSpec } from './simulate.js';
 import { fixed, isqrt, meanTenths, pct, percentile, rateBp, spread, wilsonBp } from './stats.js';
 import { NO_INFLECTIONS_PROFILE, pairingsFor, parseOptions, realVariants } from './variants.js';
@@ -152,8 +153,13 @@ describe('short seeded suite on the real lexicon', () => {
   const spec: SuiteSpec = {
     masterSeed: '2026100300000b02',
     variants: [
-      { id: 'with-inflections', lexicon: lexicons.with, pairings: pairings.with },
-      { id: 'without-inflections', lexicon: lexicons.without, pairings: pairings.without },
+      { id: 'with-inflections', lexicon: lexicons.with, rules: RULES_V1, pairings: pairings.with },
+      {
+        id: 'without-inflections',
+        lexicon: lexicons.without,
+        rules: RULES_V1,
+        pairings: pairings.without,
+      },
     ],
   };
 

@@ -12,14 +12,7 @@ import { randomLegal } from './policy/random-legal.js';
 import { ranked } from './policy/ranked.js';
 import { strategist, type StrategistOptions } from './policy/strategist.js';
 import type { PolicyInput, PolicyResult } from './policy/types.js';
-import type {
-  BotBudget,
-  BotContext,
-  BotDecision,
-  BotError,
-  BotErrorCode,
-  PersonalityData,
-} from './types.js';
+import type { BotBudget, BotContext, BotDecision, BotError, BotErrorCode } from './types.js';
 
 function botError(code: BotErrorCode, message: string): BotError {
   return { kind: 'bot', code, message };
@@ -56,11 +49,11 @@ export function checkPreconditions(obs: Observation, ctx: BotContext): BotError 
   return undefined;
 }
 
-/** Host-side variants for the simulator only (never the app): personality data override and ST-2 ablation. */
-export interface DecideOptions extends StrategistOptions {
-  /** Replaces `PERSONALITIES[ctx.personality]` (e.g. the BG-2a vocabulary-matched greedy, tuning candidates). */
-  readonly data?: PersonalityData;
-}
+/**
+ * Host-side variants for the simulator only (never the app): the ST-2 ablation. The personality data override is
+ * `BotContext.data` (one override path for `chooseAction` and `decide`).
+ */
+export type DecideOptions = StrategistOptions;
 
 /** A decision plus what the readouts need to know about it (spec ST-4b). Not part of the public API. */
 export interface Decided {
@@ -89,7 +82,7 @@ export function decide(
   const failure = checkPreconditions(obs, ctx);
   if (failure !== undefined) return err(failure);
   const seat = obs.seatOnTurn;
-  const data = options.data ?? PERSONALITIES[ctx.personality];
+  const data = ctx.data ?? PERSONALITIES[ctx.personality];
   const view = boardView(obs, getLayout(obs.config.layout), ctx.lexicon);
   const generation = selectGenerator(ctx.lexicon).generate({
     view,
@@ -102,6 +95,10 @@ export function decide(
     {
       obs,
       lexicon: ctx.lexicon,
+      engine:
+        ctx.draft === undefined
+          ? { lexicon: ctx.lexicon }
+          : { lexicon: ctx.lexicon, draft: ctx.draft },
       rng: ctx.rng,
       budget: ctx.budget,
       data,
@@ -115,6 +112,7 @@ export function decide(
       action: policy.action ?? fallbackAction(obs, seat),
       nodesUsed: generation.nodesUsed,
       candidatesEvaluated: policy.candidatesEvaluated,
+      candidatesRefused: policy.refused,
       budgetExhausted: generation.exhausted || policy.exhausted,
     },
     voluntaryExchange: policy.voluntaryExchange === true,

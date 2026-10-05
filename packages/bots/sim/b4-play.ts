@@ -36,7 +36,7 @@ import {
 import { loadLexicon } from '@codelex/lexicon/validate';
 import { codeOf, EMPTY } from '../src/board.js';
 import { decide, type DecideOptions } from '../src/choose.js';
-import { PERSONALITIES, type BotPersonalityId } from '../src/index.js';
+import { PERSONALITIES, type BotPersonalityId, type PersonalityData } from '../src/index.js';
 import { STRATEGIST_STRATEGY } from '../src/personalities.js';
 import { leadOf } from '../src/policy/strategist.js';
 import { isHot, withTiles } from '../src/strategy/lanes.js';
@@ -48,6 +48,8 @@ export interface SimBot {
   /** Report key; equal to the personality for plain bots. */
   readonly id: string;
   readonly personality: BotPersonalityId;
+  /** Personality-data override (`BotContext.data`): tuning candidates. */
+  readonly data?: PersonalityData;
   readonly options?: DecideOptions;
 }
 
@@ -152,7 +154,8 @@ export function playB4Match(
         lexicon,
         rng: deriveRng(seed, `bot:${String(seat)}:${String(obs.actionCount)}`),
         personality: bot.personality,
-        budget: (options.data ?? PERSONALITIES[bot.personality]).budget,
+        budget: (bot.data ?? PERSONALITIES[bot.personality]).budget,
+        ...(bot.data === undefined ? {} : { data: bot.data }),
       },
       options,
     );

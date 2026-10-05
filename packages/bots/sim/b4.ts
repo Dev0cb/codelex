@@ -41,13 +41,14 @@ export function strategistBots(data: PersonalityData = PERSONALITIES.strategist)
   readonly strategist: SimBot;
   readonly ablated: SimBot;
 } {
-  const options: DecideOptions = { data };
+  const ablation: DecideOptions = { ablated: true };
   return {
-    strategist: { id: 'strategist', personality: 'strategist', options },
+    strategist: { id: 'strategist', personality: 'strategist', data },
     ablated: {
       id: 'strategist-ablated',
       personality: 'strategist',
-      options: { ...options, ablated: true },
+      data,
+      options: ablation,
     },
   };
 }

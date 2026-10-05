@@ -101,3 +101,143 @@ export function pct(bp: number): string {
 export function meanTenths(sum: number, n: number): number {
   return n === 0 ? 0 : roundDiv(10 * sum, n);
 }
+
+/** ⌈a / b⌉ for safe integers, b > 0. */
+export function ceilDiv(a: number, b: number): number {
+  return -floorDiv(-a, b);
+}
+
+/** ⌈√n⌉ for a safe integer n ≥ 0. */
+export function ceilSqrt(n: number): number {
+  const r = isqrt(n);
+  return r * r === n ? r : r + 1;
+}
+
+function checked(value: number): number {
+  if (!Number.isSafeInteger(value)) throw new RangeError(`not a safe integer: ${String(value)}`);
+  return value;
+}
+
+function pow10(k: number): number {
+  let p = 1;
+  for (let i = 0; i < k; i += 1) p *= 10;
+  return p;
+}
+
+/** Largest j ≤ 3 with `value · 100^j` a safe integer (extra decimals for a square root). */
+function sqrtDecimals(value: number): number {
+  let j = 0;
+  let scaled = value;
+  while (j < 3 && Number.isSafeInteger(scaled * 100)) {
+    scaled *= 100;
+    j += 1;
+  }
+  return j;
+}
+
+export interface MeanWithCi {
+  readonly n: number;
+  /** Mean of the per-match values, tenths, rounded half up. */
+  readonly meanTenths: number;
+  /** Normal 95 % CI (z = 1.96, sample standard deviation), tenths; lo rounded down, hi rounded up. */
+  readonly ci95: Interval;
+}
+
+/**
+ * Mean of per-match integer values in [0, max] with a normal 95 % CI from the sample standard deviation. `max` is
+ * the largest possible value (C-11: the letter table's tile count), used only to bound the interval
+ * (v2-balance-check §3.2, C-11). With V = nΣx² − (Σx)², half = 1.96·√(V / (n²(n−1))); the root is taken with up
+ * to three extra decimals and rounded up, so the interval is never narrower than the exact one.
+ */
+export function meanCiTenths(values: readonly number[], max: number): MeanWithCi {
+  const n = values.length;
+  let sum = 0;
+  let squares = 0;
+  for (const x of values) {
+    sum = checked(sum + x);
+    squares = checked(squares + x * x);
+  }
+  const mean = meanTenths(sum, n);
+  if (n < 2) return { n, meanTenths: mean, ci95: { lo: 0, hi: 10 * max } };
+  const v = checked(checked(n * squares) - sum * sum);
+  const scale = pow10(sqrtDecimals(v));
+  const s = ceilSqrt(ceilDiv(v * scale * scale, checked(n * n * (n - 1))));
+  const den = checked(10 * scale * n);
+  const centre = checked(100 * scale * sum);
+  const half = checked(196 * s * n);
+  return {
+    n,
+    meanTenths: mean,
+    ci95: {
+      lo: Math.max(0, floorDiv(centre - half, den)),
+      hi: Math.min(10 * max, ceilDiv(centre + half, den)),
+    },
+  };
+}
+
+export interface RatioWithCi {
+  readonly n: number;
+  /** ΣB ÷ ΣT in basis points, rounded half up. */
+  readonly bp: number;
+  /** Delta-method 95 % CI, basis points; lo rounded down, hi rounded up. */
+  readonly ci95: Interval;
+}
+
+const MICRO = 1_000_000;
+
+/**
+ * Ratio of sums R = ΣB / ΣT with the delta-method 95 % CI, the match as the unit (v2-balance-check §3.2, C-05):
+ * SE = √(Σ(Bᵢ − R·Tᵢ)² / (n(n−1))) / T̄, bounds R ± 1.96·SE. Safe integers only (no BigInt, no floats): R is
+ * taken in millionths rounded down, so each residual is known within an interval of width Tᵢ millionths; its
+ * larger magnitude is used and rounded up to the residual unit (10⁻³ point, coarser only if the squares would
+ * overflow). The SE is never underestimated, so the CI is conservative.
+ */
+export function ratioCiBp(b: readonly number[], t: readonly number[]): RatioWithCi {
+  if (b.length !== t.length) throw new RangeError('ratioCiBp: length mismatch');
+  const n = b.length;
+  let sumB = 0;
+  let sumT = 0;
+  for (let i = 0; i < n; i += 1) {
+    sumB = checked(sumB + (b[i] ?? 0));
+    sumT = checked(sumT + (t[i] ?? 0));
+  }
+  const bp = rateBp(sumB, sumT);
+  if (n < 2 || sumT === 0) return { n, bp, ci95: { lo: 0, hi: 10_000 } };
+  const rMicro = floorDiv(checked(sumB * MICRO), sumT);
+  // Residual magnitudes in millionths of a point (upper bounds).
+  const magnitudes: number[] = [];
+  let largest = 0;
+  for (let i = 0; i < n; i += 1) {
+    const ti = t[i] ?? 0;
+    const x = checked((b[i] ?? 0) * MICRO - rMicro * ti);
+    const m = Math.max(Math.abs(x), Math.abs(x - ti));
+    magnitudes.push(m);
+    largest = Math.max(largest, m);
+  }
+  // Residual unit 10^(k−3) point: the smallest k ≥ 0 that keeps n · max² safe.
+  let k = 0;
+  for (;;) {
+    const top = ceilDiv(largest, 1_000 * pow10(k));
+    if (Number.isSafeInteger(n * top * top)) break;
+    k += 1;
+  }
+  const unit = 1_000 * pow10(k);
+  let e = 0;
+  for (const m of magnitudes) {
+    const r = ceilDiv(m, unit);
+    e = checked(e + r * r);
+  }
+  const scale = pow10(Math.min(sqrtDecimals(e), sqrtDecimals(checked(100_000 * sumB))));
+  const s = ceilSqrt(ceilDiv(e * scale * scale, checked(n * (n - 1))));
+  const den = checked(10 * scale * sumT);
+  const centre = checked(100_000 * sumB * scale);
+  const half = checked(196 * n * pow10(k) * s);
+  return {
+    n,
+    bp,
+    ci95: {
+      lo: Math.max(0, floorDiv(centre - half, den)),
+      hi: Math.min(10_000, ceilDiv(centre + half, den)),
+    },
+  };
+}

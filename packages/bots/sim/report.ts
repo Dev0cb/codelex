@@ -72,10 +72,14 @@ function pairingTable(pairings: readonly PairingReport[]): string[] {
       'Words / match',
       'Top-20 share',
       'Inflection share',
-      'C-05 term-bonus share',
+      'C-05 term-bonus share, 95 % CI',
       'C-09 hook share',
+      'C-10 lock with bag ≥ 7',
+      'C-11 tiles played, 95 % CI',
+      'Bag at end 0 / 1–6 / ≥ 7',
+      'Matches with a pass',
     ]),
-    row(Array.from({ length: 16 }, () => '---')),
+    row(Array.from({ length: 20 }, () => '---')),
   ];
   for (const p of pairings) {
     lines.push(
@@ -94,8 +98,12 @@ function pairingTable(pairings: readonly PairingReport[]): string[] {
         tenths(p.wordsPerMatchTenths),
         pct(p.top20TermShareBp),
         pct(p.inflectionShareBp),
-        pct(p.termBonusShareBp),
+        `${pct(p.termBonusShare.bp)} [${fixed(p.termBonusShare.ci95.lo, 2)}, ${fixed(p.termBonusShare.ci95.hi, 2)}]`,
         pct(p.hookTermBonusShareBp),
+        `${pct(p.prematureLock.bp)} (${String(p.prematureLock.k)})`,
+        `${tenths(p.tilesPlayed.meanTenths)} [${tenths(p.tilesPlayed.ci95.lo)}, ${tenths(p.tilesPlayed.ci95.hi)}]`,
+        `${String(p.bagAtEnd.empty)} / ${String(p.bagAtEnd.oneToSix)} / ${String(p.bagAtEnd.sevenPlus)}`,
+        String(p.matchesWithPass),
       ]),
     );
   }
@@ -113,10 +121,11 @@ function personalityTable(pairings: readonly PairingReport[]): string[] {
       'Mean score',
       'Novice+intermediate main words',
       'Budget exhausted',
+      'Fallbacks after evaluation',
       'Nodes p50 / p95 / max',
       'Evaluated p50 / p95 / max',
     ]),
-    row(Array.from({ length: 10 }, () => '---')),
+    row(Array.from({ length: 11 }, () => '---')),
   ];
   for (const p of pairings) {
     for (const s of p.personalities) lines.push(personalityRow(p.id, s));
@@ -134,6 +143,7 @@ function personalityRow(pairing: string, s: PersonalityStats): string {
     tenths(s.meanScoreTenths),
     pct(s.noviceOrIntermediateBp),
     `${String(s.budgetExhausted)} (${pct(s.budgetExhaustedBp)})`,
+    String(s.fallbacksAfterEvaluation),
     `${String(s.nodes.p50)} / ${String(s.nodes.p95)} / ${String(s.nodes.max)}`,
     `${String(s.candidatesEvaluated.p50)} / ${String(s.candidatesEvaluated.p95)} / ${String(s.candidatesEvaluated.max)}`,
   ]);
@@ -142,7 +152,7 @@ function personalityRow(pairing: string, s: PersonalityStats): string {
 /** Markdown tables of a suite report (pasted into the readout under docs/). */
 export function toMarkdown(report: SuiteReport): string {
   const lines: string[] = [
-    `BOT_VERSION ${String(report.botVersion)}, engineRulesVersion ${String(report.engineRulesVersion)}, master seed \`${report.masterSeed}\`, ${String(report.matches)} matches, every match replayed to identical hashes.`,
+    `BOT_VERSION ${String(report.botVersion)}, master seed \`${report.masterSeed}\`, ${String(report.matches)} matches, every match replayed to identical hashes.`,
     '',
   ];
   for (const v of report.variants) {
@@ -150,6 +160,8 @@ export function toMarkdown(report: SuiteReport): string {
       `### ${v.id}`,
       '',
       `Lexicon \`${v.lexiconVersion}\`, profile \`${v.profileId}\` (\`${v.definitionHash}\`), ${String(v.forms)} forms / ${String(v.terms)} terms, ${v.automaton} generation.`,
+      '',
+      `Rules: engineRulesVersion ${String(v.rules.engineRulesVersion)} (${v.rules.status}, GAME_RULES ${v.rules.gameRules}), candidate \`${v.rules.candidate}\`, ${v.rules.layout} / ${v.rules.letters}, term bonus ${v.rules.termBonus.join('/')}, rulesDigest \`${v.rules.rulesDigest}\`.`,
       '',
       ...pairingTable(v.pairings),
       '',

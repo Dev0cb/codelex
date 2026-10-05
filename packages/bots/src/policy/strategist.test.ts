@@ -40,7 +40,7 @@ function run(
   obs: Observation,
   lexicon: LexiconIndex,
   rng: Rng = scriptedRng([0]),
-  options: DecideOptions = {},
+  options: DecideOptions & { readonly data?: PersonalityData } = {},
   budget = DATA.budget,
 ): {
   readonly action: string;
@@ -49,7 +49,9 @@ function run(
   readonly exhausted: boolean;
   readonly evaluated: number;
 } {
-  const result = decide(obs, contextFor(lexicon, 'strategist', rng, budget), options);
+  const { data, ...decideOptions } = options;
+  const ctx = contextFor(lexicon, 'strategist', rng, budget);
+  const result = decide(obs, data === undefined ? ctx : { ...ctx, data }, decideOptions);
   if (!result.ok) throw new Error(result.error.code);
   const { action, budgetExhausted, candidatesEvaluated } = result.value.decision;
   if (action.type === 'RESIGN') throw new Error('never resigns');
@@ -71,6 +73,7 @@ function ranking(
   const input: PolicyInput = {
     obs,
     lexicon,
+    engine: { lexicon },
     rng: scriptedRng([]),
     budget: DATA.budget,
     data: DATA,
