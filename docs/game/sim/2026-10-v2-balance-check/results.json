@@ -1,0 +1,3912 @@
+{
+  "readout": {
+    "preRegistration": "docs/specs/E-1.6-balance/v2-balance-check.md",
+    "masterSeed": "2026100400000e16",
+    "botVersion": 2,
+    "primary": "strategist",
+    "provisional": false,
+    "provenance": {
+      "codeCommit": "9ae17989a91ddaa744e7e6c8b2f972008cb7c0ff",
+      "lexiconCommit": "b3ab7bbccc86e2a41c6b632f3eb9fd758a163a19",
+      "preRegistrationBlob": "ee714c6a4e9d0361eb067d651e82738a81892acb"
+    },
+    "run": {
+      "engineRulesVersions": [1, 2],
+      "strategistBudget": {
+        "maxNodes": 70000,
+        "maxCandidates": 500
+      },
+      "wallTimeSeconds": 1161,
+      "lexiconVersion": "e568477b5592a994",
+      "profileId": "global-ranked",
+      "definitionHash": "da1f36a3747e0dfe"
+    },
+    "integrity": [
+      {
+        "id": "I-1",
+        "holds": true,
+        "problems": []
+      },
+      {
+        "id": "I-2",
+        "holds": true,
+        "problems": []
+      },
+      {
+        "id": "I-3",
+        "holds": true,
+        "problems": []
+      }
+    ],
+    "valid": true,
+    "variants": [
+      {
+        "id": "v1",
+        "role": "baseline",
+        "engineRulesVersion": 1,
+        "candidate": "none",
+        "layout": "classic-v1",
+        "rulesDigest": "32c2abd097ccdb78",
+        "criteria": [
+          {
+            "id": "P-1",
+            "metric": "B-01 first-player win rate (draws excluded)",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 5234,
+            "lo": 5136,
+            "hi": 5333,
+            "rule": "CI within [4800, 5200]",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-2",
+            "metric": "C-05 term-bonus share of PlaceWord points",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 4311,
+            "lo": 4304,
+            "hi": 4318,
+            "rule": "upper CI <= 3500",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-3",
+            "metric": "C-02 no-PlaceWord turns, bag not empty",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 639,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 1500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-4",
+            "metric": "C-10 R-TURN-004 endings with bag >= 7",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 148,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-5",
+            "metric": "C-11 mean tiles played per match",
+            "pairings": [0],
+            "class": "L",
+            "unit": "tenths",
+            "value": 926,
+            "lo": 924,
+            "hi": 928,
+            "rule": "point >= 900",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-6",
+            "metric": "Top-20 terms share of main words",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 2580,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 4000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "S-1",
+            "metric": "B-01 first-player win rate, Beginner mirror",
+            "pairings": [1],
+            "class": "R",
+            "unit": "bp",
+            "value": 5127,
+            "lo": 5028,
+            "hi": 5225,
+            "rule": "FAIL if lo > 5200 or hi < 4800",
+            "verdict": "PASS"
+          },
+          {
+            "id": "B-07",
+            "metric": "Strategist win rate vs Beginner (draws excluded)",
+            "pairings": [2],
+            "class": "K",
+            "unit": "bp",
+            "value": 8167,
+            "lo": 7990,
+            "hi": 8331,
+            "rule": "lower CI >= 6000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-1",
+            "metric": "Beginner win rate vs random-legal",
+            "pairings": [3],
+            "class": "K",
+            "unit": "bp",
+            "value": 9097,
+            "lo": 8962,
+            "hi": 9215,
+            "rule": "point >= 8000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-2a",
+            "metric": "Vocabulary-matched greedy win rate vs Beginner",
+            "pairings": [4],
+            "class": "K",
+            "unit": "bp",
+            "value": 6880,
+            "lo": 6672,
+            "hi": 7081,
+            "rule": "point in [6500, 8500]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-3",
+            "metric": "Beginner points per word / full greedy points per word",
+            "pairings": [5],
+            "class": "K",
+            "unit": "bp",
+            "value": 7208,
+            "lo": null,
+            "hi": null,
+            "rule": "point in [5500, 7500]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-4",
+            "metric": "Beginner main words novice or intermediate",
+            "pairings": [5],
+            "class": "K",
+            "unit": "bp",
+            "value": 9506,
+            "lo": null,
+            "hi": null,
+            "rule": "point >= 9000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-5",
+            "metric": "Beginner budgetExhausted decisions",
+            "pairings": [1, 3, 4, 5],
+            "class": "K",
+            "unit": "bp",
+            "value": 0,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 100",
+            "verdict": "PASS"
+          }
+        ],
+        "passes": false,
+        "blocking": ["P-1", "P-2"],
+        "reported": {
+          "draws": 60,
+          "noWordTurnAllBp": 1649,
+          "bagAtEnd": {
+            "empty": 9377,
+            "oneToSix": 475,
+            "sevenPlus": 148
+          },
+          "matchesWithPass": 9377,
+          "c11CiLoTenths": 924,
+          "c11CiHiTenths": 928,
+          "c05CiLoBp": 4304,
+          "firstMoverLeadTenths": 51,
+          "pointsPerWordTenths": 200,
+          "inflectionShareBp": 347,
+          "hookTermBonusShareBp": 431,
+          "bg2bBp": 9520
+        }
+      },
+      {
+        "id": "v2-3612",
+        "role": "candidate",
+        "engineRulesVersion": 2,
+        "candidate": "tb-0-3-6-12",
+        "layout": "classic-v2",
+        "rulesDigest": "adecc93a11f54736",
+        "criteria": [
+          {
+            "id": "P-1",
+            "metric": "B-01 first-player win rate (draws excluded)",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 5059,
+            "lo": 4961,
+            "hi": 5158,
+            "rule": "CI within [4800, 5200]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-2",
+            "metric": "C-05 term-bonus share of PlaceWord points",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 3629,
+            "lo": 3622,
+            "hi": 3636,
+            "rule": "upper CI <= 3500",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-3",
+            "metric": "C-02 no-PlaceWord turns, bag not empty",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 462,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 1500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-4",
+            "metric": "C-10 R-TURN-004 endings with bag >= 7",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 80,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-5",
+            "metric": "C-11 mean tiles played per match",
+            "pairings": [0],
+            "class": "L",
+            "unit": "tenths",
+            "value": 941,
+            "lo": 940,
+            "hi": 943,
+            "rule": "point >= 900",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-6",
+            "metric": "Top-20 terms share of main words",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 2388,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 4000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "S-1",
+            "metric": "B-01 first-player win rate, Beginner mirror",
+            "pairings": [1],
+            "class": "R",
+            "unit": "bp",
+            "value": 4879,
+            "lo": 4780,
+            "hi": 4978,
+            "rule": "FAIL if lo > 5200 or hi < 4800",
+            "verdict": "PASS"
+          },
+          {
+            "id": "B-07",
+            "metric": "Strategist win rate vs Beginner (draws excluded)",
+            "pairings": [2],
+            "class": "K",
+            "unit": "bp",
+            "value": 8249,
+            "lo": 8075,
+            "hi": 8410,
+            "rule": "lower CI >= 6000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-1",
+            "metric": "Beginner win rate vs random-legal",
+            "pairings": [3],
+            "class": "K",
+            "unit": "bp",
+            "value": 9424,
+            "lo": 9313,
+            "hi": 9519,
+            "rule": "point >= 8000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-2a",
+            "metric": "Vocabulary-matched greedy win rate vs Beginner",
+            "pairings": [4],
+            "class": "K",
+            "unit": "bp",
+            "value": 6759,
+            "lo": 6549,
+            "hi": 6962,
+            "rule": "point in [6500, 8500]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-3",
+            "metric": "Beginner points per word / full greedy points per word",
+            "pairings": [5],
+            "class": "K",
+            "unit": "bp",
+            "value": 7256,
+            "lo": null,
+            "hi": null,
+            "rule": "point in [5500, 7500]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-4",
+            "metric": "Beginner main words novice or intermediate",
+            "pairings": [5],
+            "class": "K",
+            "unit": "bp",
+            "value": 9619,
+            "lo": null,
+            "hi": null,
+            "rule": "point >= 9000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-5",
+            "metric": "Beginner budgetExhausted decisions",
+            "pairings": [1, 3, 4, 5],
+            "class": "K",
+            "unit": "bp",
+            "value": 0,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 100",
+            "verdict": "PASS"
+          }
+        ],
+        "passes": false,
+        "blocking": ["P-2"],
+        "reported": {
+          "draws": 62,
+          "noWordTurnAllBp": 1472,
+          "bagAtEnd": {
+            "empty": 9689,
+            "oneToSix": 231,
+            "sevenPlus": 80
+          },
+          "matchesWithPass": 8812,
+          "c11CiLoTenths": 940,
+          "c11CiHiTenths": 943,
+          "c05CiLoBp": 3622,
+          "firstMoverLeadTenths": 8,
+          "pointsPerWordTenths": 181,
+          "inflectionShareBp": 520,
+          "hookTermBonusShareBp": 505,
+          "bg2bBp": 9524
+        }
+      },
+      {
+        "id": "v2-248",
+        "role": "candidate",
+        "engineRulesVersion": 2,
+        "candidate": "tb-0-2-4-8",
+        "layout": "classic-v2",
+        "rulesDigest": "adecc93a11f54736",
+        "criteria": [
+          {
+            "id": "P-1",
+            "metric": "B-01 first-player win rate (draws excluded)",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 5113,
+            "lo": 5014,
+            "hi": 5212,
+            "rule": "CI within [4800, 5200]",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-2",
+            "metric": "C-05 term-bonus share of PlaceWord points",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 2584,
+            "lo": 2578,
+            "hi": 2590,
+            "rule": "upper CI <= 3500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-3",
+            "metric": "C-02 no-PlaceWord turns, bag not empty",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 442,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 1500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-4",
+            "metric": "C-10 R-TURN-004 endings with bag >= 7",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 81,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-5",
+            "metric": "C-11 mean tiles played per match",
+            "pairings": [0],
+            "class": "L",
+            "unit": "tenths",
+            "value": 945,
+            "lo": 943,
+            "hi": 947,
+            "rule": "point >= 900",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-6",
+            "metric": "Top-20 terms share of main words",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 2238,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 4000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "S-1",
+            "metric": "B-01 first-player win rate, Beginner mirror",
+            "pairings": [1],
+            "class": "R",
+            "unit": "bp",
+            "value": 4873,
+            "lo": 4775,
+            "hi": 4972,
+            "rule": "FAIL if lo > 5200 or hi < 4800",
+            "verdict": "PASS"
+          },
+          {
+            "id": "B-07",
+            "metric": "Strategist win rate vs Beginner (draws excluded)",
+            "pairings": [2],
+            "class": "K",
+            "unit": "bp",
+            "value": 7921,
+            "lo": 7736,
+            "hi": 8094,
+            "rule": "lower CI >= 6000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-1",
+            "metric": "Beginner win rate vs random-legal",
+            "pairings": [3],
+            "class": "K",
+            "unit": "bp",
+            "value": 9485,
+            "lo": 9378,
+            "hi": 9574,
+            "rule": "point >= 8000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-2a",
+            "metric": "Vocabulary-matched greedy win rate vs Beginner",
+            "pairings": [4],
+            "class": "K",
+            "unit": "bp",
+            "value": 6700,
+            "lo": 6490,
+            "hi": 6904,
+            "rule": "point in [6500, 8500]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-3",
+            "metric": "Beginner points per word / full greedy points per word",
+            "pairings": [5],
+            "class": "K",
+            "unit": "bp",
+            "value": 7470,
+            "lo": null,
+            "hi": null,
+            "rule": "point in [5500, 7500]",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-4",
+            "metric": "Beginner main words novice or intermediate",
+            "pairings": [5],
+            "class": "K",
+            "unit": "bp",
+            "value": 9615,
+            "lo": null,
+            "hi": null,
+            "rule": "point >= 9000",
+            "verdict": "PASS"
+          },
+          {
+            "id": "BG-5",
+            "metric": "Beginner budgetExhausted decisions",
+            "pairings": [1, 3, 4, 5],
+            "class": "K",
+            "unit": "bp",
+            "value": 1,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 100",
+            "verdict": "PASS"
+          }
+        ],
+        "passes": false,
+        "blocking": ["P-1"],
+        "reported": {
+          "draws": 57,
+          "noWordTurnAllBp": 1420,
+          "bagAtEnd": {
+            "empty": 9731,
+            "oneToSix": 188,
+            "sevenPlus": 81
+          },
+          "matchesWithPass": 8538,
+          "c11CiLoTenths": 943,
+          "c11CiHiTenths": 947,
+          "c05CiLoBp": 2578,
+          "firstMoverLeadTenths": 7,
+          "pointsPerWordTenths": 158,
+          "inflectionShareBp": 574,
+          "hookTermBonusShareBp": 514,
+          "bg2bBp": 9232
+        }
+      },
+      {
+        "id": "dx-dw-3612",
+        "role": "diagnostic",
+        "engineRulesVersion": 2,
+        "candidate": "tb-0-3-6-12",
+        "layout": "classic-v1",
+        "rulesDigest": "adecc93a11f54736",
+        "criteria": [
+          {
+            "id": "P-1",
+            "metric": "B-01 first-player win rate (draws excluded)",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 5403,
+            "lo": 5304,
+            "hi": 5501,
+            "rule": "CI within [4800, 5200]",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-2",
+            "metric": "C-05 term-bonus share of PlaceWord points",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 3594,
+            "lo": 3587,
+            "hi": 3601,
+            "rule": "upper CI <= 3500",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-3",
+            "metric": "C-02 no-PlaceWord turns, bag not empty",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 455,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 1500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-4",
+            "metric": "C-10 R-TURN-004 endings with bag >= 7",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 85,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-5",
+            "metric": "C-11 mean tiles played per match",
+            "pairings": [0],
+            "class": "L",
+            "unit": "tenths",
+            "value": 941,
+            "lo": 940,
+            "hi": 943,
+            "rule": "point >= 900",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-6",
+            "metric": "Top-20 terms share of main words",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 2377,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 4000",
+            "verdict": "PASS"
+          }
+        ],
+        "passes": null,
+        "blocking": ["P-1", "P-2"],
+        "reported": {
+          "draws": 55,
+          "noWordTurnAllBp": 1458,
+          "bagAtEnd": {
+            "empty": 9684,
+            "oneToSix": 231,
+            "sevenPlus": 85
+          },
+          "matchesWithPass": 8762,
+          "c11CiLoTenths": 940,
+          "c11CiHiTenths": 943,
+          "c05CiLoBp": 3587,
+          "firstMoverLeadTenths": 57,
+          "pointsPerWordTenths": 182,
+          "inflectionShareBp": 524,
+          "hookTermBonusShareBp": 509,
+          "bg2bBp": null
+        }
+      },
+      {
+        "id": "dx-dw-248",
+        "role": "diagnostic",
+        "engineRulesVersion": 2,
+        "candidate": "tb-0-2-4-8",
+        "layout": "classic-v1",
+        "rulesDigest": "adecc93a11f54736",
+        "criteria": [
+          {
+            "id": "P-1",
+            "metric": "B-01 first-player win rate (draws excluded)",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 5406,
+            "lo": 5307,
+            "hi": 5504,
+            "rule": "CI within [4800, 5200]",
+            "verdict": "FAIL"
+          },
+          {
+            "id": "P-2",
+            "metric": "C-05 term-bonus share of PlaceWord points",
+            "pairings": [0],
+            "class": "R",
+            "unit": "bp",
+            "value": 2556,
+            "lo": 2550,
+            "hi": 2562,
+            "rule": "upper CI <= 3500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-3",
+            "metric": "C-02 no-PlaceWord turns, bag not empty",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 434,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 1500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-4",
+            "metric": "C-10 R-TURN-004 endings with bag >= 7",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 79,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 500",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-5",
+            "metric": "C-11 mean tiles played per match",
+            "pairings": [0],
+            "class": "L",
+            "unit": "tenths",
+            "value": 946,
+            "lo": 944,
+            "hi": 947,
+            "rule": "point >= 900",
+            "verdict": "PASS"
+          },
+          {
+            "id": "P-6",
+            "metric": "Top-20 terms share of main words",
+            "pairings": [0],
+            "class": "L",
+            "unit": "bp",
+            "value": 2226,
+            "lo": null,
+            "hi": null,
+            "rule": "point <= 4000",
+            "verdict": "PASS"
+          }
+        ],
+        "passes": null,
+        "blocking": ["P-1"],
+        "reported": {
+          "draws": 62,
+          "noWordTurnAllBp": 1419,
+          "bagAtEnd": {
+            "empty": 9758,
+            "oneToSix": 163,
+            "sevenPlus": 79
+          },
+          "matchesWithPass": 8507,
+          "c11CiLoTenths": 944,
+          "c11CiHiTenths": 947,
+          "c05CiLoBp": 2550,
+          "firstMoverLeadTenths": 60,
+          "pointsPerWordTenths": 160,
+          "inflectionShareBp": 576,
+          "hookTermBonusShareBp": 512,
+          "bg2bBp": null
+        }
+      }
+    ],
+    "pairedDifferences": [
+      {
+        "a": "v2-3612",
+        "b": "v2-248",
+        "metric": "B-01",
+        "unit": "bp",
+        "diff": -54
+      },
+      {
+        "a": "v2-3612",
+        "b": "v2-248",
+        "metric": "C-05",
+        "unit": "bp",
+        "diff": 1045
+      },
+      {
+        "a": "v2-3612",
+        "b": "v2-248",
+        "metric": "C-02",
+        "unit": "bp",
+        "diff": 20
+      },
+      {
+        "a": "v2-3612",
+        "b": "v2-248",
+        "metric": "C-10",
+        "unit": "bp",
+        "diff": -1
+      },
+      {
+        "a": "v2-3612",
+        "b": "v2-248",
+        "metric": "C-11",
+        "unit": "tenths",
+        "diff": -4
+      },
+      {
+        "a": "v2-3612",
+        "b": "v2-248",
+        "metric": "top-20",
+        "unit": "bp",
+        "diff": 150
+      },
+      {
+        "a": "v2-3612",
+        "b": "v1",
+        "metric": "B-01",
+        "unit": "bp",
+        "diff": -175
+      },
+      {
+        "a": "v2-3612",
+        "b": "v1",
+        "metric": "C-05",
+        "unit": "bp",
+        "diff": -682
+      },
+      {
+        "a": "v2-3612",
+        "b": "v1",
+        "metric": "C-02",
+        "unit": "bp",
+        "diff": -177
+      },
+      {
+        "a": "v2-3612",
+        "b": "v1",
+        "metric": "C-10",
+        "unit": "bp",
+        "diff": -68
+      },
+      {
+        "a": "v2-3612",
+        "b": "v1",
+        "metric": "C-11",
+        "unit": "tenths",
+        "diff": 15
+      },
+      {
+        "a": "v2-3612",
+        "b": "v1",
+        "metric": "top-20",
+        "unit": "bp",
+        "diff": -192
+      },
+      {
+        "a": "v2-248",
+        "b": "v1",
+        "metric": "B-01",
+        "unit": "bp",
+        "diff": -121
+      },
+      {
+        "a": "v2-248",
+        "b": "v1",
+        "metric": "C-05",
+        "unit": "bp",
+        "diff": -1727
+      },
+      {
+        "a": "v2-248",
+        "b": "v1",
+        "metric": "C-02",
+        "unit": "bp",
+        "diff": -197
+      },
+      {
+        "a": "v2-248",
+        "b": "v1",
+        "metric": "C-10",
+        "unit": "bp",
+        "diff": -67
+      },
+      {
+        "a": "v2-248",
+        "b": "v1",
+        "metric": "C-11",
+        "unit": "tenths",
+        "diff": 19
+      },
+      {
+        "a": "v2-248",
+        "b": "v1",
+        "metric": "top-20",
+        "unit": "bp",
+        "diff": -342
+      },
+      {
+        "a": "v2-3612",
+        "b": "dx-dw-3612",
+        "metric": "B-01",
+        "unit": "bp",
+        "diff": -344
+      },
+      {
+        "a": "v2-3612",
+        "b": "dx-dw-3612",
+        "metric": "C-05",
+        "unit": "bp",
+        "diff": 35
+      },
+      {
+        "a": "v2-3612",
+        "b": "dx-dw-3612",
+        "metric": "C-02",
+        "unit": "bp",
+        "diff": 7
+      },
+      {
+        "a": "v2-3612",
+        "b": "dx-dw-3612",
+        "metric": "C-10",
+        "unit": "bp",
+        "diff": -5
+      },
+      {
+        "a": "v2-3612",
+        "b": "dx-dw-3612",
+        "metric": "C-11",
+        "unit": "tenths",
+        "diff": 0
+      },
+      {
+        "a": "v2-3612",
+        "b": "dx-dw-3612",
+        "metric": "top-20",
+        "unit": "bp",
+        "diff": 11
+      },
+      {
+        "a": "v2-248",
+        "b": "dx-dw-248",
+        "metric": "B-01",
+        "unit": "bp",
+        "diff": -293
+      },
+      {
+        "a": "v2-248",
+        "b": "dx-dw-248",
+        "metric": "C-05",
+        "unit": "bp",
+        "diff": 28
+      },
+      {
+        "a": "v2-248",
+        "b": "dx-dw-248",
+        "metric": "C-02",
+        "unit": "bp",
+        "diff": 8
+      },
+      {
+        "a": "v2-248",
+        "b": "dx-dw-248",
+        "metric": "C-10",
+        "unit": "bp",
+        "diff": 2
+      },
+      {
+        "a": "v2-248",
+        "b": "dx-dw-248",
+        "metric": "C-11",
+        "unit": "tenths",
+        "diff": -1
+      },
+      {
+        "a": "v2-248",
+        "b": "dx-dw-248",
+        "metric": "top-20",
+        "unit": "bp",
+        "diff": 12
+      }
+    ],
+    "outcome": {
+      "decision": "v1 fallback (B-01 risk recorded)",
+      "path": ["rule 1: v2-3612 fails", "rule 2: v2-248 fails", "rule 3: v1 fallback (\u00a75.3)"]
+    }
+  },
+  "suite": {
+    "botVersion": 2,
+    "engineRulesVersions": [1, 2],
+    "strategistBudget": {
+      "maxNodes": 70000,
+      "maxCandidates": 500
+    },
+    "masterSeed": "2026100400000e16",
+    "matches": 104000,
+    "variants": [
+      {
+        "id": "v1",
+        "lexiconVersion": "e568477b5592a994",
+        "profileId": "global-ranked",
+        "definitionHash": "da1f36a3747e0dfe",
+        "forms": 2154,
+        "terms": 1432,
+        "automaton": "gaddag",
+        "rules": {
+          "engineRulesVersion": 1,
+          "status": "frozen",
+          "gameRules": "0.3.1",
+          "candidate": "none",
+          "layout": "classic-v1",
+          "letters": "letters-v1",
+          "termBonus": [0, 4, 8, 16],
+          "rulesDigest": "32c2abd097ccdb78"
+        },
+        "pairings": [
+          {
+            "id": "strategist-mirror",
+            "index": 0,
+            "a": "strategist",
+            "b": "strategist",
+            "matches": 10000,
+            "draws": 60,
+            "firstPlayerWin": {
+              "k": 5203,
+              "n": 9940,
+              "bp": 5234,
+              "ci95": {
+                "lo": 5136,
+                "hi": 5333
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 887,
+              "scoreless_turns": 9113,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9113,
+            "noWordTurnBp": 1649,
+            "noWordTurnBagNotEmptyBp": 639,
+            "bagEmptyAtEndBp": 9377,
+            "bagAtEnd": {
+              "empty": 9377,
+              "oneToSix": 475,
+              "sevenPlus": 148,
+              "spread": {
+                "p50": 0,
+                "p95": 2,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 148,
+              "n": 10000,
+              "bp": 148,
+              "ci95": {
+                "lo": 126,
+                "hi": 174
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 926,
+              "ci95": {
+                "lo": 924,
+                "hi": 928
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 9377,
+            "rackTilesAtEnd": {
+              "p50": 6,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 8043,
+            "meanFirstMoverLeadTenths": 51,
+            "wordsPerMatchTenths": 412,
+            "actionsPerMatch": {
+              "p50": 49,
+              "p95": 57,
+              "max": 69
+            },
+            "top20TermShareBp": 2580,
+            "distinctTermsPlayed": 945,
+            "inflectionShareBp": 347,
+            "termBonusShareBp": 4311,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 4311,
+              "ci95": {
+                "lo": 4304,
+                "hi": 4318
+              }
+            },
+            "hookTermBonusShareBp": 431,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 493626,
+                "placeWord": 412211,
+                "placeWordPoints": 8251168,
+                "exchange": 21333,
+                "pass": 60082,
+                "noWordBp": 1649,
+                "budgetExhausted": 1625,
+                "budgetExhaustedBp": 33,
+                "fallbacksAfterEvaluation": 15701,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1194,
+                  "p95": 12165,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 12,
+                  "p95": 140,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 200,
+                "noviceOrIntermediateBp": 5295,
+                "meanScoreTenths": 4022
+              }
+            ],
+            "replayVerified": 10000
+          },
+          {
+            "id": "beginner-mirror",
+            "index": 1,
+            "a": "beginner",
+            "b": "beginner",
+            "matches": 10000,
+            "draws": 58,
+            "firstPlayerWin": {
+              "k": 5097,
+              "n": 9942,
+              "bp": 5127,
+              "ci95": {
+                "lo": 5028,
+                "hi": 5225
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 580,
+              "scoreless_turns": 9420,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9420,
+            "noWordTurnBp": 1427,
+            "noWordTurnBagNotEmptyBp": 361,
+            "bagEmptyAtEndBp": 9199,
+            "bagAtEnd": {
+              "empty": 9199,
+              "oneToSix": 649,
+              "sevenPlus": 152,
+              "spread": {
+                "p50": 0,
+                "p95": 3,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 152,
+              "n": 10000,
+              "bp": 152,
+              "ci95": {
+                "lo": 129,
+                "hi": 178
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 920,
+              "ci95": {
+                "lo": 919,
+                "hi": 922
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 9,
+              "max": 14
+            },
+            "matchesWithPass": 9591,
+            "rackTilesAtEnd": {
+              "p50": 7,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 7059,
+            "meanFirstMoverLeadTenths": 22,
+            "wordsPerMatchTenths": 432,
+            "actionsPerMatch": {
+              "p50": 50,
+              "p95": 57,
+              "max": 74
+            },
+            "top20TermShareBp": 3027,
+            "distinctTermsPlayed": 838,
+            "inflectionShareBp": 525,
+            "termBonusShareBp": 3709,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 3709,
+              "ci95": {
+                "lo": 3702,
+                "hi": 3716
+              }
+            },
+            "hookTermBonusShareBp": 375,
+            "personalities": [
+              {
+                "personality": "beginner",
+                "decisions": 504309,
+                "placeWord": 432321,
+                "placeWordPoints": 7297000,
+                "exchange": 9074,
+                "pass": 62914,
+                "noWordBp": 1427,
+                "budgetExhausted": 15,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 937,
+                  "p95": 3210,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 5,
+                  "p95": 39,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 169,
+                "noviceOrIntermediateBp": 9399,
+                "meanScoreTenths": 3529
+              }
+            ],
+            "replayVerified": 10000
+          },
+          {
+            "id": "strategist-vs-beginner",
+            "index": 2,
+            "a": "strategist",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 9,
+            "firstPlayerWin": {
+              "k": 1021,
+              "n": 1991,
+              "bp": 5128,
+              "ci95": {
+                "lo": 4908,
+                "hi": 5348
+              }
+            },
+            "aWin": {
+              "k": 1626,
+              "n": 1991,
+              "bp": 8167,
+              "ci95": {
+                "lo": 7990,
+                "hi": 8331
+              }
+            },
+            "endReasons": {
+              "going_out": 148,
+              "scoreless_turns": 1852,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9260,
+            "noWordTurnBp": 1532,
+            "noWordTurnBagNotEmptyBp": 501,
+            "bagEmptyAtEndBp": 9220,
+            "bagAtEnd": {
+              "empty": 1844,
+              "oneToSix": 124,
+              "sevenPlus": 32,
+              "spread": {
+                "p50": 0,
+                "p95": 2,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 32,
+              "n": 2000,
+              "bp": 160,
+              "ci95": {
+                "lo": 113,
+                "hi": 225
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 922,
+              "ci95": {
+                "lo": 919,
+                "hi": 925
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1901,
+            "rackTilesAtEnd": {
+              "p50": 7,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 7534,
+            "meanFirstMoverLeadTenths": 23,
+            "wordsPerMatchTenths": 424,
+            "actionsPerMatch": {
+              "p50": 50,
+              "p95": 57,
+              "max": 70
+            },
+            "top20TermShareBp": 2575,
+            "distinctTermsPlayed": 777,
+            "inflectionShareBp": 429,
+            "termBonusShareBp": 4034,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 4034,
+              "ci95": {
+                "lo": 4020,
+                "hi": 4049
+              }
+            },
+            "hookTermBonusShareBp": 400,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 50090,
+                "placeWord": 41942,
+                "placeWordPoints": 841309,
+                "exchange": 2090,
+                "pass": 6058,
+                "noWordBp": 1627,
+                "budgetExhausted": 163,
+                "budgetExhaustedBp": 33,
+                "fallbacksAfterEvaluation": 1474,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1185,
+                  "p95": 12040,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 12,
+                  "p95": 140,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 201,
+                "noviceOrIntermediateBp": 5221,
+                "meanScoreTenths": 4113
+              },
+              {
+                "personality": "beginner",
+                "decisions": 50058,
+                "placeWord": 42862,
+                "placeWordPoints": 710916,
+                "exchange": 877,
+                "pass": 6319,
+                "noWordBp": 1438,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 949,
+                  "p95": 3248,
+                  "max": 52040
+                },
+                "candidatesEvaluated": {
+                  "p50": 5,
+                  "p95": 39,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 166,
+                "noviceOrIntermediateBp": 9456,
+                "meanScoreTenths": 3421
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "beginner-vs-random",
+            "index": 3,
+            "a": "beginner",
+            "b": "random-legal",
+            "matches": 2000,
+            "draws": 7,
+            "firstPlayerWin": {
+              "k": 969,
+              "n": 1993,
+              "bp": 4862,
+              "ci95": {
+                "lo": 4643,
+                "hi": 5082
+              }
+            },
+            "aWin": {
+              "k": 1813,
+              "n": 1993,
+              "bp": 9097,
+              "ci95": {
+                "lo": 8962,
+                "hi": 9215
+              }
+            },
+            "endReasons": {
+              "going_out": 50,
+              "scoreless_turns": 1950,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9750,
+            "noWordTurnBp": 1404,
+            "noWordTurnBagNotEmptyBp": 414,
+            "bagEmptyAtEndBp": 9000,
+            "bagAtEnd": {
+              "empty": 1800,
+              "oneToSix": 169,
+              "sevenPlus": 31,
+              "spread": {
+                "p50": 0,
+                "p95": 4,
+                "max": 80
+              }
+            },
+            "prematureLock": {
+              "k": 31,
+              "n": 2000,
+              "bp": 155,
+              "ci95": {
+                "lo": 109,
+                "hi": 220
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 910,
+              "ci95": {
+                "lo": 907,
+                "hi": 913
+              }
+            },
+            "passesPerMatch": {
+              "p50": 7,
+              "p95": 9,
+              "max": 13
+            },
+            "matchesWithPass": 1951,
+            "rackTilesAtEnd": {
+              "p50": 8,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6875,
+            "meanFirstMoverLeadTenths": 11,
+            "wordsPerMatchTenths": 474,
+            "actionsPerMatch": {
+              "p50": 55,
+              "p95": 62,
+              "max": 72
+            },
+            "top20TermShareBp": 2906,
+            "distinctTermsPlayed": 736,
+            "inflectionShareBp": 404,
+            "termBonusShareBp": 4070,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 4070,
+              "ci95": {
+                "lo": 4055,
+                "hi": 4085
+              }
+            },
+            "hookTermBonusShareBp": 317,
+            "personalities": [
+              {
+                "personality": "beginner",
+                "decisions": 55056,
+                "placeWord": 47263,
+                "placeWordPoints": 815484,
+                "exchange": 1149,
+                "pass": 6644,
+                "noWordBp": 1415,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 925,
+                  "p95": 3106,
+                  "max": 67509
+                },
+                "candidatesEvaluated": {
+                  "p50": 5,
+                  "p95": 37,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 173,
+                "noviceOrIntermediateBp": 9404,
+                "meanScoreTenths": 3945
+              },
+              {
+                "personality": "random-legal",
+                "decisions": 55115,
+                "placeWord": 47440,
+                "placeWordPoints": 616684,
+                "exchange": 1088,
+                "pass": 6587,
+                "noWordBp": 1393,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 940,
+                  "p95": 2649,
+                  "max": 76185
+                },
+                "candidatesEvaluated": {
+                  "p50": 1,
+                  "p95": 1,
+                  "max": 1
+                },
+                "pointsPerWordTenths": 130,
+                "noviceOrIntermediateBp": 6456,
+                "meanScoreTenths": 2930
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "greedy-matched-vs-beginner",
+            "index": 4,
+            "a": "greedy-matched",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 16,
+            "firstPlayerWin": {
+              "k": 1071,
+              "n": 1984,
+              "bp": 5398,
+              "ci95": {
+                "lo": 5178,
+                "hi": 5617
+              }
+            },
+            "aWin": {
+              "k": 1365,
+              "n": 1984,
+              "bp": 6880,
+              "ci95": {
+                "lo": 6672,
+                "hi": 7081
+              }
+            },
+            "endReasons": {
+              "going_out": 124,
+              "scoreless_turns": 1876,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9380,
+            "noWordTurnBp": 1436,
+            "noWordTurnBagNotEmptyBp": 331,
+            "bagEmptyAtEndBp": 9315,
+            "bagAtEnd": {
+              "empty": 1863,
+              "oneToSix": 110,
+              "sevenPlus": 27,
+              "spread": {
+                "p50": 0,
+                "p95": 2,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 27,
+              "n": 2000,
+              "bp": 135,
+              "ci95": {
+                "lo": 92,
+                "hi": 196
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 923,
+              "ci95": {
+                "lo": 920,
+                "hi": 926
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 13
+            },
+            "matchesWithPass": 1915,
+            "rackTilesAtEnd": {
+              "p50": 7,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 7208,
+            "meanFirstMoverLeadTenths": 86,
+            "wordsPerMatchTenths": 424,
+            "actionsPerMatch": {
+              "p50": 49,
+              "p95": 57,
+              "max": 68
+            },
+            "top20TermShareBp": 2969,
+            "distinctTermsPlayed": 719,
+            "inflectionShareBp": 531,
+            "termBonusShareBp": 3698,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 3698,
+              "ci95": {
+                "lo": 3683,
+                "hi": 3713
+              }
+            },
+            "hookTermBonusShareBp": 385,
+            "personalities": [
+              {
+                "personality": "greedy-matched",
+                "decisions": 49487,
+                "placeWord": 42398,
+                "placeWordPoints": 777883,
+                "exchange": 819,
+                "pass": 6270,
+                "noWordBp": 1432,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 930,
+                  "p95": 3294,
+                  "max": 67388
+                },
+                "candidatesEvaluated": {
+                  "p50": 6,
+                  "p95": 40,
+                  "max": 1490
+                },
+                "pointsPerWordTenths": 183,
+                "noviceOrIntermediateBp": 9441,
+                "meanScoreTenths": 3778
+              },
+              {
+                "personality": "beginner",
+                "decisions": 49440,
+                "placeWord": 42326,
+                "placeWordPoints": 709156,
+                "exchange": 838,
+                "pass": 6276,
+                "noWordBp": 1439,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 933,
+                  "p95": 3268,
+                  "max": 63233
+                },
+                "candidatesEvaluated": {
+                  "p50": 6,
+                  "p95": 40,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 168,
+                "noviceOrIntermediateBp": 9413,
+                "meanScoreTenths": 3430
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "greedy-vs-beginner",
+            "index": 5,
+            "a": "greedy",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 1,
+            "firstPlayerWin": {
+              "k": 1026,
+              "n": 1999,
+              "bp": 5133,
+              "ci95": {
+                "lo": 4913,
+                "hi": 5352
+              }
+            },
+            "aWin": {
+              "k": 1903,
+              "n": 1999,
+              "bp": 9520,
+              "ci95": {
+                "lo": 9417,
+                "hi": 9606
+              }
+            },
+            "endReasons": {
+              "going_out": 151,
+              "scoreless_turns": 1849,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9245,
+            "noWordTurnBp": 1426,
+            "noWordTurnBagNotEmptyBp": 295,
+            "bagEmptyAtEndBp": 9480,
+            "bagAtEnd": {
+              "empty": 1896,
+              "oneToSix": 94,
+              "sevenPlus": 10,
+              "spread": {
+                "p50": 0,
+                "p95": 1,
+                "max": 79
+              }
+            },
+            "prematureLock": {
+              "k": 10,
+              "n": 2000,
+              "bp": 50,
+              "ci95": {
+                "lo": 27,
+                "hi": 92
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 927,
+              "ci95": {
+                "lo": 925,
+                "hi": 930
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1905,
+            "rackTilesAtEnd": {
+              "p50": 7,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 8169,
+            "meanFirstMoverLeadTenths": 75,
+            "wordsPerMatchTenths": 418,
+            "actionsPerMatch": {
+              "p50": 49,
+              "p95": 55,
+              "max": 65
+            },
+            "top20TermShareBp": 2421,
+            "distinctTermsPlayed": 830,
+            "inflectionShareBp": 417,
+            "termBonusShareBp": 4320,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 4320,
+              "ci95": {
+                "lo": 4304,
+                "hi": 4335
+              }
+            },
+            "hookTermBonusShareBp": 491,
+            "personalities": [
+              {
+                "personality": "greedy",
+                "decisions": 48737,
+                "placeWord": 41709,
+                "placeWordPoints": 972151,
+                "exchange": 733,
+                "pass": 6295,
+                "noWordBp": 1442,
+                "budgetExhausted": 5,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 968,
+                  "p95": 3476,
+                  "max": 58470
+                },
+                "candidatesEvaluated": {
+                  "p50": 10,
+                  "p95": 66,
+                  "max": 2000
+                },
+                "pointsPerWordTenths": 233,
+                "noviceOrIntermediateBp": 3986,
+                "meanScoreTenths": 4766
+              },
+              {
+                "personality": "beginner",
+                "decisions": 48763,
+                "placeWord": 41891,
+                "placeWordPoints": 703741,
+                "exchange": 727,
+                "pass": 6145,
+                "noWordBp": 1409,
+                "budgetExhausted": 2,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 959,
+                  "p95": 3199,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 6,
+                  "p95": 39,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 168,
+                "noviceOrIntermediateBp": 9506,
+                "meanScoreTenths": 3403
+              }
+            ],
+            "replayVerified": 2000
+          }
+        ]
+      },
+      {
+        "id": "v2-3612",
+        "lexiconVersion": "e568477b5592a994",
+        "profileId": "global-ranked",
+        "definitionHash": "da1f36a3747e0dfe",
+        "forms": 2154,
+        "terms": 1432,
+        "automaton": "gaddag",
+        "rules": {
+          "engineRulesVersion": 2,
+          "status": "draft",
+          "gameRules": "0.4-draft",
+          "candidate": "tb-0-3-6-12",
+          "layout": "classic-v2",
+          "letters": "letters-v2",
+          "termBonus": [0, 3, 6, 12],
+          "rulesDigest": "adecc93a11f54736"
+        },
+        "pairings": [
+          {
+            "id": "strategist-mirror",
+            "index": 0,
+            "a": "strategist",
+            "b": "strategist",
+            "matches": 10000,
+            "draws": 62,
+            "firstPlayerWin": {
+              "k": 5028,
+              "n": 9938,
+              "bp": 5059,
+              "ci95": {
+                "lo": 4961,
+                "hi": 5158
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 1780,
+              "scoreless_turns": 8220,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8220,
+            "noWordTurnBp": 1472,
+            "noWordTurnBagNotEmptyBp": 462,
+            "bagEmptyAtEndBp": 9689,
+            "bagAtEnd": {
+              "empty": 9689,
+              "oneToSix": 231,
+              "sevenPlus": 80,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 80,
+              "n": 10000,
+              "bp": 80,
+              "ci95": {
+                "lo": 64,
+                "hi": 100
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 941,
+              "ci95": {
+                "lo": 940,
+                "hi": 943
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 8812,
+            "rackTilesAtEnd": {
+              "p50": 5,
+              "p95": 12,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 7160,
+            "meanFirstMoverLeadTenths": 8,
+            "wordsPerMatchTenths": 405,
+            "actionsPerMatch": {
+              "p50": 48,
+              "p95": 55,
+              "max": 70
+            },
+            "top20TermShareBp": 2388,
+            "distinctTermsPlayed": 971,
+            "inflectionShareBp": 520,
+            "termBonusShareBp": 3629,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 3629,
+              "ci95": {
+                "lo": 3622,
+                "hi": 3636
+              }
+            },
+            "hookTermBonusShareBp": 505,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 474312,
+                "placeWord": 404507,
+                "placeWordPoints": 7312510,
+                "exchange": 15338,
+                "pass": 54467,
+                "noWordBp": 1472,
+                "budgetExhausted": 2762,
+                "budgetExhaustedBp": 58,
+                "fallbacksAfterEvaluation": 12255,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1332,
+                  "p95": 15057,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 16,
+                  "p95": 189,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 181,
+                "noviceOrIntermediateBp": 5398,
+                "meanScoreTenths": 3580
+              }
+            ],
+            "replayVerified": 10000
+          },
+          {
+            "id": "beginner-mirror",
+            "index": 1,
+            "a": "beginner",
+            "b": "beginner",
+            "matches": 10000,
+            "draws": 47,
+            "firstPlayerWin": {
+              "k": 4856,
+              "n": 9953,
+              "bp": 4879,
+              "ci95": {
+                "lo": 4780,
+                "hi": 4978
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 1007,
+              "scoreless_turns": 8993,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8993,
+            "noWordTurnBp": 1354,
+            "noWordTurnBagNotEmptyBp": 242,
+            "bagEmptyAtEndBp": 9496,
+            "bagAtEnd": {
+              "empty": 9496,
+              "oneToSix": 427,
+              "sevenPlus": 77,
+              "spread": {
+                "p50": 0,
+                "p95": 1,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 77,
+              "n": 10000,
+              "bp": 77,
+              "ci95": {
+                "lo": 61,
+                "hi": 97
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 932,
+              "ci95": {
+                "lo": 931,
+                "hi": 933
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 9429,
+            "rackTilesAtEnd": {
+              "p50": 6,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6313,
+            "meanFirstMoverLeadTenths": -26,
+            "wordsPerMatchTenths": 421,
+            "actionsPerMatch": {
+              "p50": 49,
+              "p95": 56,
+              "max": 66
+            },
+            "top20TermShareBp": 2724,
+            "distinctTermsPlayed": 831,
+            "inflectionShareBp": 776,
+            "termBonusShareBp": 3081,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 3081,
+              "ci95": {
+                "lo": 3075,
+                "hi": 3088
+              }
+            },
+            "hookTermBonusShareBp": 449,
+            "personalities": [
+              {
+                "personality": "beginner",
+                "decisions": 487050,
+                "placeWord": 421101,
+                "placeWordPoints": 6504413,
+                "exchange": 5531,
+                "pass": 60418,
+                "noWordBp": 1354,
+                "budgetExhausted": 12,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1009,
+                  "p95": 3604,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 46,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 154,
+                "noviceOrIntermediateBp": 9508,
+                "meanScoreTenths": 3156
+              }
+            ],
+            "replayVerified": 10000
+          },
+          {
+            "id": "strategist-vs-beginner",
+            "index": 2,
+            "a": "strategist",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 7,
+            "firstPlayerWin": {
+              "k": 952,
+              "n": 1993,
+              "bp": 4777,
+              "ci95": {
+                "lo": 4558,
+                "hi": 4997
+              }
+            },
+            "aWin": {
+              "k": 1644,
+              "n": 1993,
+              "bp": 8249,
+              "ci95": {
+                "lo": 8075,
+                "hi": 8410
+              }
+            },
+            "endReasons": {
+              "going_out": 294,
+              "scoreless_turns": 1706,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8530,
+            "noWordTurnBp": 1416,
+            "noWordTurnBagNotEmptyBp": 358,
+            "bagEmptyAtEndBp": 9600,
+            "bagAtEnd": {
+              "empty": 1920,
+              "oneToSix": 63,
+              "sevenPlus": 17,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 17,
+              "n": 2000,
+              "bp": 85,
+              "ci95": {
+                "lo": 53,
+                "hi": 136
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 935,
+              "ci95": {
+                "lo": 932,
+                "hi": 938
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1820,
+            "rackTilesAtEnd": {
+              "p50": 6,
+              "p95": 13,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6721,
+            "meanFirstMoverLeadTenths": -34,
+            "wordsPerMatchTenths": 414,
+            "actionsPerMatch": {
+              "p50": 48,
+              "p95": 55,
+              "max": 65
+            },
+            "top20TermShareBp": 2324,
+            "distinctTermsPlayed": 811,
+            "inflectionShareBp": 635,
+            "termBonusShareBp": 3385,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 3385,
+              "ci95": {
+                "lo": 3370,
+                "hi": 3399
+              }
+            },
+            "hookTermBonusShareBp": 475,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 48308,
+                "placeWord": 41106,
+                "placeWordPoints": 748129,
+                "exchange": 1597,
+                "pass": 5605,
+                "noWordBp": 1491,
+                "budgetExhausted": 240,
+                "budgetExhaustedBp": 50,
+                "fallbacksAfterEvaluation": 1292,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1308,
+                  "p95": 14303,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 16,
+                  "p95": 184,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 182,
+                "noviceOrIntermediateBp": 5295,
+                "meanScoreTenths": 3676
+              },
+              {
+                "personality": "beginner",
+                "decisions": 48207,
+                "placeWord": 41739,
+                "placeWordPoints": 630894,
+                "exchange": 554,
+                "pass": 5914,
+                "noWordBp": 1342,
+                "budgetExhausted": 4,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1012,
+                  "p95": 3639,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 45,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 151,
+                "noviceOrIntermediateBp": 9548,
+                "meanScoreTenths": 3045
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "beginner-vs-random",
+            "index": 3,
+            "a": "beginner",
+            "b": "random-legal",
+            "matches": 2000,
+            "draws": 3,
+            "firstPlayerWin": {
+              "k": 985,
+              "n": 1997,
+              "bp": 4932,
+              "ci95": {
+                "lo": 4713,
+                "hi": 5152
+              }
+            },
+            "aWin": {
+              "k": 1882,
+              "n": 1997,
+              "bp": 9424,
+              "ci95": {
+                "lo": 9313,
+                "hi": 9519
+              }
+            },
+            "endReasons": {
+              "going_out": 91,
+              "scoreless_turns": 1909,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9545,
+            "noWordTurnBp": 1363,
+            "noWordTurnBagNotEmptyBp": 345,
+            "bagEmptyAtEndBp": 9115,
+            "bagAtEnd": {
+              "empty": 1823,
+              "oneToSix": 155,
+              "sevenPlus": 22,
+              "spread": {
+                "p50": 0,
+                "p95": 3,
+                "max": 80
+              }
+            },
+            "prematureLock": {
+              "k": 22,
+              "n": 2000,
+              "bp": 110,
+              "ci95": {
+                "lo": 72,
+                "hi": 166
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 919,
+              "ci95": {
+                "lo": 917,
+                "hi": 922
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 9,
+              "max": 13
+            },
+            "matchesWithPass": 1940,
+            "rackTilesAtEnd": {
+              "p50": 7,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6058,
+            "meanFirstMoverLeadTenths": -28,
+            "wordsPerMatchTenths": 463,
+            "actionsPerMatch": {
+              "p50": 54,
+              "p95": 60,
+              "max": 69
+            },
+            "top20TermShareBp": 2635,
+            "distinctTermsPlayed": 756,
+            "inflectionShareBp": 602,
+            "termBonusShareBp": 3464,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 3464,
+              "ci95": {
+                "lo": 3449,
+                "hi": 3478
+              }
+            },
+            "hookTermBonusShareBp": 385,
+            "personalities": [
+              {
+                "personality": "beginner",
+                "decisions": 53561,
+                "placeWord": 46173,
+                "placeWordPoints": 734239,
+                "exchange": 834,
+                "pass": 6554,
+                "noWordBp": 1379,
+                "budgetExhausted": 2,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 999,
+                  "p95": 3577,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 6,
+                  "p95": 44,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 159,
+                "noviceOrIntermediateBp": 9509,
+                "meanScoreTenths": 3558
+              },
+              {
+                "personality": "random-legal",
+                "decisions": 53634,
+                "placeWord": 46407,
+                "placeWordPoints": 526914,
+                "exchange": 814,
+                "pass": 6413,
+                "noWordBp": 1347,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 989,
+                  "p95": 2807,
+                  "max": 100624
+                },
+                "candidatesEvaluated": {
+                  "p50": 1,
+                  "p95": 1,
+                  "max": 1
+                },
+                "pointsPerWordTenths": 114,
+                "noviceOrIntermediateBp": 6306,
+                "meanScoreTenths": 2500
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "greedy-matched-vs-beginner",
+            "index": 4,
+            "a": "greedy-matched",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 13,
+            "firstPlayerWin": {
+              "k": 965,
+              "n": 1987,
+              "bp": 4857,
+              "ci95": {
+                "lo": 4637,
+                "hi": 5077
+              }
+            },
+            "aWin": {
+              "k": 1343,
+              "n": 1987,
+              "bp": 6759,
+              "ci95": {
+                "lo": 6549,
+                "hi": 6962
+              }
+            },
+            "endReasons": {
+              "going_out": 226,
+              "scoreless_turns": 1774,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8870,
+            "noWordTurnBp": 1363,
+            "noWordTurnBagNotEmptyBp": 225,
+            "bagEmptyAtEndBp": 9590,
+            "bagAtEnd": {
+              "empty": 1918,
+              "oneToSix": 63,
+              "sevenPlus": 19,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 19,
+              "n": 2000,
+              "bp": 95,
+              "ci95": {
+                "lo": 60,
+                "hi": 148
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 935,
+              "ci95": {
+                "lo": 932,
+                "hi": 937
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1862,
+            "rackTilesAtEnd": {
+              "p50": 6,
+              "p95": 13,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6449,
+            "meanFirstMoverLeadTenths": -21,
+            "wordsPerMatchTenths": 413,
+            "actionsPerMatch": {
+              "p50": 48,
+              "p95": 55,
+              "max": 63
+            },
+            "top20TermShareBp": 2661,
+            "distinctTermsPlayed": 736,
+            "inflectionShareBp": 819,
+            "termBonusShareBp": 3061,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 3061,
+              "ci95": {
+                "lo": 3047,
+                "hi": 3075
+              }
+            },
+            "hookTermBonusShareBp": 464,
+            "personalities": [
+              {
+                "personality": "greedy-matched",
+                "decisions": 47840,
+                "placeWord": 41304,
+                "placeWordPoints": 697585,
+                "exchange": 554,
+                "pass": 5982,
+                "noWordBp": 1366,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 995,
+                  "p95": 3775,
+                  "max": 82436
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 48,
+                  "max": 832
+                },
+                "pointsPerWordTenths": 169,
+                "noviceOrIntermediateBp": 9526,
+                "meanScoreTenths": 3403
+              },
+              {
+                "personality": "beginner",
+                "decisions": 47791,
+                "placeWord": 41296,
+                "placeWordPoints": 628049,
+                "exchange": 553,
+                "pass": 5942,
+                "noWordBp": 1359,
+                "budgetExhausted": 1,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 991,
+                  "p95": 3545,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 46,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 152,
+                "noviceOrIntermediateBp": 9519,
+                "meanScoreTenths": 3046
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "greedy-vs-beginner",
+            "index": 5,
+            "a": "greedy",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 3,
+            "firstPlayerWin": {
+              "k": 1006,
+              "n": 1997,
+              "bp": 5038,
+              "ci95": {
+                "lo": 4818,
+                "hi": 5257
+              }
+            },
+            "aWin": {
+              "k": 1902,
+              "n": 1997,
+              "bp": 9524,
+              "ci95": {
+                "lo": 9421,
+                "hi": 9610
+              }
+            },
+            "endReasons": {
+              "going_out": 293,
+              "scoreless_turns": 1707,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8535,
+            "noWordTurnBp": 1333,
+            "noWordTurnBagNotEmptyBp": 189,
+            "bagEmptyAtEndBp": 9715,
+            "bagAtEnd": {
+              "empty": 1943,
+              "oneToSix": 48,
+              "sevenPlus": 9,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 9,
+              "n": 2000,
+              "bp": 45,
+              "ci95": {
+                "lo": 23,
+                "hi": 86
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 938,
+              "ci95": {
+                "lo": 936,
+                "hi": 941
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 13
+            },
+            "matchesWithPass": 1823,
+            "rackTilesAtEnd": {
+              "p50": 5,
+              "p95": 12,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 7239,
+            "meanFirstMoverLeadTenths": 14,
+            "wordsPerMatchTenths": 405,
+            "actionsPerMatch": {
+              "p50": 47,
+              "p95": 53,
+              "max": 62
+            },
+            "top20TermShareBp": 2233,
+            "distinctTermsPlayed": 851,
+            "inflectionShareBp": 650,
+            "termBonusShareBp": 3648,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 3648,
+              "ci95": {
+                "lo": 3632,
+                "hi": 3663
+              }
+            },
+            "hookTermBonusShareBp": 551,
+            "personalities": [
+              {
+                "personality": "greedy",
+                "decisions": 46694,
+                "placeWord": 40448,
+                "placeWordPoints": 857348,
+                "exchange": 430,
+                "pass": 5816,
+                "noWordBp": 1338,
+                "budgetExhausted": 6,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1039,
+                  "p95": 3903,
+                  "max": 86857
+                },
+                "candidatesEvaluated": {
+                  "p50": 13,
+                  "p95": 81,
+                  "max": 2000
+                },
+                "pointsPerWordTenths": 212,
+                "noviceOrIntermediateBp": 4077,
+                "meanScoreTenths": 4218
+              },
+              {
+                "personality": "beginner",
+                "decisions": 46673,
+                "placeWord": 40471,
+                "placeWordPoints": 622469,
+                "exchange": 438,
+                "pass": 5764,
+                "noWordBp": 1329,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1023,
+                  "p95": 3648,
+                  "max": 62078
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 48,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 154,
+                "noviceOrIntermediateBp": 9619,
+                "meanScoreTenths": 3021
+              }
+            ],
+            "replayVerified": 2000
+          }
+        ]
+      },
+      {
+        "id": "v2-248",
+        "lexiconVersion": "e568477b5592a994",
+        "profileId": "global-ranked",
+        "definitionHash": "da1f36a3747e0dfe",
+        "forms": 2154,
+        "terms": 1432,
+        "automaton": "gaddag",
+        "rules": {
+          "engineRulesVersion": 2,
+          "status": "draft",
+          "gameRules": "0.4-draft",
+          "candidate": "tb-0-2-4-8",
+          "layout": "classic-v2",
+          "letters": "letters-v2",
+          "termBonus": [0, 2, 4, 8],
+          "rulesDigest": "adecc93a11f54736"
+        },
+        "pairings": [
+          {
+            "id": "strategist-mirror",
+            "index": 0,
+            "a": "strategist",
+            "b": "strategist",
+            "matches": 10000,
+            "draws": 57,
+            "firstPlayerWin": {
+              "k": 5084,
+              "n": 9943,
+              "bp": 5113,
+              "ci95": {
+                "lo": 5014,
+                "hi": 5212
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 2178,
+              "scoreless_turns": 7822,
+              "resign": 0
+            },
+            "scorelessEndingBp": 7822,
+            "noWordTurnBp": 1420,
+            "noWordTurnBagNotEmptyBp": 442,
+            "bagEmptyAtEndBp": 9731,
+            "bagAtEnd": {
+              "empty": 9731,
+              "oneToSix": 188,
+              "sevenPlus": 81,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 83
+              }
+            },
+            "prematureLock": {
+              "k": 81,
+              "n": 10000,
+              "bp": 81,
+              "ci95": {
+                "lo": 65,
+                "hi": 101
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 945,
+              "ci95": {
+                "lo": 943,
+                "hi": 947
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 8538,
+            "rackTilesAtEnd": {
+              "p50": 4,
+              "p95": 12,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6241,
+            "meanFirstMoverLeadTenths": 7,
+            "wordsPerMatchTenths": 403,
+            "actionsPerMatch": {
+              "p50": 47,
+              "p95": 54,
+              "max": 65
+            },
+            "top20TermShareBp": 2238,
+            "distinctTermsPlayed": 985,
+            "inflectionShareBp": 574,
+            "termBonusShareBp": 2584,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 2584,
+              "ci95": {
+                "lo": 2578,
+                "hi": 2590
+              }
+            },
+            "hookTermBonusShareBp": 514,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 469329,
+                "placeWord": 402671,
+                "placeWordPoints": 6378315,
+                "exchange": 14723,
+                "pass": 51935,
+                "noWordBp": 1420,
+                "budgetExhausted": 3365,
+                "budgetExhaustedBp": 72,
+                "fallbacksAfterEvaluation": 11848,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1388,
+                  "p95": 16245,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 18,
+                  "p95": 211,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 158,
+                "noviceOrIntermediateBp": 5784,
+                "meanScoreTenths": 3121
+              }
+            ],
+            "replayVerified": 10000
+          },
+          {
+            "id": "beginner-mirror",
+            "index": 1,
+            "a": "beginner",
+            "b": "beginner",
+            "matches": 10000,
+            "draws": 58,
+            "firstPlayerWin": {
+              "k": 4845,
+              "n": 9942,
+              "bp": 4873,
+              "ci95": {
+                "lo": 4775,
+                "hi": 4972
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 1263,
+              "scoreless_turns": 8737,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8737,
+            "noWordTurnBp": 1327,
+            "noWordTurnBagNotEmptyBp": 215,
+            "bagEmptyAtEndBp": 9584,
+            "bagAtEnd": {
+              "empty": 9584,
+              "oneToSix": 351,
+              "sevenPlus": 65,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 65,
+              "n": 10000,
+              "bp": 65,
+              "ci95": {
+                "lo": 51,
+                "hi": 83
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 935,
+              "ci95": {
+                "lo": 934,
+                "hi": 937
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 13
+            },
+            "matchesWithPass": 9263,
+            "rackTilesAtEnd": {
+              "p50": 6,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 5629,
+            "meanFirstMoverLeadTenths": -26,
+            "wordsPerMatchTenths": 417,
+            "actionsPerMatch": {
+              "p50": 48,
+              "p95": 55,
+              "max": 68
+            },
+            "top20TermShareBp": 2610,
+            "distinctTermsPlayed": 837,
+            "inflectionShareBp": 825,
+            "termBonusShareBp": 2175,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 2175,
+              "ci95": {
+                "lo": 2169,
+                "hi": 2180
+              }
+            },
+            "hookTermBonusShareBp": 454,
+            "personalities": [
+              {
+                "personality": "beginner",
+                "decisions": 481025,
+                "placeWord": 417190,
+                "placeWordPoints": 5808800,
+                "exchange": 4913,
+                "pass": 58922,
+                "noWordBp": 1327,
+                "budgetExhausted": 22,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1018,
+                  "p95": 3741,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 48,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 139,
+                "noviceOrIntermediateBp": 9530,
+                "meanScoreTenths": 2815
+              }
+            ],
+            "replayVerified": 10000
+          },
+          {
+            "id": "strategist-vs-beginner",
+            "index": 2,
+            "a": "strategist",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 9,
+            "firstPlayerWin": {
+              "k": 1008,
+              "n": 1991,
+              "bp": 5063,
+              "ci95": {
+                "lo": 4843,
+                "hi": 5283
+              }
+            },
+            "aWin": {
+              "k": 1577,
+              "n": 1991,
+              "bp": 7921,
+              "ci95": {
+                "lo": 7736,
+                "hi": 8094
+              }
+            },
+            "endReasons": {
+              "going_out": 332,
+              "scoreless_turns": 1668,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8340,
+            "noWordTurnBp": 1378,
+            "noWordTurnBagNotEmptyBp": 329,
+            "bagEmptyAtEndBp": 9650,
+            "bagAtEnd": {
+              "empty": 1930,
+              "oneToSix": 50,
+              "sevenPlus": 20,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 20,
+              "n": 2000,
+              "bp": 100,
+              "ci95": {
+                "lo": 64,
+                "hi": 154
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 939,
+              "ci95": {
+                "lo": 937,
+                "hi": 942
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1779,
+            "rackTilesAtEnd": {
+              "p50": 5,
+              "p95": 13,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 5914,
+            "meanFirstMoverLeadTenths": 15,
+            "wordsPerMatchTenths": 413,
+            "actionsPerMatch": {
+              "p50": 48,
+              "p95": 56,
+              "max": 67
+            },
+            "top20TermShareBp": 2276,
+            "distinctTermsPlayed": 836,
+            "inflectionShareBp": 690,
+            "termBonusShareBp": 2400,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 2400,
+              "ci95": {
+                "lo": 2388,
+                "hi": 2413
+              }
+            },
+            "hookTermBonusShareBp": 470,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 47892,
+                "placeWord": 40956,
+                "placeWordPoints": 651372,
+                "exchange": 1470,
+                "pass": 5466,
+                "noWordBp": 1448,
+                "budgetExhausted": 324,
+                "budgetExhaustedBp": 68,
+                "fallbacksAfterEvaluation": 1181,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1360,
+                  "p95": 15888,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 17,
+                  "p95": 213,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 159,
+                "noviceOrIntermediateBp": 5713,
+                "meanScoreTenths": 3200
+              },
+              {
+                "personality": "beginner",
+                "decisions": 47799,
+                "placeWord": 41552,
+                "placeWordPoints": 563797,
+                "exchange": 553,
+                "pass": 5694,
+                "noWordBp": 1307,
+                "budgetExhausted": 4,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1014,
+                  "p95": 3717,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 46,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 136,
+                "noviceOrIntermediateBp": 9560,
+                "meanScoreTenths": 2713
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "beginner-vs-random",
+            "index": 3,
+            "a": "beginner",
+            "b": "random-legal",
+            "matches": 2000,
+            "draws": 1,
+            "firstPlayerWin": {
+              "k": 991,
+              "n": 1999,
+              "bp": 4957,
+              "ci95": {
+                "lo": 4738,
+                "hi": 5177
+              }
+            },
+            "aWin": {
+              "k": 1896,
+              "n": 1999,
+              "bp": 9485,
+              "ci95": {
+                "lo": 9378,
+                "hi": 9574
+              }
+            },
+            "endReasons": {
+              "going_out": 106,
+              "scoreless_turns": 1894,
+              "resign": 0
+            },
+            "scorelessEndingBp": 9470,
+            "noWordTurnBp": 1340,
+            "noWordTurnBagNotEmptyBp": 298,
+            "bagEmptyAtEndBp": 9275,
+            "bagAtEnd": {
+              "empty": 1855,
+              "oneToSix": 127,
+              "sevenPlus": 18,
+              "spread": {
+                "p50": 0,
+                "p95": 2,
+                "max": 80
+              }
+            },
+            "prematureLock": {
+              "k": 18,
+              "n": 2000,
+              "bp": 90,
+              "ci95": {
+                "lo": 57,
+                "hi": 142
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 922,
+              "ci95": {
+                "lo": 920,
+                "hi": 925
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 9,
+              "max": 13
+            },
+            "matchesWithPass": 1926,
+            "rackTilesAtEnd": {
+              "p50": 7,
+              "p95": 14,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 5353,
+            "meanFirstMoverLeadTenths": 12,
+            "wordsPerMatchTenths": 462,
+            "actionsPerMatch": {
+              "p50": 53,
+              "p95": 60,
+              "max": 73
+            },
+            "top20TermShareBp": 2591,
+            "distinctTermsPlayed": 765,
+            "inflectionShareBp": 623,
+            "termBonusShareBp": 2544,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 2544,
+              "ci95": {
+                "lo": 2532,
+                "hi": 2557
+              }
+            },
+            "hookTermBonusShareBp": 387,
+            "personalities": [
+              {
+                "personality": "beginner",
+                "decisions": 53370,
+                "placeWord": 46155,
+                "placeWordPoints": 662312,
+                "exchange": 752,
+                "pass": 6463,
+                "noWordBp": 1352,
+                "budgetExhausted": 4,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1007,
+                  "p95": 3569,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 6,
+                  "p95": 45,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 143,
+                "noviceOrIntermediateBp": 9506,
+                "meanScoreTenths": 3207
+              },
+              {
+                "personality": "random-legal",
+                "decisions": 53390,
+                "placeWord": 46294,
+                "placeWordPoints": 456041,
+                "exchange": 699,
+                "pass": 6397,
+                "noWordBp": 1329,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 990,
+                  "p95": 2854,
+                  "max": 46485
+                },
+                "candidatesEvaluated": {
+                  "p50": 1,
+                  "p95": 1,
+                  "max": 1
+                },
+                "pointsPerWordTenths": 99,
+                "noviceOrIntermediateBp": 6312,
+                "meanScoreTenths": 2146
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "greedy-matched-vs-beginner",
+            "index": 4,
+            "a": "greedy-matched",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 9,
+            "firstPlayerWin": {
+              "k": 966,
+              "n": 1991,
+              "bp": 4852,
+              "ci95": {
+                "lo": 4632,
+                "hi": 5072
+              }
+            },
+            "aWin": {
+              "k": 1334,
+              "n": 1991,
+              "bp": 6700,
+              "ci95": {
+                "lo": 6490,
+                "hi": 6904
+              }
+            },
+            "endReasons": {
+              "going_out": 269,
+              "scoreless_turns": 1731,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8655,
+            "noWordTurnBp": 1329,
+            "noWordTurnBagNotEmptyBp": 205,
+            "bagEmptyAtEndBp": 9605,
+            "bagAtEnd": {
+              "empty": 1921,
+              "oneToSix": 58,
+              "sevenPlus": 21,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 21,
+              "n": 2000,
+              "bp": 105,
+              "ci95": {
+                "lo": 68,
+                "hi": 160
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 937,
+              "ci95": {
+                "lo": 935,
+                "hi": 940
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1833,
+            "rackTilesAtEnd": {
+              "p50": 5,
+              "p95": 13,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 5748,
+            "meanFirstMoverLeadTenths": -22,
+            "wordsPerMatchTenths": 409,
+            "actionsPerMatch": {
+              "p50": 47,
+              "p95": 54,
+              "max": 66
+            },
+            "top20TermShareBp": 2541,
+            "distinctTermsPlayed": 736,
+            "inflectionShareBp": 854,
+            "termBonusShareBp": 2152,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 2152,
+              "ci95": {
+                "lo": 2140,
+                "hi": 2165
+              }
+            },
+            "hookTermBonusShareBp": 459,
+            "personalities": [
+              {
+                "personality": "greedy-matched",
+                "decisions": 47195,
+                "placeWord": 40964,
+                "placeWordPoints": 620812,
+                "exchange": 484,
+                "pass": 5747,
+                "noWordBp": 1320,
+                "budgetExhausted": 0,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1015,
+                  "p95": 3802,
+                  "max": 86851
+                },
+                "candidatesEvaluated": {
+                  "p50": 8,
+                  "p95": 50,
+                  "max": 832
+                },
+                "pointsPerWordTenths": 152,
+                "noviceOrIntermediateBp": 9553,
+                "meanScoreTenths": 3025
+              },
+              {
+                "personality": "beginner",
+                "decisions": 47135,
+                "placeWord": 40827,
+                "placeWordPoints": 562924,
+                "exchange": 498,
+                "pass": 5810,
+                "noWordBp": 1338,
+                "budgetExhausted": 1,
+                "budgetExhaustedBp": 0,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1005,
+                  "p95": 3745,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 7,
+                  "p95": 49,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 138,
+                "noviceOrIntermediateBp": 9538,
+                "meanScoreTenths": 2723
+              }
+            ],
+            "replayVerified": 2000
+          },
+          {
+            "id": "greedy-vs-beginner",
+            "index": 5,
+            "a": "greedy",
+            "b": "beginner",
+            "matches": 2000,
+            "draws": 8,
+            "firstPlayerWin": {
+              "k": 1004,
+              "n": 1992,
+              "bp": 5040,
+              "ci95": {
+                "lo": 4820,
+                "hi": 5260
+              }
+            },
+            "aWin": {
+              "k": 1839,
+              "n": 1992,
+              "bp": 9232,
+              "ci95": {
+                "lo": 9106,
+                "hi": 9341
+              }
+            },
+            "endReasons": {
+              "going_out": 351,
+              "scoreless_turns": 1649,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8245,
+            "noWordTurnBp": 1300,
+            "noWordTurnBagNotEmptyBp": 171,
+            "bagEmptyAtEndBp": 9735,
+            "bagAtEnd": {
+              "empty": 1947,
+              "oneToSix": 43,
+              "sevenPlus": 10,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 82
+              }
+            },
+            "prematureLock": {
+              "k": 10,
+              "n": 2000,
+              "bp": 50,
+              "ci95": {
+                "lo": 27,
+                "hi": 92
+              }
+            },
+            "tilesPlayed": {
+              "n": 2000,
+              "meanTenths": 941,
+              "ci95": {
+                "lo": 939,
+                "hi": 944
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 1774,
+            "rackTilesAtEnd": {
+              "p50": 5,
+              "p95": 12,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6277,
+            "meanFirstMoverLeadTenths": 12,
+            "wordsPerMatchTenths": 399,
+            "actionsPerMatch": {
+              "p50": 46,
+              "p95": 53,
+              "max": 60
+            },
+            "top20TermShareBp": 2111,
+            "distinctTermsPlayed": 859,
+            "inflectionShareBp": 732,
+            "termBonusShareBp": 2596,
+            "termBonusShare": {
+              "n": 2000,
+              "bp": 2596,
+              "ci95": {
+                "lo": 2583,
+                "hi": 2609
+              }
+            },
+            "hookTermBonusShareBp": 532,
+            "personalities": [
+              {
+                "personality": "greedy",
+                "decisions": 45958,
+                "placeWord": 39990,
+                "placeWordPoints": 736276,
+                "exchange": 383,
+                "pass": 5585,
+                "noWordBp": 1299,
+                "budgetExhausted": 6,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1057,
+                  "p95": 4128,
+                  "max": 87733
+                },
+                "candidatesEvaluated": {
+                  "p50": 14,
+                  "p95": 87,
+                  "max": 2000
+                },
+                "pointsPerWordTenths": 184,
+                "noviceOrIntermediateBp": 4575,
+                "meanScoreTenths": 3620
+              },
+              {
+                "personality": "beginner",
+                "decisions": 45880,
+                "placeWord": 39905,
+                "placeWordPoints": 548818,
+                "exchange": 401,
+                "pass": 5574,
+                "noWordBp": 1302,
+                "budgetExhausted": 5,
+                "budgetExhaustedBp": 1,
+                "fallbacksAfterEvaluation": 0,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1025,
+                  "p95": 3880,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 8,
+                  "p95": 49,
+                  "max": 300
+                },
+                "pointsPerWordTenths": 138,
+                "noviceOrIntermediateBp": 9615,
+                "meanScoreTenths": 2658
+              }
+            ],
+            "replayVerified": 2000
+          }
+        ]
+      },
+      {
+        "id": "dx-dw-3612",
+        "lexiconVersion": "e568477b5592a994",
+        "profileId": "global-ranked",
+        "definitionHash": "da1f36a3747e0dfe",
+        "forms": 2154,
+        "terms": 1432,
+        "automaton": "gaddag",
+        "rules": {
+          "engineRulesVersion": 2,
+          "status": "draft",
+          "gameRules": "0.4-draft",
+          "candidate": "tb-0-3-6-12",
+          "layout": "classic-v1",
+          "letters": "letters-v2",
+          "termBonus": [0, 3, 6, 12],
+          "rulesDigest": "adecc93a11f54736"
+        },
+        "pairings": [
+          {
+            "id": "strategist-mirror",
+            "index": 0,
+            "a": "strategist",
+            "b": "strategist",
+            "matches": 10000,
+            "draws": 55,
+            "firstPlayerWin": {
+              "k": 5373,
+              "n": 9945,
+              "bp": 5403,
+              "ci95": {
+                "lo": 5304,
+                "hi": 5501
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 1869,
+              "scoreless_turns": 8131,
+              "resign": 0
+            },
+            "scorelessEndingBp": 8131,
+            "noWordTurnBp": 1458,
+            "noWordTurnBagNotEmptyBp": 455,
+            "bagEmptyAtEndBp": 9684,
+            "bagAtEnd": {
+              "empty": 9684,
+              "oneToSix": 231,
+              "sevenPlus": 85,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 83
+              }
+            },
+            "prematureLock": {
+              "k": 85,
+              "n": 10000,
+              "bp": 85,
+              "ci95": {
+                "lo": 68,
+                "hi": 105
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 941,
+              "ci95": {
+                "lo": 940,
+                "hi": 943
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 12
+            },
+            "matchesWithPass": 8762,
+            "rackTilesAtEnd": {
+              "p50": 5,
+              "p95": 12,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 7220,
+            "meanFirstMoverLeadTenths": 57,
+            "wordsPerMatchTenths": 404,
+            "actionsPerMatch": {
+              "p50": 48,
+              "p95": 54,
+              "max": 70
+            },
+            "top20TermShareBp": 2377,
+            "distinctTermsPlayed": 975,
+            "inflectionShareBp": 524,
+            "termBonusShareBp": 3594,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 3594,
+              "ci95": {
+                "lo": 3587,
+                "hi": 3601
+              }
+            },
+            "hookTermBonusShareBp": 509,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 472801,
+                "placeWord": 403854,
+                "placeWordPoints": 7370331,
+                "exchange": 15043,
+                "pass": 53904,
+                "noWordBp": 1458,
+                "budgetExhausted": 2777,
+                "budgetExhaustedBp": 59,
+                "fallbacksAfterEvaluation": 12036,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1337,
+                  "p95": 15099,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 16,
+                  "p95": 190,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 182,
+                "noviceOrIntermediateBp": 5406,
+                "meanScoreTenths": 3610
+              }
+            ],
+            "replayVerified": 10000
+          }
+        ]
+      },
+      {
+        "id": "dx-dw-248",
+        "lexiconVersion": "e568477b5592a994",
+        "profileId": "global-ranked",
+        "definitionHash": "da1f36a3747e0dfe",
+        "forms": 2154,
+        "terms": 1432,
+        "automaton": "gaddag",
+        "rules": {
+          "engineRulesVersion": 2,
+          "status": "draft",
+          "gameRules": "0.4-draft",
+          "candidate": "tb-0-2-4-8",
+          "layout": "classic-v1",
+          "letters": "letters-v2",
+          "termBonus": [0, 2, 4, 8],
+          "rulesDigest": "adecc93a11f54736"
+        },
+        "pairings": [
+          {
+            "id": "strategist-mirror",
+            "index": 0,
+            "a": "strategist",
+            "b": "strategist",
+            "matches": 10000,
+            "draws": 62,
+            "firstPlayerWin": {
+              "k": 5372,
+              "n": 9938,
+              "bp": 5406,
+              "ci95": {
+                "lo": 5307,
+                "hi": 5504
+              }
+            },
+            "aWin": {
+              "k": 0,
+              "n": 0,
+              "bp": 0,
+              "ci95": {
+                "lo": 0,
+                "hi": 10000
+              }
+            },
+            "endReasons": {
+              "going_out": 2191,
+              "scoreless_turns": 7809,
+              "resign": 0
+            },
+            "scorelessEndingBp": 7809,
+            "noWordTurnBp": 1419,
+            "noWordTurnBagNotEmptyBp": 434,
+            "bagEmptyAtEndBp": 9758,
+            "bagAtEnd": {
+              "empty": 9758,
+              "oneToSix": 163,
+              "sevenPlus": 79,
+              "spread": {
+                "p50": 0,
+                "p95": 0,
+                "max": 83
+              }
+            },
+            "prematureLock": {
+              "k": 79,
+              "n": 10000,
+              "bp": 79,
+              "ci95": {
+                "lo": 63,
+                "hi": 99
+              }
+            },
+            "tilesPlayed": {
+              "n": 10000,
+              "meanTenths": 946,
+              "ci95": {
+                "lo": 944,
+                "hi": 947
+              }
+            },
+            "passesPerMatch": {
+              "p50": 6,
+              "p95": 8,
+              "max": 13
+            },
+            "matchesWithPass": 8507,
+            "rackTilesAtEnd": {
+              "p50": 4,
+              "p95": 12,
+              "max": 14
+            },
+            "meanTotalScoreTenths": 6305,
+            "meanFirstMoverLeadTenths": 60,
+            "wordsPerMatchTenths": 402,
+            "actionsPerMatch": {
+              "p50": 47,
+              "p95": 54,
+              "max": 66
+            },
+            "top20TermShareBp": 2226,
+            "distinctTermsPlayed": 984,
+            "inflectionShareBp": 576,
+            "termBonusShareBp": 2556,
+            "termBonusShare": {
+              "n": 10000,
+              "bp": 2556,
+              "ci95": {
+                "lo": 2550,
+                "hi": 2562
+              }
+            },
+            "hookTermBonusShareBp": 512,
+            "personalities": [
+              {
+                "personality": "strategist",
+                "decisions": 468722,
+                "placeWord": 402228,
+                "placeWordPoints": 6440008,
+                "exchange": 14505,
+                "pass": 51989,
+                "noWordBp": 1419,
+                "budgetExhausted": 3303,
+                "budgetExhaustedBp": 70,
+                "fallbacksAfterEvaluation": 11807,
+                "candidatesRefused": 0,
+                "nodes": {
+                  "p50": 1393,
+                  "p95": 16179,
+                  "max": 70000
+                },
+                "candidatesEvaluated": {
+                  "p50": 18,
+                  "p95": 212,
+                  "max": 500
+                },
+                "pointsPerWordTenths": 160,
+                "noviceOrIntermediateBp": 5798,
+                "meanScoreTenths": 3152
+              }
+            ],
+            "replayVerified": 10000
+          }
+        ]
+      }
+    ]
+  }
+}
