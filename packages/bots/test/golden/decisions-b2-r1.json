@@ -72,7 +72,7 @@
       "seed": "00000000a2918652",
       "actions": 2,
       "personality": "strategist",
-      "key": "P0408A0508T0608N",
+      "key": "P0805T0905A1005T1105E",
       "nodesUsed": 1898,
       "candidatesEvaluated": 35,
       "budgetExhausted": false
@@ -144,7 +144,7 @@
       "seed": "00000000df0079b4",
       "actions": 6,
       "personality": "strategist",
-      "key": "P1104V1204N",
+      "key": "P0107G0207L",
       "nodesUsed": 2050,
       "candidatesEvaluated": 23,
       "budgetExhausted": false
@@ -180,7 +180,7 @@
       "seed": "000000007d37f365",
       "actions": 8,
       "personality": "strategist",
-      "key": "P1212S1312B",
+      "key": "P1212O1312B1412S",
       "nodesUsed": 2255,
       "candidatesEvaluated": 15,
       "budgetExhausted": false
@@ -216,7 +216,7 @@
       "seed": "000000001b6f6d16",
       "actions": 10,
       "personality": "strategist",
-      "key": "P0905R1005D",
+      "key": "P0210U0310H",
       "nodesUsed": 2813,
       "candidatesEvaluated": 42,
       "budgetExhausted": false
@@ -288,7 +288,7 @@
       "seed": "0000000057de6078",
       "actions": 14,
       "personality": "strategist",
-      "key": "P0602T0603T",
+      "key": "P0400T0401M0402R",
       "nodesUsed": 888,
       "candidatesEvaluated": 13,
       "budgetExhausted": false
@@ -540,7 +540,7 @@
       "seed": "00000000ab62b44f",
       "actions": 8,
       "personality": "strategist",
-      "key": "P0305X0306R",
+      "key": "P0109R0209M0309F0409O",
       "nodesUsed": 2198,
       "candidatesEvaluated": 26,
       "budgetExhausted": false
@@ -720,7 +720,7 @@
       "seed": "00000000c27814c4",
       "actions": 18,
       "personality": "strategist",
-      "key": "P1310T1410T",
+      "key": "P1109T1209O",
       "nodesUsed": 977,
       "candidatesEvaluated": 24,
       "budgetExhausted": false

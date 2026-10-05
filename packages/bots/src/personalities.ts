@@ -16,7 +16,12 @@ const LETTER_BONUS_DP: readonly number[] = Object.freeze(
   Array.from({ length: 26 }, (_, letter) => (letter === 18 ? 30 : 0)),
 );
 
-/** Strategist data, frozen for `BOT_VERSION` 2 after tuning on tuning seeds (B4 readout). */
+/**
+ * Strategist data, frozen for `BOT_VERSION` 2 after tuning on tuning seeds (B4 readout,
+ * docs/game/sim/2026-10-b4-strategist/). Changed from the spec's starting values to meet ST-2 (the strategy must
+ * add strength): denial only while leading (even and trailing 0 ‰), voluntary exchange up to 20 points
+ * (X-3) for a gain of ≥ 120 dp (X-5). Every other value is the starting value.
+ */
 export const STRATEGIST_STRATEGY: StrategyData = Object.freeze({
   leaveBlankDp: 150,
   leaveBaseDp: 20,
@@ -38,12 +43,12 @@ export const STRATEGIST_STRATEGY: StrategyData = Object.freeze({
   leadThreshold: 30,
   trailThreshold: 50,
   denialLeadPermille: 1500,
-  denialEvenPermille: 1000,
-  denialTrailPermille: 400,
+  denialEvenPermille: 0,
+  denialTrailPermille: 0,
   exchangeMaxScoreless: 2,
-  exchangeMaxScore: 14,
+  exchangeMaxScore: 20,
   exchangePoorLeaveDp: -80,
-  exchangeGainDp: 150,
+  exchangeGainDp: 120,
 });
 
 /**

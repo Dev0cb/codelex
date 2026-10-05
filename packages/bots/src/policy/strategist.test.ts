@@ -62,7 +62,12 @@ function run(
   };
 }
 
-function ranking(obs: Observation, lexicon: LexiconIndex, ablated = false): Scored[] {
+function ranking(
+  obs: Observation,
+  lexicon: LexiconIndex,
+  ablated = false,
+  strategy: StrategyData = STRATEGIST_STRATEGY,
+): Scored[] {
   const input: PolicyInput = {
     obs,
     lexicon,
@@ -72,7 +77,7 @@ function ranking(obs: Observation, lexicon: LexiconIndex, ablated = false): Scor
     view: boardView(obs, getLayout(obs.config.layout), lexicon),
     candidates: generateFor(obs, lexicon).candidates,
   };
-  return rankStrategist(input, input.candidates, STRATEGIST_STRATEGY, { ablated });
+  return rankStrategist(input, input.candidates, strategy, { ablated });
 }
 
 const keyOf = (s: Scored): string => s.key;
@@ -183,8 +188,9 @@ describe('S-2 lane blocking D (AC-6)', () => {
   const board = boardWith([[3, 5, 'A']]);
   const at = (teamScores: readonly number[], bag = 50): Observation =>
     craftedObservation(LEX, board, 'TQQXXZZ', bag, { teamScores, scorelessTurns: 3 });
-  const dOf = (obs: Observation): Record<string, number> =>
-    Object.fromEntries(ranking(obs, LEX).map((s) => [keyOf(s), s.d]));
+  const START = { ...STRATEGIST_STRATEGY, denialEvenPermille: 1000, denialTrailPermille: 400 };
+  const dOf = (obs: Observation, strategy: StrategyData = START): Record<string, number> =>
+    Object.fromEntries(ranking(obs, LEX, false, strategy).map((s) => [keyOf(s), s.d]));
 
   it('leading by ≥ 30: the move that keeps the TW lane closed ranks first; opening it costs 1500 ‰', () => {
     const ranked = ranking(at([30, 0]), LEX);
@@ -194,11 +200,20 @@ describe('S-2 lane blocking D (AC-6)', () => {
     expect(run(at([30, 0]), LEX, scriptedRng([0])).action).toBe('P0306T');
   });
 
-  it('even: 1000 ‰; trailing by ≥ 50: 400 ‰; bag empty: even whatever the score', () => {
+  it('starting weights: even 1000 ‰, trailing by ≥ 50 400 ‰, bag empty even whatever the score', () => {
     expect(dOf(at([29, 0]))['P0304T']).toBe(-80);
     expect(dOf(at([0, 50]))['P0304T']).toBe(-32);
     expect(dOf(at([0, 49]))['P0304T']).toBe(-80);
     expect(dOf(at([100, 0], 0))['P0304T']).toBe(-80);
+  });
+
+  it('frozen BOT_VERSION 2 data: no denial unless leading', () => {
+    const frozen = (obs: Observation): number | undefined =>
+      dOf(obs, STRATEGIST_STRATEGY)['P0304T'];
+    expect(frozen(at([30, 0]))).toBe(-120);
+    expect(frozen(at([29, 0]))).toBe(0);
+    expect(frozen(at([0, 50]))).toBe(0);
+    expect(frozen(at([100, 0], 0))).toBe(0);
   });
 
   it('lead = own team − best other team', () => {

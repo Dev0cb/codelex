@@ -76,13 +76,26 @@ describe('hot squares', () => {
 });
 
 describe('denial mode (GD-4 edges)', () => {
+  // The mechanism, with the spec's starting weights (1500 / 1000 / 400 ‰).
+  const START = { ...S, denialEvenPermille: 1000, denialTrailPermille: 400 };
+
   it('leading at ≥ +30, trailing at ≤ −50, even otherwise and whenever the bag is empty', () => {
+    expect(denialPermille(30, 50, START)).toBe(1500);
+    expect(denialPermille(29, 50, START)).toBe(1000);
+    expect(denialPermille(-49, 50, START)).toBe(1000);
+    expect(denialPermille(-50, 50, START)).toBe(400);
+    expect(denialPermille(100, 0, START)).toBe(1000);
+    expect(denialPermille(-100, 0, START)).toBe(1000);
+  });
+
+  it('BOT_VERSION 2 frozen data denies only while leading (B4 tuning, ST-2)', () => {
+    expect([S.denialLeadPermille, S.denialEvenPermille, S.denialTrailPermille]).toEqual([
+      1500, 0, 0,
+    ]);
     expect(denialPermille(30, 50, S)).toBe(1500);
-    expect(denialPermille(29, 50, S)).toBe(1000);
-    expect(denialPermille(-49, 50, S)).toBe(1000);
-    expect(denialPermille(-50, 50, S)).toBe(400);
-    expect(denialPermille(100, 0, S)).toBe(1000);
-    expect(denialPermille(-100, 0, S)).toBe(1000);
+    expect(denialPermille(29, 50, S)).toBe(0);
+    expect(denialPermille(-50, 50, S)).toBe(0);
+    expect(denialPermille(100, 0, S)).toBe(0);
   });
 });
 
