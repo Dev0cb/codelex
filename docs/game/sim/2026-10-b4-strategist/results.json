@@ -1,0 +1,789 @@
+{
+  "botVersion": 2,
+  "engineRulesVersion": 1,
+  "mainCommit": "2985c45",
+  "lexiconCommit": "b3ab7bb (batch 3, #62)",
+  "automatonShipped": "f1 (gaddag)",
+  "tuningSeed": "2026100400000a00",
+  "confirmationSeed": "2026100400000b07",
+  "jobs": {
+    "st1b": {
+      "id": "st1b",
+      "what": "ST-1b, ST-4b, ST-5, BG-5",
+      "masterSeed": "2026100400000a00",
+      "pairingIndex": 0,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "strategist",
+      "b": "beginner",
+      "matches": 2000,
+      "draws": 7,
+      "aWin": {
+        "k": 1639,
+        "n": 1993,
+        "bp": 8224,
+        "ci95": {
+          "lo": 8049,
+          "hi": 8386
+        }
+      },
+      "firstPlayerWin": {
+        "k": 1000,
+        "n": 1993,
+        "bp": 5018,
+        "ci95": {
+          "lo": 4798,
+          "hi": 5237
+        }
+      },
+      "scorelessEndings": 1829,
+      "prematureLocks": 22,
+      "prematureLockBp": 110,
+      "tilesPlayedTenths": 925,
+      "meanTotalScoreTenths": 7564,
+      "replayVerified": 2000,
+      "bots": [
+        {
+          "id": "strategist",
+          "decisions": 50076,
+          "placeWord": 41987,
+          "exchange": 2054,
+          "pass": 6035,
+          "pointsPerWordTenths": 202,
+          "noviceOrIntermediateBp": 5238,
+          "budgetExhausted": 168,
+          "budgetExhaustedBp": 34,
+          "twoBlankDecisions": 201,
+          "twoBlankExhausted": 73,
+          "nodes": {
+            "p50": 1183,
+            "p95": 12105,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 12,
+            "p95": 141,
+            "max": 500
+          },
+          "turnsBag7": 36748,
+          "voluntaryExchanges": 1491,
+          "voluntaryExchangeBp": 406,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -523765,
+          "leaveRawN": 34694,
+          "meanLeaveRawTenthsDp": -151,
+          "leadingMoves": 14067,
+          "leadingTwOpened": 913,
+          "chainWords": 329,
+          "chainWordBp": 78
+        },
+        {
+          "id": "beginner",
+          "decisions": 50050,
+          "placeWord": 42906,
+          "exchange": 851,
+          "pass": 6293,
+          "pointsPerWordTenths": 166,
+          "noviceOrIntermediateBp": 9447,
+          "budgetExhausted": 0,
+          "budgetExhaustedBp": 0,
+          "twoBlankDecisions": 27,
+          "twoBlankExhausted": 0,
+          "nodes": {
+            "p50": 935,
+            "p95": 3096,
+            "max": 58980
+          },
+          "candidatesEvaluated": {
+            "p50": 5,
+            "p95": 38,
+            "max": 300
+          },
+          "turnsBag7": 36794,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -2605465,
+          "leaveRawN": 35943,
+          "meanLeaveRawTenthsDp": -725,
+          "leadingMoves": 1991,
+          "leadingTwOpened": 323,
+          "chainWords": 276,
+          "chainWordBp": 64
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "st2": {
+      "id": "st2",
+      "what": "ST-2",
+      "masterSeed": "2026100400000a00",
+      "pairingIndex": 1,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "strategist",
+      "b": "strategist-ablated",
+      "matches": 2000,
+      "draws": 13,
+      "aWin": {
+        "k": 1104,
+        "n": 1987,
+        "bp": 5556,
+        "ci95": {
+          "lo": 5336,
+          "hi": 5774
+        }
+      },
+      "firstPlayerWin": {
+        "k": 1033,
+        "n": 1987,
+        "bp": 5199,
+        "ci95": {
+          "lo": 4978,
+          "hi": 5418
+        }
+      },
+      "scorelessEndings": 1835,
+      "prematureLocks": 37,
+      "prematureLockBp": 185,
+      "tilesPlayedTenths": 922,
+      "meanTotalScoreTenths": 8004,
+      "replayVerified": 2000,
+      "bots": [
+        {
+          "id": "strategist",
+          "decisions": 49126,
+          "placeWord": 41222,
+          "exchange": 1957,
+          "pass": 5947,
+          "pointsPerWordTenths": 201,
+          "noviceOrIntermediateBp": 5284,
+          "budgetExhausted": 170,
+          "budgetExhaustedBp": 35,
+          "twoBlankDecisions": 203,
+          "twoBlankExhausted": 82,
+          "nodes": {
+            "p50": 1199,
+            "p95": 11924,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 12,
+            "p95": 142,
+            "max": 500
+          },
+          "turnsBag7": 35898,
+          "voluntaryExchanges": 1378,
+          "voluntaryExchangeBp": 384,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -490275,
+          "leaveRawN": 33941,
+          "meanLeaveRawTenthsDp": -144,
+          "leadingMoves": 6462,
+          "leadingTwOpened": 378,
+          "chainWords": 317,
+          "chainWordBp": 77
+        },
+        {
+          "id": "strategist-ablated",
+          "decisions": 49024,
+          "placeWord": 41869,
+          "exchange": 929,
+          "pass": 6226,
+          "pointsPerWordTenths": 194,
+          "noviceOrIntermediateBp": 5195,
+          "budgetExhausted": 72,
+          "budgetExhaustedBp": 15,
+          "twoBlankDecisions": 22,
+          "twoBlankExhausted": 14,
+          "nodes": {
+            "p50": 968,
+            "p95": 3297,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 9,
+            "p95": 60,
+            "max": 500
+          },
+          "turnsBag7": 35926,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -2415400,
+          "leaveRawN": 34997,
+          "meanLeaveRawTenthsDp": -690,
+          "leadingMoves": 6034,
+          "leadingTwOpened": 1002,
+          "chainWords": 246,
+          "chainWordBp": 59
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "st3": {
+      "id": "st3",
+      "what": "ST-3, ST-4a, ST-4c, ST-4d",
+      "masterSeed": "2026100400000a00",
+      "pairingIndex": 2,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "greedy",
+      "b": "strategist",
+      "matches": 2000,
+      "draws": 9,
+      "aWin": {
+        "k": 1559,
+        "n": 1991,
+        "bp": 7830,
+        "ci95": {
+          "lo": 7643,
+          "hi": 8006
+        }
+      },
+      "firstPlayerWin": {
+        "k": 1050,
+        "n": 1991,
+        "bp": 5274,
+        "ci95": {
+          "lo": 5054,
+          "hi": 5493
+        }
+      },
+      "scorelessEndings": 1805,
+      "prematureLocks": 15,
+      "prematureLockBp": 75,
+      "tilesPlayedTenths": 931,
+      "meanTotalScoreTenths": 8622,
+      "replayVerified": 2000,
+      "bots": [
+        {
+          "id": "greedy",
+          "decisions": 48041,
+          "placeWord": 41125,
+          "exchange": 735,
+          "pass": 6181,
+          "pointsPerWordTenths": 230,
+          "noviceOrIntermediateBp": 4127,
+          "budgetExhausted": 3,
+          "budgetExhaustedBp": 1,
+          "twoBlankDecisions": 26,
+          "twoBlankExhausted": 3,
+          "nodes": {
+            "p50": 961,
+            "p95": 3336,
+            "max": 68667
+          },
+          "candidatesEvaluated": {
+            "p50": 10,
+            "p95": 65,
+            "max": 2000
+          },
+          "turnsBag7": 35003,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -2221725,
+          "leaveRawN": 34268,
+          "meanLeaveRawTenthsDp": -648,
+          "leadingMoves": 14314,
+          "leadingTwOpened": 2405,
+          "chainWords": 225,
+          "chainWordBp": 55
+        },
+        {
+          "id": "strategist",
+          "decisions": 48061,
+          "placeWord": 40334,
+          "exchange": 1804,
+          "pass": 5923,
+          "pointsPerWordTenths": 202,
+          "noviceOrIntermediateBp": 5278,
+          "budgetExhausted": 172,
+          "budgetExhaustedBp": 36,
+          "twoBlankDecisions": 238,
+          "twoBlankExhausted": 85,
+          "nodes": {
+            "p50": 1181,
+            "p95": 12044,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 12,
+            "p95": 146,
+            "max": 500
+          },
+          "turnsBag7": 34908,
+          "voluntaryExchanges": 1333,
+          "voluntaryExchangeBp": 382,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -489340,
+          "leaveRawN": 33104,
+          "meanLeaveRawTenthsDp": -148,
+          "leadingMoves": 1795,
+          "leadingTwOpened": 117,
+          "chainWords": 331,
+          "chainWordBp": 82
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "st7-strategist": {
+      "id": "st7-strategist",
+      "what": "ST-7, ST-8, ST-4b",
+      "masterSeed": "2026100400000a00",
+      "pairingIndex": 3,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "strategist",
+      "b": "strategist",
+      "matches": 10000,
+      "draws": 45,
+      "aWin": {
+        "k": 0,
+        "n": 0,
+        "bp": 0,
+        "ci95": {
+          "lo": 0,
+          "hi": 10000
+        }
+      },
+      "firstPlayerWin": {
+        "k": 5267,
+        "n": 9955,
+        "bp": 5291,
+        "ci95": {
+          "lo": 5192,
+          "hi": 5389
+        }
+      },
+      "scorelessEndings": 9139,
+      "prematureLocks": 131,
+      "prematureLockBp": 131,
+      "tilesPlayedTenths": 926,
+      "meanTotalScoreTenths": 8031,
+      "replayVerified": 10000,
+      "bots": [
+        {
+          "id": "strategist",
+          "decisions": 493070,
+          "placeWord": 412062,
+          "exchange": 20637,
+          "pass": 60371,
+          "pointsPerWordTenths": 200,
+          "noviceOrIntermediateBp": 5308,
+          "budgetExhausted": 1615,
+          "budgetExhaustedBp": 33,
+          "twoBlankDecisions": 1976,
+          "twoBlankExhausted": 772,
+          "nodes": {
+            "p50": 1196,
+            "p95": 12181,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 12,
+            "p95": 140,
+            "max": 500
+          },
+          "turnsBag7": 361886,
+          "voluntaryExchanges": 15443,
+          "voluntaryExchangeBp": 427,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -5194400,
+          "leaveRawN": 341249,
+          "meanLeaveRawTenthsDp": -152,
+          "leadingMoves": 61712,
+          "leadingTwOpened": 3665,
+          "chainWords": 3163,
+          "chainWordBp": 77
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "st7-greedy": {
+      "id": "st7-greedy",
+      "what": "ST-7, ST-8 (same seeds)",
+      "masterSeed": "2026100400000a00",
+      "pairingIndex": 3,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "greedy",
+      "b": "greedy",
+      "matches": 10000,
+      "draws": 51,
+      "aWin": {
+        "k": 0,
+        "n": 0,
+        "bp": 0,
+        "ci95": {
+          "lo": 0,
+          "hi": 10000
+        }
+      },
+      "firstPlayerWin": {
+        "k": 5163,
+        "n": 9949,
+        "bp": 5189,
+        "ci95": {
+          "lo": 5091,
+          "hi": 5288
+        }
+      },
+      "scorelessEndings": 9172,
+      "prematureLocks": 123,
+      "prematureLockBp": 123,
+      "tilesPlayedTenths": 929,
+      "meanTotalScoreTenths": 9123,
+      "replayVerified": 10000,
+      "bots": [
+        {
+          "id": "greedy",
+          "decisions": 469014,
+          "placeWord": 401292,
+          "exchange": 6591,
+          "pass": 61131,
+          "pointsPerWordTenths": 232,
+          "noviceOrIntermediateBp": 4076,
+          "budgetExhausted": 27,
+          "budgetExhaustedBp": 1,
+          "twoBlankDecisions": 248,
+          "twoBlankExhausted": 27,
+          "nodes": {
+            "p50": 970,
+            "p95": 3445,
+            "max": 94797
+          },
+          "candidatesEvaluated": {
+            "p50": 10,
+            "p95": 68,
+            "max": 2000
+          },
+          "turnsBag7": 338191,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -20632100,
+          "leaveRawN": 331600,
+          "meanLeaveRawTenthsDp": -622,
+          "leadingMoves": 62769,
+          "leadingTwOpened": 10488,
+          "chainWords": 2225,
+          "chainWordBp": 55
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "bg5": {
+      "id": "bg5",
+      "what": "BG-5 (Beginner mirror)",
+      "masterSeed": "2026100400000a00",
+      "pairingIndex": 4,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "beginner",
+      "b": "beginner",
+      "matches": 2000,
+      "draws": 13,
+      "aWin": {
+        "k": 0,
+        "n": 0,
+        "bp": 0,
+        "ci95": {
+          "lo": 0,
+          "hi": 10000
+        }
+      },
+      "firstPlayerWin": {
+        "k": 1051,
+        "n": 1987,
+        "bp": 5289,
+        "ci95": {
+          "lo": 5069,
+          "hi": 5509
+        }
+      },
+      "scorelessEndings": 1882,
+      "prematureLocks": 35,
+      "prematureLockBp": 175,
+      "tilesPlayedTenths": 919,
+      "meanTotalScoreTenths": 7034,
+      "replayVerified": 2000,
+      "bots": [
+        {
+          "id": "beginner",
+          "decisions": 100917,
+          "placeWord": 86524,
+          "exchange": 1776,
+          "pass": 12617,
+          "pointsPerWordTenths": 168,
+          "noviceOrIntermediateBp": 9416,
+          "budgetExhausted": 1,
+          "budgetExhaustedBp": 0,
+          "twoBlankDecisions": 46,
+          "twoBlankExhausted": 1,
+          "nodes": {
+            "p50": 937,
+            "p95": 3195,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 5,
+            "p95": 40,
+            "max": 300
+          },
+          "turnsBag7": 74139,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -5055150,
+          "leaveRawN": 72363,
+          "meanLeaveRawTenthsDp": -699,
+          "leadingMoves": 14293,
+          "leadingTwOpened": 2275,
+          "chainWords": 569,
+          "chainWordBp": 66
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "st1": {
+      "id": "st1",
+      "what": "ST-1 confirmation (pre-registered)",
+      "masterSeed": "2026100400000b07",
+      "pairingIndex": 10,
+      "lexicon": "main-f1",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "gaddag",
+      "a": "strategist",
+      "b": "beginner",
+      "matches": 2000,
+      "draws": 8,
+      "aWin": {
+        "k": 1650,
+        "n": 1992,
+        "bp": 8283,
+        "ci95": {
+          "lo": 8111,
+          "hi": 8443
+        }
+      },
+      "firstPlayerWin": {
+        "k": 1025,
+        "n": 1992,
+        "bp": 5146,
+        "ci95": {
+          "lo": 4926,
+          "hi": 5365
+        }
+      },
+      "scorelessEndings": 1858,
+      "prematureLocks": 28,
+      "prematureLockBp": 140,
+      "tilesPlayedTenths": 921,
+      "meanTotalScoreTenths": 7529,
+      "replayVerified": 2000,
+      "bots": [
+        {
+          "id": "strategist",
+          "decisions": 49954,
+          "placeWord": 41843,
+          "exchange": 2089,
+          "pass": 6022,
+          "pointsPerWordTenths": 201,
+          "noviceOrIntermediateBp": 5208,
+          "budgetExhausted": 181,
+          "budgetExhaustedBp": 36,
+          "twoBlankDecisions": 202,
+          "twoBlankExhausted": 82,
+          "nodes": {
+            "p50": 1187,
+            "p95": 11622,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 12,
+            "p95": 138,
+            "max": 500
+          },
+          "turnsBag7": 36722,
+          "voluntaryExchanges": 1467,
+          "voluntaryExchangeBp": 399,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -535700,
+          "leaveRawN": 34633,
+          "meanLeaveRawTenthsDp": -155,
+          "leadingMoves": 13876,
+          "leadingTwOpened": 913,
+          "chainWords": 331,
+          "chainWordBp": 79
+        },
+        {
+          "id": "beginner",
+          "decisions": 49930,
+          "placeWord": 42678,
+          "exchange": 910,
+          "pass": 6342,
+          "pointsPerWordTenths": 166,
+          "noviceOrIntermediateBp": 9459,
+          "budgetExhausted": 2,
+          "budgetExhaustedBp": 0,
+          "twoBlankDecisions": 29,
+          "twoBlankExhausted": 2,
+          "nodes": {
+            "p50": 941,
+            "p95": 3223,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 5,
+            "p95": 39,
+            "max": 300
+          },
+          "turnsBag7": 36745,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -2573345,
+          "leaveRawN": 35835,
+          "meanLeaveRawTenthsDp": -718,
+          "leadingMoves": 2004,
+          "leadingTwOpened": 348,
+          "chainWords": 286,
+          "chainWordBp": 67
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    },
+    "st1-f0": {
+      "id": "st1-f0",
+      "what": "ST-1 confirmation seeds on f0 (automaton check, reported)",
+      "masterSeed": "2026100400000b07",
+      "pairingIndex": 10,
+      "lexicon": "main-f0",
+      "lexiconVersion": "e568477b5592a994",
+      "forms": 2154,
+      "automaton": "dawg",
+      "a": "strategist",
+      "b": "beginner",
+      "matches": 2000,
+      "draws": 8,
+      "aWin": {
+        "k": 1651,
+        "n": 1992,
+        "bp": 8288,
+        "ci95": {
+          "lo": 8116,
+          "hi": 8448
+        }
+      },
+      "firstPlayerWin": {
+        "k": 1024,
+        "n": 1992,
+        "bp": 5141,
+        "ci95": {
+          "lo": 4921,
+          "hi": 5360
+        }
+      },
+      "scorelessEndings": 1857,
+      "prematureLocks": 28,
+      "prematureLockBp": 140,
+      "tilesPlayedTenths": 921,
+      "meanTotalScoreTenths": 7529,
+      "replayVerified": 2000,
+      "bots": [
+        {
+          "id": "strategist",
+          "decisions": 49954,
+          "placeWord": 41845,
+          "exchange": 2089,
+          "pass": 6020,
+          "pointsPerWordTenths": 201,
+          "noviceOrIntermediateBp": 5207,
+          "budgetExhausted": 175,
+          "budgetExhaustedBp": 35,
+          "twoBlankDecisions": 198,
+          "twoBlankExhausted": 76,
+          "nodes": {
+            "p50": 1143,
+            "p95": 10512,
+            "max": 70000
+          },
+          "candidatesEvaluated": {
+            "p50": 12,
+            "p95": 138,
+            "max": 500
+          },
+          "turnsBag7": 36722,
+          "voluntaryExchanges": 1465,
+          "voluntaryExchangeBp": 399,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -538280,
+          "leaveRawN": 34633,
+          "meanLeaveRawTenthsDp": -155,
+          "leadingMoves": 13881,
+          "leadingTwOpened": 915,
+          "chainWords": 331,
+          "chainWordBp": 79
+        },
+        {
+          "id": "beginner",
+          "decisions": 49930,
+          "placeWord": 42679,
+          "exchange": 911,
+          "pass": 6340,
+          "pointsPerWordTenths": 166,
+          "noviceOrIntermediateBp": 9459,
+          "budgetExhausted": 0,
+          "budgetExhaustedBp": 0,
+          "twoBlankDecisions": 29,
+          "twoBlankExhausted": 0,
+          "nodes": {
+            "p50": 916,
+            "p95": 2863,
+            "max": 64216
+          },
+          "candidatesEvaluated": {
+            "p50": 5,
+            "p95": 39,
+            "max": 300
+          },
+          "turnsBag7": 36745,
+          "voluntaryExchanges": 0,
+          "voluntaryExchangeBp": 0,
+          "voluntaryAtScoreless3": 0,
+          "leaveRawSum": -2572315,
+          "leaveRawN": 35834,
+          "meanLeaveRawTenthsDp": -718,
+          "leadingMoves": 1996,
+          "leadingTwOpened": 348,
+          "chainWords": 282,
+          "chainWordBp": 66
+        }
+      ],
+      "strategistPatch": "{}",
+      "determinismRecheck": 100
+    }
+  }
+}

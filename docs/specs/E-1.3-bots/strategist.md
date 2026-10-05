@@ -283,6 +283,10 @@ AC-8's 4 s perceived bound) before the freeze. No other Beginner field changes.
      a pure refactor.
 
    B4 re-applies the formula and records the result here.
+
+   *B4 record (2026-10-05):* the cheaper key build moved Node two-blank `c_node` on the 2,000-form fixture from
+   0.84 to 0.77–0.80 µs (GADDAG) and 1.31 to 1.27–1.33 µs (DAWG), within host noise of the B2 basis. P3 constants
+   had not landed. The formula is not re-applied; 70,000 / 500 stands (`docs/game/sim/2026-10-b4-strategist/`).
 2. **After B4 merges**, the budget is frozen with `BOT_VERSION` 2. **Device numbers from H1 trigger
    `BOT_VERSION` 3**, which re-applies the formula with measured `T_fixed`, `c_node` and `c_cand`. No other path
    changes the budget, and wall-clock stopping stays banned (BOT-3).
@@ -387,6 +391,14 @@ Written before any Strategist run, so the gate cannot be tuned against itself:
   new candidate data set, tuned on tuning seeds only, and needs a new confirmation run under the same master seed,
   also reported.
 - **Output:** results JSON and a digest committed next to the B4 PR (sprint rule: full runs leave PR CI).
+
+### B4 result (2026-10-05)
+
+Readout: `docs/game/sim/2026-10-b4-strategist/readout.md`. ST-1 82.83 % [81.11, 84.43] (pass). ST-1b, ST-2,
+ST-4a–d, ST-5, ST-6 and ST-7 meet their targets on tuning seeds. ST-8 gap +1.02 points (> 1.0): game-designer
+review before S4 enables the bot. Tuned away from the starting values: `denialEvenPermille` and
+`denialTrailPermille` 0 (denial only while leading), `exchangeMaxScore` 20, `exchangeGainDp` 120. BG-5 0.00 %:
+Beginner keeps 70,000 / 300.
 
 ## Human-win guardrail (playtest)
 
