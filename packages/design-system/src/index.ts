@@ -1,6 +1,6 @@
 /**
  * Public API of `@codelex/design-system`: design tokens (placeholder values until the E-1.4 v1 spec lands) and
- * contrast checks. Components (board renderer, buttons) arrive with slice S1.
+ * contrast checks, board/motion/layout tokens (S1). The board renderer lives in `apps/mobile` (E-1.4 A-4 reversal).
  */
 export {
   COLOR_ROLES,
@@ -23,6 +23,20 @@ export {
   type TypeScale,
   type TypeStyle,
 } from './tokens.js';
+export {
+  BOARD_COLOR_ROLES,
+  BOARD_CONTRAST_PAIRS,
+  boardContrastFailures,
+  mixHex,
+  type BoardColorRole,
+  type BoardContrastFailure,
+  type BoardContrastPair,
+  type BoardPalette,
+  type LayoutTokens,
+  type MotionTokens,
+  type OverlayTokens,
+  type RadiusTokens,
+} from './board-tokens.js';
 export {
   CONTRAST_PAIRS,
   MIN_TEXT_CONTRAST,
