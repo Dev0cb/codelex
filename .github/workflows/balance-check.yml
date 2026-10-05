@@ -1,0 +1,245 @@
+name: Balance check (v2, pre-registered)
+
+# docs/specs/E-1.6-balance/v2-balance-check.md §5.3 and §6. Dispatch only (never pull_request or push, never PR CI).
+# Seed, variants, pairings and match counts are NOT inputs: the simulator's `--suite balance-check` fixes them from
+# the pre-registration (§2-§4), and this file passes no flag that could change them. Runbook:
+# docs/runbooks/balance-check.md. This workflow never commits; recording is a follow-up docs PR (§6).
+on:
+  workflow_dispatch:
+    inputs:
+      code_commit:
+        description: "Code commit (§4.4): full 40-char SHA of the main commit containing B3, B4, E6, L7 and the spec"
+        required: true
+        type: string
+      lexicon_commit:
+        description: "Lexicon commit (§4.3): full 40-char SHA of the merged batch-3 commit (AC-14 met)"
+        required: true
+        type: string
+      prereg_blob:
+        description: "Git blob SHA of docs/specs/E-1.6-balance/v2-balance-check.md at the code commit (checked before simulating)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# No `concurrency` group on purpose: a group keeps one pending run and cancels older pending ones, and a pending run
+# would not execute `prepare`. Instead `prepare` fails fast when another run of this workflow is queued or running
+# (only one registered run may exist, §5.4); a re-run of failed jobs is the same run and is not counted.
+
+env:
+  PREREG_PATH: docs/specs/E-1.6-balance/v2-balance-check.md
+  RETENTION_DAYS: 90
+
+jobs:
+  prepare:
+    name: Verify inputs and derive provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      code_commit: ${{ steps.verify.outputs.code_commit }}
+      lexicon_commit: ${{ steps.verify.outputs.lexicon_commit }}
+      prereg_blob: ${{ steps.verify.outputs.prereg_blob }}
+      lexicon_version: ${{ steps.identity.outputs.lexicon_version }}
+      definition_hash: ${{ steps.identity.outputs.definition_hash }}
+      started_at: ${{ steps.verify.outputs.started_at }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Refuse a second concurrent run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          others=""
+          for status in queued in_progress waiting pending requested; do
+            found=$(gh api "repos/$REPO/actions/workflows/balance-check.yml/runs?status=$status&per_page=100" \
+              --jq ".workflow_runs[] | select(.id != $RUN_ID) | .html_url")
+            others="$others$found"
+          done
+          if [ -n "$others" ]; then
+            echo "::error::another balance-check run is queued or running: $others"; exit 1
+          fi
+      - name: Verify commits and pre-registration blob
+        id: verify
+        env:
+          CODE_COMMIT: ${{ inputs.code_commit }}
+          LEXICON_COMMIT: ${{ inputs.lexicon_commit }}
+          PREREG_BLOB: ${{ inputs.prereg_blob }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          for v in CODE_COMMIT LEXICON_COMMIT PREREG_BLOB; do
+            if ! printf '%s' "${!v}" | grep -Eq '^[0-9a-f]{40}$'; then
+              echo "::error::$v must be 40 lowercase hex characters"; exit 1
+            fi
+          done
+          # The reviewed workflow file must be the one on main, and the code must be a main commit (§4.4).
+          if [ "$REF" != "refs/heads/main" ]; then
+            echo "::error::dispatch from main only (got $REF)"; exit 1
+          fi
+          git merge-base --is-ancestor "$CODE_COMMIT" origin/main \
+            || { echo "::error::code commit is not on main"; exit 1; }
+          # The lexicon data actually simulated (at the code commit) must be the data of the lexicon commit (§4.3).
+          git merge-base --is-ancestor "$LEXICON_COMMIT" "$CODE_COMMIT" \
+            || { echo "::error::lexicon commit is not an ancestor of the code commit"; exit 1; }
+          git diff --quiet "$LEXICON_COMMIT" "$CODE_COMMIT" -- packages/lexicon/data \
+            || { echo "::error::packages/lexicon/data differs between the lexicon and code commits"; exit 1; }
+          actual="$(git rev-parse "$CODE_COMMIT:$PREREG_PATH")"
+          if [ "$actual" != "$PREREG_BLOB" ]; then
+            echo "::error::pre-registration blob at the code commit is $actual, not $PREREG_BLOB"; exit 1
+          fi
+          {
+            echo "code_commit=$CODE_COMMIT"
+            echo "lexicon_commit=$LEXICON_COMMIT"
+            echo "prereg_blob=$PREREG_BLOB"
+            echo "started_at=$(date +%s)"
+          } >> "$GITHUB_OUTPUT"
+      - name: Check out the code commit
+        env:
+          CODE_COMMIT: ${{ steps.verify.outputs.code_commit }}
+        run: git checkout --detach "$CODE_COMMIT"
+      - name: Lexicon version and definition hash (computed from the repo)
+        id: identity
+        run: node tools/balance-check/lexicon-identity.mjs | tee -a "$GITHUB_OUTPUT"
+
+  simulate:
+    # One job per variant set (§5.3-2: splitting is not a parameter change). The B2 harness took ~45 min per variant
+    # set; Strategist is slower, so the 6 h hosted-runner limit is the reason to split.
+    name: Simulate ${{ matrix.id }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: v1
+            variants: v1
+          - id: v2-3612
+            variants: v2-3612
+          - id: v2-248
+            variants: v2-248
+          - id: diagnostics
+            variants: dx-dw-3612,dx-dw-248
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.prepare.outputs.code_commit }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The simulator compiles against the built game-engine and lexicon packages (dist), as in CI.
+      - run: pnpm turbo run build --filter='@codelex/bots^...'
+      - name: Simulate (suite balance-check; seed and counts are the suite's fixed values)
+        env:
+          VARIANTS: ${{ matrix.variants }}
+          CODE_COMMIT: ${{ needs.prepare.outputs.code_commit }}
+          LEXICON_COMMIT: ${{ needs.prepare.outputs.lexicon_commit }}
+          PREREG_BLOB: ${{ needs.prepare.outputs.prereg_blob }}
+          LEXICON_VERSION: ${{ needs.prepare.outputs.lexicon_version }}
+          DEFINITION_HASH: ${{ needs.prepare.outputs.definition_hash }}
+          JOB_ID: ${{ matrix.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p packages/bots/sim-results
+          start=$(date +%s)
+          pnpm --filter @codelex/bots simulate -- \
+            --suite balance-check \
+            --variants "$VARIANTS" \
+            --code-commit "$CODE_COMMIT" \
+            --lexicon-commit "$LEXICON_COMMIT" \
+            --prereg-blob "$PREREG_BLOB" \
+            --lexicon-version "$LEXICON_VERSION" \
+            --definition-hash "$DEFINITION_HASH" \
+            --out "sim-results/results-$JOB_ID.json" \
+            --markdown "sim-results/readout-$JOB_ID.md" \
+            2>&1 | tee "packages/bots/sim-results/log-$JOB_ID.txt"
+          echo "$(( $(date +%s) - start ))" | tee "packages/bots/sim-results/job-seconds-$JOB_ID.txt"
+      - name: Upload job results
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: balance-check-job-${{ matrix.id }}
+          path: packages/bots/sim-results/
+          if-no-files-found: error
+          retention-days: ${{ env.RETENTION_DAYS }}
+      - name: Upload failed attempt (evidence for the §5.4 a record, never evaluated against §3)
+        # Own name per attempt: "Re-run failed jobs" never clashes with, or overwrites, the failed attempt.
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: balance-check-failed-${{ matrix.id }}-attempt-${{ github.run_attempt }}
+          path: packages/bots/sim-results/
+          if-no-files-found: warn
+          retention-days: ${{ env.RETENTION_DAYS }}
+
+  merge:
+    name: Merge and readout
+    needs: [prepare, simulate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.prepare.outputs.code_commit }}
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The simulator compiles against the built game-engine and lexicon packages (dist), as in CI.
+      - run: pnpm turbo run build --filter='@codelex/bots^...'
+      - name: Download job results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          # Success artifacts only: a job that succeeded is never re-run, so there is exactly one per variant set.
+          pattern: balance-check-job-*
+          path: packages/bots/sim-inputs
+      - name: Merge (readout --merge)
+        env:
+          STARTED_AT: ${{ needs.prepare.outputs.started_at }}
+          LEXICON_VERSION: ${{ needs.prepare.outputs.lexicon_version }}
+          DEFINITION_HASH: ${{ needs.prepare.outputs.definition_hash }}
+        run: |
+          set -euo pipefail
+          mkdir -p packages/bots/sim-results
+          # Wall time of the whole dispatch: prepare start to now, in whole seconds (§6).
+          wall=$(( $(date +%s) - STARTED_AT ))
+          # Data artifacts only: the merge reads the per-job results JSON, never the logs.
+          inputs=$(cd packages/bots && ls sim-inputs/*/results-*.json | sort)
+          echo "merge inputs: $inputs"
+          # shellcheck disable=SC2086
+          pnpm --filter @codelex/bots readout -- \
+            --merge $inputs \
+            --lexicon-version "$LEXICON_VERSION" \
+            --definition-hash "$DEFINITION_HASH" \
+            --wall-time-s "$wall" \
+            --out sim-results/balance-check-results.json \
+            --markdown sim-results/balance-check-readout.md \
+            2>&1 | tee packages/bots/sim-results/log-merge.txt
+          cat packages/bots/sim-results/balance-check-readout.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload merged readout
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: balance-check-readout-attempt-${{ github.run_attempt }}
+          path: packages/bots/sim-results/
+          if-no-files-found: warn
+          retention-days: ${{ env.RETENTION_DAYS }}
