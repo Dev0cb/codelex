@@ -11,7 +11,8 @@
  * INVALID (I-3), so a smoke result can never be read as balance evidence.
  */
 import type { LexiconIndex } from '@codelex/lexicon/index';
-import { PERSONALITIES } from '../src/index.js';
+import { rulesFor } from '@codelex/game-engine';
+import { PERSONALITIES, type BotBudget, type PersonalityData } from '../src/index.js';
 import { GREEDY_MATCHED } from './bots.js';
 import { RULES_V1, rulesV2, type RulesSelection } from './rules.js';
 import type { Pairing, SimBotId, SuiteSpec, Variant } from './simulate.js';
@@ -21,8 +22,10 @@ export const PRE_REGISTRATION = Object.freeze({
   masterSeed: '2026100400000e16',
   mirrorMatches: 10_000,
   pairMatches: 2_000,
-  /** §3.1 common settings: `BOT_VERSION` 2. */
+  /** §3.1 common settings: `BOT_VERSION` 2 (the §5.2 greedy path also accepts 1: clarification 2026-10-05). */
   botVersion: 2,
+  /** §4.3: the profile the playtest ships. */
+  profileId: 'global-ranked',
 });
 
 export const STRATEGIST = 'strategist';
@@ -59,6 +62,60 @@ export const BALANCE_VARIANTS: readonly BalanceVariant[] = Object.freeze([
 /** True iff the bots package ships a `strategist` personality (B4). */
 export function strategistAvailable(): boolean {
   return Object.prototype.hasOwnProperty.call(PERSONALITIES, STRATEGIST);
+}
+
+/** The Strategist budget recorded in every results JSON (§6), or null before B4. */
+export function strategistBudget(): BotBudget | null {
+  if (!strategistAvailable()) return null;
+  const table: Readonly<Record<string, PersonalityData | undefined>> = PERSONALITIES;
+  return table[STRATEGIST]?.budget ?? null;
+}
+
+/** §1.3: a v2 run outside the registered suite plays at most this many matches per pairing. */
+export const SMOKE_MAX_MATCHES = 100;
+
+/**
+ * True iff `spec` is the registered suite of §2–§4: the pre-registered seed, every variant a §2 variant with its
+ * §2 rules, and every pairing at its §4.2 count (10,000 for indices 0–1, 2,000 for 2–5).
+ */
+export function isRegisteredSuite(spec: SuiteSpec): boolean {
+  if (spec.masterSeed !== PRE_REGISTRATION.masterSeed) return false;
+  return spec.variants.every((v) => {
+    const def = BALANCE_VARIANTS.find((d) => d.id === v.id);
+    if (def === undefined) return false;
+    const r = def.rules;
+    if (
+      v.rules.engineRulesVersion !== r.engineRulesVersion ||
+      v.rules.candidate !== r.candidate ||
+      v.rules.layout !== r.layout ||
+      v.rules.letters !== r.letters
+    ) {
+      return false;
+    }
+    return v.pairings.every((p, position) => {
+      const index = p.index ?? position;
+      const want = index <= 1 ? PRE_REGISTRATION.mirrorMatches : PRE_REGISTRATION.pairMatches;
+      return index <= 5 && p.matches === want;
+    });
+  });
+}
+
+/**
+ * Enforces the §1.3 exemption: any run that is not the registered suite and uses a draft rules version is capped at
+ * `SMOKE_MAX_MATCHES` matches per pairing. Throws before a single match is played.
+ */
+export function assertV2Exemption(spec: SuiteSpec): void {
+  if (isRegisteredSuite(spec)) return;
+  for (const v of spec.variants) {
+    if (rulesFor(v.rules.engineRulesVersion).status !== 'draft') continue;
+    for (const p of v.pairings) {
+      if (p.matches > SMOKE_MAX_MATCHES) {
+        throw new Error(
+          `§1.3 exemption: ${v.id}/${p.id} asks for ${String(p.matches)} matches on draft rules outside the registered suite (max ${String(SMOKE_MAX_MATCHES)} per pairing)`,
+        );
+      }
+    }
+  }
 }
 
 /**

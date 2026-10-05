@@ -6,30 +6,38 @@
 import { rulesDigest } from '@codelex/game-engine';
 import { describe, expect, it } from 'vitest';
 import {
+  PROVENANCE,
+  smokeReport,
+  validFrom,
+  verdict,
+  type Patch,
+} from '../test/support/sim-reports.js';
+import {
+  assertV2Exemption,
   balancePairings,
   balanceSuite,
   BALANCE_VARIANTS,
   PRE_REGISTRATION,
+  SMOKE_MAX_MATCHES,
   strategistAvailable,
 } from './balance-check.js';
 import { isSimBot, simBot } from './bots.js';
-import { readout, readoutMarkdown, type Readout } from './readout.js';
+import { readout, readoutMarkdown } from './readout.js';
 import { toJson, toMarkdown } from './report.js';
 import { draftContext, parseRules, RULES_V1, rulesProvenance, rulesV2 } from './rules.js';
 import {
   aggregate,
+  tilesInTable,
   matchSeed,
   playMatch,
   runSuite,
   type MatchRecord,
-  type PairingReport,
   type SuiteReport,
-  type VariantReport,
 } from './simulate.js';
+import { meanCiTenths } from './stats.js';
 import { parseOptions, realVariants } from './variants.js';
 
 const SHA = 'a'.repeat(40);
-const PROVENANCE = { codeCommit: SHA, lexiconCommit: SHA, preRegistrationBlob: SHA };
 
 describe('rules selection (T-2)', () => {
   it('parses --rules / --candidate / --layout strictly', () => {
@@ -117,8 +125,13 @@ describe('options', () => {
         SHA,
         '--prereg-blob',
         SHA,
+        '--lexicon-version',
+        'lex-3',
+        '--definition-hash',
+        '0123456789abcdef',
       ]),
     ).toMatchObject({
+      expected: { lexiconVersion: 'lex-3', definitionHash: '0123456789abcdef' },
       primary: 'greedy',
       diagnostics: false,
       variants: ['v1', 'v2-248'],
@@ -144,6 +157,12 @@ describe('options', () => {
       /--variants/,
     );
     expect(() => parseOptions(['--code-commit', 'abc'])).toThrow(/40 lowercase hex/);
+    expect(() => parseOptions(['--definition-hash', '0123456789abcdef'])).toThrow(
+      /only with --suite/,
+    );
+    expect(() => parseOptions(['--suite', 'balance-check', '--definition-hash', 'XYZ'])).toThrow(
+      /16 lowercase hex/,
+    );
     expect(() => parseOptions(['--pair', '1', '--pair', '2'])).toThrow(/twice/);
     expect(() => parseOptions(['--rules', 'v2'])).toThrow(/--candidate/);
   });
@@ -217,7 +236,7 @@ describe('v1 and draft v2 on the real engine', () => {
   const lexicon = realVariants().with;
   const seed = matchSeed(PRE_REGISTRATION.masterSeed, 0, 0);
 
-  it('plays and replays every variant; bots never fall back after evaluating (I-2)', () => {
+  it('plays and replays every variant; no engine refusal and no fallback after evaluating (I-2)', () => {
     for (const v of BALANCE_VARIANTS) {
       const record = playMatch(lexicon, seed, ['greedy', 'beginner'], 1_000, v.rules);
       expect(record.actions).toBeGreaterThan(10);
@@ -227,6 +246,7 @@ describe('v1 and draft v2 on the real engine', () => {
         (t) => t.type !== 'PLACE_WORD' && t.candidatesEvaluated > 0,
       );
       expect(fallbacks).toEqual([]);
+      expect(record.turns.reduce((n, t) => n + t.candidatesRefused, 0)).toBe(0);
     }
   }, 120_000);
 
@@ -264,7 +284,7 @@ describe('new metrics (C-10, C-11, bag at end)', () => {
       { ...base, bagAtEnd: 3, tilesPlayed: 96 },
       { ...base, bagAtEnd: 0, tilesPlayed: 100 },
     ];
-    const r = aggregate(pairing, records);
+    const r = aggregate(pairing, records, 0, 100);
     expect(r.index).toBe(0);
     expect(r.prematureLock).toMatchObject({ k: 1, n: 4, bp: 2500 });
     expect(r.bagAtEnd).toMatchObject({ empty: 1, oneToSix: 1, sevenPlus: 2 });
@@ -274,65 +294,104 @@ describe('new metrics (C-10, C-11, bag at end)', () => {
   });
 });
 
-// --- readout ---
-
-function smokeReport(): SuiteReport {
+describe('review items 3, 4, 7, 8', () => {
   const lexicon = realVariants().with;
-  const spec = balanceSuite(lexicon, {
-    masterSeed: PRE_REGISTRATION.masterSeed,
-    primary: 'greedy',
-    mirror: 2,
-    pair: 2,
-    diagnostics: true,
+  const balanced = (
+    mirror: number,
+    pair: number,
+    masterSeed: string = PRE_REGISTRATION.masterSeed,
+  ) => balanceSuite(lexicon, { masterSeed, primary: 'greedy', mirror, pair, diagnostics: true });
+
+  it('item 3: §1.3 exemption is enforced; v2 outside the registered suite is capped at 100 per pairing', () => {
+    expect(SMOKE_MAX_MATCHES).toBe(100);
+    const v2 = (matches: number) => ({
+      masterSeed: PRE_REGISTRATION.masterSeed,
+      variants: [
+        {
+          id: 'v2',
+          lexicon,
+          rules: rulesV2('tb-0-2-4-8'),
+          pairings: [{ id: 'm', a: 'beginner', b: 'beginner', matches }],
+        },
+      ],
+    });
+    expect(() => {
+      assertV2Exemption(v2(100));
+    }).not.toThrow();
+    expect(() => {
+      assertV2Exemption(v2(101));
+    }).toThrow(/§1\.3 exemption.*101 matches/);
+    expect(() => runSuite(v2(101))).toThrow(/§1\.3 exemption/);
+    // v1 is not a v2 run: no cap.
+    const v1Big = v2(5_000);
+    expect(() => {
+      assertV2Exemption({
+        ...v1Big,
+        variants: v1Big.variants.map((v) => ({ ...v, id: 'v1', rules: RULES_V1 })),
+      });
+    }).not.toThrow();
+    // The registered suite (seed, counts, variants) is the only uncapped v2 run.
+    expect(() => {
+      assertV2Exemption(balanced(10_000, 2_000));
+    }).not.toThrow();
+    expect(() => {
+      assertV2Exemption(balanced(10_000, 1_999));
+    }).toThrow(/§1\.3 exemption/);
+    expect(() => {
+      assertV2Exemption(balanced(10_000, 2_000, '0123456789abcdef'));
+    }).toThrow(/§1\.3 exemption/);
+    expect(() => {
+      assertV2Exemption(balanced(100, 100, '0123456789abcdef'));
+    }).not.toThrow();
   });
-  return runSuite(spec);
-}
 
-type Patch = (p: PairingReport) => PairingReport;
+  it('item 4: the suite report carries engineRulesVersions and the Strategist budget', () => {
+    const report = smokeReport();
+    expect(report.engineRulesVersions).toEqual([1, 2]);
+    expect(report.strategistBudget).toBe(strategistAvailable() ? expect.anything() : null);
+  }, 300_000);
 
-/** A report that passes I-3 (seed, counts, BOT_VERSION, commits) with every metric overridable per variant. */
-function validFrom(
-  report: SuiteReport,
-  patches: Readonly<Record<string, Patch>> = {},
-): SuiteReport {
-  const variants = report.variants.map((v): VariantReport => ({
-    ...v,
-    pairings: v.pairings.map((p) => {
-      const matches = p.index <= 1 ? PRE_REGISTRATION.mirrorMatches : PRE_REGISTRATION.pairMatches;
-      const passing: PairingReport = {
-        ...p,
-        matches,
-        replayVerified: matches,
-        firstPlayerWin: { k: 5000, n: 10_000, bp: 5000, ci95: { lo: 4902, hi: 5098 } },
-        aWin: { k: 1500, n: 2000, bp: 7500, ci95: { lo: 7305, hi: 7685 } },
-        termBonusShare: { n: matches, bp: 3000, ci95: { lo: 2900, hi: 3100 } },
-        noWordTurnBagNotEmptyBp: 1000,
-        prematureLock: { k: 100, n: matches, bp: 100, ci95: { lo: 80, hi: 120 } },
-        tilesPlayed: { n: matches, meanTenths: 920, ci95: { lo: 915, hi: 925 } },
-        top20TermShareBp: 3000,
-        personalities: p.personalities.map((s) => ({
-          ...s,
-          placeWord: 100,
-          placeWordPoints: s.personality === 'beginner' ? 1_300 : 2_000,
-          noviceOrIntermediateBp: 9500,
-          budgetExhausted: 0,
-          fallbacksAfterEvaluation: 0,
-        })),
-      };
-      return (patches[v.id] ?? ((x: PairingReport) => x))(passing);
-    }),
-  }));
-  return { ...report, botVersion: PRE_REGISTRATION.botVersion, variants };
-}
+  it('item 7: an unknown candidate throws instead of falling back to the default rules', () => {
+    const bogus = { ...rulesV2('tb-0-2-4-8'), candidate: 'tb-0-4-8-16' } as unknown as Parameters<
+      typeof rulesProvenance
+    >[0];
+    expect(() => rulesProvenance(bogus)).toThrow(/unknown candidate tb-0-4-8-16/);
+    expect(() => rulesProvenance({ ...RULES_V1, candidate: 'tb-0-2-4-8' })).toThrow(
+      /frozen version has no candidates/,
+    );
+  });
 
-function verdict(r: Readout, variant: string, id: string): string | undefined {
-  return r.variants.find((v) => v.id === variant)?.criteria.find((c) => c.id === id)?.verdict;
-}
+  it('item 8: the C-11 CI ceiling is the letter table tile count, not a constant', () => {
+    expect(meanCiTenths([95], 104).ci95).toEqual({ lo: 0, hi: 1040 });
+    const one: MatchRecord = {
+      seed: '0000000000000000',
+      seats: ['greedy', 'greedy'],
+      firstSeat: 0,
+      endReason: 'going_out',
+      scores: [1, 0],
+      places: [1, 2],
+      actions: 1,
+      bagAtEnd: 0,
+      rackTilesAtEnd: 0,
+      tilesPlayed: 99,
+      placeWordPoints: 1,
+      termBonus: 0,
+      finalHash: '0000000000000000',
+      turns: [],
+    };
+    const r = aggregate({ id: 'x', a: 'greedy', b: 'greedy', matches: 1 }, [one], 0, 100);
+    expect(r.tilesPlayed.ci95.hi).toBe(1000);
+    expect(tilesInTable('letters-v1')).toBe(100);
+    expect(tilesInTable('letters-v2')).toBe(100);
+  });
+});
+
+// --- readout ---
 
 describe('V1 readout', () => {
   const smoke = smokeReport();
 
-  it('a smoke run is INVALID (I-3) and yields no decision, but every criterion is computed', () => {
+  it('a smoke run is INVALID (I-3), yields no decision and no per-variant pass, but computes every criterion', () => {
     const r = readout(smoke, 'greedy', {
       codeCommit: '',
       lexiconCommit: '',
@@ -342,7 +401,7 @@ describe('V1 readout', () => {
     expect(r.outcome.decision).toBe('INVALID');
     const i3 = r.integrity.find((c) => c.id === 'I-3');
     expect(i3?.holds).toBe(false);
-    expect(i3?.problems.join('\n')).toMatch(/BOT_VERSION|pre-registered 10000/);
+    expect(i3?.problems.join('\n')).toMatch(/pre-registered 10000/);
     expect(r.integrity.find((c) => c.id === 'I-1')?.holds).toBe(true);
     expect(r.integrity.find((c) => c.id === 'I-2')?.holds).toBe(true);
     const v2 = r.variants.find((v) => v.id === 'v2-248');
@@ -362,13 +421,30 @@ describe('V1 readout', () => {
       'BG-5',
     ]);
     expect(verdict(r, 'v2-248', 'B-07')).toBe('NOT-MEASURED');
+    // Item 9: no per-variant pass/fail on an INVALID run.
+    for (const v of r.variants) expect(v.passes).toBeNull();
     const dx = r.variants.find((v) => v.id === 'dx-dw-3612');
-    expect(dx?.passes).toBeNull();
     expect(dx?.criteria.map((c) => c.id)).toEqual(['P-1', 'P-2', 'P-3', 'P-4', 'P-5', 'P-6']);
     expect(r.pairedDifferences.length).toBe(5 * 6);
-    expect(readoutMarkdown(r)).toContain('Run INVALID');
+    const md = readoutMarkdown(r);
+    expect(md).toContain('Run INVALID');
+    expect(md).toContain('Passes: not evaluated (run INVALID)');
+    expect(md).not.toMatch(/Passes: (yes|no \(|n\/a)/);
     expect(JSON.parse(toJson({ readout: r, suite: smoke }))).toHaveProperty('readout.outcome');
     expect(toMarkdown(smoke)).toContain('candidate `tb-0-2-4-8`');
+  }, 300_000);
+
+  it('records the §6 run-level fields', () => {
+    const r = readout(validFrom(smoke), 'greedy', PROVENANCE, { wallTimeSeconds: 2_700 });
+    expect(r.run).toEqual({
+      engineRulesVersions: [1, 2],
+      strategistBudget: null,
+      wallTimeSeconds: 2_700,
+      lexiconVersion: smoke.variants[0]?.lexiconVersion,
+      profileId: 'global-ranked',
+      definitionHash: smoke.variants[0]?.definitionHash,
+    });
+    expect(readout(validFrom(smoke), 'greedy', PROVENANCE).run.wallTimeSeconds).toBeNull();
   }, 300_000);
 
   it('rule 1: both pass → 0/3/6/12; provisional on the greedy path, B-07 excused only there', () => {
@@ -376,10 +452,23 @@ describe('V1 readout', () => {
     expect(r.valid).toBe(true);
     expect(r.outcome.decision).toBe('v2 with tb-0-3-6-12');
     expect(r.provisional).toBe(true);
-    expect(r.outcome.path.join(' ')).toMatch(/provisional/);
+    expect(r.outcome.path.join(' ')).toMatch(/provisional \(greedy proxy/);
     expect(r.variants.find((v) => v.id === 'v2-248')?.passes).toBe(true);
     expect(verdict(r, 'v2-3612', 'BG-3')).toBe('PASS');
     expect(readoutMarkdown(r)).toContain('Decision: **v2 with tb-0-3-6-12**');
+  }, 300_000);
+
+  it('§5.2 clarification (2026-10-05): the greedy path accepts BOT_VERSION 1 or 2; Strategist needs 2', () => {
+    const v1Bots = { ...validFrom(smoke), botVersion: 1 };
+    const greedy = readout(v1Bots, 'greedy', PROVENANCE);
+    expect(greedy.valid).toBe(true);
+    expect(greedy.botVersion).toBe(1);
+    expect(greedy.outcome.path.join(' ')).toMatch(/provisional/);
+    expect(readout({ ...v1Bots, botVersion: 3 }, 'greedy', PROVENANCE).valid).toBe(false);
+    const strategist = readout(v1Bots, 'strategist', PROVENANCE);
+    expect(strategist.integrity.find((c) => c.id === 'I-3')?.problems.join()).toMatch(
+      /BOT_VERSION 1, pre-registered 2/,
+    );
   }, 300_000);
 
   it('rule 2: v2-3612 fails C-05 on its upper CI → 0/2/4/8', () => {
@@ -454,6 +543,25 @@ describe('V1 readout', () => {
     expect(r.outcome.decision).toBe('v2 with tb-0-2-4-8');
   }, 300_000);
 
+  it('§3.3: a criterion v1 did not measure counts as a v1 FAIL, so the candidate L/K FAIL is excused', () => {
+    const r = readout(
+      validFrom(smoke, {
+        v1: (p) =>
+          p.index === 4 ? { ...p, aWin: { k: 0, n: 0, bp: 0, ci95: { lo: 0, hi: 10_000 } } } : p,
+        'v2-3612': (p) =>
+          p.index === 4
+            ? { ...p, aWin: { k: 0, n: 2000, bp: 9000, ci95: { lo: 8860, hi: 9120 } } }
+            : p,
+      }),
+      'greedy',
+      PROVENANCE,
+    );
+    expect(verdict(r, 'v1', 'BG-2a')).toBe('NOT-MEASURED');
+    expect(r.variants.find((v) => v.id === 'v1')?.blocking).toContain('BG-2a');
+    expect(verdict(r, 'v2-3612', 'BG-2a')).toBe('EXCUSED-K');
+    expect(r.outcome.decision).toBe('v2 with tb-0-3-6-12');
+  }, 300_000);
+
   it('I-1 / I-2 failures and a non-pre-registered seed invalidate the run', () => {
     const broken = validFrom(smoke, {
       v1: (p) =>
@@ -461,7 +569,7 @@ describe('V1 readout', () => {
           ? {
               ...p,
               replayVerified: p.matches - 1,
-              personalities: p.personalities.map((s) => ({ ...s, fallbacksAfterEvaluation: 1 })),
+              personalities: p.personalities.map((s) => ({ ...s, candidatesRefused: 1 })),
             }
           : p,
     });
@@ -480,5 +588,62 @@ describe('V1 readout', () => {
     );
     expect(verdict(strategistRun, 'v2-3612', 'B-07')).toBe('NOT-MEASURED');
     expect(strategistRun.variants.find((v) => v.id === 'v2-3612')?.blocking).toContain('B-07');
+  }, 300_000);
+
+  it('I-2 counts engine refusals for every bot, voluntary exchanges excluded (Strategist included)', () => {
+    const exchanges: Patch = (p) =>
+      p.index === 0
+        ? {
+            ...p,
+            personalities: p.personalities.map((s) => ({
+              ...s,
+              personality: 'strategist',
+              fallbacksAfterEvaluation: 40,
+            })),
+          }
+        : p;
+    expect(
+      readout(validFrom(smoke, { v1: exchanges }), 'greedy', PROVENANCE).integrity[1]?.holds,
+    ).toBe(true);
+    const refused: Patch = (p) =>
+      p.index === 0
+        ? {
+            ...p,
+            personalities: p.personalities.map((s) => ({
+              ...s,
+              personality: 'strategist',
+              candidatesRefused: 1,
+            })),
+          }
+        : p;
+    const r = readout(validFrom(smoke, { v1: refused }), 'greedy', PROVENANCE);
+    expect(r.integrity[1]).toMatchObject({ id: 'I-2', holds: false });
+    expect(r.integrity[1]?.problems.join()).toMatch(/strategist: 1 engine refusal/);
+  }, 300_000);
+
+  it('I-3 checks the lexicon pin (§4.3): one lexicon for all variants, global-ranked, expected values', () => {
+    const report = validFrom(smoke);
+    const version = report.variants[0]?.lexiconVersion ?? '';
+    const hash = report.variants[0]?.definitionHash ?? '';
+    const ok = readout(report, 'greedy', PROVENANCE, {
+      expected: { lexiconVersion: version, definitionHash: hash },
+    });
+    expect(ok.valid).toBe(true);
+    const wrong = readout(report, 'greedy', PROVENANCE, {
+      expected: { lexiconVersion: 'lex-0.0.0', definitionHash: '0000000000000000' },
+    });
+    expect(wrong.integrity[2]?.problems.join('\n')).toMatch(
+      /lexiconVersion .* expected lex-0\.0\.0/,
+    );
+    expect(wrong.integrity[2]?.problems.join('\n')).toMatch(/definitionHash .* expected 0{16}/);
+    const mixed: SuiteReport = {
+      ...report,
+      variants: report.variants.map((v, i) =>
+        i === 1 ? { ...v, definitionHash: 'ffffffffffffffff', profileId: 'season-x' } : v,
+      ),
+    };
+    const m = readout(mixed, 'greedy', PROVENANCE).integrity[2]?.problems.join('\n') ?? '';
+    expect(m).toMatch(/profile season-x, pre-registered global-ranked/);
+    expect(m).toMatch(/lexicon differs between variants/);
   }, 300_000);
 });

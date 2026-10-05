@@ -8,8 +8,12 @@
  * - L/K excuse (§3.3): a candidate's L or K FAIL becomes EXCUSED-L / EXCUSED-K iff `v1` FAILs the same criterion.
  * - Not measured counts as FAIL (§3.3), except B-07 on the Strategist-late path (§5.2), which labels the
  *   decision provisional.
- * - Integrity I-1..I-3: any failure makes the run INVALID (§5.4 b), never a candidate FAIL. A smoke run (other
- *   seed, smaller counts, `BOT_VERSION` ≠ 2, missing commits) is INVALID by I-3 and yields no decision.
+ * - Integrity I-1..I-3: any failure makes the run INVALID (§5.4 b), never a candidate FAIL, and then no variant
+ *   gets a pass/fail. A smoke run (other seed, smaller counts, missing commits) is INVALID by I-3 and yields no
+ *   decision. `BOT_VERSION` must be 2 with Strategist as primary; on the §5.2 greedy path 1 or 2 is accepted
+ *   and recorded (pre-run clarification of 2026-10-05, v2-balance-check §5.2).
+ * - I-2 counts engine refusals (`candidatesRefused`) for every bot. Voluntary exchanges are not refusals, so
+ *   Strategist's pairings 0 and 2 are covered as well.
  * - Reported, never gating: BG-2b, the bag-at-end split, draws, and paired point differences on shared seeds.
  */
 import {
@@ -18,7 +22,6 @@ import {
   STRATEGIST,
   type VariantRole,
 } from './balance-check.js';
-import { GREEDY_MATCHED } from './bots.js';
 import type { PairingReport, PersonalityStats, SuiteReport, VariantReport } from './simulate.js';
 import { fixed, pct, roundDiv } from './stats.js';
 
@@ -113,6 +116,25 @@ export interface RunProvenance {
   readonly preRegistrationBlob: string;
 }
 
+/** §6 run-level fields. */
+export interface RunFields {
+  /** Distinct `engineRulesVersion`s of the variants that ran, ascending. */
+  readonly engineRulesVersions: readonly number[];
+  readonly strategistBudget: { readonly maxNodes: number; readonly maxCandidates: number } | null;
+  /** Measured by the workflow (no clock in the package, ADR-0013 §D4.6); null when not supplied. */
+  readonly wallTimeSeconds: number | null;
+  /** The lexicon every variant ran on (I-3 checks they agree). */
+  readonly lexiconVersion: string;
+  readonly profileId: string;
+  readonly definitionHash: string;
+}
+
+export interface ReadoutOptions {
+  readonly wallTimeSeconds?: number;
+  /** §4.3 values recorded by the workflow for the lexicon commit; when given, I-3 compares every variant. */
+  readonly expected?: { readonly lexiconVersion?: string; readonly definitionHash?: string };
+}
+
 export interface Readout {
   readonly preRegistration: string;
   readonly masterSeed: string;
@@ -120,6 +142,7 @@ export interface Readout {
   readonly primary: string;
   readonly provisional: boolean;
   readonly provenance: RunProvenance;
+  readonly run: RunFields;
   readonly integrity: readonly IntegrityResult[];
   readonly valid: boolean;
   readonly variants: readonly VariantReadout[];
@@ -359,14 +382,50 @@ function evaluateRaw(def: CriterionDef, v: VariantReport): { m: Measure | undefi
 
 // --- integrity (§3.4 I-1..I-3, §6) ---
 
-/** Bots that never exchange or pass voluntarily: a fallback after evaluation means the engine refused them. */
-const NO_VOLUNTARY_EXCHANGE = new Set(['random-legal', 'beginner', 'greedy', GREEDY_MATCHED]);
 const SHA = /^[0-9a-f]{40}$/;
+
+/** Accepted `BOT_VERSION`s: 2 with Strategist; 1 or 2 on the §5.2 greedy path (clarification 2026-10-05). */
+function botVersionsFor(primaryBot: string): readonly number[] {
+  return primaryBot === STRATEGIST
+    ? [PRE_REGISTRATION.botVersion]
+    : [1, PRE_REGISTRATION.botVersion];
+}
+
+function lexiconChecks(report: SuiteReport, options: ReadoutOptions): string[] {
+  const problems: string[] = [];
+  const first = report.variants[0];
+  for (const v of report.variants) {
+    if (v.profileId !== PRE_REGISTRATION.profileId) {
+      problems.push(
+        `variant ${v.id}: profile ${v.profileId}, pre-registered ${PRE_REGISTRATION.profileId}`,
+      );
+    }
+    if (
+      first !== undefined &&
+      (v.lexiconVersion !== first.lexiconVersion || v.definitionHash !== first.definitionHash)
+    ) {
+      problems.push(`variant ${v.id}: lexicon differs between variants (§4.3: one lexicon commit)`);
+    }
+    const want = options.expected;
+    if (want?.lexiconVersion !== undefined && v.lexiconVersion !== want.lexiconVersion) {
+      problems.push(
+        `variant ${v.id}: lexiconVersion ${v.lexiconVersion}, expected ${want.lexiconVersion}`,
+      );
+    }
+    if (want?.definitionHash !== undefined && v.definitionHash !== want.definitionHash) {
+      problems.push(
+        `variant ${v.id}: definitionHash ${v.definitionHash}, expected ${want.definitionHash}`,
+      );
+    }
+  }
+  return problems;
+}
 
 function integrity(
   report: SuiteReport,
   primaryBot: string,
   provenance: RunProvenance,
+  options: ReadoutOptions,
 ): IntegrityResult[] {
   const i1: string[] = [];
   const i2: string[] = [];
@@ -376,9 +435,9 @@ function integrity(
       if (p.replayVerified !== p.matches)
         i1.push(`${v.id}/${p.id}: replay ${String(p.replayVerified)}/${String(p.matches)}`);
       for (const s of p.personalities) {
-        if (NO_VOLUNTARY_EXCHANGE.has(s.personality) && s.fallbacksAfterEvaluation > 0) {
+        if (s.candidatesRefused > 0) {
           i2.push(
-            `${v.id}/${p.id}: ${s.personality} fell back after evaluation ${String(s.fallbacksAfterEvaluation)} times`,
+            `${v.id}/${p.id}: ${s.personality}: ${String(s.candidatesRefused)} engine refusal(s) of evaluated candidates`,
           );
         }
       }
@@ -387,11 +446,12 @@ function integrity(
   if (report.masterSeed !== PRE_REGISTRATION.masterSeed) {
     i3.push(`master seed ${report.masterSeed}, pre-registered ${PRE_REGISTRATION.masterSeed}`);
   }
-  if (report.botVersion !== PRE_REGISTRATION.botVersion) {
+  if (!botVersionsFor(primaryBot).includes(report.botVersion)) {
     i3.push(
-      `BOT_VERSION ${String(report.botVersion)}, pre-registered ${String(PRE_REGISTRATION.botVersion)}`,
+      `BOT_VERSION ${String(report.botVersion)}, pre-registered ${botVersionsFor(primaryBot).join(' or ')}`,
     );
   }
+  i3.push(...lexiconChecks(report, options));
   if (primaryBot !== STRATEGIST && primaryBot !== 'greedy') i3.push(`primary bot ${primaryBot}`);
   for (const [name, value] of [
     ['code commit', provenance.codeCommit],
@@ -528,11 +588,13 @@ export function readout(
   report: SuiteReport,
   primaryBot: string,
   provenance: RunProvenance,
+  options: ReadoutOptions = {},
 ): Readout {
   const provisional = primaryBot !== STRATEGIST;
-  const checks = integrity(report, primaryBot, provenance);
+  const checks = integrity(report, primaryBot, provenance, options);
   const valid = checks.every((c) => c.holds);
   const baseline = report.variants.find((v) => v.id === 'v1');
+  // §3.3: a criterion v1 did not measure counts as a v1 FAIL (for the L/K excuse too).
   const baselineRaw = new Map<string, Raw>();
   if (baseline !== undefined)
     for (const def of CRITERIA) baselineRaw.set(def.id, evaluateRaw(def, baseline).raw);
@@ -548,7 +610,8 @@ export function readout(
         role === 'candidate' &&
         raw === 'FAIL' &&
         def.cls !== 'R' &&
-        baselineRaw.get(def.id) === 'FAIL'
+        baselineRaw.get(def.id) !== undefined &&
+        baselineRaw.get(def.id) !== 'PASS'
       ) {
         verdict = def.cls === 'L' ? 'EXCUSED-L' : 'EXCUSED-K';
       }
@@ -564,7 +627,9 @@ export function readout(
       layout: v.rules.layout,
       rulesDigest: v.rules.rulesDigest,
       criteria,
-      passes: role === 'diagnostic' || role === 'unregistered' ? null : blocking.length === 0,
+      // No pass/fail on an INVALID run (§5.4 b): it would read as evidence.
+      passes:
+        !valid || role === 'diagnostic' || role === 'unregistered' ? null : blocking.length === 0,
       blocking,
       reported: reported(v),
     };
@@ -597,6 +662,16 @@ export function readout(
     primary: primaryBot,
     provisional,
     provenance,
+    run: {
+      engineRulesVersions: [
+        ...new Set(report.variants.map((v) => v.rules.engineRulesVersion)),
+      ].sort((x, y) => x - y),
+      strategistBudget: report.strategistBudget,
+      wallTimeSeconds: options.wallTimeSeconds ?? null,
+      lexiconVersion: report.variants[0]?.lexiconVersion ?? '',
+      profileId: report.variants[0]?.profileId ?? '',
+      definitionHash: report.variants[0]?.definitionHash ?? '',
+    },
     integrity: checks,
     valid,
     variants,
@@ -610,10 +685,18 @@ function shown(value: number | null, unit: 'bp' | 'tenths'): string {
   return unit === 'bp' ? pct(value) : fixed(value, 1);
 }
 
+function passesText(r: Readout, v: VariantReadout): string {
+  if (!r.valid) return 'not evaluated (run INVALID)';
+  if (v.passes === null) return 'n/a (never gating)';
+  return v.passes ? 'yes' : `no (${v.blocking.join(', ')})`;
+}
+
 /** Verdict tables and the §5.1 decision path (the digest's core table). */
 export function readoutMarkdown(r: Readout): string {
   const lines = [
     `Pre-registration \`${r.preRegistration}\`, master seed \`${r.masterSeed}\`, BOT_VERSION ${String(r.botVersion)}, primary bot \`${r.primary}\`${r.provisional ? ' (provisional, §5.2)' : ''}.`,
+    '',
+    `engineRulesVersion ${r.run.engineRulesVersions.join(', ')}; Strategist budget ${r.run.strategistBudget === null ? 'n/a' : `${String(r.run.strategistBudget.maxNodes)} / ${String(r.run.strategistBudget.maxCandidates)}`}; lexicon \`${r.run.lexiconVersion}\` (\`${r.run.profileId}\`, \`${r.run.definitionHash}\`); wall time ${r.run.wallTimeSeconds === null ? 'not supplied' : `${String(r.run.wallTimeSeconds)} s`}.`,
     '',
     `**Run ${r.valid ? 'valid' : 'INVALID'}.** Decision: **${r.outcome.decision}**.`,
     '',
@@ -631,7 +714,7 @@ export function readoutMarkdown(r: Readout): string {
     lines.push(
       `### ${v.id} (${v.role}; engineRulesVersion ${String(v.engineRulesVersion)}, candidate \`${v.candidate}\`, ${v.layout}, rulesDigest \`${v.rulesDigest}\`)`,
       '',
-      `Passes: ${v.passes === null ? 'n/a (never gating)' : v.passes ? 'yes' : `no (${v.blocking.join(', ')})`}`,
+      `Passes: ${passesText(r, v)}`,
       '',
       '| ID | Class | Metric | Value | 95 % CI | Rule | Verdict |',
       '| --- | --- | --- | --- | --- | --- | --- |',

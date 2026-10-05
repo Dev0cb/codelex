@@ -20,23 +20,23 @@ describe('ceilSqrt', () => {
 describe('meanCiTenths (C-11)', () => {
   it('normal 95 % CI from the sample standard deviation, outward-rounded', () => {
     // values 88, 92, 90, 94, 86: mean 90, sd 3.1623, half 1.96·sd/√5 = 2.772.
-    expect(meanCiTenths([88, 92, 90, 94, 86])).toEqual({
+    expect(meanCiTenths([88, 92, 90, 94, 86], 100)).toEqual({
       n: 5,
       meanTenths: 900,
       ci95: { lo: 872, hi: 928 },
     });
-    expect(meanCiTenths([90, 90, 90])).toEqual({
+    expect(meanCiTenths([90, 90, 90], 100)).toEqual({
       n: 3,
       meanTenths: 900,
       ci95: { lo: 900, hi: 900 },
     });
-    expect(meanCiTenths([95])).toEqual({ n: 1, meanTenths: 950, ci95: { lo: 0, hi: 1000 } });
-    expect(meanCiTenths([])).toEqual({ n: 0, meanTenths: 0, ci95: { lo: 0, hi: 1000 } });
+    expect(meanCiTenths([95], 100)).toEqual({ n: 1, meanTenths: 950, ci95: { lo: 0, hi: 1000 } });
+    expect(meanCiTenths([], 100)).toEqual({ n: 0, meanTenths: 0, ci95: { lo: 0, hi: 1000 } });
   });
 
   it('stays in safe integers at the pre-registered size (10,000 matches, values 0..100)', () => {
     const values = Array.from({ length: 10_000 }, (_, i) => (i % 2 === 0 ? 0 : 100));
-    const r = meanCiTenths(values);
+    const r = meanCiTenths(values, 100);
     expect(r.meanTenths).toBe(500);
     // sd = 50.0025, half = 0.98 → 9.8 tenths.
     expect(r.ci95).toEqual({ lo: 490, hi: 510 });

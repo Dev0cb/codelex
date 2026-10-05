@@ -144,11 +144,12 @@ export interface MeanWithCi {
 }
 
 /**
- * Mean of per-match integer values in [0, max] with a normal 95 % CI from the sample standard deviation
+ * Mean of per-match integer values in [0, max] with a normal 95 % CI from the sample standard deviation. `max` is
+ * the largest possible value (C-11: the letter table's tile count), used only to bound the interval
  * (v2-balance-check §3.2, C-11). With V = nΣx² − (Σx)², half = 1.96·√(V / (n²(n−1))); the root is taken with up
  * to three extra decimals and rounded up, so the interval is never narrower than the exact one.
  */
-export function meanCiTenths(values: readonly number[], max = 100): MeanWithCi {
+export function meanCiTenths(values: readonly number[], max: number): MeanWithCi {
   const n = values.length;
   let sum = 0;
   let squares = 0;

@@ -67,10 +67,16 @@ export interface RulesProvenance {
 
 export function rulesProvenance(rules: RulesSelection): RulesProvenance {
   const set = rulesFor(rules.engineRulesVersion);
-  const used =
-    rules.candidate === undefined
-      ? set.rules
-      : (set.candidates.find((c) => c.id === rules.candidate)?.rules ?? set.rules);
+  let used = set.rules;
+  if (rules.candidate !== undefined) {
+    if (set.candidates.length === 0) {
+      throw new Error(`rules: a frozen version has no candidates (got ${rules.candidate})`);
+    }
+    const found = set.candidates.find((c) => c.id === rules.candidate);
+    // Never fall back to the default: the report would name one table and the run would use another.
+    if (found === undefined) throw new Error(`rules: unknown candidate ${rules.candidate}`);
+    used = found.rules;
+  }
   const tb = used.termBonus;
   return {
     engineRulesVersion: set.engineRulesVersion,

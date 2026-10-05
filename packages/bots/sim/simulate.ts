@@ -21,7 +21,9 @@
 import {
   apply,
   createMatch,
+  getLetterTable,
   type DraftContext,
+  type LetterTableId,
   newActionLog,
   observe,
   replay,
@@ -36,7 +38,8 @@ import {
 } from '@codelex/game-engine';
 import { deriveRng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
-import { BOT_VERSION, chooseAction, PERSONALITIES } from '../src/index.js';
+import { BOT_VERSION, chooseAction, PERSONALITIES, type BotBudget } from '../src/index.js';
+import { assertV2Exemption, strategistBudget } from './balance-check.js';
 import { simBot } from './bots.js';
 import {
   draftContext,
@@ -122,6 +125,8 @@ export interface TurnRecord {
   readonly type: Action['type'];
   readonly nodesUsed: number;
   readonly candidatesEvaluated: number;
+  /** Evaluations the engine refused (`BotDecision.candidatesRefused`, the I-2 signal). */
+  readonly candidatesRefused: number;
   readonly budgetExhausted: boolean;
   /** PLACE_WORD only. */
   readonly points?: number;
@@ -271,6 +276,7 @@ export function playMatch(
       type: decision.action.type,
       nodesUsed: decision.nodesUsed,
       candidatesEvaluated: decision.candidatesEvaluated,
+      candidatesRefused: decision.candidatesRefused,
       budgetExhausted: decision.budgetExhausted,
     };
     const placed = applied.value.events.find((e) => e.type === 'WORD_PLACED');
@@ -376,6 +382,11 @@ export interface PersonalityStats {
    * evaluated candidate was refused by the engine (I-2 signal, e.g. a missing draft context).
    */
   readonly fallbacksAfterEvaluation: number;
+  /**
+   * Σ evaluations the engine refused (I-2). Unlike `fallbacksAfterEvaluation`, it never counts a voluntary
+   * EXCHANGE, so it holds for every bot, Strategist included.
+   */
+  readonly candidatesRefused: number;
   readonly nodes: Spread;
   readonly candidatesEvaluated: Spread;
   /** Mean points per accepted PLACE_WORD, tenths (BG-3, C-03). */
@@ -479,6 +490,7 @@ function personalityStats(
     noWordBp: rateBp(turns.length - words.length, turns.length),
     budgetExhausted: exhausted,
     budgetExhaustedBp: rateBp(exhausted, turns.length),
+    candidatesRefused: turns.reduce((a, t) => a + t.candidatesRefused, 0),
     fallbacksAfterEvaluation: turns.filter(
       (t) => t.type !== 'PLACE_WORD' && t.candidatesEvaluated > 0,
     ).length,
@@ -490,10 +502,18 @@ function personalityStats(
   };
 }
 
+/** Tiles in a letter table (letters + blanks): the most tiles a match can play (C-11 ceiling). */
+export function tilesInTable(letters: LetterTableId): number {
+  const table = getLetterTable(letters);
+  return table.counts.reduce((a, b) => a + b, 0) + table.blanks;
+}
+
+/** `tileCount`: the variant's letter table size (`tilesInTable`), the C-11 ceiling. */
 export function aggregate(
   pairing: Pairing,
   records: readonly MatchRecord[],
-  index = pairing.index ?? 0,
+  index: number,
+  tileCount: number,
 ): PairingReport {
   let draws = 0;
   let firstWins = 0;
@@ -571,7 +591,10 @@ export function aggregate(
       spread: spread(bags),
     },
     prematureLock: rateWithCi(locked, records.length),
-    tilesPlayed: meanCiTenths(records.map((r) => r.tilesPlayed)),
+    tilesPlayed: meanCiTenths(
+      records.map((r) => r.tilesPlayed),
+      tileCount,
+    ),
     passesPerMatch: spread(passes),
     matchesWithPass: passes.filter((p) => p > 0).length,
     rackTilesAtEnd: spread(records.map((r) => r.rackTilesAtEnd)),
@@ -608,6 +631,10 @@ export interface VariantReport {
 
 export interface SuiteReport {
   readonly botVersion: number;
+  /** Distinct `engineRulesVersion`s of the variants, ascending (v2-balance-check §6). */
+  readonly engineRulesVersions: readonly number[];
+  /** `PERSONALITIES.strategist.budget` when the build has Strategist (B4), else null (§6). */
+  readonly strategistBudget: BotBudget | null;
   readonly masterSeed: string;
   readonly matches: number;
   readonly variants: readonly VariantReport[];
@@ -624,8 +651,12 @@ export function seatsFor(pairing: Pairing, index: number): SimBotId[] {
 }
 
 export function runSuite(spec: SuiteSpec, options: RunOptions = {}): SuiteReport {
+  // Fail before playing: v2 outside the registered suite is capped (§1.3), and every rules selection must name
+  // a real candidate (a typo never falls back to the default table).
+  assertV2Exemption(spec);
+  const provenance = spec.variants.map((v) => rulesProvenance(v.rules));
   let matches = 0;
-  const variants = spec.variants.map((variant): VariantReport => {
+  const variants = spec.variants.map((variant, v): VariantReport => {
     const pairings = variant.pairings.map((pairing, position) => {
       const pairingIndex = pairing.index ?? position;
       const records: MatchRecord[] = [];
@@ -642,7 +673,7 @@ export function runSuite(spec: SuiteSpec, options: RunOptions = {}): SuiteReport
         options.onMatch?.(variant.id, pairing.id, i, record);
       }
       matches += records.length;
-      return aggregate(pairing, records, pairingIndex);
+      return aggregate(pairing, records, pairingIndex, tilesInTable(variant.rules.letters));
     });
     return {
       id: variant.id,
@@ -652,12 +683,16 @@ export function runSuite(spec: SuiteSpec, options: RunOptions = {}): SuiteReport
       forms: variant.lexicon.size,
       terms: variant.lexicon.termCount,
       automaton: variant.lexicon.gaddag === undefined ? 'dawg' : 'gaddag',
-      rules: rulesProvenance(variant.rules),
+      rules: provenance[v] ?? rulesProvenance(variant.rules),
       pairings,
     };
   });
   return {
     botVersion: BOT_VERSION,
+    engineRulesVersions: [...new Set(spec.variants.map((v) => v.rules.engineRulesVersion))].sort(
+      (x, y) => x - y,
+    ),
+    strategistBudget: strategistBudget(),
     masterSeed: spec.masterSeed,
     matches,
     variants,

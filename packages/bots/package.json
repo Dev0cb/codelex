@@ -23,7 +23,8 @@
     "test": "vitest run --coverage",
     "test:full": "vitest run --config vitest.full.config.ts",
     "bench": "vitest bench --run --config vitest.bench.config.ts",
-    "simulate": "tsc -p tsconfig.sim.json && node dist/simulator/sim/cli.js"
+    "simulate": "tsc -p tsconfig.sim.json && node dist/simulator/sim/cli.js",
+    "readout": "tsc -p tsconfig.sim.json && node dist/simulator/sim/readout-cli.js"
   },
   "dependencies": {
     "@codelex/config": "workspace:*",
@@ -34,6 +35,7 @@
     "@types/node": "22.20.4",
     "@vitest/coverage-v8": "5.0.2",
     "fast-check": "4.10.2",
-    "vitest": "5.0.2"
+    "vitest": "5.0.2",
+    "zod": "4.6.5"
   }
 }

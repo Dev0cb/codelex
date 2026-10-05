@@ -18,6 +18,9 @@
  *   --diagnostics on|off   dx-dw-* diagnostics on pairing 0 (default on)
  *   --variants <list>      subset of v1,v2-3612,v2-248,dx-dw-3612,dx-dw-248 (job splitting, §5.3-2)
  *   --code-commit <sha>, --lexicon-commit <sha>, --prereg-blob <sha>   workflow inputs recorded for I-3 (§6)
+ *   --lexicon-version <v>, --definition-hash <h>   §4.3 values of the lexicon commit, compared by I-3
+ *   Draft (v2) runs outside the registered suite are capped at 100 matches per pairing (§1.3, hard error).
+ *   Split jobs are joined by `pnpm … readout -- --merge <json…>` (readout-cli.ts).
  *   --seed, --mirror, --pair   smoke runs only: any change makes the readout INVALID (I-3)
  *
  * Both: --out <file> (JSON), --markdown <file> (tables / readout).
@@ -88,11 +91,16 @@ function main(): void {
     write(options.markdown, toMarkdown(report));
     return;
   }
-  const result = readout(report, options.primary, {
-    codeCommit: options.codeCommit,
-    lexiconCommit: options.lexiconCommit,
-    preRegistrationBlob: options.preRegistrationBlob,
-  });
+  const result = readout(
+    report,
+    options.primary,
+    {
+      codeCommit: options.codeCommit,
+      lexiconCommit: options.lexiconCommit,
+      preRegistrationBlob: options.preRegistrationBlob,
+    },
+    { expected: options.expected },
+  );
   write(options.out, toJson({ readout: result, suite: report }));
   write(options.markdown, `${readoutMarkdown(result)}\n${toMarkdown(report)}`);
   console.log(`decision: ${result.outcome.decision}`);

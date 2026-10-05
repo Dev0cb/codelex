@@ -55,6 +55,8 @@ export interface Options {
   codeCommit: string;
   lexiconCommit: string;
   preRegistrationBlob: string;
+  /** balance-check: §4.3 values of the lexicon commit, compared by I-3 when given. */
+  expected: { lexiconVersion?: string; definitionHash?: string };
 }
 
 function parseCount(flag: string, value: string): number {
@@ -99,9 +101,15 @@ export function parseOptions(args: readonly string[]): Options {
     codeCommit: '',
     lexiconCommit: '',
     preRegistrationBlob: '',
+    expected: {},
   };
   const rulesFlags = ['--rules', '--candidate', '--layout'].filter((f) => given.has(f));
-  const balanceFlags = ['--primary', '--diagnostics'].filter((f) => given.has(f));
+  const balanceFlags = [
+    '--primary',
+    '--diagnostics',
+    '--lexicon-version',
+    '--definition-hash',
+  ].filter((f) => given.has(f));
   if (balance && rulesFlags.length > 0) {
     throw new Error(
       `${rulesFlags.join(', ')}: the balance-check suite fixes the rules per variant (§2)`,
@@ -161,6 +169,14 @@ export function parseOptions(args: readonly string[]): Options {
         break;
       case '--prereg-blob':
         options.preRegistrationBlob = parseSha(flag, value);
+        break;
+      case '--lexicon-version':
+        options.expected.lexiconVersion = value;
+        break;
+      case '--definition-hash':
+        if (!/^[0-9a-f]{16}$/.test(value))
+          throw new Error('--definition-hash: 16 lowercase hex chars');
+        options.expected.definitionHash = value;
         break;
       case '--out':
         options.out = value;
