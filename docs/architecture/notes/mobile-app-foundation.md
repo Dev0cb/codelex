@@ -188,8 +188,9 @@ Pending for S1: board, tile, premium, category, mono type, radius, elevation, la
 1. **Needs a human:** bundle identifier / application id (one-way once published), Expo account and EAS project id,
    Apple Developer and Google Play accounts, signing credentials (never in the repo), TestFlight / Play internal
    track (T2). Then a first EAS development build to run on devices (H1).
-2. **Dependency audit:** `node-forge` (GHSA-86w9-cpqp-85rv) is a class-T exception proven absent from the bundles by
-   `bundle:check`; `decode-uri-component` (GHSA-vcc3-ghjq-m6fr, moderate, in both bundles via `expo-router` >
+2. **Dependency audit:** `node-forge` (GHSA-86w9-cpqp-85rv) and, since 2026-10-05, `braces`/`micromatch`
+   (GHSA-vfj7-8cjw-p6xm) are class-T exceptions proven absent from the bundles by `bundle:check`; `uuid`
+   (GHSA-w5hq-g745-h8pq, toolchain only via `xcode`) is fixed by the `xcode>uuid` override; `decode-uri-component` (GHSA-vcc3-ghjq-m6fr, moderate, in both bundles via `expo-router` >
    `query-string` 7) is mitigated by the deep-link guard in `src/app/+native-intent.ts` because the patched release
    is ESM-only and cannot replace it (`docs/security/audit-exceptions.md`). Re-check both at every SDK upgrade.
 3. Expo/React ESLint rules for every app (React Hooks, the UI-string and colour bans) live in `apps/mobile` for now;
