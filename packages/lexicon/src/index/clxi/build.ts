@@ -6,7 +6,8 @@
  * GADDAG sections (T6, sprint L5) are built when `options.gaddag` is true (header flags bit 0); otherwise they
  * are empty, flags = 0 and `gaddag` decodes as undefined.
  *
- * Profiles: only the whole playable set (`global` kind) is resolved here; season/org set expressions (T-PROFILE)
+ * Profiles: only the whole playable set (`global` kind) is resolved here, with the `inflections: all | none`
+ * option (E-1.7 D-14, sprint 3 P8); season/org set expressions (T-PROFILE)
  * arrive with `data/profiles/*.json`.
  */
 import { err, ok, type Result } from '@codelex/config/result';
@@ -52,12 +53,23 @@ export interface LexiconBuildInput {
     readonly kind: (typeof PROFILE_KINDS)[number];
     /** 16 lowercase hex chars. */
     readonly definitionHash: string;
+    /**
+     * Profile option `inflections` (E-1.7 D-14, lexicon-index note §4.2): `all` (default, also when absent)
+     * keeps every declared inflection; `none` builds canonical forms only. Build-time only and covered by
+     * `definitionHash` (`profileBuildInput` in scripts/canonical.mjs derives both from one definition); no
+     * header field and no runtime switch, so the format and the default artefacts are unchanged.
+     */
+    readonly inflections?: InflectionPolicy | undefined;
   };
   /** Canonical document D (`lexiconContentDocument(lex)`), validated by `pnpm lexicon:validate`. */
   readonly document: { readonly terms: readonly ReferenceTermInput[] };
   /** Forms that must never reach an artefact (second layer after the validator, note §4.4). */
   readonly blocklist?: readonly string[];
 }
+
+/** Values of the profile option `inflections` (E-1.7 D-14). */
+export const INFLECTION_POLICIES = Object.freeze(['all', 'none'] as const);
+export type InflectionPolicy = (typeof INFLECTION_POLICIES)[number];
 
 export interface LexiconBuildOptions {
   readonly formatVersion: 1;
@@ -421,12 +433,25 @@ export function buildLexiconIndex(
   if (!PROFILE_KINDS.includes(input.profile.kind)) {
     return err(buildError('UNKNOWN_PROFILE_REFERENCE', 'unknown profile kind'));
   }
+  const policy = input.profile.inflections ?? 'all';
+  if (!INFLECTION_POLICIES.includes(policy)) {
+    return err(buildError('VALIDATION_FAILED', 'unknown profile option inflections'));
+  }
+  // `all` passes the document through untouched, so default artefacts keep their bytes (sprint 3 P8).
+  const document =
+    policy === 'all'
+      ? input.document
+      : { terms: input.document.terms.map((t) => ({ ...t, inflections: [] })) };
   let index: LexiconIndex;
   try {
     index = createReferenceIndex({
       version: input.version as LexiconIndex['version'],
-      profile: input.profile as LexiconIndex['profile'],
-      document: input.document,
+      profile: {
+        id: input.profile.id,
+        kind: input.profile.kind,
+        definitionHash: input.profile.definitionHash,
+      } as LexiconIndex['profile'],
+      document,
     });
   } catch (e) {
     return err(

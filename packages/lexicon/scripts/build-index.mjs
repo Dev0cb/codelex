@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Builds the `.clxi` artefacts of every profile (lexicon-index note §3.4, sprints L4 and L5), one per header
+// Builds the `.clxi` artefacts of every profile in BUILT_PROFILES (`global-ranked`, and the simulation-only
+// `global-no-inflections`, E-1.7 D-14) (lexicon-index note §3.4, sprints L4 and L5), one per header
 // flags value: with the GADDAG (flags 1, server and default) and without it (flags 0, mobile fallback):
 //   dist/indexes/<lexiconVersion>/<profileId>.f<flags>.clxi + dist/indexes/<lexiconVersion>/manifest.json
 // Both variants share (lexiconVersion, profile id, definitionHash) but not their bytes, so the file name and
@@ -16,11 +17,11 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  GLOBAL_PROFILE,
+  BUILT_PROFILES,
   canonicalize,
   computeLexiconVersion,
   lexiconContentDocument,
-  profileDefinitionHash,
+  profileBuildInput,
 } from './canonical.mjs';
 import { loadLexicon, validateLexicon } from './validate.mjs';
 
@@ -66,13 +67,15 @@ const VARIANTS = [
 
 const profiles = [];
 const artefacts = [];
-for (const definition of [GLOBAL_PROFILE]) {
+for (const definition of BUILT_PROFILES) {
+  // One definition gives both the option the builder applies and the definitionHash that covers it (D-14).
+  const profile = profileBuildInput(definition);
+  const { definitionHash } = profile;
   for (const { flags, gaddag } of VARIANTS) {
-    const definitionHash = profileDefinitionHash(definition);
     const built = buildLexiconIndex(
       {
         version,
-        profile: { id: definition.id, kind: definition.kind, definitionHash },
+        profile,
         document,
         blocklist: [...lex.blocklist],
       },

@@ -4,6 +4,10 @@
  * (≥ 1,000 matches) is the `simulate` script, never part of `pnpm test`.
  */
 import type { PlaceWordAction, WordScore } from '@codelex/game-engine';
+import {
+  NO_INFLECTIONS_PROFILE as LEXICON_NO_INFLECTIONS_PROFILE,
+  profileBuildInput,
+} from '@codelex/lexicon/canonical';
 import { describe, expect, it } from 'vitest';
 import { toJson, toMarkdown } from './report.js';
 import { RULES_V1 } from './rules.js';
@@ -144,6 +148,22 @@ describe('C-09 hooked inflection', () => {
     expect(isHookedInflection(column, { ...at(5), tiles: [{ row: 10, col: 6, tile: 'S' }] })).toBe(
       false,
     );
+  });
+});
+
+describe('lexicon variants (E-1.7 D-14, AC-20)', () => {
+  it('"without" is the lexicon profile `global-no-inflections`, built through its `inflections: none` option', () => {
+    const lexicons = realVariants();
+    expect(NO_INFLECTIONS_PROFILE).toBe(LEXICON_NO_INFLECTIONS_PROFILE);
+    const reference = profileBuildInput(LEXICON_NO_INFLECTIONS_PROFILE);
+    expect(reference.inflections).toBe('none');
+    expect(lexicons.without.profile).toEqual({
+      id: reference.id,
+      kind: reference.kind,
+      definitionHash: reference.definitionHash,
+    });
+    expect(lexicons.without.termCount).toBe(lexicons.with.termCount);
+    expect(lexicons.without.size).toBe(lexicons.without.termCount);
   });
 });
 

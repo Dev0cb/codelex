@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   GLOBAL_PROFILE,
+  INFLECTION_POLICIES as CANONICAL_INFLECTION_POLICIES,
   computeLexiconVersion,
   lexiconContentDocument,
   profileDefinitionHash,
@@ -29,6 +30,7 @@ import {
   buildLexiconIndex,
   checkBuiltArtefact,
   gaddagPaths,
+  INFLECTION_POLICIES,
   type LexiconBuildInput,
 } from './build.js';
 import { crc32 } from './crc32.js';
@@ -593,6 +595,78 @@ describe('build determinism and round trip (T-DETERMINISM, T-ROUNDTRIP)', REAL_D
     expect(signatures.size).toBe(gaddag.nodeCount);
     const pathSymbols = forms.reduce((sum, f) => sum + f.length * f.length, 0);
     expect(gaddag.edgeCount).toBeLessThan(pathSymbols);
+  });
+});
+
+// --- profile option `inflections` (E-1.7 D-14, sprint 3 P8) ----------------------------------------------
+
+describe('profile option inflections: all | none (E-1.7 D-14)', REAL_DATA_BUILDS, () => {
+  const withPolicy = (
+    input: LexiconBuildInput,
+    inflections: 'all' | 'none' | undefined,
+  ): LexiconBuildInput => ({ ...input, profile: { ...input.profile, inflections } });
+  const stripped = (input: LexiconBuildInput): LexiconBuildInput => ({
+    ...input,
+    document: { terms: input.document.terms.map((t) => ({ ...t, inflections: [] })) },
+  });
+
+  it('`all` and an absent option build the very same bytes (default artefacts unchanged)', () => {
+    for (const input of [FIXTURE, REAL]) {
+      for (const options of [OPTIONS, NO_GADDAG]) {
+        const legacy = built(input, options);
+        expect(build(withPolicy(input, 'all'), options)).toEqual(legacy);
+        expect(build(withPolicy(input, undefined), options)).toEqual(legacy);
+      }
+    }
+  });
+
+  it('`none` builds exactly the document without inflections, canonical forms only', () => {
+    for (const input of [FIXTURE, REAL]) {
+      for (const options of [OPTIONS, NO_GADDAG]) {
+        const none = build(withPolicy(input, 'none'), options);
+        expect(none).toEqual(build(stripped(input), options));
+        const index = decoded(none);
+        expect(index.size).toBe(index.termCount);
+        for (let f = 0; f < index.size; f += 1) {
+          expect(index.formMeta(f as FormRef).kind).toBe('canonical');
+        }
+      }
+    }
+    const fixture = decoded(build(withPolicy(FIXTURE, 'none')));
+    expect(fixture.has('POD')).toBe(true);
+    expect(fixture.has('PODS')).toBe(false);
+    expect(fixture.has('CONTAINERS')).toBe(false);
+    expect(fixture.profile).toEqual({
+      id: FIXTURE.profile.id,
+      kind: FIXTURE.profile.kind,
+      definitionHash: FIXTURE.profile.definitionHash,
+    });
+  });
+
+  it('`none` drops every inflection of the real data; same terms, metadata and relations', () => {
+    const all = decoded(built(REAL));
+    const none = decoded(build(withPolicy(REAL, 'none')));
+    expect(none.termCount).toBe(all.termCount);
+    expect(none.size).toBeLessThan(all.size);
+    for (let t = 0; t < all.termCount; t += 1) {
+      const ref = t as TermRef;
+      expect(none.meta(ref)).toEqual(all.meta(ref));
+      expect(none.neighbours(ref)).toEqual(all.neighbours(ref));
+    }
+  });
+
+  it('the builder and canonical.mjs accept the same option values', () => {
+    // Two definitions on purpose: canonical.mjs stays zero-dependency (runs before the build), and the
+    // compiled builder cannot import from scripts/. This test keeps them equal.
+    expect([...INFLECTION_POLICIES]).toEqual([...CANONICAL_INFLECTION_POLICIES]);
+  });
+
+  it('an unknown option value is VALIDATION_FAILED', () => {
+    const r = buildLexiconIndex(
+      { ...FIXTURE, profile: { ...FIXTURE.profile, inflections: 'some' as 'all' } },
+      OPTIONS,
+    );
+    expect(r).toMatchObject({ ok: false, error: { code: 'VALIDATION_FAILED' } });
   });
 });
 

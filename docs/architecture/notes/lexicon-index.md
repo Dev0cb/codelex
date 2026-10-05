@@ -269,6 +269,7 @@ export interface LexiconProfileDefinition {
   readonly include: { readonly all?: true; readonly tags?: readonly string[];
                       readonly categories?: readonly string[]; readonly ids?: readonly string[] };
   readonly exclude?: { readonly tags?: readonly string[]; readonly ids?: readonly string[] };
+  readonly inflections?: 'all' | 'none';  // E-1.7 D-14, default 'all' (§4.2; added sprint 3 P8)
 }
 export type LexiconBuildErrorCode =
   | 'VALIDATION_FAILED' | 'BLOCKLISTED_FORM' | 'EMPTY_PROFILE' | 'UNKNOWN_PROFILE_REFERENCE' | 'LIMIT_EXCEEDED';
@@ -310,10 +311,54 @@ sections** — `META` (9 × u32, including the DAWG and GADDAG node/edge counts)
   language ⇒ one byte string. GADDAG language: every `rev(w[0..i]) [◇ w[i..n]]` path of every enumerated form
   reaches a final node, and the automaton accepts exactly Σ |w| paths (post-order path count, saturating), so it
   accepts nothing else. Cost O(nodes + edges + Σ |w|²) at load.
-- **Format 1 freeze:** format 1 freezes when the first artefact ships (A1/T10) or the first replay is published;
-  any later layout change is format 2. Replays identify an index by (`lexiconVersion`, profile id,
-  `definitionHash`) only (ADR-0013 §D7): the GADDAG is derived from the forms, so both flag variants give the same
-  answers to every engine and bot query.
+- **Format 1 freeze** (made explicit in sprint 3, task P4; lexicon-engineer with the solution-architect review).
+  Replays identify an index by (`lexiconVersion`, profile id, `definitionHash`) only (ADR-0013 §D7): the GADDAG
+  is derived from the forms, so both flag variants give the same answers to every engine and bot query.
+  - **Trigger.** Format 1 freezes at the **first** of these two events, whichever comes first:
+    1. **the first build installed outside CI** — any app or server build that contains or loads a `.clxi` and
+       runs anywhere other than a CI job (EAS internal distribution, TestFlight, Play internal track, a sideloaded
+       APK, a staging server, a playtest device). Local `expo start` / simulator runs on a developer machine do
+       not count;
+    2. **the first exported log** — the first action log or replay played against a `.clxi` artefact that
+       leaves the app or server that produced it (E-1.5 AC-20 "Send match log", a bug-report attachment, an
+       upload). Simulator readouts (aggregate KPIs) and engine goldens in the repo (e.g.
+       `replays/v1/gc-det-01`) do not count: readouts carry no action log, and goldens pin a JSON fixture lexicon.
+
+    Rationale: after either event, bytes or log references exist that the repo no longer controls, and §4.4
+    requires the decoder to keep reading them. Until then format 1 can still change freely, because every
+    artefact is rebuilt from source.
+  - **Effect.** After the freeze, any change to the header, the section table, a section layout, a flag meaning
+    or a decoder acceptance rule that would make a frozen artefact decode differently is **format 2** (new
+    `formatVersion`; the decoder keeps format 1, §4.4). Not layout changes, and so allowed under format 1:
+    new profiles and new profile options (they live in `definitionHash`, §4.2, e.g. `inflections`), new
+    lexicon content (new `lexiconVersion`), and builder fixes that keep the bytes of existing inputs.
+  - **Reserved bits stay reserved.** Header flag bits 1–15 decode as `UNSUPPORTED_FORMAT` (checked after the
+    CRC). A frozen format 1 never gives them a meaning: a new optional section (ADR-0013 Q-A1) or any other
+    flag is format 2. Likewise, `formatVersion` values other than 1 are `UNSUPPORTED_FORMAT` until a decoder for
+    them ships.
+  - **Pre-freeze checklist** (done 2026-10-05, sprint 3 P4):
+    - [x] Reserved flag bits → `UNSUPPORTED_FORMAT`, after the CRC
+      (`clxi.test.ts` "UNSUPPORTED_FORMAT: flags 0x…"); unknown `formatVersion` → `UNSUPPORTED_FORMAT`
+      (`decode.test.ts`); builder refuses any `formatVersion` but 1 (`LIMIT_EXCEEDED`).
+    - [x] Golden pin of the fixture artefact, both flag variants (CRC-32 and size, `clxi.test.ts` "golden pin").
+    - [x] Both flag variants differ only in the header flags, META counts, GADDAG sections and CRC (tested).
+    - [x] Header identity complete: canonical `lexiconVersion` (L1, §4.1) and a `definitionHash` that covers every
+      profile option, including `inflections` (P8). No profile option needs a header field.
+    - [x] Decoder checks behind the CRC (T-CORRUPT, above) and unaligned input (§3.5).
+    - [x] Format limits checked against the playtest lexicon: ≤ 32 categories (9 used), u16 values, forms of
+      2–15 letters; the restated size gate and its f0 switch rule (§5.1, P7).
+    - [x] Known reasons for format 2 recorded: optional bot sections (ADR-0013 Q-A1 trigger).
+    - Not a freeze prerequisite: the Linux vs macOS build comparison (T-DETERMINISM) tests the builder, not the
+      layout; a builder bug found later is fixed in the builder, with format 1 unchanged.
+  - **At the trigger** (the PR or release that causes it): add a dated "Frozen on <date> by <event>" line here,
+    and move the fixture golden pin into a file protected by `tools/golden/protected-paths.json` (P3), so that
+    golden-immutability fails any later edit.
+  - **ADR check (solution-architect view, P4):** no ADR change. ADR-0013 §D7 already fixes the artefact identity
+    used by logs, and §4.4 here already fixes decoder retention. The freeze is a lexicon-internal commitment
+    whose reversal costs one `formatVersion` bump, not a change to the replay contract. ADR-0014 only refers to
+    the freeze as a deadline.
+  - **Status:** not frozen (2026-10-05): no trigger event is recorded in the repo. Whoever ships the first
+    out-of-CI build or the first log export owns the "At the trigger" step above.
 
 | Section | Layout | Notes |
 |---|---|---|
@@ -331,7 +376,9 @@ array reads, which is what makes the < 5 µs budget plausible (§5).
 ### 3.4 Where it runs
 - **Phase 1 (T9, done in sprint L6):** `pnpm turbo run build:index` (Turborepo task `@codelex/lexicon#build:index`,
   defined in `packages/lexicon/turbo.json`) writes, under `packages/lexicon/dist/indexes/`:
-  - `<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server, default), `f0` without it;
+  - `<lexiconVersion>/<profileId>.f<flags>.clxi` — `f1` with the GADDAG (server, default), `f0` without it —
+    for every profile of `BUILT_PROFILES` (`scripts/canonical.mjs`): `global-ranked` and, since sprint 3 P8, the
+    simulation-only `global-no-inflections` (§4.2; never bundled: apps pick `global-ranked` explicitly);
   - `<lexiconVersion>/manifest.json` — `{ lexiconVersion, profiles: [{ id, kind, definitionHash, formatVersion,
     flags, gaddag, file, bytes, sha256 }] }`, one entry per (profile, flags), canonical JSON;
   - `current.json` — `{ lexiconVersion, manifest: "<lexiconVersion>/manifest.json" }`, the stable entry point for
@@ -412,6 +459,18 @@ see `docs/game/LEXICON_SPEC.md` §7 (`lexiconVersion` and `cardsVersion`, `scrip
 - `definitionHash` = sha256 (first 16 hex) of the canonical profile definition; it is in the artefact header,
   so the artefact identity is (`lexiconVersion`, profile id, `definitionHash`). Profile content decisions (what a
   season pack contains) belong to `lexicon-curator` + `game-designer`, not to this note.
+- **Option `inflections: all | none`** (E-1.7 D-14, sprint 3 P8). Build-time only: `none` builds canonical forms
+  only, with the same terms, metadata and relations; `all` is the default and is omitted from the canonical
+  definition, so `global-ranked` (which predates the option) keeps its `definitionHash` (`da1f36a3747e0dfe`) and
+  its artefact bytes. Unknown values are refused (`TypeError` in `canonical.mjs`, `VALIDATION_FAILED` in the
+  builder). `profileBuildInput(definition)` derives the builder's profile reference and the hash from one
+  definition, so the option applied is always the one hashed. `global-no-inflections` (`00d1ebcc16bb3489`) is
+  the AC-20 "without inflections" variant: `build:index` builds it, and the simulator builds it with the same
+  builder call, instead of stripping inflections itself. Tests: `test/canonical.test.mjs` (pinned hashes, refused
+  values), `src/index/clxi/clxi.test.ts` (`all` ≡ absent bytes, `none` ≡ stripped document, both lists of option
+  values equal) and `test/build-index.test.mjs`. For `lexiconVersion` `e568477b5592a994` that last test pins the
+  sha256 of all four artefacts to the values built by the pre-P8 code. For any lexiconVersion, it also checks
+  that the option paths give the same bytes as the option-less builder calls.
 
 ### 4.3 Build determinism (same input ⇒ same bytes)
 Inputs sorted (forms by UTF-16 code unit, ids, categories, edges); automaton minimisation assigns node ids in a

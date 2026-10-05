@@ -56,6 +56,25 @@ export interface LexiconProfileDefinition {
     readonly ids?: readonly string[];
   };
   readonly exclude?: { readonly tags?: readonly string[]; readonly ids?: readonly string[] };
+  /** E-1.7 D-14: `all` (default) keeps declared inflections, `none` builds canonical forms only. */
+  readonly inflections?: InflectionPolicy;
 }
+export type InflectionPolicy = 'all' | 'none';
+export const INFLECTION_POLICIES: readonly InflectionPolicy[];
 export const GLOBAL_PROFILE: LexiconProfileDefinition;
+/** Simulation-only profile `global-no-inflections` (E-1.7 D-14, AC-20). */
+export const NO_INFLECTIONS_PROFILE: LexiconProfileDefinition;
+/** Profiles built by `build:index`, in build order. */
+export const BUILT_PROFILES: readonly LexiconProfileDefinition[];
+/** The hashed form: `inflections: 'all'` is omitted; throws TypeError on an unknown option value. */
+export function canonicalProfileDefinition(
+  definition: LexiconProfileDefinition,
+): LexiconProfileDefinition;
 export function profileDefinitionHash(definition: LexiconProfileDefinition): string;
+/** The builder's profile reference (`LexiconBuildInput.profile`), derived from one definition. */
+export function profileBuildInput(definition: LexiconProfileDefinition): {
+  readonly id: string;
+  readonly kind: 'global' | 'season' | 'org';
+  readonly definitionHash: string;
+  readonly inflections: InflectionPolicy;
+};
