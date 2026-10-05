@@ -66,6 +66,30 @@ used). `simulate` compiles `src` + `sim` with `tsconfig.sim.json` into `dist/sim
 `dist/simulator/sim/cli.js`; outputs go to `sim-results/` (git-ignored) unless `--out`/`--markdown` say
 otherwise. Wall time is measured by the caller (`time pnpm … simulate`). Readouts: `docs/game/sim/`.
 
+### Rules versions and the V1 balance check (B3)
+
+- **Rules by flag (T-2).** `--rules v1` (default) or `--rules v2 --candidate tb-0-2-4-8|tb-0-3-6-12`
+  (`--layout classic-v1` for the DW-start diagnostic). The draft opt-in (`@codelex/game-engine/draft`) is
+  imported only in `sim/rules.ts`. One draft context per variant goes to `createMatch`, `apply`, `replay` and the
+  bots (`BotContext.draft`, passed to every `evaluateMove`). Each variant's report records version, status,
+  candidate, layout, letters, term bonus and `rulesDigest` (ADR-0014 §D4). The simulator never exports logs.
+- **Yardstick.** `greedy-matched` is `greedy` with `maxDifficultyRank` 1 (BG-2a). It is set through
+  `BotContext.data`, a simulator-only override with no new public id (bots-api §5.4 V2-5).
+- **Metrics.** C-10 (R-TURN-004 endings with bag ≥ 7), C-11 (tiles played, mean with a 95 % CI), the bag-at-end
+  split 0 / 1–6 / ≥ 7, matches with a pass, C-05 with a delta-method CI (safe integers, conservative), and
+  fallbacks after evaluation (the I-2 signal).
+- **`--suite balance-check`.** Runs the pre-registered suite of `docs/specs/E-1.6-balance/v2-balance-check.md`
+  (`sim/balance-check.ts`): variants, fixed pairing indices 0–5, seed and counts. `sim/readout.ts` then emits every
+  §3.4 criterion with its verdict, plus I-1..I-3 and the §5.1 decision. Flags: `--primary strategist|greedy`
+  (`greedy` is the §5.2 path), `--diagnostics on|off`, `--variants` (job split), and
+  `--code-commit`/`--lexicon-commit`/`--prereg-blob`. A run with another seed or other counts, `BOT_VERSION` ≠ 2
+  or missing commits is INVALID by I-3, so a smoke run never yields a decision.
+
+```bash
+pnpm --filter @codelex/bots simulate -- --rules v2 --candidate tb-0-3-6-12 --mirror 20 --pair 10
+pnpm --filter @codelex/bots simulate -- --suite balance-check --primary greedy --mirror 10 --pair 10   # smoke
+```
+
 ## Tests
 
 - `src/**/*.test.ts`: units and properties next to the code (generation soundness and brute-force completeness,
@@ -77,6 +101,9 @@ otherwise. Wall time is measured by the caller (`time pnpm … simulate`). Reado
   and decoded `.clxi` artefact (minimal automata); `gaddag: false` selects the DAWG path.
 - `sim/simulate.test.ts`: simulator smoke test (statistics, JSON writer, options, an 8-match suite on the real
   lexicon variants with replay and determinism checks). The ≥ 1,000-match run is never part of `pnpm test`.
+  `sim/v2.test.ts`: v1/v2 rules selection, the yardstick, the new metrics, and the V1 readout's decision rules on
+  synthetic reports. `sim/stats.test.ts`: the integer mean and ratio CIs. `src/context.test.ts`: `ctx.draft` and
+  `ctx.data` plumbing.
 - `test/real-lexicon-matches.test.ts`: 250 full matches (1v1, 2v2, FFA 3/4; all personalities) on the real
   `global-ranked` index and the real `classic-v1` layout: every match ends, conserves tiles, replays to identical
   hashes. `test/full/real-lexicon-1000.full.ts`: the same sequence at 1,000 matches, results pinned in

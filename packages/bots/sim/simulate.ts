@@ -9,12 +9,19 @@
  * `sim-match:<pairing index>:<match index>`, so a pairing's seeds do not depend on the other pairings, and two
  * lexicon variants run with the same `variantSeedsShared` seed set are paired comparisons (BALANCE.md protocol).
  *
+ * Rules (sprint 3 B3, T-2): each variant names a `RulesSelection` (v1, or the v2 draft with a term-bonus candidate).
+ * One draft context per variant goes to `createMatch`, `apply`, `replay` and the bots' `evaluateMove`, and the
+ * report records version, candidate, tables and `rulesDigest` per variant (ADR-0014 §D4 amendment).
+ *
  * Action logs stay in memory: they are replayed and dropped, never written (game-engine-api §20 Q1/Q2 become
- * one-way only once logs are persisted).
+ * one-way only once logs are persisted; the first exported log is also a `.clxi` format-1 freeze trigger, P4).
+ * A draft log is reproducible only with its candidate, so any future export must write the variant's
+ * `RulesProvenance` next to each log.
  */
 import {
   apply,
   createMatch,
+  type DraftContext,
   newActionLog,
   observe,
   replay,
@@ -29,22 +36,50 @@ import {
 } from '@codelex/game-engine';
 import { deriveRng } from '@codelex/game-engine/rng';
 import type { LexiconIndex } from '@codelex/lexicon/index';
-import { BOT_VERSION, chooseAction, PERSONALITIES, type BotPersonalityId } from '../src/index.js';
-import { meanTenths, rateBp, spread, wilsonBp, type Interval, type Spread } from './stats.js';
+import { BOT_VERSION, chooseAction, PERSONALITIES } from '../src/index.js';
+import { simBot } from './bots.js';
+import {
+  draftContext,
+  RULES_V1,
+  rulesProvenance,
+  type RulesProvenance,
+  type RulesSelection,
+} from './rules.js';
+import {
+  meanCiTenths,
+  meanTenths,
+  ratioCiBp,
+  rateBp,
+  spread,
+  wilsonBp,
+  type Interval,
+  type MeanWithCi,
+  type RatioWithCi,
+  type Spread,
+} from './stats.js';
+
+/** A simulator bot id: a public personality, or a yardstick such as `greedy-matched` (`bots.ts`). */
+export type SimBotId = string;
 
 export interface Pairing {
   /** Report key, e.g. `beginner-mirror`. */
   readonly id: string;
-  /** Personality A plays seat 0 in even-numbered matches and seat 1 in odd ones (seats swapped). */
-  readonly a: BotPersonalityId;
-  readonly b: BotPersonalityId;
+  /** Bot A plays seat 0 in even-numbered matches and seat 1 in odd ones (seats swapped). */
+  readonly a: SimBotId;
+  readonly b: SimBotId;
   readonly matches: number;
+  /**
+   * Seed stream index (`sim-match:<index>:<match>`). Default: the position in the variant's list. A
+   * pre-registered suite sets it explicitly, so skipping a pairing never shifts the seeds of the others.
+   */
+  readonly index?: number;
 }
 
 export interface Variant {
   /** Report key, e.g. `with-inflections`. */
   readonly id: string;
   readonly lexicon: LexiconIndex;
+  readonly rules: RulesSelection;
   readonly pairings: readonly Pairing[];
 }
 
@@ -59,8 +94,8 @@ export interface SuiteSpec {
 /** What one match contributes; also the per-match row of the report. */
 export interface MatchRecord {
   readonly seed: string;
-  /** Personality per seat. */
-  readonly seats: readonly BotPersonalityId[];
+  /** Bot per seat. */
+  readonly seats: readonly SimBotId[];
   readonly firstSeat: number;
   readonly endReason: 'going_out' | 'scoreless_turns' | 'resign';
   /** Final scores per seat (after R-SCORE-006 adjustments). */
@@ -71,6 +106,11 @@ export interface MatchRecord {
   /** Tiles left in the bag and on both racks when the match ended. */
   readonly bagAtEnd: number;
   readonly rackTilesAtEnd: number;
+  /** Tiles placed on the board by PLACE_WORD over the match (C-11). */
+  readonly tilesPlayed: number;
+  /** Σ PlaceWord points and Σ term bonus of the match (C-05 per-match terms). */
+  readonly placeWordPoints: number;
+  readonly termBonus: number;
   readonly finalHash: string;
   readonly turns: readonly TurnRecord[];
 }
@@ -103,10 +143,14 @@ export function matchSeed(masterSeed: string, pairingIndex: number, matchIndex: 
   return `${hi}${lo}` as SeedHex;
 }
 
-export function matchConfig(lexicon: LexiconIndex, seed: SeedHex): MatchConfig {
+export function matchConfig(
+  lexicon: LexiconIndex,
+  seed: SeedHex,
+  rules: RulesSelection = RULES_V1,
+): MatchConfig {
   return {
     seed,
-    engineRulesVersion: 1,
+    engineRulesVersion: rules.engineRulesVersion,
     lexiconVersion: lexicon.version,
     profileId: lexicon.profile.id,
     definitionHash: lexicon.profile.definitionHash,
@@ -115,8 +159,8 @@ export function matchConfig(lexicon: LexiconIndex, seed: SeedHex): MatchConfig {
       format: 'untimed-vs-bot',
       seats: 2,
       teams: [[0], [1]],
-      layout: 'classic-v1',
-      letters: 'letters-v1',
+      layout: rules.layout,
+      letters: rules.letters,
       requireWinner: 0,
     },
   };
@@ -172,11 +216,15 @@ export class SimulationError extends Error {
 export function playMatch(
   lexicon: LexiconIndex,
   seed: SeedHex,
-  seats: readonly BotPersonalityId[],
+  seats: readonly SimBotId[],
   maxActions = 1_000,
+  rules: RulesSelection = RULES_V1,
 ): MatchRecord {
-  const config = matchConfig(lexicon, seed);
-  const created = createMatch(config, { lexicon });
+  const config = matchConfig(lexicon, seed, rules);
+  const draft: DraftContext | undefined = draftContext(rules);
+  const engine = draft === undefined ? { lexicon } : { lexicon, draft };
+  const bots = seats.map(simBot);
+  const created = createMatch(config, engine);
   if (!created.ok) throw new SimulationError('BOT_ERROR', `createMatch: ${created.error.code}`);
   let state: MatchState = created.value.state;
   const actions: Action[] = [];
@@ -192,18 +240,21 @@ export function playMatch(
     }
     const seat = state.seatOnTurn;
     const personality = seats[seat] ?? 'random-legal';
+    const bot = bots[seat] ?? simBot('random-legal');
     const obs = observe(state, seat);
     const decided = chooseAction(obs, {
       lexicon,
       rng: deriveRng(seed, `bot:${String(seat)}:${String(obs.actionCount)}`),
-      personality,
-      budget: PERSONALITIES[personality].budget,
+      personality: bot.personality,
+      budget: (bot.data ?? PERSONALITIES[bot.personality]).budget,
+      ...(draft === undefined ? {} : { draft }),
+      ...(bot.data === undefined ? {} : { data: bot.data }),
     });
     if (!decided.ok) {
       throw new SimulationError('BOT_ERROR', `seed ${seed}: chooseAction ${decided.error.code}`);
     }
     const decision = decided.value;
-    const applied = apply(state, decision.action, { lexicon });
+    const applied = apply(state, decision.action, engine);
     if (!applied.ok) {
       throw new SimulationError(
         'APPLY_REJECTED',
@@ -261,12 +312,20 @@ export function playMatch(
     stateHashes: hashes,
     final: { stateHash: finalHash, actionCount: actions.length },
   };
-  const replayed = replay(log, { lexicon });
+  const replayed = replay(log, engine);
   if (!replayed.ok || replayed.value.finalHash !== finalHash) {
     throw new SimulationError(
       'REPLAY_MISMATCH',
       `seed ${seed}: ${replayed.ok ? 'final hash differs' : replayed.error.code}`,
     );
+  }
+  let tilesPlayed = 0;
+  let placeWordPoints = 0;
+  let termBonus = 0;
+  for (const t of turns) {
+    tilesPlayed += t.tilesPlaced ?? 0;
+    placeWordPoints += t.points ?? 0;
+    termBonus += t.termBonus ?? 0;
   }
   return {
     seed,
@@ -278,6 +337,9 @@ export function playMatch(
     actions: actions.length,
     bagAtEnd: state.bag.length,
     rackTilesAtEnd: state.seats.reduce((a, s) => a + s.rack.length, 0),
+    tilesPlayed,
+    placeWordPoints,
+    termBonus,
     finalHash,
     turns,
   };
@@ -297,15 +359,23 @@ function rateWithCi(k: number, n: number): RateWithCi {
 }
 
 export interface PersonalityStats {
-  readonly personality: BotPersonalityId;
+  /** Simulator bot id (a personality or a yardstick). */
+  readonly personality: SimBotId;
   readonly decisions: number;
   readonly placeWord: number;
+  /** Σ points of accepted PLACE_WORDs (BG-3 is a ratio of these sums). */
+  readonly placeWordPoints: number;
   readonly exchange: number;
   readonly pass: number;
   /** Decisions without a PLACE_WORD (bots never exchange voluntarily: no legal word was found). */
   readonly noWordBp: number;
   readonly budgetExhausted: number;
   readonly budgetExhaustedBp: number;
+  /**
+   * EXCHANGE/PASS decisions taken after evaluating ≥ 1 candidate. For bots without voluntary exchanges, every
+   * evaluated candidate was refused by the engine (I-2 signal, e.g. a missing draft context).
+   */
+  readonly fallbacksAfterEvaluation: number;
   readonly nodes: Spread;
   readonly candidatesEvaluated: Spread;
   /** Mean points per accepted PLACE_WORD, tenths (BG-3, C-03). */
@@ -316,10 +386,20 @@ export interface PersonalityStats {
   readonly meanScoreTenths: number;
 }
 
+export interface BagAtEnd {
+  /** Matches whose bag held 0, 1–6 and ≥ 7 tiles at the end (T-1/T-9 split). */
+  readonly empty: number;
+  readonly oneToSix: number;
+  readonly sevenPlus: number;
+  readonly spread: Spread;
+}
+
 export interface PairingReport {
   readonly id: string;
-  readonly a: BotPersonalityId;
-  readonly b: BotPersonalityId;
+  /** Seed stream index of the pairing. */
+  readonly index: number;
+  readonly a: SimBotId;
+  readonly b: SimBotId;
   readonly matches: number;
   readonly draws: number;
   /** Seat that moved first wins (draws excluded from n). B-01. */
@@ -338,6 +418,14 @@ export interface PairingReport {
   readonly noWordTurnBagNotEmptyBp: number;
   /** Matches whose bag was empty at the end. */
   readonly bagEmptyAtEndBp: number;
+  readonly bagAtEnd: BagAtEnd;
+  /** C-10: matches ending on R-TURN-004 (scoreless turns) with ≥ 7 tiles in the bag, ÷ all matches. */
+  readonly prematureLock: RateWithCi;
+  /** C-11: tiles placed on the board per match, mean with a normal 95 % CI (tenths). */
+  readonly tilesPlayed: MeanWithCi;
+  /** PASS decisions per match (forced-pass tail: these bots pass only with no word and a bag < 7). */
+  readonly passesPerMatch: Spread;
+  readonly matchesWithPass: number;
   /** Tiles left on both racks at the end. */
   readonly rackTilesAtEnd: Spread;
   readonly meanTotalScoreTenths: number;
@@ -352,6 +440,8 @@ export interface PairingReport {
   readonly inflectionShareBp: number;
   /** Σ termBonus ÷ Σ points (C-05). */
   readonly termBonusShareBp: number;
+  /** C-05 with its delta-method 95 % CI, the match as the unit (v2-balance-check §3.2). */
+  readonly termBonusShare: RatioWithCi;
   /** Hooked-inflection term bonus ÷ all term bonus (C-09). */
   readonly hookTermBonusShareBp: number;
   readonly personalities: readonly PersonalityStats[];
@@ -359,7 +449,7 @@ export interface PairingReport {
 }
 
 function personalityStats(
-  personality: BotPersonalityId,
+  personality: SimBotId,
   records: readonly MatchRecord[],
 ): PersonalityStats {
   const turns: TurnRecord[] = [];
@@ -383,11 +473,15 @@ function personalityStats(
     personality,
     decisions: turns.length,
     placeWord: words.length,
+    placeWordPoints: points,
     exchange: turns.filter((t) => t.type === 'EXCHANGE').length,
     pass: turns.filter((t) => t.type === 'PASS').length,
     noWordBp: rateBp(turns.length - words.length, turns.length),
     budgetExhausted: exhausted,
     budgetExhaustedBp: rateBp(exhausted, turns.length),
+    fallbacksAfterEvaluation: turns.filter(
+      (t) => t.type !== 'PLACE_WORD' && t.candidatesEvaluated > 0,
+    ).length,
     nodes: spread(turns.map((t) => t.nodesUsed)),
     candidatesEvaluated: spread(turns.map((t) => t.candidatesEvaluated)),
     pointsPerWordTenths: meanTenths(points, words.length),
@@ -396,7 +490,11 @@ function personalityStats(
   };
 }
 
-export function aggregate(pairing: Pairing, records: readonly MatchRecord[]): PairingReport {
+export function aggregate(
+  pairing: Pairing,
+  records: readonly MatchRecord[],
+  index = pairing.index ?? 0,
+): PairingReport {
   let draws = 0;
   let firstWins = 0;
   let aWins = 0;
@@ -449,8 +547,12 @@ export function aggregate(pairing: Pairing, records: readonly MatchRecord[]): Pa
     .slice(0, 20)
     .reduce((a, b) => a + b, 0);
   const personalities = pairing.a === pairing.b ? [pairing.a] : [pairing.a, pairing.b];
+  const bags = records.map((r) => r.bagAtEnd);
+  const passes = records.map((r) => r.turns.filter((t) => t.type === 'PASS').length);
+  const locked = records.filter((r) => r.endReason === 'scoreless_turns' && r.bagAtEnd >= 7).length;
   return {
     id: pairing.id,
+    index,
     a: pairing.a,
     b: pairing.b,
     matches: records.length,
@@ -462,6 +564,16 @@ export function aggregate(pairing: Pairing, records: readonly MatchRecord[]): Pa
     noWordTurnBp: rateBp(noWordTurns, turns),
     noWordTurnBagNotEmptyBp: rateBp(bagNoWordTurns, bagTurns),
     bagEmptyAtEndBp: rateBp(records.filter((r) => r.bagAtEnd === 0).length, records.length),
+    bagAtEnd: {
+      empty: bags.filter((b) => b === 0).length,
+      oneToSix: bags.filter((b) => b > 0 && b < 7).length,
+      sevenPlus: bags.filter((b) => b >= 7).length,
+      spread: spread(bags),
+    },
+    prematureLock: rateWithCi(locked, records.length),
+    tilesPlayed: meanCiTenths(records.map((r) => r.tilesPlayed)),
+    passesPerMatch: spread(passes),
+    matchesWithPass: passes.filter((p) => p > 0).length,
     rackTilesAtEnd: spread(records.map((r) => r.rackTilesAtEnd)),
     meanTotalScoreTenths: meanTenths(totalScore, records.length),
     meanFirstMoverLeadTenths: meanTenths(lead, records.length),
@@ -471,6 +583,10 @@ export function aggregate(pairing: Pairing, records: readonly MatchRecord[]): Pa
     distinctTermsPlayed: termCounts.size,
     inflectionShareBp: rateBp(inflections, mainWords),
     termBonusShareBp: rateBp(termBonus, points),
+    termBonusShare: ratioCiBp(
+      records.map((r) => r.termBonus),
+      records.map((r) => r.placeWordPoints),
+    ),
     hookTermBonusShareBp: rateBp(hooked, termBonus),
     personalities: personalities.map((p) => personalityStats(p, records)),
     replayVerified: records.length,
@@ -485,12 +601,13 @@ export interface VariantReport {
   readonly forms: number;
   readonly terms: number;
   readonly automaton: 'gaddag' | 'dawg';
+  /** Version, status, candidate, tables, term bonus and rulesDigest the variant ran on (ADR-0014 §D4). */
+  readonly rules: RulesProvenance;
   readonly pairings: readonly PairingReport[];
 }
 
 export interface SuiteReport {
   readonly botVersion: number;
-  readonly engineRulesVersion: number;
   readonly masterSeed: string;
   readonly matches: number;
   readonly variants: readonly VariantReport[];
@@ -502,14 +619,15 @@ export interface RunOptions {
 }
 
 /** Seats of match `index`: A on seat 0 for even indices, seat 1 for odd ones. */
-export function seatsFor(pairing: Pairing, index: number): BotPersonalityId[] {
+export function seatsFor(pairing: Pairing, index: number): SimBotId[] {
   return index % 2 === 0 ? [pairing.a, pairing.b] : [pairing.b, pairing.a];
 }
 
 export function runSuite(spec: SuiteSpec, options: RunOptions = {}): SuiteReport {
   let matches = 0;
   const variants = spec.variants.map((variant): VariantReport => {
-    const pairings = variant.pairings.map((pairing, pairingIndex) => {
+    const pairings = variant.pairings.map((pairing, position) => {
+      const pairingIndex = pairing.index ?? position;
       const records: MatchRecord[] = [];
       for (let i = 0; i < pairing.matches; i += 1) {
         const seed = matchSeed(spec.masterSeed, pairingIndex, i);
@@ -518,12 +636,13 @@ export function runSuite(spec: SuiteSpec, options: RunOptions = {}): SuiteReport
           seed,
           seatsFor(pairing, i),
           spec.maxActionsPerMatch,
+          variant.rules,
         );
         records.push(record);
         options.onMatch?.(variant.id, pairing.id, i, record);
       }
       matches += records.length;
-      return aggregate(pairing, records);
+      return aggregate(pairing, records, pairingIndex);
     });
     return {
       id: variant.id,
@@ -533,12 +652,12 @@ export function runSuite(spec: SuiteSpec, options: RunOptions = {}): SuiteReport
       forms: variant.lexicon.size,
       terms: variant.lexicon.termCount,
       automaton: variant.lexicon.gaddag === undefined ? 'dawg' : 'gaddag',
+      rules: rulesProvenance(variant.rules),
       pairings,
     };
   });
   return {
     botVersion: BOT_VERSION,
-    engineRulesVersion: 1,
     masterSeed: spec.masterSeed,
     matches,
     variants,
