@@ -20,15 +20,15 @@ L6 landed, the bundled `.clxi` lexicon index loaded and verified at startup (§3
 
 ## 2. Expo SDK and runtime pin
 
-| Item | Pin | Why |
-|---|---|---|
-| Expo SDK | **57** (`expo` 57.0.26) | Latest stable. SDK 58 was published 2026-09-29, under the repo's 3-day `minimumReleaseAge`, and its first patches are still landing: upgrade in a dedicated PR once it has settled. |
-| React Native / React | 0.86.3 / 19.2.3 | The versions SDK 57 is built and tested against (`expo/bundledNativeModules.json`). |
-| New Architecture | **on, not optional** | Legacy architecture was removed in RN 0.82; SDK 57's config has no `newArchEnabled` switch. |
-| JS engine | **Hermes, not optional** | SDK 57 has no `jsEngine` switch. `expo export` emits Hermes bytecode (`.hbc`). |
-| Router | Expo Router 57.0.24 | Role stack; route files live in `src/app/`. |
-| Animation / gestures | Reanimated 4.5.1 + Worklets 0.10.1, Gesture Handler 2.32.0 | Confirms E-1.4 assumption A-5. Pinned explicitly because pnpm otherwise auto-installs newer, SDK-incompatible peers. |
-| Tests | jest-expo 57.0.5 (Jest 29.7), Testing Library RN 14.0.1 | Vitest cannot load the Flow-typed `react-native` sources; jest-expo mirrors Metro's resolution. |
+| Item                 | Pin                                                        | Why                                                                                                                                                                                 |
+| -------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expo SDK             | **57** (`expo` 57.0.26)                                    | Latest stable. SDK 58 was published 2026-09-29, under the repo's 3-day `minimumReleaseAge`, and its first patches are still landing: upgrade in a dedicated PR once it has settled. |
+| React Native / React | 0.86.3 / 19.2.3                                            | The versions SDK 57 is built and tested against (`expo/bundledNativeModules.json`).                                                                                                 |
+| New Architecture     | **on, not optional**                                       | Legacy architecture was removed in RN 0.82; SDK 57's config has no `newArchEnabled` switch.                                                                                         |
+| JS engine            | **Hermes, not optional**                                   | SDK 57 has no `jsEngine` switch. `expo export` emits Hermes bytecode (`.hbc`).                                                                                                      |
+| Router               | Expo Router 57.0.24                                        | Role stack; route files live in `src/app/`.                                                                                                                                         |
+| Animation / gestures | Reanimated 4.5.1 + Worklets 0.10.1, Gesture Handler 2.32.0 | Confirms E-1.4 assumption A-5. Pinned explicitly because pnpm otherwise auto-installs newer, SDK-incompatible peers.                                                                |
+| Tests                | jest-expo 57.0.5 (Jest 29.7), Testing Library RN 14.0.1    | Vitest cannot load the Flow-typed `react-native` sources; jest-expo mirrors Metro's resolution.                                                                                     |
 
 Rules: upgrade one SDK at a time with `expo install --fix`; every native module is pinned to the SDK's
 `bundledNativeModules.json` version; native code only via Expo config plugins (ADR-0002). pnpm's isolated layout works
@@ -47,10 +47,10 @@ Implements lexicon-index note §3.4 (consumer side) and §3.5 (loading) on mobil
 1. `@codelex/lexicon` `build:index` (Turborepo task, cached on inputs) writes, under
    `packages/lexicon/dist/indexes/`: `<lexiconVersion>/<profileId>.f<flags>.clxi` (`f1` with the GADDAG, `f0`
    without), `<lexiconVersion>/manifest.json` (`{ lexiconVersion, profiles: [{ id, kind, definitionHash,
-   formatVersion, flags, gaddag, file, bytes, sha256 }] }`) and `current.json` (`{ lexiconVersion, manifest }`), the
+formatVersion, flags, gaddag, file, bytes, sha256 }] }`) and `current.json` (`{ lexiconVersion, manifest }`), the
    stable entry point.
 2. The Turborepo task `@codelex/mobile#prepare:lexicon` (`apps/mobile/turbo.json`; `dependsOn:
-   ["@codelex/lexicon#build:index"]`, outputs `assets/lexicon/**`) runs `scripts/prepare-lexicon.mjs`. It calls
+["@codelex/lexicon#build:index"]`, outputs `assets/lexicon/**`) runs `scripts/prepare-lexicon.mjs`. It calls
    `resolveIndexArtefact({ profileId: 'global-ranked', flags: 1 })` from `@codelex/lexicon/indexes`, which follows
    `current.json` and refuses (typed `IndexArtefactError`) a missing build, a missing profile or a file whose size or
    sha256 differs from the manifest. The flags are explicit (`BUNDLED_FLAGS` in `scripts/lexicon-asset.mjs`): `f1`,
@@ -65,6 +65,7 @@ Implements lexicon-index note §3.4 (consumer side) and §3.5 (loading) on mobil
      `45ede0e8…95e16f5`, `283672`.
 
    Both are git-ignored (`.gitignore`, `.prettierignore`): reproducible build outputs, never committed.
+
 4. `build`, `test`, `lint` and `typecheck` depend on `prepare:lexicon` (the app imports the descriptor and the
    asset); `bundle:check` depends on `build`. Locally, run `pnpm turbo run prepare:lexicon --filter=@codelex/mobile`
    once before `pnpm --filter @codelex/mobile start`.
@@ -155,7 +156,7 @@ Pending for S1: board, tile, premium, category, mono type, radius, elevation, la
 - `lint` (shared `@codelex/config` rules plus React Hooks, the UI-string and colour bans; route files may default
   export), `typecheck` (strict, bundler resolution), `format:check`, `test` (jest-expo with coverage thresholds read
   from `basePreset`, 80 %; node:test for the budget script). All run under `pnpm turbo run lint typecheck
-  format:check test`.
+format:check test`.
 - **Bundle budget:** `build` = `expo export --platform android --platform ios --source-maps`. Metro and `hermesc`
   produce the Hermes bytecode bundles a store build embeds, on a plain Linux runner, with no Xcode or Android SDK.
   `bundle:check` compares, per platform, the bundle, the bundled code assets and the `.clxi` lexicon index
@@ -165,11 +166,21 @@ Pending for S1: board, tile, premium, category, mono type, radius, elevation, la
   latency need native builds and devices: H1, then a device-farm job.
 
   | Platform | Bundle (baseline / limit) | Code assets (baseline / limit) | Lexicon (baseline / limit) |
-  |---|---|---|---|
-  | Android | 3,214,516 / 3,700,000 B | 989,294 / 1,140,000 B | 283,672 / 550,000 B |
-  | iOS | 3,030,524 / 3,490,000 B | 23,136 / 27,000 B | 283,672 / 550,000 B |
+  | -------- | ------------------------- | ------------------------------ | -------------------------- |
+  | Android  | 3,762,936 / 4,330,000 B   | 989,294 / 1,140,000 B          | 283,672 / 550,000 B        |
+  | iOS      | 3,580,028 / 4,120,000 B   | 23,136 / 27,000 B              | 283,672 / 550,000 B        |
 
-  Baseline 2026-10-03, SDK 57, with the lexicon loader. History: the first A1 export (3.82 / 3.61 MB) had no
+  **Bundle budget raise, 2026-10-06 (E-1.5 S1, PR #73): approved by the product owner in session.** Skia
+  (`@shopify/react-native-skia` 2.6.2 plus `react-reconciler`) costs about 454 KB of Hermes bytecode per platform
+  (android +454,428 B, ios +454,784 B measured on the import alone). The full S1 slice brings the bundle from
+  3,219,028 to 3,762,936 B on android and from 3,035,296 to 3,580,028 B on iOS. That exceeded the old limits
+  (3,700,000 / 3,490,000 B). The new limits are about 15 % above the S1 numbers, the same policy as before. Follow-up
+  (devops-sre): run a trial of Expo/Metro tree shaking, which Metro does not do today; Skia's index pulls in Skottie,
+  the web shims and the animation helpers. Tighten `bundleBytes` back toward 15 % above the measured result if bytes
+  are recovered.
+
+  Bundle baseline 2026-10-06 (S1, see above); code-asset and lexicon baselines 2026-10-03, SDK 57, with the lexicon
+  loader. History: the first A1 export (3.82 / 3.61 MB) had no
   `--source-maps`; with it `hermesc` runs with the release flags and the bytecode is about 700 KB smaller (3.11 /
   2.93 MB); the loader (`@codelex/lexicon/index` decoder, expo-asset, expo-file-system, expo-crypto) then adds about
   105 KB per platform. Bundle and code-asset limits are about 15 % above the baseline (the earlier limits had become
@@ -179,6 +190,7 @@ Pending for S1: board, tile, premium, category, mono type, radius, elevation, la
   2,000 forms without moving the cap: f1 also needs ≤ 215 B/form and ≤ 2,550 forms. The pre-agreed f0 switch rule
   (`BUNDLED_FLAGS = 0` when f1 fails a gate, f0 passes and DAWG generation is ≤ 1.5× GADDAG time) is in §5.1 of that
   note.
+
 - **Crash reporting:** no SDK (E-1.5 Q-1/Q-7). S1 adds the unclean-exit flag: set a "session open" marker at
   launch, clear it on a clean background or exit; at the next launch a remaining marker means an unclean exit and is
   reported with `app_start` (E-1.5 analytics). Crash-free rates come from TestFlight and Play Console.
