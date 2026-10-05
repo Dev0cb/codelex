@@ -1,50 +1,53 @@
-import { ENGINE_RULES_VERSION } from '@codelex/game-engine';
 import { describe, expect, it, jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import { router } from 'expo-router';
 
-import bundledDescriptor from '../../../assets/lexicon/lexicon.json';
 import type { Locale } from '@codelex/i18n';
+import { FlagsProvider } from '../../config/flags-provider';
 import { I18nProvider } from '../../i18n/i18n-provider';
-import { createBundledLexiconSource } from '../../lexicon/bundled-lexicon-source';
-import { LexiconGate } from '../../lexicon/lexicon-gate';
 import { HomeScreen } from './home-screen';
 
-jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
-jest.mock('expo-crypto', () => jest.requireActual('../../../jest/expo-crypto.cjs'));
-jest.mock('expo-file-system', () => jest.requireActual('../../../jest/expo-file-system.cjs'));
+jest.mock('expo-router', () => ({
+  router: { push: jest.fn() },
+  useRouter: () => jest.requireMock<{ router: unknown }>('expo-router').router,
+}));
 
-const lexicon = createBundledLexiconSource();
-
-const renderHome = (locale: Locale) =>
+const renderHome = (locale: Locale, playEnabled: boolean) =>
   render(
     <I18nProvider locale={locale}>
-      <LexiconGate source={lexicon}>
+      <FlagsProvider flags={{ 'play_vs_bot.enabled': playEnabled }}>
         <HomeScreen />
-      </LexiconGate>
+      </FlagsProvider>
     </I18nProvider>,
   );
 
-describe('HomeScreen', () => {
-  it('shows the app name, the engine rules version and the loaded lexicon version', async () => {
-    await renderHome('en');
-    expect((await screen.findByRole('header')).props.children).toBe('CODELEX');
+describe('HomeScreen (E-1.5 §5.2)', () => {
+  it('shows the name, the tagline and one dominant PLAY NOW that opens the match', async () => {
+    await renderHome('en', true);
+    expect(screen.getByRole('header').props.children).toBe('CODELEX');
     expect(screen.getByText('Play the language of technology.')).toBeTruthy();
-    expect(screen.getByTestId('engine-version').props.children).toBe(
-      `Rules engine v${String(ENGINE_RULES_VERSION)}`,
-    );
-    expect(screen.getByTestId('lexicon-version').props.children).toBe(
-      `Lexicon ${bundledDescriptor.lexiconVersion}`,
-    );
+    const play = screen.getByRole('button', { name: 'PLAY NOW' });
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    await fireEvent.press(play);
+    expect(router.push).toHaveBeenCalledWith('/match');
+  });
+
+  it('replaces PLAY NOW by an inert paused card when play_vs_bot.enabled is off (AC-19)', async () => {
+    await renderHome('en', false);
+    expect(screen.getByText('Matches are paused for an update — back soon')).toBeTruthy();
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
   it('renders French copy', async () => {
-    await renderHome('fr');
-    expect(await screen.findByText('Joue le langage de la technologie.')).toBeTruthy();
-    expect(screen.getByTestId('engine-version').props.children).toBe(
-      `Moteur de règles v${String(ENGINE_RULES_VERSION)}`,
-    );
-    expect(screen.getByTestId('lexicon-version').props.children).toBe(
-      `Lexique ${bundledDescriptor.lexiconVersion}`,
-    );
+    await renderHome('fr', true);
+    expect(screen.getByText('Joue le langage de la technologie.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'JOUER' })).toBeTruthy();
+  });
+
+  it('renders the French paused card', async () => {
+    await renderHome('fr', false);
+    expect(
+      screen.getByText('Les parties sont en pause pour une mise à jour — de retour bientôt'),
+    ).toBeTruthy();
   });
 });

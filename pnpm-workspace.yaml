@@ -12,6 +12,13 @@ ignoredBuiltDependencies:
   - unrs-resolver
 # Fail the install when any other dependency wants to run a build script that is not reviewed.
 strictDepBuilds: true
+# Reviewed build scripts (allow-list). Each entry: what the script does and why the app needs it.
+onlyBuiltDependencies:
+  # postinstall `scripts/install-libs.js` (reviewed at 2.6.2): local file copies only, no network, no exec. It copies
+  # the prebuilt Skia binaries from its own pinned, lockfile-integrity-checked dependencies
+  # (react-native-skia-android / -apple-*) into its libs/ folder for native builds (EAS). The JS bundle does not
+  # depend on it. Re-review on every version bump (apps/mobile, E-1.5 S1).
+  - "@shopify/react-native-skia"
 
 # Security overrides: each one names its advisory and is recorded in docs/security/audit-exceptions.md.
 overrides:

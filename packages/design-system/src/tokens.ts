@@ -2,9 +2,22 @@
  * Design tokens (sprint A1), a subset of the E-1.4 thin spec `docs/specs/E-1.4-design-system/design-system-v1.md`:
  * the chrome colour roles of §1.2, the type ramp of §1.4 (system font) and `space.0..8` of §1.5, with the spec
  * values. Keys are flat camelCase as in spec §1.1 (`color.bg.base` → `color.bgBase`, `type.body.s` → `type.bodyS`).
- * TODO(S1): board, tile, premium, category, mono type, radius, elevation, layout and motion tokens, and the move to
- * the DTCG JSON files of §1.1 (`tokens/*.json`) generating this same typed shape, so consumers do not change.
+ * Board, tile, premium, motion, layout, radius and overlay tokens live in `board-tokens.ts` (slice S1).
+ * TODO: category, mono type and elevation tokens, and the move to the DTCG JSON files of §1.1 (`tokens/*.json`)
+ * generating this same typed shape, so consumers do not change.
  */
+import {
+  BOARD_PALETTES,
+  LAYOUT,
+  MOTION,
+  OVERLAYS,
+  RADIUS,
+  type BoardPalette,
+  type LayoutTokens,
+  type MotionTokens,
+  type OverlayTokens,
+  type RadiusTokens,
+} from './board-tokens.js';
 
 /**
  * Lifecycle of the token set. `partial` = spec values for the groups exported here, other groups pending (S1);
@@ -70,6 +83,11 @@ export interface Tokens {
   readonly color: ColorPalette;
   readonly space: SpaceScale;
   readonly type: TypeScale;
+  readonly board: BoardPalette;
+  readonly motion: MotionTokens;
+  readonly layout: LayoutTokens;
+  readonly radius: RadiusTokens;
+  readonly overlay: OverlayTokens;
 }
 
 // E-1.4 §1.2 (dark = E-1.5 §7.1; light = assumption A-2, the contrast tests decide).
@@ -120,7 +138,18 @@ const TYPE: TypeScale = {
 
 /** Resolved tokens for a colour scheme. */
 export function getTokens(scheme: ColorScheme): Tokens {
-  return { status: TOKENS_STATUS, scheme, color: PALETTES[scheme], space: SPACE, type: TYPE };
+  return {
+    status: TOKENS_STATUS,
+    scheme,
+    color: PALETTES[scheme],
+    space: SPACE,
+    type: TYPE,
+    board: BOARD_PALETTES[scheme],
+    motion: MOTION,
+    layout: LAYOUT,
+    radius: RADIUS,
+    overlay: OVERLAYS[scheme],
+  };
 }
 
 /** Maps an OS appearance (`'dark' | 'light' | null | undefined`, e.g. `useColorScheme()`) to a scheme. */

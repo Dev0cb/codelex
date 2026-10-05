@@ -1,8 +1,10 @@
 # @codelex/design-system
 
-Design tokens and, from slice S1, the shared components (board renderer `BoardView`, buttons) for `apps/mobile` and
-later the web apps. Today: a **partial** token set (chrome colours, type ramp, spacing) with the E-1.4 values, plus
-WCAG contrast checks. No component yet: the `BoardView` contract (E-1.4 §2) is implemented in S1.
+Design tokens for `apps/mobile` and later the web apps: a **partial** token set (chrome colours, type ramp,
+spacing, and since slice S1 the board, tile, premium, motion, layout, radius and overlay tokens) with the E-1.4
+values, plus WCAG contrast checks. The Skia board renderer (`BoardView`, E-1.4 §2) lives in
+`apps/mobile/src/board/` (assumption A-4 reversed: Skia, Reanimated and Gesture Handler are native React Native
+dependencies, so they stay out of this pure package; the props contract is unchanged).
 
 - Owner: `ux-ui-designer` (consult `mobile-engineer` for the React Native components, `frontend-web-engineer` for web)
 - Coverage preset: `base` (`@codelex/config/vitest`)
@@ -15,17 +17,21 @@ WCAG contrast checks. No component yet: the `BoardView` contract (E-1.4 §2) is 
 `TOKENS_STATUS === 'partial'`: the chrome colour roles of §1.2 (dark and light), the system type ramp of §1.4 and
 `space.0..8` of §1.5, with the spec values and flat camelCase keys (§1.1). One deviation, decided by the contrast
 check per assumption A-2: light `accentPrimary` is `#00866A` instead of `#00876A` (white on `#00876A` is 4.49:1).
-TODO(S1): board, tile, premium, category, mono type, radius, elevation, layout and motion tokens, `color.scrim`, and
-the DTCG JSON files of §1.1 (`tokens/*.json`) generating this same typed shape (`Tokens`), so consumers do not change.
+S1 adds `board` (E-1.4 §1.2 board, tile and premium roles; premium tints derived at 22 % over `board.bg`),
+`motion` (§1.6), `layout` and `radius` (§1.5) and `overlay` (`color.scrim` as an opaque colour plus an opacity).
+TODO: category, mono type and elevation tokens, and the DTCG JSON files of §1.1 (`tokens/*.json`) generating this
+same typed shape (`Tokens`), so consumers do not change.
 
 ## API
 
-- `getTokens(scheme)` → `{ status, scheme, color, space, type }`; `resolveColorScheme(osAppearance)` (dark default).
+- `getTokens(scheme)` → `{ status, scheme, color, space, type, board, motion, layout, radius, overlay }`; `resolveColorScheme(osAppearance)` (dark default).
 - Names: `COLOR_ROLES` (`bgBase`, `bgSurface`, `bgRaised`, `borderSubtle`, `textPrimary`, `textMuted`,
   `accentPrimary`, `accentOnPrimary`, `feedbackError|Warning|Info`), `SPACE_STEPS` (`0..8`), `TYPE_ROLES`
   (`display`, `title`, `heading`, `bodyL`, `body`, `bodyS`, `caption`).
 - `contrastRatio(a, b)`, `contrastFailures(tokens)` against `CONTRAST_PAIRS` (text 4.5:1, UI 3:1).
-  `borderSubtle` is excluded as a decorative separator (it never carries state).
+  `borderSubtle` is excluded as a decorative separator (it never carries state). Board pairs:
+  `boardContrastFailures(tokens)` against `BOARD_CONTRAST_PAIRS` (tile ink and value, premium labels on every tint,
+  last-move ring); `mixHex(fg, bg, alpha)` derives tints.
 
 ## Commands
 

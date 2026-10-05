@@ -1,0 +1,38 @@
+# E-1.5 slice S1: Home → PLAY NOW → a full match vs the Beginner bot, to the end screen.
+# Scripted player: it passes every turn, so the bot plays until it goes out or the scoreless-turn limit (R-TURN-004)
+# ends the match; both endings reach the end screen. Word play, rejections and the engine/app score equality are
+# covered by the Jest flow in src/features/match/match-screen.test.tsx.
+# Needs a dev build with EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1 and APP_ID set to its bundle id / package.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.status'
+- repeat:
+    while:
+      notVisible:
+        id: 'summary.result'
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: 'match.action.pass'
+              enabled: true
+          commands:
+            - tapOn:
+                id: 'match.action.pass'
+            - tapOn:
+                id: 'match.pass.confirm'
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible:
+    id: 'summary.result'
+- assertVisible:
+    id: 'summary.playAgain'
+- tapOn:
+    id: 'summary.home'
+- assertVisible:
+    id: 'home.playNow'
