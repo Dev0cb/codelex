@@ -365,6 +365,30 @@ variant, or swapping the lexicon commit for a later one.
 
 *(Append only, after the run: date, results path, outcome per §5.3, link to the sprint decision log.)*
 
+**2026-10-05 — v1 fallback (B-01 risk recorded).** Evaluated by `game-designer`.
+
+- Registered run: [Actions run 37288067161](https://github.com/Dev0cb/codelex/actions/runs/37288067161), green.
+  - Code commit `9ae17989a91ddaa744e7e6c8b2f972008cb7c0ff`; lexicon commit
+    `b3ab7bbccc86e2a41c6b632f3eb9fd758a163a19`; this file at blob `ee714c6a4e9d0361eb067d651e82738a81892acb`.
+  - `lexiconVersion` `e568477b5592a994`, `definitionHash` `da1f36a3747e0dfe`; seed `2026100400000e16`;
+    Strategist primary; 104,000 matches; I-1..I-3 hold.
+- Results: `docs/game/sim/2026-10-v2-balance-check/results.json`, with `digest.md` and `jobs.tsv` in the same
+  folder. The committed file is a local deterministic reproduction of the run, because the CI artifacts cannot be
+  downloaded from the evaluation environment. The digest lists the CI artifact digests and an open owner check:
+  `results.json` must have sha256 `a41425ec…fc20`, and a mismatch is an I-class failure.
+- §5.1 path:
+  - rule 1: `v2-3612` fails P-2 (upper CI 36.36 % > 35.00 %);
+  - rule 2: `v2-248` fails P-1 (CI [50.14 %, 52.12 %], upper bound > 52.00 %);
+  - rule 3: v1 fallback.
+- Verdicts checked mechanically against §3.4: no mismatch, no excuse applied.
+- Fallback record (§5.3-5):
+  - `v1` P-1 52.34 % [51.36 %, 53.33 %]; S-1 51.27 % [50.28 %, 52.25 %];
+  - risk scope: casual vs-bot play only, with no ranked play and no leaderboard in Phase 1;
+  - `engineRulesVersion` 1 is pinned (`PLAY_RULES_VERSION` stays 1), and T-2 and T-3 ship regardless;
+  - next v2 attempt: `game-designer`, Phase 1 sprint 4, under a new file version and a new master seed (§5.4).
+- §5.3-6: `v1` passes P-3..P-6, so no lexicon trigger applies.
+- Sprint decision log: `docs/sprints/2026-10-04-phase1-playtest-gates.md` (task BC).
+
 ## Changelog
 
 - 2026-10-04 — `game-designer` — Pre-registration (sprint 3 task V1). Master seed `2026100400000e16`. Merged
