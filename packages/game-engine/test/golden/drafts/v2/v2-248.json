@@ -1,6 +1,7 @@
 {
   "$comment": "DRAFT golden (ADR-0014 §D3): mutable while engineRulesVersion 2 is a draft; regenerate with `pnpm --filter @codelex/game-engine drafts:write`. Never compared across builds or published.",
   "variant": "v2-248",
+  "seed": "00c0de1e000000d2",
   "engineRulesVersion": 2,
   "candidate": "tb-0-2-4-8",
   "rulesDigest": "adecc93a11f54736",

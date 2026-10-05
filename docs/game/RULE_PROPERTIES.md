@@ -757,9 +757,9 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-BOARD-004 | covered | `packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts` | — / a,b |  |
 | R-BAG-001 | covered | `packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | a,d / b,c,e,f |  |
 | R-BAG-002 | covered | `packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | b / a |  |
-| R-BAG-003 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts` | a / b,c |  |
+| R-BAG-003 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts` | a / b,c |  |
 | R-BAG-004 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/state/state.test.ts`<br>`packages/game-engine/test/phase1/tagged-rules.test.ts` | a / — |  |
-| R-BAG-005 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` | a,c,d / b,e |  |
+| R-BAG-005 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` | a,c,d / b,e |  |
 | R-BAG-006 | covered | `packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | d / a,b,c |  |
 | R-TURN-001 | covered | `packages/game-engine/src/actions/parse.test.ts` | — / a,b,c,d,e |  |
 | R-TURN-002 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/placement/check.test.ts` | — / a,b,c,d |  |
