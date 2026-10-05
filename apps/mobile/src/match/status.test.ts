@@ -36,7 +36,7 @@ function model(state: Partial<MatchState>, over: Partial<MatchModel> = {}): Matc
 }
 
 describe('status strip (E-1.5 §5.5)', () => {
-  it('announces who starts and the first-move rule (AC-3, R-BOARD-004)', () => {
+  it('announces who starts and the first-move hint (AC-3)', () => {
     expect(statusLines(model({ actionCount: 0, board: emptyBoard }), names)).toEqual({
       tone: 'neutral',
       primary: { key: 'match.you_start', params: {} },
