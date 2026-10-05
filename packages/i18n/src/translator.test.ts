@@ -14,7 +14,28 @@ describe('shipped catalogs', () => {
 
   it('format every key in every locale without reporting an error', () => {
     const onError = vi.fn();
-    const params = { version: 1, letter: 'A', points: 2, code: 'LEXICON_INDEX_CORRUPT' };
+    const params = {
+      version: 1,
+      letter: 'A',
+      points: 2,
+      code: 'LEXICON_INDEX_CORRUPT',
+      bot: 'Beginner Bot',
+      count: 3,
+      max: 6,
+      name: 'You',
+      word: 'KUBECTL',
+      words: 'KUBECTL, NPMX',
+      actor: 'You',
+      you: 120,
+      them: 98,
+      premium: 'Square',
+      row: 8,
+      col: 8,
+      tile: 'Letter A, 1 point',
+      state: 'played by you',
+      index: 1,
+      total: 7,
+    };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });
       for (const key of Object.keys(CATALOGS.en) as MessageKey[]) {
