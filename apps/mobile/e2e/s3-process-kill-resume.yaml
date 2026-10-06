@@ -1,0 +1,57 @@
+# E-1.5 slice S3 (AC-11, AC-12; threat model TM-01): the process is killed mid-match and the match comes back.
+# Home → PLAY NOW → Pass (the bot is now thinking) → kill the process during the bot's turn → relaunch → the resume
+# card → PLAY NOW → the match is restored and the bot moves → Pass → kill on the player's turn → relaunch → resume.
+# The kill at every write boundary, torn writes and the bot's identical move are proven in Jest
+# (src/persistence/saved-match.test.ts, src/features/match/match-s3.test.tsx); this flow checks the device path.
+# Needs a dev build with EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1 and APP_ID set to its bundle id / package.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.status'
+- extendedWaitUntil:
+    visible:
+      id: 'match.action.pass'
+      enabled: true
+    timeout: 10000
+- tapOn:
+    id: 'match.action.pass'
+- tapOn:
+    id: 'match.pass.confirm'
+# Mid-bot turn: the bot's think delay is at least 1.2 s, so the kill lands while it is thinking.
+- killApp
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: 'home.resume'
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.status'
+- extendedWaitUntil:
+    visible:
+      id: 'match.action.pass'
+      enabled: true
+    timeout: 10000
+# Mid-player turn.
+- killApp
+- launchApp:
+    clearState: false
+- assertVisible:
+    id: 'home.resume'
+- assertVisible: '.*Your turn.*'
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.score.you'
+# Abandon it (AC-12): one confirmation, then a fresh match.
+- back
+- tapOn:
+    id: 'home.newMatch'
+- tapOn:
+    id: 'home.newMatch.confirm'
+- assertVisible:
+    id: 'match.status'

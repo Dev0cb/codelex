@@ -52,6 +52,7 @@ function model(state: Partial<MatchState>, over: Partial<MatchModel> = {}): Matc
     selectedSlotId: null,
     owners: {},
     log: [],
+    actions: [],
     lastMove: null,
     rejection: null,
     notice: null,

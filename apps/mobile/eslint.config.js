@@ -22,6 +22,8 @@ export default defineConfig(
     files: APP_SOURCE,
     ignores: APP_TESTS,
     rules: {
+      // Threat model TM-04 / I-7: release builds never print state, seeds or logs (logcat is readable over USB).
+      'no-console': 'error',
       'no-restricted-syntax': [
         'error',
         {

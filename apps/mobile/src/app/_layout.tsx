@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { createBundledLexiconSource } from '../lexicon/bundled-lexicon-source';
 import { LexiconGate } from '../lexicon/lexicon-gate';
+import { MatchSessionProvider } from '../match/match-session';
 
 const styles = StyleSheet.create({ root: { flex: 1 } });
 
@@ -15,14 +16,17 @@ const bundledLexicon = createBundledLexiconSource();
 
 /**
  * Root layout: gesture root (board drag later), i18n, then the lexicon gate: no route mounts until the lexicon index
- * is loaded and verified (never partial play), then a header-less stack.
+ * is loaded and verified (never partial play), then the match session (one saved match, slice S3) and a header-less
+ * stack.
  */
 export function RootLayout(): JSX.Element {
   return (
     <GestureHandlerRootView style={styles.root}>
       <I18nProvider>
         <LexiconGate source={bundledLexicon}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <MatchSessionProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </MatchSessionProvider>
         </LexiconGate>
         <StatusBar style="auto" />
       </I18nProvider>

@@ -49,18 +49,18 @@ function Chips({
   readonly chips: readonly TermChip[];
   readonly testID: string;
 }) {
+  const { t } = useI18n();
   const { color, radius, space, type } = useTokens();
   return (
     <View testID={testID} style={[styles.wrap, { gap: space[2] }]}>
       {chips.map((chip) => (
         // Inert until the Knowledge Card ships (slice S5, AC-13/AC-14): no chevron, no ripple, not a button.
-        <Text
+        <View
           key={chip.termId}
           style={[
-            type.bodyS,
-            styles.mono,
+            styles.row,
             {
-              color: color.textPrimary,
+              gap: space[2],
               backgroundColor: color.bgRaised,
               borderColor: color.borderSubtle,
               borderRadius: radius.chip,
@@ -70,8 +70,17 @@ function Chips({
             styles.chip,
           ]}
         >
-          {chip.form}
-        </Text>
+          <Text style={[type.bodyS, styles.mono, { color: color.textPrimary }]}>{chip.form}</Text>
+          {/* D-15: the NEW tag is text, never colour alone. */}
+          {chip.isNew && (
+            <Text
+              testID={`summary.new.${chip.termId}`}
+              style={[type.caption, { color: color.accentPrimary }]}
+            >
+              {t('summary.new_badge')}
+            </Text>
+          )}
+        </View>
       ))}
     </View>
   );
@@ -81,7 +90,7 @@ function Chips({
  * The end-of-match Summary (E-1.5 AC-10, design §5.6, D-15): result, final scores with rack adjustments, why it
  * ended, the margin, the best word, the terms both sides played (deduplicated, canonical) and the bot's last rack,
  * with a sticky action bar so Play again is one tap from anywhere. Numbers are the engine's (see `summarize`).
- * Tone: celebratory on a win, never mocking on a loss (§8.1). "New to you" and term cards come with S3 and S5.
+ * Tone: celebratory on a win, never mocking on a loss (§8.1). Term cards come with S5.
  */
 export function SummaryScreen({
   summary,
@@ -173,9 +182,17 @@ export function SummaryScreen({
         </View>
 
         <View style={{ gap: space[2] }}>
-          <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
-            {t('summary.terms.title')}
-          </Text>
+          <View style={[styles.row, styles.between, { gap: space[2] }]}>
+            <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
+              {t('summary.terms.title')}
+            </Text>
+            {/* §5.6: hidden with no terms, and without an on-device history. */}
+            {!noTerms && summary.newToYou !== null && summary.newToYou > 0 && (
+              <Text testID="summary.newToYou" style={[type.bodyS, { color: color.textMuted }]}>
+                {t('summary.new_to_you', { count: summary.newToYou })}
+              </Text>
+            )}
+          </View>
           {noTerms ? (
             <Text style={[type.body, { color: color.textMuted }]}>{t('summary.terms.empty')}</Text>
           ) : (
@@ -266,6 +283,8 @@ const styles = StyleSheet.create({
   mono: { fontFamily: MONO, fontVariant: ['tabular-nums'] },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', direction: 'ltr' },
   chip: { borderWidth: 1, overflow: 'hidden' },
+  row: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
+  between: { justifyContent: 'space-between' },
   tile: { alignItems: 'center', justifyContent: 'center' },
   bar: { alignSelf: 'stretch', borderTopWidth: StyleSheet.hairlineWidth },
 });

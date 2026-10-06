@@ -2,7 +2,7 @@
  * The end-of-match summary (E-1.5 AC-10, design §5.6, D-15) as plain data. Scores, adjustments, the result and the
  * final racks are the engine's (`observe` of the finished state, R-SCORE-006/007, R-END-003); the best word and the
  * term chips are read from the move log, whose breakdowns are the engine's own. Nothing is recomputed here.
- * "New to you" needs an on-device history and arrives with persistence (slice S3).
+ * "New to you" compares the player's canonical terms with the on-device history (slice S3, `terms-seen.ts`).
  */
 import { observe, type Seat } from '@codelex/game-engine';
 
@@ -19,6 +19,8 @@ import { BOT_SEAT, HUMAN_SEAT } from './play-config';
 export interface TermChip {
   readonly termId: string;
   readonly form: string;
+  /** First played by the player on this device (the NEW tag, design §5.6); always false for the bot's chips. */
+  readonly isNew: boolean;
 }
 
 export interface BestWord {
@@ -39,6 +41,8 @@ export interface MatchSummary {
   readonly margin: number;
   readonly bestWord: BestWord | null;
   readonly terms: { readonly you: readonly TermChip[]; readonly bot: readonly TermChip[] };
+  /** How many of the player's canonical terms are new to them; null without an on-device history. */
+  readonly newToYou: number | null;
   /** The bot's final rack (public at the end, R-END-003); null on a resignation (§5.6 states). */
   readonly botRack: string | null;
 }
@@ -60,21 +64,35 @@ function bestOf(words: readonly WordEntry[]): BestWord | null {
   return best === null ? null : { form: best.form, points: best.points, seat: best.seat };
 }
 
-function termsOf(words: readonly WordEntry[], seat: Seat): TermChip[] {
+function termsOf(
+  words: readonly WordEntry[],
+  seat: Seat,
+  fresh: ReadonlySet<string> | null,
+): TermChip[] {
   const seen = new Map<string, TermChip>();
   for (const entry of words) {
     if (entry.seat !== seat) continue;
     for (const word of entry.breakdown.words) {
       if (!seen.has(word.termId)) {
-        seen.set(word.termId, { termId: word.termId, form: word.canonicalForm });
+        seen.set(word.termId, {
+          termId: word.termId,
+          form: word.canonicalForm,
+          isNew: fresh?.has(word.termId) ?? false,
+        });
       }
     }
   }
   return [...seen.values()];
 }
 
-/** The summary of a finished match; null while it runs. */
-export function summarize(model: MatchModel): MatchSummary | null {
+/**
+ * The summary of a finished match; null while it runs. `newToYou` = the player's terms the on-device history did
+ * not hold before this match (null when there is no history: the count and the tags are hidden).
+ */
+export function summarize(
+  model: MatchModel,
+  newToYou: ReadonlySet<string> | null = null,
+): MatchSummary | null {
   const { state } = model;
   const outcome = matchOutcome(state);
   const result = state.result;
@@ -84,6 +102,7 @@ export function summarize(model: MatchModel): MatchSummary | null {
   const them = view.seats[BOT_SEAT]?.score ?? 0;
   const resigned = result.end.reason === 'resign';
   const words = model.log.filter((e): e is WordEntry => e.kind === 'word');
+  const yourTerms = termsOf(words, HUMAN_SEAT, newToYou);
   return {
     outcome,
     you,
@@ -94,7 +113,8 @@ export function summarize(model: MatchModel): MatchSummary | null {
     end: endReason(state),
     margin: Math.abs(you - them),
     bestWord: bestOf(words),
-    terms: { you: termsOf(words, HUMAN_SEAT), bot: termsOf(words, BOT_SEAT) },
+    terms: { you: yourTerms, bot: termsOf(words, BOT_SEAT, null) },
+    newToYou: newToYou === null ? null : yourTerms.filter((chip) => chip.isNew).length,
     botRack: resigned ? null : (view.finalRacks?.[BOT_SEAT] ?? ''),
   };
 }

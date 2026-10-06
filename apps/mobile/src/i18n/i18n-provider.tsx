@@ -12,6 +12,7 @@ const I18nContext = createContext<Translator | null>(null);
 
 /** Formatting problems are bugs in catalogs or call sites: visible in development, silent in release builds. */
 function reportI18nError(error: I18nError): void {
+  // eslint-disable-next-line no-console -- development builds only; catalog keys and codes, never game state.
   if (__DEV__) console.warn(`[i18n] ${error.code}: ${error.message}`, error.details);
 }
 

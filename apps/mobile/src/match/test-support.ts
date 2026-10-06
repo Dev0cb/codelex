@@ -6,6 +6,7 @@
 import { chooseAction, PERSONALITIES } from '@codelex/bots';
 import {
   createMatch,
+  createRng,
   deriveRng,
   observe,
   type Action,
@@ -17,8 +18,15 @@ import {
 
 import { createBundledLexiconSource } from '../lexicon/bundled-lexicon-source';
 import { loadLexicon, type LoadedLexicon } from '../lexicon/load-lexicon';
-import type { MatchCommand, MatchModel } from './match-model';
-import { HUMAN_SEAT, PLAY_BOT, playMatchConfig } from './play-config';
+import { botRequestFor } from './bot-runner';
+import {
+  canExchange,
+  reduceMatch,
+  startModel,
+  type MatchCommand,
+  type MatchModel,
+} from './match-model';
+import { BOT_SEAT, HUMAN_SEAT, PLAY_BOT, playMatchConfig } from './play-config';
 
 let cached: Promise<LoadedLexicon> | undefined;
 
@@ -86,4 +94,64 @@ export function placeCommands(model: MatchModel, action: PlaceWordAction): Match
     if (isBlank) commands.push({ type: 'choose_blank', letter: tile.tile.toUpperCase() as Letter });
   }
   return commands;
+}
+
+/** One accepted action of a scripted match: the commands that produce it and the model after it. */
+export interface ScriptedStep {
+  readonly commands: readonly MatchCommand[];
+  readonly after: MatchModel;
+}
+
+/** The bot's own decision for `state` (its `bot:<seat>:<n>` stream), as the app's runner computes it. */
+export function botDecision(state: MatchState, lexicon: LoadedLexicon) {
+  const request = botRequestFor(state, BOT_SEAT, PLAY_BOT);
+  return chooseAction(request.observation, {
+    lexicon: lexicon.index,
+    rng: createRng(request.rngState),
+    personality: PLAY_BOT,
+    budget: PERSONALITIES[PLAY_BOT].budget,
+  });
+}
+
+/**
+ * A full vs-bot match driven through `reduceMatch`, as the app plays it: the player's moves come from the Beginner on
+ * test-only streams (tiles placed through the rack, then PLAY; any other choice becomes a Pass), the bot's from its
+ * own `bot:<seat>:<n>` request. Stops at the end of the match or after `maxActions` actions. With `player:
+ * 'exchange'` the player exchanges one tile whenever the engine allows it (the bot's words keep resetting the
+ * scoreless count), which gives long matches for timing tests.
+ */
+export function scriptMatch(
+  seed: SeedHex,
+  lexicon: LoadedLexicon,
+  maxActions = Number.POSITIVE_INFINITY,
+  player: 'beginner' | 'exchange' = 'beginner',
+): { readonly start: MatchModel; readonly steps: readonly ScriptedStep[] } {
+  const ctx = { lexicon: lexicon.index };
+  const start = startModel(newPlayState(seed, lexicon));
+  const steps: ScriptedStep[] = [];
+  let model = start;
+  while (model.state.status === 'in_progress' && steps.length < maxActions) {
+    const { state } = model;
+    let commands: MatchCommand[];
+    const first = model.slots[0];
+    if (state.seatOnTurn === HUMAN_SEAT && player === 'exchange' && canExchange(state) && first) {
+      commands = [{ type: 'exchange', slotIds: [first.id] }];
+    } else if (state.seatOnTurn === HUMAN_SEAT) {
+      const action = scriptedAction(state, `test:${String(state.actionCount)}`, lexicon);
+      commands =
+        action.type === 'PLACE_WORD'
+          ? [...placeCommands(model, action), { type: 'play' }]
+          : [{ type: 'pass' }];
+    } else {
+      commands = [
+        { type: 'bot_decided', tag: state.actionCount, result: botDecision(state, lexicon) },
+      ];
+    }
+    let next = model;
+    for (const command of commands) next = reduceMatch(next, command, ctx);
+    if (next.actions.length !== model.actions.length + 1) throw new Error('scripted step failed');
+    steps.push({ commands, after: next });
+    model = next;
+  }
+  return { start, steps };
 }

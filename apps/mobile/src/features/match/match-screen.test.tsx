@@ -35,6 +35,7 @@ import {
   newPlayState,
   seedWhereFirst,
 } from '../../match/test-support';
+import { MatchSessionProvider } from '../../match/match-session';
 import { MatchServicesContext, type MatchServices } from '../../match/use-match';
 import { HomeScreen } from '../home/home-screen';
 import { MatchScreen } from './match-screen';
@@ -111,7 +112,9 @@ async function renderApp({ seed, locale = 'en', playEnabled = true, runner }: Se
           <FlagsProvider flags={{ 'play_vs_bot.enabled': playEnabled }}>
             <MatchServicesContext value={services}>
               <LexiconGate source={lexiconSource}>
-                <Stack screenOptions={{ headerShown: false }} />
+                <MatchSessionProvider>
+                  <Stack screenOptions={{ headerShown: false }} />
+                </MatchSessionProvider>
               </LexiconGate>
             </MatchServicesContext>
           </FlagsProvider>

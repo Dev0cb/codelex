@@ -46,6 +46,8 @@ describe('shipped catalogs', () => {
       margin: 22,
       result: 'Victory',
       min: 7,
+      status: 'Your turn',
+      scope: 'your current match',
     };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });

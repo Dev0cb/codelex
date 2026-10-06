@@ -194,6 +194,26 @@ format:check test`.
 - **Crash reporting:** no SDK (E-1.5 Q-1/Q-7). S1 adds the unclean-exit flag: set a "session open" marker at
   launch, clear it on a clean background or exit; at the next launch a remaining marker means an unclean exit and is
   reported with `app_start` (E-1.5 analytics). Crash-free rates come from TestFlight and Play Console.
+- **On-device match data (E-1.5 S3, threat model `e-1.5-s1-persistence-match-log` TM-01..TM-03).** No new
+  dependency: expo-file-system (already used by the lexicon loader) writes to `<documents>/codelex-data`
+  (`src/persistence/device-fs.ts`): internal storage on Android, the sandbox `Documents` folder on iOS (not shown in
+  the Files app). Files: `current.log` (framed records, the Q7 source of truth), `current.snap` (cache),
+  `last.log` (last finished match), `terms.seen` ("New to you"), `resume.guard` (crash counter). No time, identifier
+  or PII in any of them. Writes are synchronous and survive a process kill; expo-file-system has no fsync, so after
+  a power loss the torn-tail rule applies (a torn last record is dropped; this residual is accepted for Phase 1
+  casual play, threat model §7.1). Reads never create the directory, so a build that never saved a match writes
+  nothing. Resume is one `apply` pass over the log (about 9 ms for 100 actions on Node; device p95 ≤ 300 ms is an
+  H1 target). The S6 install id and analytics queue must live in the same directory (TM-03).
+  Bundle after S3 (2026-10-06): android 3,816,616 / 4,330,000 B (88.1 %), iOS 3,633,836 / 4,120,000 B (88.2 %);
+  limits unchanged.
+- **Backups (TM-03).** `android.allowBackup: false` in `app.json`, plus the local config plugin
+  `plugins/with-backup-exclusion.cjs`: `fullBackupContent="false"` and data-extraction rules that exclude every
+  domain from cloud backup and device-to-device transfer (Android 12+ ignores `allowBackup` for transfers), and on
+  iOS an AppDelegate hook that sets `isExcludedFromBackup` on `<Documents>/codelex-data` at every launch, before any
+  JavaScript runs. Deviation from TM-03's wording: the directory is under `Documents`, not Application Support,
+  because expo-file-system exposes no Application Support path; the exclusion attribute gives the same result.
+  Verified by `expo prebuild` and `src/persistence/backup-exclusion.test.ts`; the on-device check (an `adb` backup
+  and an iCloud backup hold no app data, a reinstall starts empty) is a release-checklist item for H1.
 
 ## 7. Open items
 
