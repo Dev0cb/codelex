@@ -14,6 +14,14 @@ last rack). Flag `board.tech_squares.enabled` exists, default off, with no effec
 - Coverage: 80 % on lines, statements, functions and branches, read from `@codelex/config/vitest` `basePreset`
 - Hand-written (the `/scaffold` generator does not support `apps/*` yet) following the package conventions.
 
+## Identity and EAS builds
+
+App identifier `com.codelex.app` (Android package and iOS bundle identifier), Expo owner `m67`, privacy policy URL in
+`expo.extra.privacyPolicyUrl`. `eas.json` has one profile, `preview`: internal distribution, Android `.apk`, and
+`play_vs_bot.enabled` turned on through `EXPO_PUBLIC_CODELEX_FLAGS` for that profile only. `eas-build-post-install`
+builds the workspace dependencies and the lexicon asset on the EAS worker. `extra.eas.projectId` is set by the owner
+with `eas init`. Owner steps: `docs/runbooks/android-internal-test.md`.
+
 ## Stack (pinned)
 
 Expo SDK 57 (`expo` 57.0.26), React Native 0.86.3, React 19.2.3, Expo Router 57.0.24, Reanimated 4.5.1 +
