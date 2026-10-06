@@ -200,7 +200,10 @@ format:check test`.
   the Files app). Files: `current.log` (framed records, the Q7 source of truth), `current.snap` (cache),
   `last.log` (last finished match), `terms.seen` ("New to you"), `resume.guard` (crash counter). No time, identifier
   or PII in any of them. Writes are synchronous and survive a process kill; expo-file-system has no fsync, so after
-  a power loss the torn-tail rule applies (a torn last record is dropped, it was never shown as committed).
+  a power loss the torn-tail rule applies (a torn last record is dropped; this residual is accepted for Phase 1
+  casual play, threat model §7.1). Reads never create the directory, so a build that never saved a match writes
+  nothing. Resume is one `apply` pass over the log (about 9 ms for 100 actions on Node; device p95 ≤ 300 ms is an
+  H1 target). The S6 install id and analytics queue must live in the same directory (TM-03).
   Bundle after S3 (2026-10-06): android 3,816,616 / 4,330,000 B (88.1 %), iOS 3,633,836 / 4,120,000 B (88.2 %);
   limits unchanged.
 - **Backups (TM-03).** `android.allowBackup: false` in `app.json`, plus the local config plugin
