@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "test": "jest --coverage && node --test \"scripts/*.test.mjs\"",
     "prepare:lexicon": "node scripts/prepare-lexicon.mjs",
-    "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist"
+    "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist",
+    "eas-build-post-install": "pnpm -w exec turbo run build --filter=@codelex/mobile^... && pnpm -w exec turbo run prepare:lexicon --filter=@codelex/mobile"
   },
   "dependencies": {
     "@codelex/bots": "workspace:*",
