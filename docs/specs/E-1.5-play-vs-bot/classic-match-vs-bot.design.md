@@ -560,6 +560,9 @@ hard-coded in strings (ICU plural with `{count}`).
 - A screen reader hears a single announcement `match.resume.restored` including whose turn it is and the score.
 - No "you were away" text, penalty or timer exists.
 - Low storage: persistent but dismissible banner `match.low_storage` until a write succeeds (D-24 family).
+- *(S3 implementation note)* Pending tiles are never stored (D-4), so after a cold start the app cannot know whether
+  any were on the board: `match.tiles_returned` is not shown after a process kill, only the rack comes back whole.
+  A warm return from the background keeps the screen as it was.
 
 #### 5.5.10 Match end
 
@@ -1044,6 +1047,13 @@ carry) and the strip chips `match.breakdown.chip.word_mult`, `match.breakdown.ch
 Resign, Shuffle, Exchange, preview, breakdown sheet, move log, legend, `card.difficulty.*` for the term line, and the
 Summary keys except `summary.new_to_you`/`summary.new_badge`, which wait for the on-device history of slice S3).
 
+Keys added by `mobile-engineer` in slice S3, pending translation review: the §10.2 resume and cannot-resume keys,
+`match.resume.restored`, `match.low_storage`, `summary.new_to_you`, `summary.new_badge`, and the §10.5 `matchlog.*`
+keys for slice S6. Threat model TM-05 changed two of them: `matchlog.confirm.body` now says "No personal data in the
+file" (the file holds none; an email does reveal the sender), and the new `matchlog.email_notice` is shown under it.
+It differs from `export.email_notice` because the match log carries no tester ID. The confirm sheet that renders
+both ships with "Send match log" in S6.
+
 All user-facing strings live in `packages/i18n` catalogues, ICU MessageFormat. `{…}` = argument. French uses *tu*.
 Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` resolves to `bot.<id>.name`.
 
@@ -1326,7 +1336,8 @@ Category names come from `categories.json` (`name.en` / `name.fr`); difficulty s
 | export.prompt.send | Review and send | Voir et envoyer |
 | export.prompt.later | Not now | Plus tard |
 | matchlog.confirm.title | Send match log? | Envoyer le journal de partie ? |
-| matchlog.confirm.body | The file holds the moves, seed and versions of {scope}. No personal data. | Le fichier contient les coups, la graine et les versions de {scope}. Aucune donnée personnelle. |
+| matchlog.confirm.body | The file holds the moves, seed and versions of {scope}. No personal data in the file. | Le fichier contient les coups, la graine et les versions de {scope}. Aucune donnée personnelle dans le fichier. |
+| matchlog.email_notice | If you send it by email, the team can see your email address. Files are kept in restricted EU storage and the emails are deleted within 7 days. | Si tu l'envoies par e-mail, l'équipe voit ton adresse. Les fichiers sont conservés dans un stockage UE restreint et les e-mails sont supprimés sous 7 jours. |
 | matchlog.scope.current | your current match | ta partie en cours |
 | matchlog.scope.last | your last finished match | ta dernière partie terminée |
 | matchlog.empty | No match to export yet. | Aucune partie à exporter pour l'instant. |
