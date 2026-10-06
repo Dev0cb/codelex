@@ -204,12 +204,15 @@ describe('match model', () => {
         .join(''),
     ).toBe(expected.value.state.seats[HUMAN_SEAT]?.rack);
     const placed = expected.value.events.find((e) => e.type === 'WORD_PLACED');
-    expect(played.lastMove).toEqual({
+    expect(played.lastMove).toMatchObject({
       kind: 'word',
       seat: HUMAN_SEAT,
       points: placed?.type === 'WORD_PLACED' ? placed.breakdown.total : -1,
       squares: action.tiles.map(({ row, col }) => ({ row, col })),
+      breakdown: placed?.type === 'WORD_PLACED' ? placed.breakdown : undefined,
+      turn: 1,
     });
+    expect(played.log).toEqual([played.lastMove]);
     for (const { row, col } of action.tiles) {
       expect(played.owners[`${String(row)},${String(col)}`]).toBe(HUMAN_SEAT);
     }
@@ -222,7 +225,7 @@ describe('match model', () => {
     const passed = run(startModel(state), { type: 'pass' });
     expect(passed.state.scorelessTurns).toBe(1);
     expect(passed.state.seatOnTurn).toBe(BOT_SEAT);
-    expect(passed.lastMove).toEqual({ kind: 'pass', seat: HUMAN_SEAT });
+    expect(passed.lastMove).toEqual({ kind: 'pass', seat: HUMAN_SEAT, turn: 1 });
     expect(run(passed, { type: 'pass' })).toBe(passed);
     expect(run(passed, { type: 'recall' }).pending).toEqual([]);
   });
@@ -414,7 +417,12 @@ describe('outcome', () => {
       key: 'summary.end.scoreless',
       params: { count: 6 },
     });
-    expect(endReason(finished(result([1, 2], { reason: 'resign', seat: HUMAN_SEAT })))).toBeNull();
+    expect(endReason(finished(result([2, 1], { reason: 'resign', seat: HUMAN_SEAT })))).toEqual({
+      key: 'summary.end.resign',
+      params: {},
+    });
+    // The bots never resign; if one ever did, the result line alone explains it.
+    expect(endReason(finished(result([1, 2], { reason: 'resign', seat: BOT_SEAT })))).toBeNull();
     expect(endReason(newPlayState(humanStarts(lexicon), lexicon))).toBeNull();
   });
 });
