@@ -584,6 +584,18 @@ export interface PreviewScore {
   readonly total: number;
 }
 
+/**
+ * Whether the viewer may EXCHANGE now (R-TURN-001), from an observation only, so clients never restate the rule.
+ * `apply` stays the authority; this answers the same bag check `apply` runs.
+ */
+export interface ExchangeEligibility {
+  readonly ok: boolean;
+  /** Why not; null when `ok`. `rules` = the observation's rules version or setup does not resolve. */
+  readonly reason: 'match_over' | 'not_your_turn' | 'bag_too_small' | 'rules' | null;
+  /** The pinned rules' minimum bag size for an exchange; 0 when the rules do not resolve. */
+  readonly minBag: number;
+}
+
 /** evaluateMove output for bots. */
 export interface MoveEvaluation {
   /** The canonical form of the evaluated action. */

@@ -70,6 +70,15 @@ export function chainAfter(
   return Math.min(context.chainK + 1, rules.chainCap);
 }
 
+/**
+ * Σ of the per-word term bonuses of a breakdown (R-SCORE-003: each scored word adds its canonical term's bonus).
+ * The quantity of P-SCORE-009-c (`committed − preview = Σ termBonus + chain`), for clients that show it as one
+ * figure; it reads the breakdown only and never re-scores.
+ */
+export function termBonusTotal(breakdown: ScoreBreakdown): number {
+  return breakdown.words.reduce((sum, word) => sum + word.termBonus, 0);
+}
+
 /** R-SCORE-008 breakdown of a checked placement (main word first, as `checkPlacement` returns them). */
 export function scorePlacement(
   placement: CheckedPlacement,
