@@ -1,71 +1,38 @@
-import { createMatch, type EngineContext, type SeedHex } from '@codelex/game-engine';
-import type { LexiconIndex } from '@codelex/lexicon/index';
-import { getRandomBytes } from 'expo-crypto';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 
 import { useLexicon } from '../lexicon/lexicon-gate';
-import { botRequestFor, createJsThreadBotRunner, type BotRunner } from './bot-runner';
-import { reduceMatch, startModel, type MatchCommand, type MatchModel } from './match-model';
-import { BOT_SEAT, PLAY_BOT, playMatchConfig, seedFromBytes, thinkDelayMs } from './play-config';
+import { botRequestFor } from './bot-runner';
+import type { MatchCommand, MatchModel } from './match-model';
+import { MatchServicesContext } from './match-services';
+import { useMatchSession } from './match-session';
+import { BOT_SEAT, PLAY_BOT } from './play-config';
 
-/** Platform effects of a match, injected so tests can pin the seed, the pace and the bot runtime. */
-export interface MatchServices {
-  /** A fresh 64-bit seed per match (CSPRNG on device). */
-  readonly newSeed: () => SeedHex;
-  /** The bot runtime (P5 option A today; a worker runtime later behind the same seam). */
-  readonly createBotRunner: (lexicon: LexiconIndex) => BotRunner;
-  /** Presentation delay of one bot move (D-29); never enters the engine. */
-  readonly thinkDelayMs: () => number;
-  /** Uniform [0, 1) for Shuffle (AC-7): a local rack order only, never an engine input. */
-  readonly shuffleRandom: () => number;
-}
-
-export const DEVICE_MATCH_SERVICES: MatchServices = {
-  newSeed: () => seedFromBytes(getRandomBytes(8)),
-  createBotRunner: (lexicon) => createJsThreadBotRunner(lexicon),
-  // Presentation only (pace, rack order), so a non-seeded source is fine; game randomness comes from the seed.
-  thinkDelayMs: () => thinkDelayMs(Math.random),
-  shuffleRandom: Math.random,
-};
-
-export const MatchServicesContext = createContext<MatchServices>(DEVICE_MATCH_SERVICES);
+export { DEVICE_MATCH_SERVICES, MatchServicesContext, type MatchServices } from './match-services';
 
 export interface UseMatch {
-  /** Null when the engine refused to create the match (`match.start.error`). */
+  /** Null when no match is open (`startFailed`: the engine refused the header, `match.start.error`). */
   readonly model: MatchModel | null;
+  readonly startFailed: boolean;
   readonly dispatch: (command: MatchCommand) => void;
   /** A new match with a new seed (Play again, Try again). */
   readonly restart: () => void;
 }
 
+const noop = (): void => undefined;
+
 /**
- * One local match vs the bot. The engine is the only source of outcomes; this hook only sequences it: player
- * commands go through `reduceMatch`, and on the bot's turn the request is computed by the runner while the think
- * delay runs, then applied at max(compute, delay) (D-29), unless the match moved on meanwhile (stale tag, P5 §4.1).
+ * The match screen's view of the session (`match-session.tsx`). The engine is the only source of outcomes; this
+ * hook only sequences the bot: on its turn the request is computed by the runner while the think delay runs, then
+ * applied at max(compute, delay) (D-29), unless the match moved on meanwhile (stale tag, P5 §4.1). After a resume
+ * on the bot's turn the same request is rebuilt from the restored state, so the bot plays the same move (AC-11).
  */
 export function useMatch(): UseMatch {
   const { index } = useLexicon();
   const services = useContext(MatchServicesContext);
-  const ctx = useMemo<EngineContext>(() => ({ lexicon: index }), [index]);
+  const session = useMatchSession();
   const runner = useMemo(() => services.createBotRunner(index), [services, index]);
-
-  const create = useCallback((): MatchModel | null => {
-    const created = createMatch(playMatchConfig(services.newSeed(), index), ctx);
-    return created.ok ? startModel(created.value.state) : null;
-  }, [services, index, ctx]);
-
-  const [model, setModel] = useState<MatchModel | null>(create);
-
-  const dispatch = useCallback(
-    (command: MatchCommand) => {
-      setModel((current) => (current === null ? current : reduceMatch(current, command, ctx)));
-    },
-    [ctx],
-  );
-
-  const restart = useCallback(() => {
-    setModel(create());
-  }, [create]);
+  const model = session?.model ?? null;
+  const dispatch = session?.dispatch ?? noop;
 
   const state = model?.state;
   const failed = model?.failure !== null;
@@ -91,5 +58,10 @@ export function useMatch(): UseMatch {
     };
   }, [state, failed, runner, services, dispatch]);
 
-  return { model, dispatch, restart };
+  return {
+    model,
+    startFailed: session?.startFailed ?? false,
+    dispatch,
+    restart: session?.startNew ?? noop,
+  };
 }

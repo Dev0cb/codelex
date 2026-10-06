@@ -1,23 +1,149 @@
 import { useRouter } from 'expo-router';
-import type { JSX } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState, type JSX } from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useFlag } from '../../config/flags-provider';
 import { useI18n } from '../../i18n/i18n-provider';
+import type { MatchModel } from '../../match/match-model';
+import { useMatchSession } from '../../match/match-session';
+import { BOT_SEAT, HUMAN_SEAT } from '../../match/play-config';
 import { useTokens } from '../../theme/use-tokens';
 import { Button } from '../../ui/button';
+import { ConfirmSheet } from '../match/match-sheets';
+
+/** System mono until a bundled mono face is decided (D-28): the resume card's scores. */
+const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
 /**
- * Home (E-1.5 §5.2, slice S1): the name, the tagline and one dominant action, PLAY NOW, in the thumb zone. With
- * `play_vs_bot.enabled` off the button is replaced by an inert "paused" card (AC-19): no button, no spinner. Modes
- * that are not playable are not rendered (Q-11). Resume card, opponent chip and settings come with S3/S4/S6.
+ * Home (E-1.5 §5.2): the name, the tagline and one dominant action in the thumb zone.
+ * - No match: PLAY NOW starts one (disabled for the instant the saved match is being read).
+ * - Match in progress (AC-12, slice S3): the resume card is the primary action and PLAY NOW resumes it; "New match…"
+ *   asks before abandoning it. It still works while `play_vs_bot.enabled` is off (AC-19).
+ * - Saved match unusable (§5.10.2): the cannot-resume card replaces the resume card; "Start a new match" deletes it.
+ * - `play_vs_bot.enabled` off: an inert paused card instead of starting a match: no button, no spinner.
+ * Modes that are not playable are not rendered (Q-11). Opponent chip and Settings come with S4 and S6.
  */
 export function HomeScreen(): JSX.Element {
   const { t } = useI18n();
   const { color, layout, radius, space, type } = useTokens();
   const router = useRouter();
   const enabled = useFlag('play_vs_bot.enabled');
+  const session = useMatchSession();
+  const [confirming, setConfirming] = useState(false);
+
+  const live = session?.model ?? null;
+  const saved = session?.saved ?? { kind: 'none' };
+  const resumable: MatchModel | null =
+    live?.state.status === 'in_progress' ? live : saved.kind === 'resumable' ? saved.model : null;
+  const unusable =
+    resumable === null && (saved.kind === 'version_mismatch' || saved.kind === 'state_corrupt')
+      ? saved.kind
+      : null;
+  const bot = t('bot.beginner.name');
+
+  const open = (): void => {
+    session?.play();
+    router.push('/match');
+  };
+  const startNew = (): void => {
+    setConfirming(false);
+    session?.startNew();
+    router.push('/match');
+  };
+
+  const card = {
+    borderRadius: radius.card,
+    borderColor: color.borderSubtle,
+    backgroundColor: color.bgSurface,
+    padding: space[5],
+    gap: space[4],
+  };
+  const paused = (
+    <View testID="home.paused" accessible style={[styles.bordered, card]}>
+      <Text style={[type.body, styles.centre, { color: color.textPrimary }]}>
+        {t('home.paused')}
+      </Text>
+    </View>
+  );
+
+  let action: JSX.Element;
+  if (resumable !== null) {
+    const { state } = resumable;
+    const status =
+      state.seatOnTurn === HUMAN_SEAT
+        ? t('home.resume.status.your_turn')
+        : t('home.resume.status.bot_turn', { bot });
+    action = (
+      <View style={{ gap: space[3] }}>
+        <View testID="home.resume" style={[styles.bordered, card]}>
+          <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
+            {t('home.resume', { bot })}
+          </Text>
+          <Text
+            testID="home.resume.detail"
+            style={[type.body, styles.mono, { color: color.textMuted }]}
+          >
+            {t('home.resume.detail', {
+              bot,
+              status,
+              you: state.seats[HUMAN_SEAT]?.score ?? 0,
+              them: state.seats[BOT_SEAT]?.score ?? 0,
+            })}
+          </Text>
+          <Button
+            testID="home.playNow"
+            variant="primary"
+            hero
+            label={t('home.play_now')}
+            accessibilityHint={t('home.resume', { bot })}
+            onPress={open}
+          />
+        </View>
+        {enabled && (
+          <Button
+            testID="home.newMatch"
+            label={t('home.new_match')}
+            onPress={() => {
+              setConfirming(true);
+            }}
+          />
+        )}
+      </View>
+    );
+  } else if (unusable !== null) {
+    action = (
+      <View testID="home.cannotResume" style={[styles.bordered, card]}>
+        <Text accessibilityLiveRegion="polite" style={[type.body, { color: color.textPrimary }]}>
+          {t(unusable === 'version_mismatch' ? 'resume.version_mismatch' : 'resume.corrupt')}
+        </Text>
+        {enabled ? (
+          <Button
+            testID="home.startNew"
+            variant="primary"
+            label={t('resume.start_new')}
+            onPress={startNew}
+          />
+        ) : (
+          paused
+        )}
+      </View>
+    );
+  } else if (enabled) {
+    action = (
+      <Button
+        testID="home.playNow"
+        variant="primary"
+        hero
+        label={t('home.play_now')}
+        disabled={saved.kind === 'checking'}
+        onPress={open}
+      />
+    );
+  } else {
+    action = paused;
+  }
+
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: color.bgBase }]}>
       <View style={[styles.brand, { padding: space[5], gap: space[3] }]}>
@@ -37,36 +163,21 @@ export function HomeScreen(): JSX.Element {
           { paddingHorizontal: layout.marginScreen, paddingBottom: space[8] },
         ]}
       >
-        {enabled ? (
-          <Button
-            testID="home.playNow"
-            variant="primary"
-            hero
-            label={t('home.play_now')}
-            onPress={() => {
-              router.push('/match');
-            }}
-          />
-        ) : (
-          <View
-            testID="home.paused"
-            accessible
-            style={[
-              styles.paused,
-              {
-                borderRadius: radius.card,
-                borderColor: color.borderSubtle,
-                backgroundColor: color.bgSurface,
-                padding: space[5],
-              },
-            ]}
-          >
-            <Text style={[type.body, styles.centre, { color: color.textPrimary }]}>
-              {t('home.paused')}
-            </Text>
-          </View>
-        )}
+        {action}
       </View>
+      <ConfirmSheet
+        visible={confirming}
+        testID="home.newMatch"
+        destructive
+        title={t('home.new_match.confirm.title')}
+        body={t('home.new_match.confirm.body', { bot })}
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('home.new_match.confirm.action')}
+        onCancel={() => {
+          setConfirming(false);
+        }}
+        onConfirm={startNew}
+      />
     </SafeAreaView>
   );
 }
@@ -75,6 +186,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   brand: { flex: 3, justifyContent: 'center' },
   centre: { textAlign: 'center' },
+  mono: { fontFamily: MONO, fontVariant: ['tabular-nums'] },
   thumbZone: { flex: 2, justifyContent: 'center', alignSelf: 'stretch' },
-  paused: { borderWidth: 1 },
+  bordered: { borderWidth: 1 },
 });

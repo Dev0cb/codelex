@@ -7,8 +7,16 @@ import {
   type Square,
 } from '@codelex/game-engine';
 import { Redirect, useRouter } from 'expo-router';
-import { useCallback, useContext, useEffect, useMemo, useState, type JSX } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState, type JSX } from 'react';
+import {
+  AccessibilityInfo,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useMotionMode, useScreenReader } from '../../a11y/accessibility';
@@ -28,6 +36,7 @@ import {
 import { BOT_SEAT, HUMAN_SEAT, PLAY_LAYOUT, PLAY_LETTERS } from '../../match/play-config';
 import { scorelessWarning, statusLines } from '../../match/status';
 import { summarize } from '../../match/summary';
+import { useMatchSession } from '../../match/match-session';
 import { MatchServicesContext, useMatch } from '../../match/use-match';
 import { useTokens } from '../../theme/use-tokens';
 import { Button } from '../../ui/button';
@@ -66,12 +75,14 @@ type OpenSheet =
   'menu' | 'log' | 'legend' | 'pass' | 'exchange' | 'resign' | 'breakdown' | 'more' | null;
 
 /**
- * Match vs the Beginner bot (E-1.5 slices S1–S2), behind `play_vs_bot.enabled`. With the flag off the route sends
- * the player Home, where the paused card explains why (AC-19).
+ * Match vs the Beginner bot (E-1.5 slices S1–S3), behind `play_vs_bot.enabled`. With the flag off the route sends
+ * the player Home, where the paused card explains why, unless a match is open: an in-progress match can still be
+ * resumed and finished (AC-19).
  */
 export function MatchScreen(): JSX.Element {
   const enabled = useFlag('play_vs_bot.enabled');
-  if (!enabled) return <Redirect href="/" />;
+  const open = (useMatchSession()?.model ?? null) !== null;
+  if (!enabled && !open) return <Redirect href="/" />;
   return <MatchSession />;
 }
 
@@ -129,7 +140,10 @@ function MatchSession(): JSX.Element {
   const previewEnabled = useFlag('match.live_score_preview');
   const playEnabled = useFlag('play_vs_bot.enabled');
   const { width, fontScale } = useWindowDimensions();
-  const { model, dispatch, restart } = useMatch();
+  const { model, dispatch, restart, startFailed } = useMatch();
+  const session = useMatchSession();
+  const lowStorage = session?.lowStorage ?? false;
+  const restored = session?.restored ?? 0;
   const [focus, setFocus] = useState<{ row: number; col: number; seq: number } | null>(null);
   const [sheet, setSheet] = useState<OpenSheet>(null);
   /** The finished state whose end screen is due (after the §5.5.10 hold). */
@@ -206,7 +220,29 @@ function MatchSession(): JSX.Element {
     setSheet(null);
   }, []);
 
+  // §5.5.9: one announcement when a saved match comes back, with whose turn it is and the score.
+  const restoredState = restored > 0 ? model?.state : undefined;
+  const restoredAnnouncement =
+    restoredState === undefined
+      ? null
+      : t('match.resume.restored', {
+          status:
+            restoredState.seatOnTurn === HUMAN_SEAT
+              ? t('home.resume.status.your_turn')
+              : t('home.resume.status.bot_turn', { bot: botName }),
+          you: restoredState.seats[HUMAN_SEAT]?.score ?? 0,
+          them: restoredState.seats[BOT_SEAT]?.score ?? 0,
+        });
+  const announced = useRef(0);
+  useEffect(() => {
+    if (restored === announced.current || restoredAnnouncement === null) return;
+    announced.current = restored;
+    AccessibilityInfo.announceForAccessibility(restoredAnnouncement);
+  }, [restored, restoredAnnouncement]);
+
   if (model === null) {
+    // No open match (e.g. a link straight to /match): the player starts or resumes from Home.
+    if (!startFailed) return <Redirect href="/" />;
     return (
       <SafeAreaView style={[styles.root, styles.centred, { backgroundColor: color.bgBase }]}>
         <Text
@@ -220,7 +256,8 @@ function MatchSession(): JSX.Element {
     );
   }
 
-  const summary = finished && endDue === model.state ? summarize(model) : null;
+  const summary =
+    finished && endDue === model.state ? summarize(model, session?.newToYou ?? null) : null;
   if (summary !== null) {
     return (
       <SummaryScreen
@@ -350,6 +387,27 @@ function MatchSession(): JSX.Element {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: color.bgBase }]}>
+      {lowStorage && (
+        // §5.5.9 / §5.10.3: persistent until a write succeeds, dismissible, play continues.
+        <View
+          testID="match.lowStorage"
+          accessibilityLiveRegion="polite"
+          style={[
+            styles.row,
+            styles.banner,
+            { gap: space[2], paddingHorizontal: space[4], backgroundColor: color.bgSurface },
+          ]}
+        >
+          <Text style={[type.bodyS, styles.bannerText, { color: color.feedbackWarning }]}>
+            {t('match.low_storage')}
+          </Text>
+          <Button
+            testID="match.lowStorage.dismiss"
+            label={t('common.close')}
+            onPress={() => session?.dismissLowStorage()}
+          />
+        </View>
+      )}
       <View style={[styles.topBar, { paddingHorizontal: space[3], paddingVertical: space[3] }]}>
         <Pressable
           testID="match.menu.open"
@@ -599,6 +657,8 @@ function MatchSession(): JSX.Element {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  banner: { minHeight: 48 },
+  bannerText: { flex: 1 },
   centred: { alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap' },

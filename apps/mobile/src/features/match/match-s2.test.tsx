@@ -41,6 +41,7 @@ import {
   scriptedAction,
   seedWhereFirst,
 } from '../../match/test-support';
+import { MatchSessionProvider } from '../../match/match-session';
 import { MatchServicesContext, type MatchServices } from '../../match/use-match';
 import { HomeScreen } from '../home/home-screen';
 import { MatchScreen, MORE_FONT_SCALE } from './match-screen';
@@ -116,7 +117,9 @@ async function renderApp({ seed, locale = 'en', flags = {}, runner }: Setup) {
           <FlagsProvider flags={{ 'play_vs_bot.enabled': true, ...flags }}>
             <MatchServicesContext value={services}>
               <LexiconGate source={lexiconSource}>
-                <Stack screenOptions={{ headerShown: false }} />
+                <MatchSessionProvider>
+                  <Stack screenOptions={{ headerShown: false }} />
+                </MatchSessionProvider>
               </LexiconGate>
             </MatchServicesContext>
           </FlagsProvider>
