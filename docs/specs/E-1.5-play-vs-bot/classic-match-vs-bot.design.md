@@ -1035,7 +1035,14 @@ operable through the accessible grid when a screen reader or switch tool is acti
 
 Keys added by `mobile-engineer` in slice S1 (PR #73), pending translation review: `match.score.a11y`, `match.error`,
 `a11y.rack.label`, `a11y.blank.letter`, `a11y.thinking`. `coach.*` keys stay out of the catalogues until drag-to-place
-exists (coach.1 mentions dragging; S1 ships the tap path only).
+exists (coach.1 mentions dragging; S1 and S2 ship the tap path only).
+
+Keys added by `mobile-engineer` in slice S2, pending translation review: `match.breakdown.calc` (the engine's
+`letterSum × wordMult = base`, shown verbatim per word instead of per-letter premiums, which the breakdown does not
+carry) and the strip chips `match.breakdown.chip.word_mult`, `match.breakdown.chip.term`,
+`match.breakdown.chip.chain` (§5.5.4 step 3). S2 also moved into the catalogues the §10 keys it renders (match menu,
+Resign, Shuffle, Exchange, preview, breakdown sheet, move log, legend, `card.difficulty.*` for the term line, and the
+Summary keys except `summary.new_to_you`/`summary.new_badge`, which wait for the on-device history of slice S3).
 
 All user-facing strings live in `packages/i18n` catalogues, ICU MessageFormat. `{…}` = argument. French uses *tu*.
 Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` resolves to `bot.<id>.name`.
@@ -1166,6 +1173,10 @@ Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` reso
 | match.breakdown.full_stack | Full Stack +{points} | Full Stack +{points} |
 | match.breakdown.chain | Chain +{points}: {from} → {to} | Chaîne +{points} : {from} → {to} |
 | match.breakdown.total | Total {points} | Total {points} |
+| match.breakdown.calc | Letters {letters} × {mult} = {base} | Lettres {letters} × {mult} = {base} |
+| match.breakdown.chip.word_mult | Word ×{n} | Mot ×{n} |
+| match.breakdown.chip.term | Term +{points} | Terme +{points} |
+| match.breakdown.chip.chain | Chain +{points} | Chaîne +{points} |
 | match.full_stack.banner | FULL STACK +{points} | FULL STACK +{points} |
 | match.log.title | Move log | Historique des coups |
 | match.log.empty | No moves yet | Aucun coup pour l'instant |
