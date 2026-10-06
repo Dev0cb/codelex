@@ -7,13 +7,15 @@
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "tokens"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./tokens/*.json": "./tokens/*.json"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -21,7 +23,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
     "test": "vitest run --coverage",
-    "contrast": "node scripts/contrast.mjs"
+    "contrast": "node scripts/contrast.mjs",
+    "tokens:write": "node scripts/write-tokens.mjs"
   },
   "devDependencies": {
     "@codelex/config": "workspace:*",

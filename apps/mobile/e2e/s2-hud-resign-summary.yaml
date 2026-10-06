@@ -1,0 +1,44 @@
+# E-1.5 slice S2: the match HUD and the Summary on a device. Home → PLAY NOW → Shuffle, the move log and the board
+# legend from the match menu, then Resign (one confirmation) → Summary (Defeat, "You resigned.", no rack line) →
+# Play again → a fresh match. The engine/app score equality of full matches (natural ending and Resign) is covered by
+# the Jest flow in src/features/match/match-s2.test.tsx.
+# Needs a dev build with EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1 and APP_ID set to its bundle id / package.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.status'
+- tapOn:
+    id: 'match.action.shuffle'
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.log'
+- assertVisible:
+    id: 'match.log'
+- tapOn: 'Close'
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.legend'
+- assertVisible:
+    id: 'match.legend.TW'
+- tapOn: 'Close'
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.resign'
+- tapOn:
+    id: 'match.resign.confirm'
+- assertVisible:
+    id: 'summary.result'
+- assertVisible: 'You resigned.'
+- assertNotVisible:
+    id: 'summary.rackAdjust'
+- tapOn:
+    id: 'summary.playAgain'
+- assertVisible:
+    id: 'match.status'

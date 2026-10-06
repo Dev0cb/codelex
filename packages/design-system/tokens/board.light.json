@@ -1,0 +1,79 @@
+{
+  "$description": "CODELEX board tokens, light scheme. Generated from @codelex/design-system; do not edit.",
+  "board": {
+    "bg": {
+      "$type": "color",
+      "$value": "#DDE4EB"
+    },
+    "grid": {
+      "$type": "color",
+      "$value": "#B8C4D0"
+    },
+    "lastMove": {
+      "$type": "color",
+      "$value": "#101820"
+    },
+    "tileFace": {
+      "$type": "color",
+      "$value": "#F1E9D2"
+    },
+    "tileInk": {
+      "$type": "color",
+      "$value": "#121821"
+    },
+    "tileValue": {
+      "$type": "color",
+      "$value": "#4A4F57"
+    },
+    "tileBlankOutline": {
+      "$type": "color",
+      "$value": "#6E6753"
+    },
+    "premiumDl": {
+      "$type": "color",
+      "$value": "#1F7FB8"
+    },
+    "premiumTl": {
+      "$type": "color",
+      "$value": "#1F58B5"
+    },
+    "premiumDw": {
+      "$type": "color",
+      "$value": "#A66A00"
+    },
+    "premiumTw": {
+      "$type": "color",
+      "$value": "#C2410C"
+    },
+    "premiumDlTint": {
+      "$type": "color",
+      "$value": "#B3CEE0"
+    },
+    "premiumTlTint": {
+      "$type": "color",
+      "$value": "#B3C5DF"
+    },
+    "premiumDwTint": {
+      "$type": "color",
+      "$value": "#D1C9B7"
+    },
+    "premiumTwTint": {
+      "$type": "color",
+      "$value": "#D7C0BA"
+    },
+    "premiumLabel": {
+      "$type": "color",
+      "$value": "#101820"
+    }
+  },
+  "overlay": {
+    "scrim": {
+      "$type": "color",
+      "$value": "#101820"
+    },
+    "scrimOpacity": {
+      "$type": "number",
+      "$value": 0.4
+    }
+  }
+}

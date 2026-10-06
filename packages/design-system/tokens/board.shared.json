@@ -1,0 +1,129 @@
+{
+  "$description": "CODELEX board motion, layout and radius tokens (both schemes). Generated from @codelex/design-system; do not edit.",
+  "motion": {
+    "duration": {
+      "instant": {
+        "$type": "duration",
+        "$value": "0ms"
+      },
+      "fast": {
+        "$type": "duration",
+        "$value": "120ms"
+      },
+      "base": {
+        "$type": "duration",
+        "$value": "200ms"
+      },
+      "camera": {
+        "$type": "duration",
+        "$value": "240ms"
+      },
+      "slow": {
+        "$type": "duration",
+        "$value": "320ms"
+      },
+      "scoreCount": {
+        "$type": "duration",
+        "$value": "400ms"
+      },
+      "scorePop": {
+        "$type": "duration",
+        "$value": "600ms"
+      },
+      "confirm": {
+        "$type": "duration",
+        "$value": "1500ms"
+      }
+    },
+    "springTile": {
+      "damping": {
+        "$type": "number",
+        "$value": 18
+      },
+      "stiffness": {
+        "$type": "number",
+        "$value": 220
+      },
+      "mass": {
+        "$type": "number",
+        "$value": 1
+      }
+    },
+    "reducedCrossfade": {
+      "$type": "duration",
+      "$value": "150ms"
+    }
+  },
+  "layout": {
+    "marginMatch": {
+      "$type": "dimension",
+      "$value": "8px"
+    },
+    "marginScreen": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "touchMin": {
+      "$type": "dimension",
+      "$value": "48px"
+    },
+    "boardOverview": {
+      "$type": "dimension",
+      "$value": "344px"
+    },
+    "tileRackWidth": {
+      "$type": "dimension",
+      "$value": "48px"
+    },
+    "tileRackHeight": {
+      "$type": "dimension",
+      "$value": "56px"
+    },
+    "rackGap": {
+      "$type": "dimension",
+      "$value": "2px"
+    },
+    "focusZoom": {
+      "$type": "number",
+      "$value": 2.15
+    },
+    "zoomMin": {
+      "$type": "number",
+      "$value": 1
+    },
+    "zoomMax": {
+      "$type": "number",
+      "$value": 2.5
+    },
+    "contentMaxWidth": {
+      "$type": "dimension",
+      "$value": "480px"
+    }
+  },
+  "radius": {
+    "tile": {
+      "$type": "dimension",
+      "$value": "6px"
+    },
+    "square": {
+      "$type": "dimension",
+      "$value": "3px"
+    },
+    "button": {
+      "$type": "dimension",
+      "$value": "14px"
+    },
+    "card": {
+      "$type": "dimension",
+      "$value": "16px"
+    },
+    "sheet": {
+      "$type": "dimension",
+      "$value": "20px"
+    },
+    "chip": {
+      "$type": "dimension",
+      "$value": "999px"
+    }
+  }
+}

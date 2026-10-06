@@ -1,9 +1,20 @@
-import type { MatchState } from '@codelex/game-engine';
+import type { MatchState, PreviewScore, Seat } from '@codelex/game-engine';
 import { describe, expect, it } from '@jest/globals';
 
-import type { MatchModel } from './match-model';
+import type { MatchModel, MoveEntry } from './match-model';
 import { BOT_SEAT, HUMAN_SEAT } from './play-config';
-import { statusLines } from './status';
+import { scorelessWarning, statusLines } from './status';
+
+const wordMove = (seat: Seat, points: number): MoveEntry => ({
+  kind: 'word',
+  seat,
+  turn: 1,
+  points,
+  squares: [],
+  form: 'POD',
+  breakdown: { words: [], tilesPlaced: 2, fullStack: 0, chain: 0, chainKAfter: 0, total: points },
+  chainFrom: null,
+});
 
 const names = { you: 'You', bot: 'Beginner Bot' };
 const emptyBoard = Array.from({ length: 15 }, () => '.'.repeat(15));
@@ -13,7 +24,21 @@ function model(state: Partial<MatchState>, over: Partial<MatchModel> = {}): Matc
   return {
     state: {
       engineRulesVersion: 1,
-      seats: [{}, {}],
+      // Enough of a real header and seats for the engine's observe / exchangeEligibility.
+      config: {
+        mode: 'classic',
+        format: 'untimed-vs-bot',
+        seats: 2,
+        teams: [[0], [1]],
+        layout: 'classic-v1',
+        letters: 'letters-v1',
+        requireWinner: 0,
+      },
+      seats: [
+        { rack: '', score: 0, chainK: 0, lastMainForm: '', bestTurnScore: 0, status: 'active' },
+        { rack: '', score: 0, chainK: 0, lastMainForm: '', bestTurnScore: 0, status: 'active' },
+      ],
+      bag: '',
       status: 'in_progress',
       seatOnTurn: HUMAN_SEAT,
       actionCount: 2,
@@ -26,6 +51,7 @@ function model(state: Partial<MatchState>, over: Partial<MatchModel> = {}): Matc
     pending: [],
     selectedSlotId: null,
     owners: {},
+    log: [],
     lastMove: null,
     rejection: null,
     notice: null,
@@ -45,10 +71,7 @@ describe('status strip (E-1.5 §5.5)', () => {
   });
 
   it('shows the bot thinking with the player last score under it (AC-8, D-14)', () => {
-    const m = model(
-      { seatOnTurn: BOT_SEAT },
-      { lastMove: { kind: 'word', seat: HUMAN_SEAT, points: 14, squares: [] } },
-    );
+    const m = model({ seatOnTurn: BOT_SEAT }, { lastMove: wordMove(HUMAN_SEAT, 14) });
     expect(statusLines(m, names)).toEqual({
       tone: 'thinking',
       primary: { key: 'match.bot_thinking', params: { bot: 'Beginner Bot' } },
@@ -61,7 +84,7 @@ describe('status strip (E-1.5 §5.5)', () => {
   });
 
   it('explains the bot move until the player picks up a tile (D-14)', () => {
-    const m = model({}, { lastMove: { kind: 'word', seat: BOT_SEAT, points: 21, squares: [] } });
+    const m = model({}, { lastMove: wordMove(BOT_SEAT, 21) });
     expect(statusLines(m, names)).toEqual({
       tone: 'neutral',
       primary: { key: 'match.breakdown.bot_scored', params: { bot: 'Beginner Bot', points: 21 } },
@@ -73,15 +96,18 @@ describe('status strip (E-1.5 §5.5)', () => {
 
   it('describes passes and exchanges by actor', () => {
     expect(
-      statusLines(model({}, { lastMove: { kind: 'pass', seat: BOT_SEAT } }), names).primary,
+      statusLines(model({}, { lastMove: { kind: 'pass', seat: BOT_SEAT, turn: 1 } }), names)
+        .primary,
     ).toEqual({ key: 'match.log.entry.pass', params: { actor: 'Beginner Bot' } });
     expect(
-      statusLines(model({}, { lastMove: { kind: 'exchange', seat: BOT_SEAT, count: 3 } }), names)
-        .primary,
+      statusLines(
+        model({}, { lastMove: { kind: 'exchange', seat: BOT_SEAT, turn: 1, count: 3 } }),
+        names,
+      ).primary,
     ).toEqual({ key: 'match.log.entry.exchange', params: { actor: 'Beginner Bot', count: 3 } });
     expect(
       statusLines(
-        model({ seatOnTurn: BOT_SEAT }, { lastMove: { kind: 'pass', seat: HUMAN_SEAT } }),
+        model({ seatOnTurn: BOT_SEAT }, { lastMove: { kind: 'pass', seat: HUMAN_SEAT, turn: 1 } }),
         names,
       ).secondary,
     ).toEqual({ key: 'match.log.entry.pass', params: { actor: 'You' } });
@@ -111,5 +137,55 @@ describe('status strip (E-1.5 §5.5)', () => {
       params: { count: 3, max: 6 },
     });
     expect(statusLines(model({ scorelessTurns: 2 }), names).secondary).toBeNull();
+  });
+
+  it('adds the end warning from 4 scoreless turns (D-13)', () => {
+    expect(scorelessWarning(model({ scorelessTurns: 3 }).state)).toBeNull();
+    expect(scorelessWarning(model({ scorelessTurns: 4 }).state)).toEqual({
+      key: 'match.scoreless.warning',
+      params: { max: 6 },
+    });
+  });
+
+  it('says why Exchange is unavailable, with the live bag count (§5.5.6)', () => {
+    expect(statusLines(model({ bag: 'ABCDE' }, { notice: 'exchange_unavailable' }), names)).toEqual(
+      {
+        tone: 'neutral',
+        primary: { key: 'match.exchange.disabled', params: { count: 5, min: 7 } },
+        secondary: { key: 'match.your_turn', params: {} },
+      },
+    );
+  });
+});
+
+describe('live preview line (AC-5, D-5)', () => {
+  const pending = [{ slotId: 1, row: 7, col: 7, tile: 'A' as const }];
+  const preview = (total: number, fullStack = 0): PreviewScore => ({
+    words: [],
+    fullStack,
+    total,
+  });
+
+  it('reads "Base N" with the bonus hint, never a validity word', () => {
+    expect(statusLines(model({}, { pending }), names, preview(14))).toEqual({
+      tone: 'neutral',
+      primary: { key: 'match.preview.base', params: { points: 14 } },
+      secondary: { key: 'match.preview.hint', params: {} },
+    });
+    expect(statusLines(model({}, { pending }), names, preview(70, 50)).primary).toEqual({
+      key: 'match.preview.base_full_stack',
+      params: { points: 70 },
+    });
+  });
+
+  it('is absent without a preview (flag off or illegal geometry) and yields to a rejection', () => {
+    expect(statusLines(model({}, { pending }), names, null).primary).toEqual({
+      key: 'match.your_turn',
+      params: {},
+    });
+    const rejection = { key: 'match.reject.gap' as const, params: {} };
+    expect(statusLines(model({}, { pending, rejection }), names, preview(14)).primary).toBe(
+      rejection,
+    );
   });
 });

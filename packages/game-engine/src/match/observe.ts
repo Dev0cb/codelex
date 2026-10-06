@@ -5,6 +5,7 @@
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { parseAction } from '../actions/parse.js';
+import { bagAllowsExchange } from '../bag/bag.js';
 import { lexiconMismatch, malformed, matchOver, notYourTurn } from '../errors.js';
 import { checkPlacement, checkPlacementGeometry } from '../placement/check.js';
 import { getLayout, getLetterTable } from '../rules/constants.js';
@@ -15,6 +16,7 @@ import type {
   ApplyFailure,
   DraftContext,
   EngineContext,
+  ExchangeEligibility,
   MatchEvent,
   MatchState,
   MoveEvaluation,
@@ -204,4 +206,31 @@ export function previewScore(
     getLetterTable(observation.config.letters),
     rules,
   );
+}
+
+/**
+ * R-TURN-001 for `observation.viewer`: may it EXCHANGE now? Same guard order as `apply` (rules, match over, turn,
+ * then the bag check shared with `exchangeTiles`), so a client can enable or explain Exchange without restating the
+ * rule. Pure; the tile count and rack checks of an actual exchange remain `apply`'s.
+ */
+export function exchangeEligibility(
+  observation: Observation,
+  options?: { readonly draft?: DraftContext },
+): ExchangeEligibility {
+  const resolved = resolveSetup(observation.engineRulesVersion, observation.config, options?.draft);
+  if (!resolved.ok) return { ok: false, reason: 'rules', minBag: 0 };
+  const { rules } = resolved.value;
+  const minBag = rules.minBagForExchange;
+  if (observation.status === 'finished') return { ok: false, reason: 'match_over', minBag };
+  if (
+    observation.viewer === 'spectator' ||
+    observation.seatOnTurn !== observation.viewer ||
+    observation.seats[observation.viewer]?.status !== 'active'
+  ) {
+    return { ok: false, reason: 'not_your_turn', minBag };
+  }
+  if (!bagAllowsExchange(observation.bagCount, rules)) {
+    return { ok: false, reason: 'bag_too_small', minBag };
+  }
+  return { ok: true, reason: null, minBag };
 }

@@ -50,6 +50,9 @@ input (action logs) before it reaches the RNG.
 - `observe(state, viewer)`, `eventsFor(events, viewer)` — per-viewer projections (P-GLOBAL-07, P-API-03/04).
 - `evaluateMove(observation, action, ctx)` — the bots' only scoring path (P-API-01: identical to `apply`).
 - `previewScore(observation, tiles)` — lexicon-free projection (R-SCORE-009); `null` when geometry fails.
+- `exchangeEligibility(observation)` — R-TURN-001 for the viewer: `{ ok, reason, minBag }`, the same bag check
+  `apply` runs (`bag_too_small`), so clients never restate the rule.
+- `termBonusTotal(breakdown)` — Σ of the per-word term bonuses (R-SCORE-003), the P-SCORE-009-c quantity.
 - `serializeState`, `stateHash`, `parseState` — JCS text, its 16-hex SHA-256, and the validating parser
   (shapes, sorted racks, tile conservation, `result` iff finished).
 - `newActionLog`, `serializeActionLog`, `parseActionLog`, `replay`, `LOG_VERSION` — ADR-0013 §D2 logs; replay

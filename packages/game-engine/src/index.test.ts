@@ -20,6 +20,7 @@ describe('public API (API note §3, §13)', () => {
       'createMatch',
       'evaluateMove',
       'eventsFor',
+      'exchangeEligibility',
       'getLayout',
       'getLetterTable',
       'isRulesVersion',
@@ -34,6 +35,7 @@ describe('public API (API note §3, §13)', () => {
       'serializeActionLog',
       'serializeState',
       'stateHash',
+      'termBonusTotal',
     ]);
     expect(engine).not.toHaveProperty('sha256');
     expect(engine).not.toHaveProperty('canonicalJson');

@@ -35,6 +35,17 @@ describe('shipped catalogs', () => {
       state: 'played by you',
       index: 1,
       total: 7,
+      form: 'PODS',
+      base: 14,
+      letters: 7,
+      mult: 2,
+      n: 2,
+      difficulty: 'Advanced',
+      from: 'KUBERNETES',
+      to: 'POD',
+      margin: 22,
+      result: 'Victory',
+      min: 7,
     };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });

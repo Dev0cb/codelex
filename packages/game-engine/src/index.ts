@@ -11,7 +11,14 @@ export { getLayout, getLetterTable, RULES } from './rules/constants.js';
 export { isRulesVersion, RULES_VERSIONS, rulesDigest, rulesFor } from './rules/registry.js';
 export { createMatch } from './match/create.js';
 export { apply, type Applied } from './match/apply.js';
-export { eventsFor, evaluateMove, observe, previewScore } from './match/observe.js';
+export {
+  eventsFor,
+  evaluateMove,
+  exchangeEligibility,
+  observe,
+  previewScore,
+} from './match/observe.js';
+export { termBonusTotal } from './scoring/score.js';
 export { parseState, serializeState, stateHash } from './state/state.js';
 export {
   LOG_VERSION,

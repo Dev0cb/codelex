@@ -759,9 +759,9 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-BAG-002 | covered | `packages/game-engine/src/rules/constants.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | b / a |  |
 | R-BAG-003 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts` | a / b,c |  |
 | R-BAG-004 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/state/state.test.ts`<br>`packages/game-engine/test/phase1/tagged-rules.test.ts` | a / — |  |
-| R-BAG-005 | covered | `packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` | a,c,d / b,e |  |
+| R-BAG-005 | covered | `apps/mobile/src/match/match-model-s2.test.ts`<br>`packages/game-engine/src/bag/bag.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/src/replay/draft-goldens.test.ts`<br>`packages/game-engine/src/rng/rng.test.ts` | a,c,d / b,e |  |
 | R-BAG-006 | covered | `packages/game-engine/src/placement/check.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts`<br>`packages/game-engine/src/tiles.test.ts` | d / a,b,c |  |
-| R-TURN-001 | covered | `packages/game-engine/src/actions/parse.test.ts` | — / a,b,c,d,e |  |
+| R-TURN-001 | covered | `apps/mobile/src/match/match-model-s2.test.ts`<br>`packages/game-engine/src/actions/parse.test.ts`<br>`packages/game-engine/src/match/exchange-eligibility.test.ts` | — / a,b,c,d,e |  |
 | R-TURN-002 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/placement/check.test.ts` | — / a,b,c,d |  |
 | R-TURN-003 | covered | `packages/game-engine/src/placement/check.test.ts` | b / a,c |  |
 | R-TURN-004 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/match/rules-versions.test.ts` | — / a,b,c,d,e |  |
@@ -769,13 +769,13 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-TURN-006 | covered | `packages/bots/src/board.test.ts`<br>`packages/game-engine/src/placement/check.test.ts` | d / a,b,c |  |
 | R-SCORE-001 | covered | `packages/game-engine/src/scoring/score.test.ts` | a / b,c |  |
 | R-SCORE-002 | covered | `packages/game-engine/src/scoring/score.test.ts` | — / a,b |  |
-| R-SCORE-003 | covered | `packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts` | — / a,b,c |  |
+| R-SCORE-003 | covered | `apps/mobile/src/match/breakdown.test.ts`<br>`packages/game-engine/src/match/draft-guard.test.ts`<br>`packages/game-engine/src/rules/registry.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts`<br>`packages/game-engine/src/scoring/term-bonus-total.test.ts` | — / a,b,c |  |
 | R-SCORE-004 | covered | `packages/game-engine/src/scoring/score.test.ts` | — / a,b |  |
-| R-SCORE-005 | covered | `packages/game-engine/src/scoring/score.test.ts`<br>`packages/lexicon/src/index/reference.test.ts` | a,c / b,d,e,f |  |
+| R-SCORE-005 | covered | `apps/mobile/src/match/match-model-s2.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts`<br>`packages/lexicon/src/index/reference.test.ts` | a,c / b,d,e,f |  |
 | R-SCORE-006 | covered | `packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts` | a / b,c,d |  |
 | R-SCORE-007 | covered | `packages/game-engine/test/phase1/tagged-rules.test.ts` | a / b |  |
-| R-SCORE-008 | covered | `packages/game-engine/src/scoring/score.test.ts` | — / a,b,c |  |
-| R-SCORE-009 | covered | `packages/game-engine/src/match/observe.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts` | a,c / b,d |  |
+| R-SCORE-008 | covered | `apps/mobile/src/match/breakdown.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts`<br>`packages/game-engine/src/scoring/term-bonus-total.test.ts` | — / a,b,c |  |
+| R-SCORE-009 | covered | `apps/mobile/src/match/match-model-s2.test.ts`<br>`packages/game-engine/src/match/observe.test.ts`<br>`packages/game-engine/src/scoring/score.test.ts`<br>`packages/game-engine/src/scoring/term-bonus-total.test.ts` | a,c / b,d |  |
 | R-MODE-CLASSIC-001 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/match/create.test.ts` | a / b,c | Asserted: (a) 1v1, 2v2 and FFA 3/4 configs. Not asserted: (b) live clock and (c) 24 h correspondence deadline need clock actions (reserved, Phase 2); expiry behaviour is A-03. |
 | R-MODE-CLASSIC-002 | covered | `packages/bots/test/real-lexicon-matches.test.ts`<br>`packages/game-engine/src/match/create.test.ts`<br>`packages/game-engine/test/phase1/tagged-rules.test.ts` | a,b,d / c | Asserted: (a) no clock fields, (b) powers rejected, (d) replay without delays gives the same hash. Not asserted: (c) `competitive: false` is a progression/rating ingestion contract (Phase 2); the engine state has no such flag. |
 | R-MODE-BLITZ-001 | out-of-scope | — | — / a,b,c | Out of scope: Blitz is not in Phase 1 (E-1.5 is Classic vs bot); needs the clock actions TIMEOUT and `at`, reserved in engineRulesVersion 1. |
@@ -784,7 +784,7 @@ Rule IDs in GAME_RULES.md: 49; covered by a tagged assertion: 35; out of Phase-1
 | R-MODE-DAILY-001 | out-of-scope | — | — / a,b | Out of scope: Daily challenges are a later epic (Phase 2+); the generator and the server-side one-submission rule do not exist yet. |
 | R-MODE-KNOWLEDGE-001 | out-of-scope | — | — | Out of scope: Knowledge challenges are untestable as written (A-08) and a later epic. |
 | R-END-001 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts`<br>`packages/game-engine/src/state/state.test.ts` | b / a,c |  |
-| R-END-002 | covered | `packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts` | b / a,c |  |
+| R-END-002 | covered | `apps/mobile/src/match/match-model-s2.test.ts`<br>`packages/game-engine/src/match/apply.test.ts`<br>`packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts` | b / a,c |  |
 | R-END-003 | covered | `packages/game-engine/src/match/decisions.test.ts`<br>`packages/game-engine/src/match/observe.test.ts`<br>`packages/game-engine/src/scoring/end.test.ts` | — / a,b,c |  |
 | R-POW-COMPILE | out-of-scope | — | — / a,b | Out of scope: Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5). |
 | R-POW-DEBUG | out-of-scope | — | — | Out of scope: Powers are out of scope for Phase 1 (GAME_RULES section 8, E-1.5); also breaks conservation as written (A-09). |

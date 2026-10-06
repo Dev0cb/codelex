@@ -19,8 +19,10 @@ dependencies, so they stay out of this pure package; the props contract is uncha
 check per assumption A-2: light `accentPrimary` is `#00866A` instead of `#00876A` (white on `#00876A` is 4.49:1).
 S1 adds `board` (E-1.4 §1.2 board, tile and premium roles; premium tints derived at 22 % over `board.bg`),
 `motion` (§1.6), `layout` and `radius` (§1.5) and `overlay` (`color.scrim` as an opaque colour plus an opacity).
-TODO: category, mono type and elevation tokens, and the DTCG JSON files of §1.1 (`tokens/*.json`) generating this
-same typed shape (`Tokens`), so consumers do not change.
+Since E-1.5 S2 the board tokens are also exported as DTCG JSON for web (§1.1): `tokens/board.dark.json`,
+`tokens/board.light.json` (board palette, overlay) and `tokens/board.shared.json` (motion, layout, radius). The
+TypeScript source stays the source of truth; `tokens:write` regenerates the files and `tokens-json.test.ts` fails
+when they drift. TODO: category, mono type and elevation tokens, and chrome colours in the JSON export.
 
 ## API
 
@@ -28,6 +30,7 @@ same typed shape (`Tokens`), so consumers do not change.
 - Names: `COLOR_ROLES` (`bgBase`, `bgSurface`, `bgRaised`, `borderSubtle`, `textPrimary`, `textMuted`,
   `accentPrimary`, `accentOnPrimary`, `feedbackError|Warning|Info`), `SPACE_STEPS` (`0..8`), `TYPE_ROLES`
   (`display`, `title`, `heading`, `bodyL`, `body`, `bodyS`, `caption`).
+- `boardTokenFiles()` → the `tokens/*.json` documents by file name; `serializeTokenFile(doc)` → their exact bytes.
 - `contrastRatio(a, b)`, `contrastFailures(tokens)` against `CONTRAST_PAIRS` (text 4.5:1, UI 3:1).
   `borderSubtle` is excluded as a decorative separator (it never carries state). Board pairs:
   `boardContrastFailures(tokens)` against `BOARD_CONTRAST_PAIRS` (tile ink and value, premium labels on every tint,
@@ -38,6 +41,7 @@ same typed shape (`Tokens`), so consumers do not change.
 ```bash
 pnpm turbo run build lint typecheck format:check test --filter=@codelex/design-system
 pnpm --filter @codelex/design-system contrast   # contrast table per scheme (after build); exits 1 on failure
+pnpm --filter @codelex/design-system tokens:write   # regenerate tokens/*.json from the TS tokens (after build)
 ```
 
 ## Invariants

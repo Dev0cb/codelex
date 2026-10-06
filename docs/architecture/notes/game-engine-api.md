@@ -845,6 +845,12 @@ Geometric checks of R-TURN-002/R-BOARD-004 plus the viewer's rack; no `ctx`, so 
 on any failure. For an accepted move, `committed.total − preview.total = Σ termBonus + chain (+ tech + compile)`
 (P-SCORE-009-c). Gating by `match.live_score_preview` is the app's job.
 
+*(E-1.5 S2 review)* Two read-only helpers keep clients from restating rules: `exchangeEligibility(observation,
+options?)` → `{ ok, reason: 'match_over' | 'not_your_turn' | 'bag_too_small' | 'rules' | null, minBag }` (R-TURN-001;
+the bag check is the very function behind `apply`'s `exchange`/`bag_too_small` rejection), and
+`termBonusTotal(breakdown)` = Σ `words[].termBonus`, the P-SCORE-009-c quantity. Neither changes any outcome, state,
+event or hash.
+
 ### 13.6 State serialisation and hash
 `serializeState` emits the JCS text of the state (ASCII; ADR-0013 §D3 subset; throws on a value outside the subset —
 programmer error). `parseState` validates every field, invariant (tile conservation, sorted racks, row lengths,

@@ -44,6 +44,14 @@ export interface Exchanged {
 }
 
 /**
+ * R-TURN-001: an exchange needs at least `rules.minBagForExchange` tiles in the bag. The one check behind both
+ * `exchangeTiles` (the `bag_too_small` rejection) and the public `exchangeEligibility`.
+ */
+export function bagAllowsExchange(bagCount: number, rules: Rules): boolean {
+  return bagCount >= rules.minBagForExchange;
+}
+
+/**
  * Validates and performs an exchange of canonical `tiles` (API note §8.3: `exchange` tile_count →
  * `exchange` bag_too_small → `rack`). The returned tiles are never redrawn in the same exchange.
  */
@@ -57,7 +65,7 @@ export function exchangeTiles(
   if (tiles.length === 0 || tiles.length > rules.rackSize) {
     return err(exchangeRejection('tile_count'));
   }
-  if (bag.length < rules.minBagForExchange) return err(exchangeRejection('bag_too_small'));
+  if (!bagAllowsExchange(bag.length, rules)) return err(exchangeRejection('bag_too_small'));
   const { rest, missing } = removeTiles(rack, tiles);
   if (missing !== '') return err(rackRejection(missing));
 

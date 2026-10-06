@@ -8,13 +8,20 @@ const BUILD_FLAGS: Flags = resolveFlags(parseFlagOverrides(process.env.EXPO_PUBL
 const FlagsContext = createContext<Flags>(BUILD_FLAGS);
 
 export interface FlagsProviderProps {
-  /** Forces the flag values (tests, previews). Default: bundled defaults plus the build-time overrides. */
-  readonly flags?: Flags;
+  /**
+   * Forces flag values (tests, previews) over the bundled defaults. Default: bundled defaults plus the build-time
+   * overrides.
+   */
+  readonly flags?: Partial<Record<FlagKey, boolean>>;
   readonly children: ReactNode;
 }
 
-export function FlagsProvider({ flags = BUILD_FLAGS, children }: FlagsProviderProps): JSX.Element {
-  return <FlagsContext value={flags}>{children}</FlagsContext>;
+export function FlagsProvider({ flags, children }: FlagsProviderProps): JSX.Element {
+  return (
+    <FlagsContext value={flags === undefined ? BUILD_FLAGS : resolveFlags(flags)}>
+      {children}
+    </FlagsContext>
+  );
 }
 
 /** The current value of a flag. */

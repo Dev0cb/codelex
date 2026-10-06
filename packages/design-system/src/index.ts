@@ -38,6 +38,15 @@ export {
   type RadiusTokens,
 } from './board-tokens.js';
 export {
+  boardTokenFiles,
+  serializeTokenFile,
+  type BoardTokenFiles,
+  type SchemeTokenDocument,
+  type SharedTokenDocument,
+  type Token,
+  type TokenType,
+} from './tokens-json.js';
+export {
   CONTRAST_PAIRS,
   MIN_TEXT_CONTRAST,
   MIN_UI_CONTRAST,
