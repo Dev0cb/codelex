@@ -25,6 +25,9 @@ overrides:
   # GHSA-w5hq-g745-h8pq (uuid < 11.1.1): xcode 3.0.1 (via expo > @expo/config-plugins) pins uuid ^7.0.3 and only
   # calls require('uuid').v4(); 11.1.1 is the patched release that still ships a CommonJS build.
   "xcode>uuid": 11.1.1
+  # GHSA-68fv-2mgg-jv7q (source-map-js >=1.0.0 <1.2.2, high): dev-only via @vitest/coverage-v8 > magicast; 1.2.2 is
+  # the patched release in the same major.
+  "source-map-js@>=1.0.0 <1.2.2": ^1.2.2
 
 # Audit exceptions: each one needs a written justification, an expiry date and a security-engineer review
 # (CLAUDE.md §7). Register: docs/security/audit-exceptions.md. Remove an entry as soon as a fix is published.
