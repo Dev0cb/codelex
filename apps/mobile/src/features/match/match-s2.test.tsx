@@ -4,6 +4,7 @@
  * naturally and by Resign, driven only through the UI, with 0 score mismatches against an independent engine
  * replica after every action and on the Summary.
  */
+import { getTokens } from '@codelex/design-system';
 import {
   apply,
   observe,
@@ -20,9 +21,10 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react-
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import type { JSX } from 'react';
-import { AccessibilityInfo } from 'react-native';
+import { AccessibilityInfo, Dimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import * as boardScene from '../../board/board-scene';
 import { FlagsProvider } from '../../config/flags-provider';
 import type { FlagKey } from '../../config/flags';
 import { I18nProvider } from '../../i18n/i18n-provider';
@@ -41,7 +43,7 @@ import {
 } from '../../match/test-support';
 import { MatchServicesContext, type MatchServices } from '../../match/use-match';
 import { HomeScreen } from '../home/home-screen';
-import { MatchScreen } from './match-screen';
+import { MatchScreen, MORE_FONT_SCALE } from './match-screen';
 
 jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
 jest.mock('expo-crypto', () => jest.requireActual('../../../jest/expo-crypto.cjs'));
@@ -406,6 +408,64 @@ describe('HUD and score explanation', () => {
     expect(screen.queryByText(/valid/i)).toBeNull();
   });
 
+  it('shows the same "Base N" line for a legal placement that is not a word: no validity leak (AC-5)', async () => {
+    const seed = humanStarts(lexicon, 2601);
+    const state = newPlayState(seed, lexicon);
+    const rack = (state.seats[HUMAN_SEAT]?.rack ?? '').replace(/\?/g, '');
+    // Two rack letters across the start square whose string is not a playable form.
+    let pair: [string, string] | null = null;
+    for (let i = 0; i < rack.length && pair === null; i += 1) {
+      for (let j = 0; j < rack.length && pair === null; j += 1) {
+        const a = rack.charAt(i);
+        const b = rack.charAt(j);
+        if (i !== j && !lexicon.index.has(a + b)) pair = [a, b];
+      }
+    }
+    if (pair === null) throw new Error('every pair on this rack is a word');
+    const action = {
+      seat: HUMAN_SEAT,
+      type: 'PLACE_WORD' as const,
+      tiles: [
+        { row: 7, col: 7, tile: pair[0] as 'A' },
+        { row: 7, col: 8, tile: pair[1] as 'A' },
+      ],
+    };
+    const expected = previewScore(observe(state, HUMAN_SEAT), action.tiles);
+    if (expected === null) throw new Error('legal geometry must preview');
+    await renderApp({ seed });
+    await placeThroughUi(action);
+    // Exactly the line a real word gets: "Base N" and the bonus hint, nothing else.
+    expect(text('match.status.primary')).toBe(`Base ${String(expected.total)}`);
+    expect(text('match.status.secondary')).toBe(
+      'Term, chain and other bonuses are added when you play.',
+    );
+    expect(screen.queryByText(/valid|lexicon/i)).toBeNull();
+    // Validity is revealed only on PLAY.
+    await fireEvent.press(screen.getByTestId('match.action.play'));
+    expect(text('match.status.primary')).toBe(`Not in the CODELEX lexicon: ${pair[0]}${pair[1]}`);
+  });
+
+  it('does not rebuild the board squares on Shuffle or tile selection (E-1.4 §2.4)', async () => {
+    const seed = humanStarts(lexicon, 2601);
+    const spy = jest.spyOn(boardScene, 'boardSquares');
+    await renderApp({ seed });
+    const before = spy.mock.calls.length;
+    expect(before).toBeGreaterThan(0);
+    await fireEvent.press(screen.getByTestId('match.action.shuffle'));
+    const [tile] = screen.getAllByLabelText(/^Rack, tile 1 of 7: /);
+    if (tile === undefined) throw new Error('empty rack');
+    await fireEvent.press(tile);
+    await fireEvent.press(tile);
+    expect(spy.mock.calls.length).toBe(before);
+    // A placement does rebuild them.
+    await fireEvent.press(tile);
+    await fireEvent.press(screen.getByLabelText(/, row 8 column 8, empty$/));
+    if (screen.queryByTestId('match.blank.A') !== null) {
+      await fireEvent.press(screen.getByTestId('match.blank.A'));
+    }
+    expect(spy.mock.calls.length).toBeGreaterThan(before);
+  });
+
   it('renders no preview with match.live_score_preview off (AC-5)', async () => {
     const seed = humanStarts(lexicon, 2601);
     const action = firstWordFor(newPlayState(seed, lexicon), lexicon);
@@ -559,3 +619,55 @@ async function playUntilLowBag(seed: SeedHex): Promise<{ replica: MatchState }> 
   });
   return { replica };
 }
+
+describe('large text and long labels (E-1.5 D-20, AC-15, AC-16)', () => {
+  // Set before rendering: `useWindowDimensions` reads it on mount.
+  const setFontScale = (fontScale: number): void => {
+    Dimensions.set({
+      window: { ...Dimensions.get('window'), fontScale },
+      screen: { ...Dimensions.get('screen'), fontScale },
+    });
+  };
+  afterEach(() => {
+    setFontScale(1);
+  });
+
+  it('keeps PLAY in the action row at font scale 1.5; Shuffle, Exchange and Pass move to More', async () => {
+    const seed = humanStarts(lexicon, 2601);
+    const action = firstWordFor(newPlayState(seed, lexicon), lexicon);
+    setFontScale(MORE_FONT_SCALE);
+    await renderApp({ seed });
+    expect(screen.getByTestId('match.action.play')).toBeTruthy();
+    expect(screen.getByTestId('match.action.more')).toBeTruthy();
+    expect(screen.queryByTestId('match.action.pass')).toBeNull();
+    // PLAY stays usable: place a word, PLAY is enabled without leaving the screen.
+    await placeThroughUi(action);
+    expect(screen.getByTestId('match.action.play').props.accessibilityState).toMatchObject({
+      disabled: false,
+    });
+    await fireEvent.press(screen.getByTestId('match.action.recall'));
+    // The secondary actions are one tap away in the More sheet.
+    await fireEvent.press(screen.getByTestId('match.action.more'));
+    expect(await screen.findByTestId('match.action.pass')).toBeTruthy();
+    expect(screen.getByTestId('match.action.exchange')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('match.action.shuffle'));
+    expect(screen.queryByTestId('match.action.pass')).toBeNull();
+  });
+
+  it('shows all secondary actions inline below the threshold', async () => {
+    setFontScale(1.3);
+    await renderApp({ seed: humanStarts(lexicon, 2601) });
+    expect(screen.getByTestId('match.action.pass')).toBeTruthy();
+    expect(screen.queryByTestId('match.action.more')).toBeNull();
+  });
+
+  it('fits the FR Resign label on one line at 360 dp (width estimate; Jest has no text layout)', () => {
+    // Upper bound for bold system sans glyphs: 0.62 em per character (Roboto/SF bold average is about 0.55).
+    const { space, type } = getTokens('dark');
+    const sheetContent = 360 - 2 * space[5]; // Sheet padding
+    const labelBox = sheetContent - 2 * space[5]; // Button horizontal padding
+    for (const label of ['Déclarer forfait', 'Déclarer forfait ?', 'Continuer']) {
+      expect(label.length * 0.62 * type.body.fontSize).toBeLessThanOrEqual(labelBox);
+    }
+  });
+});

@@ -99,7 +99,7 @@
   "match.resign.cancel": "Keep playing",
   "match.action.shuffle": "Shuffle",
   "match.action.exchange": "Exchange",
-  "match.exchange.disabled": "Exchange needs at least 7 tiles in the bag (now {count}).",
+  "match.exchange.disabled": "Exchange needs at least {min} tiles in the bag (now {count}).",
   "match.exchange.title": "Exchange tiles",
   "match.exchange.body": "Pick the tiles to swap. This uses your turn and scores 0.",
   "match.exchange.select_hint": "Select 1 to 7 tiles",
@@ -147,5 +147,6 @@
   "summary.bot_rack": "Left on {bot}'s rack",
   "summary.bot_rack.empty": "Rack empty",
   "a11y.announce.result": "{result}. {you} to {them}.",
-  "a11y.rack.selected": "Selected"
+  "a11y.rack.selected": "Selected",
+  "match.action.more": "More"
 }

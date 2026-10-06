@@ -68,7 +68,7 @@ message key (section 10, EN + FR); every animation has a reduced-motion twin (se
 | D-25 | **Bots are geometric avatars** (Beginner: round, soft; Strategist: angular, sharp) with names; no human faces or gendered characters; thinking = three pulsing dots on the avatar (reduced motion: static "…"). | Character art | Production cost; international tone |
 | D-26 | **Coach marks**: at most 3, tooltip bubbles anchored to the element, **no scrim**, touch passes through; interacting with the target dismisses the mark; each shows once ever. | Spotlight tutorial overlay | AC-1: no tutorial wall |
 | D-27 | **Effects budget**: particles only for Full Stack and Victory (≤ 16 particles, ≤ 800 ms); disabled by default when RAM < 3 GB ⚙ or reduced motion; 60 fps target for drag, never below 30 fps. | Rich effects everywhere | Spec: low-end Android |
-| D-28 | **Fonts**: UI text = system font (SF / Roboto) for zero download and native feel; **JetBrains Mono** (Latin subset, weights 500 and 700, bundled) for tiles, scores, term names and tech accents. | Bundle a UI face too | Size and first paint |
+| D-28 | **Fonts**: UI text = system font (SF / Roboto) for zero download and native feel. **Playtest (decided at S2 review, 2026-10-06): system mono** (Menlo / monospace) for tiles, scores, term names and tech accents. Post-playtest option: bundle **JetBrains Mono, one weight (700)**, Latin subset, if testers ask for it; it needs an asset-budget decision first (iOS assets are at 23,136 of 27,000 B). | Bundle a UI face too; bundle JetBrains Mono 500 + 700 now | Size and first paint; the iOS asset budget has no room for two weights |
 | D-29 | **Perceived bot pace** (AC-8): bot move is revealed at `max(compute_time, delay)` where `delay` is drawn by the app from the per-personality distribution inside the `bots.think_delay_ms` range (1200–4000 ms ⚙); the delay is presentation only and never enters the engine or the log. | Fixed delay | Variable pace reads as human (game-designer F-8) |
 | D-30 | **Blank tile glyph is `_`** (underscore) on the rack, in a dotted-outline tile; once placed the tile shows the designated letter in a lighter weight with value "0" and a dotted underline. | Star or question mark | On-brand (code), unambiguous, not a colour cue |
 
@@ -1133,7 +1133,7 @@ Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` reso
 | match.action.more | More | Plus |
 | match.action.zoom_in | Zoom in | Zoomer |
 | match.action.zoom_out | Show full board | Voir tout le plateau |
-| match.exchange.disabled | Exchange needs at least 7 tiles in the bag (now {count}). | Il faut au moins 7 lettres dans le sac pour échanger (actuellement {count}). |
+| match.exchange.disabled | Exchange needs at least {min} tiles in the bag (now {count}). | Il faut au moins {min} lettres dans le sac pour échanger (actuellement {count}). |
 | match.exchange.title | Exchange tiles | Échanger des lettres |
 | match.exchange.body | Pick the tiles to swap. This uses your turn and scores 0. | Choisis les lettres à échanger. Cela prend ton tour et rapporte 0. |
 | match.exchange.select_hint | Select 1 to 7 tiles | Choisis de 1 à 7 lettres |

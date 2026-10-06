@@ -9,6 +9,7 @@ import type { BotDecision, BotError } from '@codelex/bots';
 import type { Result } from '@codelex/config/result';
 import {
   apply,
+  exchangeEligibility,
   observe,
   previewScore,
   rulesFor,
@@ -16,6 +17,7 @@ import {
   type Applied,
   type BoardTile,
   type EngineContext,
+  type ExchangeEligibility,
   type Letter,
   type MatchState,
   type Placement,
@@ -204,15 +206,14 @@ const playerOnTurn = (state: MatchState): boolean =>
   state.status === 'in_progress' && state.seatOnTurn === HUMAN_SEAT;
 
 /**
- * Exchange is offered on the player's turn when the bag holds at least the pinned rules' minimum (R-TURN-001; read
- * from `rulesFor`, never a literal). The engine still validates the action.
+ * Whether the player may exchange now, as the engine answers it (R-TURN-001, `exchangeEligibility`): the app never
+ * restates the rule. `apply` still validates the action itself.
  */
-export function canExchange(state: MatchState): boolean {
-  return (
-    playerOnTurn(state) &&
-    state.bag.length >= rulesFor(state.engineRulesVersion).rules.minBagForExchange
-  );
+export function exchangeStatus(state: MatchState): ExchangeEligibility {
+  return exchangeEligibility(observe(state, HUMAN_SEAT));
 }
+
+export const canExchange = (state: MatchState): boolean => exchangeStatus(state).ok;
 
 const sortPlacements = (a: Placement, b: Placement): number => a.row - b.row || a.col - b.col;
 

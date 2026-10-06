@@ -24,7 +24,21 @@ function model(state: Partial<MatchState>, over: Partial<MatchModel> = {}): Matc
   return {
     state: {
       engineRulesVersion: 1,
-      seats: [{}, {}],
+      // Enough of a real header and seats for the engine's observe / exchangeEligibility.
+      config: {
+        mode: 'classic',
+        format: 'untimed-vs-bot',
+        seats: 2,
+        teams: [[0], [1]],
+        layout: 'classic-v1',
+        letters: 'letters-v1',
+        requireWinner: 0,
+      },
+      seats: [
+        { rack: '', score: 0, chainK: 0, lastMainForm: '', bestTurnScore: 0, status: 'active' },
+        { rack: '', score: 0, chainK: 0, lastMainForm: '', bestTurnScore: 0, status: 'active' },
+      ],
+      bag: '',
       status: 'in_progress',
       seatOnTurn: HUMAN_SEAT,
       actionCount: 2,
@@ -137,7 +151,7 @@ describe('status strip (E-1.5 §5.5)', () => {
     expect(statusLines(model({ bag: 'ABCDE' }, { notice: 'exchange_unavailable' }), names)).toEqual(
       {
         tone: 'neutral',
-        primary: { key: 'match.exchange.disabled', params: { count: 5 } },
+        primary: { key: 'match.exchange.disabled', params: { count: 5, min: 7 } },
         secondary: { key: 'match.your_turn', params: {} },
       },
     );

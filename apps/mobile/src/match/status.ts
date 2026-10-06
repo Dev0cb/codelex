@@ -5,7 +5,7 @@
  */
 import { rulesFor, type MatchState, type PreviewScore } from '@codelex/game-engine';
 
-import type { LastMove, MatchModel, Notice } from './match-model';
+import { exchangeStatus, type LastMove, type MatchModel, type Notice } from './match-model';
 import { BOT_SEAT, HUMAN_SEAT } from './play-config';
 
 export interface StatusLines {
@@ -96,7 +96,10 @@ export function statusLines(
   if (model.notice === 'exchange_unavailable') {
     return {
       tone: 'neutral',
-      primary: { key: 'match.exchange.disabled', params: { count: state.bag.length } },
+      primary: {
+        key: 'match.exchange.disabled',
+        params: { count: state.bag.length, min: exchangeStatus(state).minBag },
+      },
       secondary: yourTurn,
     };
   }

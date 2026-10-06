@@ -99,7 +99,7 @@
   "match.resign.cancel": "Continuer",
   "match.action.shuffle": "Mélanger",
   "match.action.exchange": "Échanger",
-  "match.exchange.disabled": "Il faut au moins 7 lettres dans le sac pour échanger (actuellement {count}).",
+  "match.exchange.disabled": "Il faut au moins {min} lettres dans le sac pour échanger (actuellement {count}).",
   "match.exchange.title": "Échanger des lettres",
   "match.exchange.body": "Choisis les lettres à échanger. Cela prend ton tour et rapporte 0.",
   "match.exchange.select_hint": "Choisis de 1 à 7 lettres",
@@ -147,5 +147,6 @@
   "summary.bot_rack": "Restées sur le chevalet de {bot}",
   "summary.bot_rack.empty": "Chevalet vide",
   "a11y.announce.result": "{result}. {you} à {them}.",
-  "a11y.rack.selected": "Sélectionnée"
+  "a11y.rack.selected": "Sélectionnée",
+  "match.action.more": "Plus"
 }

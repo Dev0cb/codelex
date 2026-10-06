@@ -45,6 +45,7 @@ describe('shipped catalogs', () => {
       to: 'POD',
       margin: 22,
       result: 'Victory',
+      min: 7,
     };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });

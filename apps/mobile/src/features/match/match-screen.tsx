@@ -4,6 +4,7 @@ import {
   observe,
   type Letter,
   type MatchState,
+  type Square,
 } from '@codelex/game-engine';
 import { Redirect, useRouter } from 'expo-router';
 import { useCallback, useContext, useEffect, useMemo, useState, type JSX } from 'react';
@@ -18,7 +19,7 @@ import { useFlag } from '../../config/flags-provider';
 import { useI18n } from '../../i18n/i18n-provider';
 import { breakdownChips } from '../../match/breakdown';
 import {
-  canExchange,
+  exchangeStatus,
   livePreview,
   shuffledOrder,
   visibleRack,
@@ -54,11 +55,15 @@ const LETTERS: readonly Letter[] = Array.from(
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
 /** The match menu glyph (§5.5.1 "⋯"): an icon, labelled by `match.menu.a11y`. */
 const MENU_GLYPH = '⋯';
+const NO_SQUARES: readonly Square[] = [];
+/** E-1.5 D-20: from this system font scale, Shuffle / Exchange / Pass collapse into one More button. */
+export const MORE_FONT_SCALE = 1.5;
 const layout = getLayout(PLAY_LAYOUT);
 const letters = getLetterTable(PLAY_LETTERS);
 
 type WordEntry = Extract<MoveEntry, { kind: 'word' }>;
-type OpenSheet = 'menu' | 'log' | 'legend' | 'pass' | 'exchange' | 'resign' | 'breakdown' | null;
+type OpenSheet =
+  'menu' | 'log' | 'legend' | 'pass' | 'exchange' | 'resign' | 'breakdown' | 'more' | null;
 
 /**
  * Match vs the Beginner bot (E-1.5 slices S1–S2), behind `play_vs_bot.enabled`. With the flag off the route sends
@@ -123,7 +128,7 @@ function MatchSession(): JSX.Element {
   const services = useContext(MatchServicesContext);
   const previewEnabled = useFlag('match.live_score_preview');
   const playEnabled = useFlag('play_vs_bot.enabled');
-  const { width } = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
   const { model, dispatch, restart } = useMatch();
   const [focus, setFocus] = useState<{ row: number; col: number; seq: number } | null>(null);
   const [sheet, setSheet] = useState<OpenSheet>(null);
@@ -158,20 +163,26 @@ function MatchSession(): JSX.Element {
     };
   }, [finishedState, motion]);
 
+  // Only what the board draws: rack-only changes (Shuffle, select, notices) keep the same squares, so the memoised
+  // Skia picture is not rebuilt (E-1.4 §2.4). The reducer keeps unchanged references stable.
+  const board = model?.state.board;
+  const pending = model?.pending;
+  const owners = model?.owners;
+  const lastSquares = model?.lastMove?.kind === 'word' ? model.lastMove.squares : NO_SQUARES;
   const squares = useMemo(
     () =>
-      model === null
+      board === undefined || pending === undefined || owners === undefined
         ? []
         : boardSquares({
             layout,
             letters,
-            board: model.state.board,
-            pending: model.pending,
-            owners: model.owners,
-            lastMove: model.lastMove?.kind === 'word' ? model.lastMove.squares : [],
+            board,
+            pending,
+            owners,
+            lastMove: lastSquares,
             humanSeat: HUMAN_SEAT,
           }),
-    [model],
+    [board, pending, owners, lastSquares],
   );
 
   const selected = model?.selectedSlotId ?? null;
@@ -240,9 +251,56 @@ function MatchSession(): JSX.Element {
   const chips = explained === null ? [] : breakdownChips(explained.breakdown);
   const boardSize = Math.min(width - 2 * dims.marginMatch, dims.contentMaxWidth);
   const labelSquare = (square: SquareView): string => squareLabel(t, square, botName);
-  const exchangeOpen = canExchange(model.state) && model.failure === null;
+  const exchange = exchangeStatus(model.state);
+  const exchangeOpen = exchange.ok && model.failure === null;
   // Sheets close by themselves once the match is over (§5.5.10 hold on the final board).
   const open: OpenSheet = finished ? null : sheet;
+  const compact = fontScale >= MORE_FONT_SCALE;
+
+  // Shuffle, Exchange, Pass: in the action row, or in the More sheet at large text (D-20).
+  const secondaryActions = (
+    <>
+      <Button
+        testID="match.action.shuffle"
+        label={t('match.action.shuffle')}
+        disabled={!playing}
+        onPress={() => {
+          if (compact) setSheet(null);
+          dispatch({
+            type: 'shuffle',
+            order: shuffledOrder(model.slots, services.shuffleRandom),
+          });
+        }}
+      />
+      <Button
+        testID="match.action.exchange"
+        label={t('match.action.exchange')}
+        disabled={!yourTurn}
+        unavailable={yourTurn && !exchangeOpen}
+        accessibilityHint={
+          yourTurn && !exchangeOpen
+            ? t('match.exchange.disabled', { count: view.bagCount, min: exchange.minBag })
+            : undefined
+        }
+        onPress={() => {
+          if (exchangeOpen) {
+            setSheet('exchange');
+            return;
+          }
+          if (compact) setSheet(null);
+          dispatch({ type: 'explain_exchange' });
+        }}
+      />
+      <Button
+        testID="match.action.pass"
+        label={t('match.action.pass')}
+        disabled={!yourTurn}
+        onPress={() => {
+          setSheet('pass');
+        }}
+      />
+    </>
+  );
 
   const strip = (
     <>
@@ -382,40 +440,19 @@ function MatchSession(): JSX.Element {
           { gap: space[2], paddingHorizontal: space[3], paddingVertical: space[4] },
         ]}
       >
-        <Button
-          testID="match.action.shuffle"
-          label={t('match.action.shuffle')}
-          disabled={!playing}
-          onPress={() => {
-            dispatch({
-              type: 'shuffle',
-              order: shuffledOrder(model.slots, services.shuffleRandom),
-            });
-          }}
-        />
-        <Button
-          testID="match.action.exchange"
-          label={t('match.action.exchange')}
-          disabled={!yourTurn}
-          unavailable={yourTurn && !exchangeOpen}
-          accessibilityHint={
-            yourTurn && !exchangeOpen
-              ? t('match.exchange.disabled', { count: view.bagCount })
-              : undefined
-          }
-          onPress={() => {
-            if (exchangeOpen) setSheet('exchange');
-            else dispatch({ type: 'explain_exchange' });
-          }}
-        />
-        <Button
-          testID="match.action.pass"
-          label={t('match.action.pass')}
-          disabled={!yourTurn}
-          onPress={() => {
-            setSheet('pass');
-          }}
-        />
+        {compact ? (
+          // D-20: at large text the secondary actions move into one More sheet so PLAY stays in the row.
+          <Button
+            testID="match.action.more"
+            label={t('match.action.more')}
+            disabled={!playing}
+            onPress={() => {
+              setSheet('more');
+            }}
+          />
+        ) : (
+          secondaryActions
+        )}
         <View style={styles.spacer} />
         {model.pending.length > 0 && (
           <Button
@@ -535,6 +572,15 @@ function MatchSession(): JSX.Element {
           dispatch({ type: 'resign' });
         }}
       />
+      <Sheet
+        visible={open === 'more'}
+        title={t('match.action.more')}
+        onClose={closeSheet}
+        testID="match.more"
+      >
+        <View style={{ gap: space[3] }}>{secondaryActions}</View>
+        <Button label={t('common.close')} onPress={closeSheet} />
+      </Sheet>
       <MoveLogSheet visible={open === 'log'} log={model.log} names={names} onClose={closeSheet} />
       <LegendSheet
         visible={open === 'legend'}

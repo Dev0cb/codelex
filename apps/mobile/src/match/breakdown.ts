@@ -3,7 +3,7 @@
  * in R-SCORE-008 order. Nothing here adds, multiplies or decides: every number is a field the engine computed.
  * Tech-square and Compile components are never rendered (always 0 in rules version 1; tech squares off, AC-3).
  */
-import type { Difficulty, ScoreBreakdown } from '@codelex/game-engine';
+import { termBonusTotal, type Difficulty, type ScoreBreakdown } from '@codelex/game-engine';
 import type { MessageKey } from '@codelex/i18n';
 
 import type { Notice } from './match-model';
@@ -30,7 +30,8 @@ export function breakdownChips(breakdown: ScoreBreakdown): Notice[] {
   if (main !== undefined && main.wordMult > 1) {
     chips.push({ key: 'match.breakdown.chip.word_mult', params: { n: main.wordMult } });
   }
-  const term = breakdown.words.reduce((sum, w) => sum + w.termBonus, 0);
+  // R-SCORE-003: every scored word earns its term bonus; the engine owns the total (P-SCORE-009-c).
+  const term = termBonusTotal(breakdown);
   if (term > 0) chips.push({ key: 'match.breakdown.chip.term', params: { points: term } });
   if (breakdown.fullStack > 0) {
     chips.push({ key: 'match.breakdown.full_stack', params: { points: breakdown.fullStack } });

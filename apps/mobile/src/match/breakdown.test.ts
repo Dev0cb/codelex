@@ -1,4 +1,4 @@
-import type { ScoreBreakdown, WordScore } from '@codelex/game-engine';
+import { termBonusTotal, type ScoreBreakdown, type WordScore } from '@codelex/game-engine';
 import { describe, expect, it } from '@jest/globals';
 
 import { breakdownChips, breakdownLines } from './breakdown';
@@ -52,6 +52,15 @@ describe('score explanation chips (D-14)', () => {
       { key: 'match.breakdown.full_stack', params: { points: 50 } },
       { key: 'match.breakdown.chip.chain', params: { points: 10 } },
     ]);
+  });
+
+  it('takes the term chip from the engine total, cross-words included (R-SCORE-003)', () => {
+    const cross = { ...full, words: [word({}), word({ main: false, termBonus: 4, total: 10 })] };
+    expect(breakdownChips(cross)).toContainEqual({
+      key: 'match.breakdown.chip.term',
+      params: { points: termBonusTotal(cross) },
+    });
+    expect(termBonusTotal(cross)).toBe(12);
   });
 
   it('shows nothing for a plain word', () => {

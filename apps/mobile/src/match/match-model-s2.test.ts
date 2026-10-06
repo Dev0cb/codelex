@@ -5,6 +5,7 @@
  */
 import {
   apply,
+  exchangeEligibility,
   observe,
   previewScore,
   type EngineContext,
@@ -16,6 +17,7 @@ import { beforeAll, describe, expect, it, jest } from '@jest/globals';
 import type { LoadedLexicon } from '../lexicon/load-lexicon';
 import {
   canExchange,
+  exchangeStatus,
   livePreview,
   reduceMatch,
   shuffledOrder,
@@ -93,6 +95,11 @@ describe('Exchange (AC-7, R-TURN-001, R-BAG-005)', () => {
     expect(canExchange(state)).toBe(true);
     expect(canExchange(withBag(state, 7))).toBe(true);
     expect(canExchange(withBag(state, 6))).toBe(false);
+    // The answer is the engine's (R-TURN-001 lives in @codelex/game-engine only).
+    expect(exchangeStatus(withBag(state, 6))).toEqual(
+      exchangeEligibility(observe(withBag(state, 6), HUMAN_SEAT)),
+    );
+    expect(exchangeStatus(withBag(state, 6)).reason).toBe('bag_too_small');
     expect(canExchange(newPlayState(seedWhereFirst(BOT_SEAT, lexicon), lexicon))).toBe(false);
   });
 
