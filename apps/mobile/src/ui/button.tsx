@@ -6,12 +6,17 @@ import { useTokens } from '../theme/use-tokens';
 export interface ButtonProps {
   readonly label: string;
   readonly onPress: () => void;
-  /** E-1.4 §4 `Button`: primary (PLAY, PLAY NOW; `hero` = 72 dp) or secondary. */
-  readonly variant?: 'primary' | 'secondary';
+  /** E-1.4 §4 `Button`: primary (PLAY, PLAY NOW; `hero` = 72 dp), secondary or destructive (Resign). */
+  readonly variant?: 'primary' | 'secondary' | 'destructive';
   readonly hero?: boolean;
   readonly disabled?: boolean;
+  /**
+   * Looks disabled but stays pressable, so a tap can explain why the action is unavailable (E-1.5 §5.5.6: the
+   * "why" is never hidden). Screen readers hear the `accessibilityHint`.
+   */
+  readonly unavailable?: boolean;
   readonly accessibilityLabel?: string;
-  readonly accessibilityHint?: string;
+  readonly accessibilityHint?: string | undefined;
   readonly testID?: string;
 }
 
@@ -26,12 +31,21 @@ export function Button({
   variant = 'secondary',
   hero = false,
   disabled = false,
+  unavailable = false,
   accessibilityLabel,
   accessibilityHint,
   testID,
 }: ButtonProps): JSX.Element {
   const { color, layout, radius, space, type } = useTokens();
   const primary = variant === 'primary';
+  // Destructive = the error colour as text and border on the raised surface (a CONTRAST_PAIRS text pair).
+  const destructive = variant === 'destructive';
+  const fill = primary ? color.accentPrimary : color.bgRaised;
+  const ink = primary
+    ? color.accentOnPrimary
+    : destructive
+      ? color.feedbackError
+      : color.textPrimary;
   return (
     <Pressable
       testID={testID}
@@ -49,23 +63,14 @@ export function Button({
           borderRadius: radius.button,
           paddingHorizontal: space[5],
           paddingVertical: space[3],
-          backgroundColor: primary ? color.accentPrimary : color.bgRaised,
-          borderColor: primary ? color.accentPrimary : color.borderSubtle,
-          opacity: disabled ? 0.4 : 1,
+          backgroundColor: fill,
+          borderColor: primary ? fill : destructive ? color.feedbackError : color.borderSubtle,
+          opacity: disabled || unavailable ? 0.4 : 1,
         },
-        pressed &&
-          !disabled && { backgroundColor: primary ? color.accentPrimary : color.bgSurface },
+        pressed && !disabled && !primary && { backgroundColor: color.bgSurface },
       ]}
     >
-      <Text
-        style={[
-          hero ? type.title : type.body,
-          styles.label,
-          { color: primary ? color.accentOnPrimary : color.textPrimary },
-        ]}
-      >
-        {label}
-      </Text>
+      <Text style={[hero ? type.title : type.body, styles.label, { color: ink }]}>{label}</Text>
     </Pressable>
   );
 }

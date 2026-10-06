@@ -27,12 +27,28 @@ describe('flags', () => {
   });
 
   it('resolve overrides over the bundled defaults', () => {
-    expect(resolveFlags({ 'play_vs_bot.enabled': true })).toEqual({ 'play_vs_bot.enabled': true });
+    expect(resolveFlags({ 'play_vs_bot.enabled': true })).toEqual({
+      ...FLAG_DEFAULTS,
+      'play_vs_bot.enabled': true,
+    });
+  });
+
+  it('ship the S2 defaults: live preview on (AC-5), tech squares off (AC-3)', () => {
+    expect(FLAG_DEFAULTS['match.live_score_preview']).toBe(true);
+    expect(FLAG_DEFAULTS['board.tech_squares.enabled']).toBe(false);
+    expect(parseFlagOverrides('match.live_score_preview=0')).toEqual({
+      'match.live_score_preview': false,
+    });
   });
 });
 
 function Probe() {
-  return <Text testID="flag">{String(useFlag('play_vs_bot.enabled'))}</Text>;
+  return (
+    <>
+      <Text testID="flag">{String(useFlag('play_vs_bot.enabled'))}</Text>
+      <Text testID="preview">{String(useFlag('match.live_score_preview'))}</Text>
+    </>
+  );
 }
 
 describe('FlagsProvider', () => {
@@ -48,5 +64,7 @@ describe('FlagsProvider', () => {
       </FlagsProvider>,
     );
     expect(screen.getByTestId('flag').props.children).toBe('true');
+    // Flags the caller does not name keep their bundled default.
+    expect(screen.getByTestId('preview').props.children).toBe('true');
   });
 });

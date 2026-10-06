@@ -5,6 +5,10 @@ E-1.5 slice S1: Home → PLAY NOW → a full local match vs the Beginner bot on 
 `play_vs_bot.enabled` (bundled default **off**; Home then shows the "paused" card). The bundled lexicon index is
 loaded and verified before any route mounts. Dev and playtest builds turn the flag on at build time:
 `EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1`. Design note: `docs/architecture/notes/mobile-app-foundation.md`.
+Slice S2 adds the match HUD (menu with move log, board legend and Resign), the engine score breakdown (strip chips +
+sheet), the lexicon-free "Base N" preview (flag `match.live_score_preview`, default on), Shuffle and Exchange, and
+the Summary (result, scores with rack adjustments, end reason, margin, best word, canonical term chips, the bot's
+last rack). Flag `board.tech_squares.enabled` exists, default off, with no effect on the pinned v1 layout (AC-3).
 
 - Owner: `mobile-engineer` (consult `ux-ui-designer` for visuals, `realtime-engineer` for the protocol)
 - Coverage: 80 % on lines, statements, functions and branches, read from `@codelex/config/vitest` `basePreset`
@@ -21,12 +25,13 @@ time, never to an SDK published less than 3 days ago (`minimumReleaseAge`).
 
 ```
 src/app/            Expo Router routes only (default exports allowed here, nowhere else)
-src/features/<f>/   screens and feature components (home, match: screen, rack, thinking dots, end screen)
-src/match/          engine-driven match model, BotRunner seam (P5 §4.1, JS thread), status strip, useMatch
+src/features/<f>/   screens and feature components (home, match: screen, sheets, rack, thinking dots, summary)
+src/match/          engine-driven match model and move log, BotRunner seam (P5 §4.1, JS thread), status strip,
+                    breakdown and summary presenters, useMatch
 src/board/          Skia board (E-1.4 §2 contract, A-4 reversed): scene data, hit-test worklets, gestures, a11y grid
 src/a11y/           reduced motion and screen-reader hooks
 src/config/         feature flags (bundled defaults + build-time overrides)
-src/ui/             token-only primitives (Button)
+src/ui/             token-only primitives (Button, Sheet)
 src/i18n/           I18nProvider / useI18n over @codelex/i18n (device locale, EN fallback)
 src/lexicon/        .clxi loader (pure, injected platform source), LexiconGate / useLexicon, E-1.5 §5.10.1 error state
 src/linking/        deep-link guard used by src/app/+native-intent.ts (GHSA-vcc3-ghjq-m6fr)
@@ -35,7 +40,7 @@ scripts/            prepare:lexicon, bundle-size budget and bundle-contents chec
 assets/lexicon/     lexicon.clxi + lexicon.json, written by prepare:lexicon (git-ignored, never edit)
 jest/               Jest-only stand-ins: .clxi transformer, Node versions of expo-asset/-file-system/-crypto, Skia
                     stand-in, worklets resolver, Gesture Handler setup
-e2e/                Maestro flows (S1: full match vs Beginner)
+e2e/                Maestro flows (S1: full match vs Beginner; S2: HUD, Resign, Summary)
 metro.config.cjs    Expo defaults + `clxi` asset extension (lexicon index)
 bundle-budget.json  bytes per platform for the Hermes bundle, the bundled code assets and the lexicon index
 bundle-forbidden-packages.json  toolchain packages that must never be bundled (audit exceptions)

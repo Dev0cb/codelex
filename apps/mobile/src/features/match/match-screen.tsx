@@ -6,16 +6,8 @@ import {
   type MatchState,
 } from '@codelex/game-engine';
 import { Redirect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
-import {
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { useCallback, useContext, useEffect, useMemo, useState, type JSX } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useMotionMode, useScreenReader } from '../../a11y/accessibility';
@@ -24,14 +16,31 @@ import { BoardView } from '../../board/board-view';
 import { FOCUS_THRESHOLD } from '../../board/geometry';
 import { useFlag } from '../../config/flags-provider';
 import { useI18n } from '../../i18n/i18n-provider';
-import { visibleRack } from '../../match/match-model';
+import { breakdownChips } from '../../match/breakdown';
+import {
+  canExchange,
+  livePreview,
+  shuffledOrder,
+  visibleRack,
+  type MoveEntry,
+} from '../../match/match-model';
 import { BOT_SEAT, HUMAN_SEAT, PLAY_LAYOUT, PLAY_LETTERS } from '../../match/play-config';
-import { statusLines } from '../../match/status';
-import { useMatch } from '../../match/use-match';
+import { scorelessWarning, statusLines } from '../../match/status';
+import { summarize } from '../../match/summary';
+import { MatchServicesContext, useMatch } from '../../match/use-match';
 import { useTokens } from '../../theme/use-tokens';
 import { Button } from '../../ui/button';
-import { MatchEnd } from './match-end';
+import { Sheet } from '../../ui/sheet';
+import {
+  BreakdownSheet,
+  ConfirmSheet,
+  ExchangeSheet,
+  LegendSheet,
+  MenuSheet,
+  MoveLogSheet,
+} from './match-sheets';
 import { RackView } from './rack-view';
+import { SummaryScreen } from './summary-screen';
 import { ThinkingIndicator } from './thinking-indicator';
 
 /** E-1.5 §5.5.10: the final board stays 600 ms before the end screen (reduced motion: immediately). */
@@ -41,13 +50,19 @@ const LETTERS: readonly Letter[] = Array.from(
   { length: 26 },
   (_, i) => String.fromCharCode(65 + i) as Letter,
 );
+/** System mono until a bundled mono face is decided (D-28). */
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
+/** The match menu glyph (§5.5.1 "⋯"): an icon, labelled by `match.menu.a11y`. */
+const MENU_GLYPH = '⋯';
 const layout = getLayout(PLAY_LAYOUT);
 const letters = getLetterTable(PLAY_LETTERS);
 
+type WordEntry = Extract<MoveEntry, { kind: 'word' }>;
+type OpenSheet = 'menu' | 'log' | 'legend' | 'pass' | 'exchange' | 'resign' | 'breakdown' | null;
+
 /**
- * Match vs the Beginner bot (E-1.5 slice S1), behind `play_vs_bot.enabled`. With the flag off the route sends the
- * player Home, where the paused card explains why (AC-19).
+ * Match vs the Beginner bot (E-1.5 slices S1–S2), behind `play_vs_bot.enabled`. With the flag off the route sends
+ * the player Home, where the paused card explains why (AC-19).
  */
 export function MatchScreen(): JSX.Element {
   const enabled = useFlag('play_vs_bot.enabled');
@@ -98,67 +113,20 @@ function ScoreBlock({
   );
 }
 
-function Sheet({
-  visible,
-  title,
-  onClose,
-  children,
-}: {
-  readonly visible: boolean;
-  readonly title: string;
-  readonly onClose: () => void;
-  readonly children: JSX.Element | readonly JSX.Element[];
-}): JSX.Element {
-  const { color, overlay, radius, space, type } = useTokens();
-  const motion = useMotionMode();
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType={motion === 'reduced' ? 'fade' : 'slide'}
-      onRequestClose={onClose}
-    >
-      <View style={styles.sheetRoot}>
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: overlay.scrim, opacity: overlay.scrimOpacity },
-          ]}
-        />
-        <View
-          accessibilityViewIsModal
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: color.bgSurface,
-              borderTopStartRadius: radius.sheet,
-              borderTopEndRadius: radius.sheet,
-              padding: space[5],
-              gap: space[4],
-            },
-          ]}
-        >
-          <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
-            {title}
-          </Text>
-          {children}
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
 function MatchSession(): JSX.Element {
   const { t } = useI18n();
   const tokens = useTokens();
-  const { color, layout: dims, space, type } = tokens;
+  const { color, layout: dims, radius, space, type } = tokens;
   const motion = useMotionMode();
   const screenReader = useScreenReader();
   const router = useRouter();
+  const services = useContext(MatchServicesContext);
+  const previewEnabled = useFlag('match.live_score_preview');
+  const playEnabled = useFlag('play_vs_bot.enabled');
   const { width } = useWindowDimensions();
   const { model, dispatch, restart } = useMatch();
   const [focus, setFocus] = useState<{ row: number; col: number; seq: number } | null>(null);
-  const [confirmPass, setConfirmPass] = useState(false);
+  const [sheet, setSheet] = useState<OpenSheet>(null);
   /** The finished state whose end screen is due (after the §5.5.10 hold). */
   const [endDue, setEndDue] = useState<MatchState | null>(null);
 
@@ -223,6 +191,9 @@ function MatchSession(): JSX.Element {
   const goHome = useCallback(() => {
     router.replace('/');
   }, [router]);
+  const closeSheet = useCallback(() => {
+    setSheet(null);
+  }, []);
 
   if (model === null) {
     return (
@@ -238,21 +209,101 @@ function MatchSession(): JSX.Element {
     );
   }
 
-  if (finished && endDue === model.state) {
-    return <MatchEnd state={model.state} botName={botName} onPlayAgain={restart} onHome={goHome} />;
+  const summary = finished && endDue === model.state ? summarize(model) : null;
+  if (summary !== null) {
+    return (
+      <SummaryScreen
+        summary={summary}
+        botName={botName}
+        letters={letters}
+        canPlayAgain={playEnabled}
+        onPlayAgain={restart}
+        onHome={goHome}
+      />
+    );
   }
 
   const view = observe(model.state, HUMAN_SEAT);
   const playing = model.state.status === 'in_progress' && model.failure === null;
   const yourTurn = playing && model.state.seatOnTurn === HUMAN_SEAT;
   const botTurn = playing && model.state.seatOnTurn === BOT_SEAT;
-  const status = statusLines(model, names);
+  const preview = previewEnabled ? livePreview(model) : null;
+  const status = statusLines(model, names, preview);
+  const warning = scorelessWarning(model.state);
+  const explained: WordEntry | null =
+    model.lastMove?.kind === 'word' &&
+    model.pending.length === 0 &&
+    model.rejection === null &&
+    model.failure === null
+      ? model.lastMove
+      : null;
+  const chips = explained === null ? [] : breakdownChips(explained.breakdown);
   const boardSize = Math.min(width - 2 * dims.marginMatch, dims.contentMaxWidth);
   const labelSquare = (square: SquareView): string => squareLabel(t, square, botName);
+  const exchangeOpen = canExchange(model.state) && model.failure === null;
+  // Sheets close by themselves once the match is over (§5.5.10 hold on the final board).
+  const open: OpenSheet = finished ? null : sheet;
+
+  const strip = (
+    <>
+      <Text
+        testID="match.status.primary"
+        style={[
+          type.body,
+          { color: status.tone === 'error' ? color.feedbackError : color.textPrimary },
+        ]}
+      >
+        {t(status.primary.key, status.primary.params)}
+      </Text>
+      {status.secondary !== null && (
+        <Text testID="match.status.secondary" style={[type.bodyS, { color: color.textMuted }]}>
+          {t(status.secondary.key, status.secondary.params)}
+        </Text>
+      )}
+      {warning !== null && (
+        <Text testID="match.status.warning" style={[type.bodyS, { color: color.feedbackWarning }]}>
+          {t(warning.key, warning.params)}
+        </Text>
+      )}
+      {chips.length > 0 && (
+        <View testID="match.breakdown.chips" style={[styles.wrap, { gap: space[2] }]}>
+          {chips.map((chip) => (
+            <Text
+              key={chip.key}
+              style={[
+                type.caption,
+                styles.mono,
+                {
+                  color: color.textPrimary,
+                  borderColor: color.borderSubtle,
+                  borderRadius: radius.chip,
+                  paddingHorizontal: space[2],
+                },
+                styles.chip,
+              ]}
+            >
+              {t(chip.key, chip.params)}
+            </Text>
+          ))}
+        </View>
+      )}
+    </>
+  );
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: color.bgBase }]}>
-      <View style={[styles.topBar, { paddingHorizontal: space[5], paddingVertical: space[3] }]}>
+      <View style={[styles.topBar, { paddingHorizontal: space[3], paddingVertical: space[3] }]}>
+        <Pressable
+          testID="match.menu.open"
+          accessibilityRole="button"
+          accessibilityLabel={t('match.menu.a11y')}
+          onPress={() => {
+            setSheet('menu');
+          }}
+          style={[styles.iconButton, { width: dims.touchMin, height: dims.touchMin }]}
+        >
+          <Text style={[type.title, { color: color.textPrimary }]}>{MENU_GLYPH}</Text>
+        </Pressable>
         <ScoreBlock
           name={names.you}
           score={view.seats[HUMAN_SEAT]?.score ?? 0}
@@ -294,26 +345,29 @@ function MatchSession(): JSX.Element {
           onSquarePress={onSquarePress}
         />
       </View>
-      <View
-        testID="match.status"
-        accessibilityLiveRegion={status.tone === 'error' ? 'assertive' : 'polite'}
-        style={[styles.strip, { paddingHorizontal: space[5], paddingVertical: space[3] }]}
-      >
-        <Text
-          testID="match.status.primary"
-          style={[
-            type.body,
-            { color: status.tone === 'error' ? color.feedbackError : color.textPrimary },
-          ]}
+      {explained === null ? (
+        <View
+          testID="match.status"
+          accessibilityLiveRegion={status.tone === 'error' ? 'assertive' : 'polite'}
+          style={[styles.strip, { paddingHorizontal: space[5], paddingVertical: space[3] }]}
         >
-          {t(status.primary.key, status.primary.params)}
-        </Text>
-        {status.secondary !== null && (
-          <Text style={[type.bodyS, { color: color.textMuted }]}>
-            {t(status.secondary.key, status.secondary.params)}
-          </Text>
-        )}
-      </View>
+          {strip}
+        </View>
+      ) : (
+        // D-14: the score explanation stays until the player picks up a tile or the next move lands; tap = detail.
+        <Pressable
+          testID="match.status"
+          accessibilityRole="button"
+          accessibilityHint={t('match.breakdown.tap_hint')}
+          accessibilityLiveRegion="polite"
+          onPress={() => {
+            setSheet('breakdown');
+          }}
+          style={[styles.strip, { paddingHorizontal: space[5], paddingVertical: space[3] }]}
+        >
+          {strip}
+        </Pressable>
+      )}
       <RackView
         slots={visibleRack(model)}
         selectedSlotId={selected}
@@ -325,9 +379,44 @@ function MatchSession(): JSX.Element {
       <View
         style={[
           styles.actions,
-          { gap: space[3], paddingHorizontal: space[5], paddingVertical: space[4] },
+          { gap: space[2], paddingHorizontal: space[3], paddingVertical: space[4] },
         ]}
       >
+        <Button
+          testID="match.action.shuffle"
+          label={t('match.action.shuffle')}
+          disabled={!playing}
+          onPress={() => {
+            dispatch({
+              type: 'shuffle',
+              order: shuffledOrder(model.slots, services.shuffleRandom),
+            });
+          }}
+        />
+        <Button
+          testID="match.action.exchange"
+          label={t('match.action.exchange')}
+          disabled={!yourTurn}
+          unavailable={yourTurn && !exchangeOpen}
+          accessibilityHint={
+            yourTurn && !exchangeOpen
+              ? t('match.exchange.disabled', { count: view.bagCount })
+              : undefined
+          }
+          onPress={() => {
+            if (exchangeOpen) setSheet('exchange');
+            else dispatch({ type: 'explain_exchange' });
+          }}
+        />
+        <Button
+          testID="match.action.pass"
+          label={t('match.action.pass')}
+          disabled={!yourTurn}
+          onPress={() => {
+            setSheet('pass');
+          }}
+        />
+        <View style={styles.spacer} />
         {model.pending.length > 0 && (
           <Button
             testID="match.action.recall"
@@ -337,15 +426,6 @@ function MatchSession(): JSX.Element {
             }}
           />
         )}
-        <Button
-          testID="match.action.pass"
-          label={t('match.action.pass')}
-          disabled={!yourTurn}
-          onPress={() => {
-            setConfirmPass(true);
-          }}
-        />
-        <View style={styles.spacer} />
         <Button
           testID="match.action.play"
           variant="primary"
@@ -404,34 +484,69 @@ function MatchSession(): JSX.Element {
           }}
         />
       </Sheet>
-      <Sheet
-        visible={confirmPass}
+      <ConfirmSheet
+        visible={open === 'pass'}
+        testID="match.pass"
         title={t('match.pass.title')}
-        onClose={() => {
-          setConfirmPass(false);
+        body={t('match.pass.body')}
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('match.pass.confirm')}
+        onCancel={closeSheet}
+        onConfirm={() => {
+          setSheet(null);
+          dispatch({ type: 'pass' });
         }}
-      >
-        <Text style={[type.body, { color: color.textMuted }]}>{t('match.pass.body')}</Text>
-        <View style={[styles.actions, { gap: space[3] }]}>
-          <Button
-            testID="match.pass.cancel"
-            label={t('common.cancel')}
-            onPress={() => {
-              setConfirmPass(false);
-            }}
-          />
-          <View style={styles.spacer} />
-          <Button
-            testID="match.pass.confirm"
-            variant="primary"
-            label={t('match.pass.confirm')}
-            onPress={() => {
-              setConfirmPass(false);
-              dispatch({ type: 'pass' });
-            }}
-          />
-        </View>
-      </Sheet>
+      />
+      <ExchangeSheet
+        visible={open === 'exchange'}
+        slots={model.slots}
+        letters={letters}
+        onCancel={closeSheet}
+        onConfirm={(slotIds) => {
+          setSheet(null);
+          dispatch({ type: 'exchange', slotIds });
+        }}
+      />
+      <MenuSheet
+        visible={open === 'menu'}
+        canResign={playing}
+        onClose={closeSheet}
+        onLog={() => {
+          setSheet('log');
+        }}
+        onLegend={() => {
+          setSheet('legend');
+        }}
+        onResign={() => {
+          setSheet('resign');
+        }}
+      />
+      <ConfirmSheet
+        visible={open === 'resign'}
+        testID="match.resign"
+        destructive
+        title={t('match.resign.title')}
+        body={t('match.resign.body')}
+        cancelLabel={t('match.resign.cancel')}
+        confirmLabel={t('match.resign.confirm')}
+        onCancel={closeSheet}
+        onConfirm={() => {
+          setSheet(null);
+          dispatch({ type: 'resign' });
+        }}
+      />
+      <MoveLogSheet visible={open === 'log'} log={model.log} names={names} onClose={closeSheet} />
+      <LegendSheet
+        visible={open === 'legend'}
+        layout={layout}
+        premiumLabels={premiumLabels}
+        onClose={closeSheet}
+      />
+      <BreakdownSheet
+        entry={open === 'breakdown' ? explained : null}
+        names={names}
+        onClose={closeSheet}
+      />
     </SafeAreaView>
   );
 }
@@ -440,8 +555,11 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   centred: { alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center' },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap' },
+  chip: { borderWidth: 1 },
   topBar: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
-  scoreBlock: { minWidth: 96 },
+  iconButton: { alignItems: 'center', justifyContent: 'center' },
+  scoreBlock: { minWidth: 88 },
   turnDot: { width: 8, height: 8, borderRadius: 4 },
   underline: { height: 3, borderRadius: 2, alignSelf: 'stretch' },
   mono: { fontFamily: MONO, fontVariant: ['tabular-nums'] },
@@ -449,8 +567,6 @@ const styles = StyleSheet.create({
   strip: { minHeight: 48, justifyContent: 'center' },
   actions: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
   spacer: { flex: 1 },
-  sheetRoot: { flex: 1, justifyContent: 'flex-end' },
-  sheet: { alignSelf: 'stretch' },
   letterGrid: { flexDirection: 'row', flexWrap: 'wrap', direction: 'ltr' },
   letterKey: { alignItems: 'center', justifyContent: 'center' },
 });

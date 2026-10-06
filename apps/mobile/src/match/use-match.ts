@@ -16,13 +16,16 @@ export interface MatchServices {
   readonly createBotRunner: (lexicon: LexiconIndex) => BotRunner;
   /** Presentation delay of one bot move (D-29); never enters the engine. */
   readonly thinkDelayMs: () => number;
+  /** Uniform [0, 1) for Shuffle (AC-7): a local rack order only, never an engine input. */
+  readonly shuffleRandom: () => number;
 }
 
 export const DEVICE_MATCH_SERVICES: MatchServices = {
   newSeed: () => seedFromBytes(getRandomBytes(8)),
   createBotRunner: (lexicon) => createJsThreadBotRunner(lexicon),
-  // Presentation only (pace), so a non-seeded source is fine here; game randomness comes from the seed.
+  // Presentation only (pace, rack order), so a non-seeded source is fine; game randomness comes from the seed.
   thinkDelayMs: () => thinkDelayMs(Math.random),
+  shuffleRandom: Math.random,
 };
 
 export const MatchServicesContext = createContext<MatchServices>(DEVICE_MATCH_SERVICES);

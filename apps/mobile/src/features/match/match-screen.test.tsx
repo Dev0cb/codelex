@@ -102,6 +102,7 @@ async function renderApp({ seed, locale = 'en', playEnabled = true, runner }: Se
     createBotRunner: (index) =>
       runner ?? createJsThreadBotRunner(index, { nextFrame: () => Promise.resolve() }),
     thinkDelayMs: () => 0,
+    shuffleRandom: () => 0,
   };
   function Layout(): JSX.Element {
     return (

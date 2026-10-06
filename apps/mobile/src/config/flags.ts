@@ -9,6 +9,13 @@
 export const FLAG_DEFAULTS = {
   /** Master switch for starting new matches vs a bot (E-1.5 AC-19); off = the Home "paused" card. */
   'play_vs_bot.enabled': false,
+  /** E-1.5 AC-5: the lexicon-free "Base N" preview of pending tiles (R-SCORE-009). Off = no preview at all. */
+  'match.live_score_preview': true,
+  /**
+   * E-1.5 AC-3 (F-2): exists with default off and has no effect while the pinned layout has no tech squares. It can
+   * only expose tech squares the pinned `engineRulesVersion` defines, never add them at runtime (R-CORE-005).
+   */
+  'board.tech_squares.enabled': false,
 } as const satisfies Readonly<Record<string, boolean>>;
 
 export type FlagKey = keyof typeof FLAG_DEFAULTS;
