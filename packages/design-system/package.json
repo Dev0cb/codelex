@@ -21,7 +21,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format:check": "prettier --check .",
     "test": "vitest run --coverage",
-    "contrast": "node scripts/contrast.mjs"
+    "contrast": "node scripts/contrast.mjs",
+    "tokens:write": "node scripts/write-tokens.mjs"
   },
   "devDependencies": {
     "@codelex/config": "workspace:*",
