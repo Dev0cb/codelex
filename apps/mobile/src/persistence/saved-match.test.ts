@@ -5,20 +5,16 @@
  * next start (`openSavedMatch`) must restore every committed move, never flag corruption, and the bot must play the
  * same deterministic move after a kill during its turn (R-CORE-005, F-7). Also D-3 retention and low storage.
  */
-import { stateHash, type MatchConfig, type SeedHex } from '@codelex/game-engine';
+import { stateHash, type MatchConfig, type MatchState, type SeedHex } from '@codelex/game-engine';
 import { beforeAll, describe, expect, it, jest } from '@jest/globals';
 
 import type { LoadedLexicon } from '../lexicon/load-lexicon';
 import type { MatchModel } from '../match/match-model';
-import { BOT_SEAT } from '../match/play-config';
-import {
-  botDecision,
-  loadBundledLexicon,
-  scriptMatch,
-  seedOf,
-  type ScriptedStep,
-} from '../match/test-support';
-import { FILES, SNAPSHOT_EVERY } from './match-journal';
+import { botRequestFor, createJsThreadBotRunner } from '../match/bot-runner';
+import { BOT_SEAT, PLAY_BOT } from '../match/play-config';
+import { loadBundledLexicon, scriptMatch, seedOf, type ScriptedStep } from '../match/test-support';
+import { DataStore } from './data-store';
+import { FILES, MatchJournal, SNAPSHOT_EVERY } from './match-journal';
 import { MemoryFs } from './memory-fs';
 import {
   createPersistence,
@@ -73,7 +69,7 @@ function playUntilKilled(fs: MemoryFs, background: boolean): number {
   for (const step of steps) {
     if (fs.killed) return committed;
     // 'saved' = the append returned: the app would show the move as committed (Q7).
-    if (persistTransition(persistence.journal, before, step.after) === 'saved') committed += 1;
+    if (persistTransition(persistence.journal, before, step.after, ctx) === 'saved') committed += 1;
     if (background) snapshotOnBackground(persistence.journal, step.after.state);
     before = step.after;
   }
@@ -99,9 +95,10 @@ describe('process-kill resume (sprint 3 S3 acceptance, AC-11, TM-01)', () => {
     ['a torn write, with a snapshot on every app_backgrounded', 11, true],
   ])(
     'loses 0 committed moves when killed at any write boundary: %s',
-    (_name, tornBytes, background) => {
+    async (_name, tornBytes, background) => {
       const total = boundariesOfFullRun(background);
-      const nextBotMove = new Map<number, unknown>();
+      /** Restored states with the bot on turn, by action count (the bot is asked once per position). */
+      const botTurns = new Map<number, MatchState>();
       let resumed = 0;
       for (let killAt = 0; killAt < total; killAt += 1) {
         const fs = new MemoryFs({ killAt, tornBytes });
@@ -129,20 +126,15 @@ describe('process-kill resume (sprint 3 S3 acceptance, AC-11, TM-01)', () => {
         expect(saved.model.state).toEqual(reference.state);
         expect(stateHash(saved.model.state)).toBe(stateHash(reference.state));
         expect(saved.model.log).toEqual(reference.log);
-        // Killed while the bot was on turn: it re-derives the same stream and plays the same move.
         if (saved.model.state.seatOnTurn === BOT_SEAT && n < steps.length) {
-          if (!nextBotMove.has(n)) {
-            const decided = botDecision(saved.model.state, lexicon);
-            nextBotMove.set(n, decided.ok ? decided.value.action : null);
-          }
-          expect(nextBotMove.get(n)).toEqual(steps[n]?.after.actions[n]);
+          botTurns.set(n, saved.model.state);
         }
         // The resumed match keeps being saved: one more move survives another restart.
         const after = steps[n]?.after;
         if (after !== undefined) {
           const persistence = createPersistence(next);
           expect(openSavedMatch(persistence, ctx).kind).toBe('resumable');
-          expect(persistTransition(persistence.journal, saved.model, after)).toBe('saved');
+          expect(persistTransition(persistence.journal, saved.model, after, ctx)).toBe('saved');
           const again = openSavedMatch(createPersistence(next.reboot()), ctx);
           expect(again.kind === 'resumable' ? again.model.state : null).toEqual(
             after.state.status === 'finished' ? null : after.state,
@@ -151,8 +143,14 @@ describe('process-kill resume (sprint 3 S3 acceptance, AC-11, TM-01)', () => {
       }
       // Not vacuous: most kills land mid-match, and several during the bot's turn.
       expect(resumed).toBeGreaterThan(total / 2);
-      expect(nextBotMove.size).toBeGreaterThan(5);
-      expect([...nextBotMove.values()].every((a) => a !== null)).toBe(true);
+      expect(botTurns.size).toBeGreaterThan(5);
+      // Killed while the bot was on turn: the app's own runner (the one `useMatch` drives), asked with the request
+      // the app builds from the restored state, plays the move the uninterrupted match played.
+      const runner = createJsThreadBotRunner(lexicon.index, { nextFrame: () => Promise.resolve() });
+      for (const [n, state] of botTurns) {
+        const decided = await runner.decide(botRequestFor(state, BOT_SEAT, PLAY_BOT));
+        expect(decided.ok ? decided.value.action : null).toEqual(steps[n]?.after.actions[n]);
+      }
     },
     300_000,
   );
@@ -168,7 +166,7 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
       persistence.journal.start(headerOf(game.start));
       let before = game.start;
       for (const step of game.steps) {
-        expect(persistTransition(persistence.journal, before, step.after)).toBe('saved');
+        expect(persistTransition(persistence.journal, before, step.after, ctx)).toBe('saved');
         before = step.after;
       }
       finishMatch(persistence, before);
@@ -177,7 +175,7 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
     persistence.journal.start(headerOf(second.start));
     let before = second.start;
     for (const step of second.steps) {
-      persistTransition(persistence.journal, before, step.after);
+      persistTransition(persistence.journal, before, step.after, ctx);
       before = step.after;
     }
     const logs = [...fs.files.keys()].filter((name) => name.endsWith('.log'));
@@ -204,7 +202,7 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
     const fs = new MemoryFs();
     const persistence = createPersistence(fs);
     persistence.journal.start(headerOf(start));
-    persistTransition(persistence.journal, start, modelAt(1));
+    persistTransition(persistence.journal, start, modelAt(1), ctx);
     // Two starts that died during resume left the counter at 2.
     persistence.store.replace(GUARD_FILE, [String(MAX_UNCLEAN_RESUMES)]);
     expect(openSavedMatch(createPersistence(fs.reboot()), ctx)).toEqual({
@@ -221,10 +219,11 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
     const fs = new MemoryFs();
     const persistence = createPersistence(fs);
     persistence.journal.start(headerOf(start));
-    persistTransition(persistence.journal, start, modelAt(1));
+    persistTransition(persistence.journal, start, modelAt(1), ctx);
     // Killed right after the guard was written (boundaries: write tmp, delete, rename).
     const dying = fs.reboot({ killAt: 3 });
-    expect(openSavedMatch(createPersistence(dying), ctx).kind).toBe('state_corrupt');
+    openSavedMatch(createPersistence(dying), ctx); // the process dies inside; its answer is never shown
+    expect(dying.killed).toBe(true);
     const next = dying.reboot();
     expect(next.files.has(GUARD_FILE)).toBe(true);
     expect(openSavedMatch(createPersistence(next), ctx).kind).toBe('resumable');
@@ -239,7 +238,7 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
     for (let k = 1; k <= 6; k += 1) {
       const after = modelAt(k);
       fs.fullAfter = k === 3 || k === 4 ? 6 : null;
-      const outcome = persistTransition(persistence.journal, before, after);
+      const outcome = persistTransition(persistence.journal, before, after, ctx);
       expect(outcome).toBe(k === 3 || k === 4 ? 'failed' : 'saved');
       before = after;
     }
@@ -247,8 +246,64 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
     expect(saved.kind === 'resumable' ? saved.model.state : null).toEqual(modelAt(6).state);
   });
 
+  it('resumes a healthy match on a full disk: a guard that cannot be written is no guard (review blocker)', () => {
+    const fs = new MemoryFs();
+    const persistence = createPersistence(fs);
+    persistence.journal.start(headerOf(start));
+    let before = start;
+    for (let k = 1; k <= 5; k += 1) {
+      persistTransition(persistence.journal, before, modelAt(k), ctx);
+      before = modelAt(k);
+    }
+    const full = fs.reboot();
+    full.fullAfter = 0;
+    const saved = openSavedMatch(createPersistence(full), ctx);
+    expect(saved.kind === 'resumable' ? saved.model.state : null).toEqual(modelAt(5).state);
+    // Nothing was lost on the way: the log is intact for the next start.
+    full.fullAfter = null;
+    const again = openSavedMatch(createPersistence(full.reboot()), ctx);
+    expect(again.kind).toBe('resumable');
+  });
+
+  it('writes nothing at start when nothing is saved (paused builds never touch the disk)', () => {
+    const fs = new MemoryFs();
+    expect(openSavedMatch(createPersistence(fs), ctx)).toEqual({ kind: 'none' });
+    expect(fs.writes).toEqual([]);
+    expect(fs.boundaries).toBe(0);
+  });
+
+  it('writes every action when the count jumps by more than one', () => {
+    const fs = new MemoryFs();
+    const persistence = createPersistence(fs);
+    persistence.journal.start(headerOf(start));
+    expect(persistTransition(persistence.journal, start, modelAt(3), ctx)).toBe('saved');
+    expect(persistTransition(persistence.journal, modelAt(3), modelAt(4), ctx)).toBe('saved');
+    const saved = openSavedMatch(createPersistence(fs.reboot()), ctx);
+    expect(saved.kind === 'resumable' ? saved.model.state : null).toEqual(modelAt(4).state);
+  });
+
+  it('does not report low storage when only the old snapshot could not be removed', () => {
+    const fs = new MemoryFs();
+    const failingRemove = Object.assign(Object.create(fs) as MemoryFs, {
+      remove: (): void => {
+        throw new Error('EACCES');
+      },
+    });
+    const journal = new MatchJournal(new DataStore(failingRemove));
+    expect(journal.start(headerOf(start))).toBe(false); // the log replace deletes the old log first
+    const store = new DataStore(fs);
+    store.replace(FILES.snapshot, ['stale']);
+    const onlySnapshot = Object.assign(Object.create(fs) as MemoryFs, {
+      remove: (name: string): void => {
+        if (name === FILES.snapshot) throw new Error('EACCES');
+        fs.remove(name);
+      },
+    });
+    expect(new MatchJournal(new DataStore(onlySnapshot)).start(headerOf(start))).toBe(true);
+  });
+
   it('reports no change when no action was accepted', () => {
     const persistence = createPersistence(new MemoryFs());
-    expect(persistTransition(persistence.journal, start, start)).toBe('unchanged');
+    expect(persistTransition(persistence.journal, start, start, ctx)).toBe('unchanged');
   });
 });

@@ -554,26 +554,60 @@ export function reduceMatch(
   }
 }
 
+/** Why a logged match could not be rebuilt: a version this build cannot play, or a refused action. */
+export type RebuildError =
+  | { readonly kind: 'version' }
+  | { readonly kind: 'header' }
+  | { readonly kind: 'action'; readonly index: number };
+
+export type Rebuilt =
+  | { readonly ok: true; readonly model: MatchModel; readonly states: readonly MatchState[] }
+  | { readonly ok: false; readonly error: RebuildError; readonly states: readonly MatchState[] };
+
 /**
- * The model of a restored match (AC-11): the match is created from its header and every logged action is applied
- * again, so the board owners, the move log and its breakdowns are the engine's own. Pending tiles are never stored,
- * so the player's rack comes back whole in rack order. Null when the engine refuses the header or any action; the
- * caller has already verified the log (`resume.ts`), so that only happens on a programming error.
+ * The model of a restored match (AC-11) in one pass: the match is created from its header and every logged action
+ * is applied once, so the board owners, the move log and its breakdowns are the engine's own (the screen needs every
+ * move's events, which no snapshot holds). `states[i]` is the state after `i` actions, for the caller's hash checks.
+ * Pending tiles are never stored, so the player's rack comes back whole in rack order. Linear in the log length:
+ * entries and owners are accumulated in place, never copied per action.
  */
-export function modelFromActions(
+export function rebuildModel(
   header: MatchConfig,
   actions: readonly Action[],
   ctx: EngineContext,
-): MatchModel | null {
+): Rebuilt {
   const created = createMatch(header, ctx);
-  if (!created.ok) return null;
-  let model = startModel(created.value.state);
-  for (const action of actions) {
-    const applied = apply(model.state, action, ctx);
-    if (!applied.ok) return null;
-    model = afterApplied(model, applied.value, new Set(), ctx);
+  if (!created.ok) {
+    const code = created.error.code;
+    const version = code === 'RULES_VERSION_UNSUPPORTED' || code === 'LEXICON_MISMATCH';
+    return { ok: false, error: { kind: version ? 'version' : 'header' }, states: [] };
   }
-  return { ...model, notice: null };
+  let state = created.value.state;
+  const states: MatchState[] = [state];
+  const log: MoveEntry[] = [];
+  const owners: Record<string, Seat> = {};
+  const accepted: Action[] = [];
+  for (const [index, action] of actions.entries()) {
+    const applied = apply(state, action, ctx);
+    if (!applied.ok) return { ok: false, error: { kind: 'action', index }, states };
+    const entry = entryOf(applied.value, state, ctx);
+    if (entry !== null) log.push(entry);
+    const done = applied.value.action;
+    if (done.type === 'PLACE_WORD') {
+      for (const t of done.tiles) owners[squareKey(t.row, t.col)] = done.seat;
+    }
+    accepted.push(done);
+    state = applied.value.state;
+    states.push(state);
+  }
+  const model: MatchModel = {
+    ...startModel(state),
+    owners,
+    log,
+    actions: accepted,
+    lastMove: log.at(-1) ?? null,
+  };
+  return { ok: true, model, states };
 }
 
 /** The player's result once the match is over (R-END-003: equal places are a draw). */

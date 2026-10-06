@@ -1,8 +1,11 @@
 /**
- * Resume (E-1.5 AC-11, API note §20 Q7 steps 1–5, threat model TM-02). The log is the source of truth; the snapshot
- * only makes resume faster and is used only when `replay(log, ctx, { from, verify: 'final' })` accepts it, i.e. its
- * hash equals the log's checkpoint (tampered, foreign or stale snapshots are ignored). Nothing stored is trusted on
- * its own: the restored state, scores included, is always the output of `replay`, never a stored value.
+ * Resume (E-1.5 AC-11, API note §20 Q7 steps 1–5, threat model TM-02). The log is the source of truth. A snapshot is
+ * checked with `replay(log, ctx, { from, verify: 'final' })` (tampered, foreign or stale snapshots are ignored), but
+ * it cannot shorten resume in this app: the screen needs the engine's events of every move, so the log is applied
+ * once from the start in the same pass that builds the model, and that pass checks the last stored hash (Q7 step 4,
+ * final hash only). Nothing stored is trusted on its own: the restored state, scores included, is always the output
+ * of the engine's `apply`, never a stored value. Cost: one pass over the log, plus at most one snapshot tail; the
+ * device target (resume p95 ≤ 300 ms on the reference Android) is measured in H1.
  *
  * Every failure maps to `version_mismatch` (rules or lexicon version this build cannot replay, ADR-0014 §D3) or
  * `state_corrupt`; this function never throws (a catch-all guards against a crash loop at start, TM-02 D-1).
@@ -16,12 +19,10 @@ import {
   type EngineContext,
   type MatchState,
   type ReplayError,
-  type ReplayOutcome,
   type StateHash,
 } from '@codelex/game-engine';
-import type { Result } from '@codelex/config/result';
 
-import { modelFromActions, type MatchModel } from '../match/match-model';
+import { rebuildModel, type MatchModel } from '../match/match-model';
 import type { StoredLog } from './match-journal';
 
 /** How the state was rebuilt (TM-10 `restore_path`, for analytics in slice S6). */
@@ -64,9 +65,15 @@ function usableSnapshot(text: string | null, log: ActionLog): MatchState | null 
   return k >= 1 && k <= log.actions.length ? parsed.value : null;
 }
 
-function locate(log: ActionLog, ctx: EngineContext): Divergence | null {
-  const all = replay(log, ctx, { verify: 'all' });
-  return !all.ok && all.error.code === 'HASH_MISMATCH' ? all.error.details : null;
+/** First checkpoint the rebuilt states disagree with, from the states the single pass already holds. */
+function locate(states: readonly MatchState[], hashes: readonly StateHash[]): Divergence | null {
+  for (const [i, expected] of hashes.entries()) {
+    const state = states[i + 1];
+    if (state === undefined) return null;
+    const actual = stateHash(state);
+    if (actual !== expected) return { index: i, expected, actual };
+  }
+  return null;
 }
 
 function restore(stored: StoredLog, snapshot: string | null, ctx: EngineContext): Restored {
@@ -76,25 +83,29 @@ function restore(stored: StoredLog, snapshot: string | null, ctx: EngineContext)
   const parsed = parseActionLog(stored.text);
   if (!parsed.ok) return isVersionError(parsed.error) ? VERSION_MISMATCH : CORRUPT;
   const log = parsed.value;
-  // Steps 2–3: from the snapshot when its hash matches the log, then the tail; only the last hash is checked.
+  const hashes = log.stateHashes ?? [];
+  // Steps 2–3: a snapshot is used only when `replay` accepts it (its hash equals the log's checkpoint) and the tail
+  // re-applied from it reaches the last stored hash. It is a check of at most SNAPSHOT_EVERY actions here.
   const from = usableSnapshot(snapshot, log);
-  let path: RestorePath = 'snapshot';
-  let outcome: Result<ReplayOutcome, ReplayError> | null =
-    from === null ? null : replay(log, ctx, { from, verify: 'final' });
-  // Step 4: any failure there means a replay from the start.
-  if (outcome === null || !outcome.ok) {
-    path = 'full_replay';
-    outcome = replay(log, ctx, { verify: 'final' });
+  let path: RestorePath = 'full_replay';
+  if (from !== null) {
+    const tail = replay(log, ctx, { from, verify: 'final' });
+    if (tail.ok) path = 'snapshot';
+    else if (isVersionError(tail.error)) return VERSION_MISMATCH;
   }
-  if (!outcome.ok) {
-    if (isVersionError(outcome.error)) return VERSION_MISMATCH;
-    // Step 4, second half: only on a failure, verify every checkpoint to find the first divergence.
-    return { kind: 'state_corrupt', divergence: locate(log, ctx) };
+  // Step 4 (replay from the start, final hash only) and the model in the same single pass: the screen needs the
+  // engine's events of every move (owners, move log, breakdowns), so the start is always replayed once.
+  const rebuilt = rebuildModel(log.header, log.actions, ctx);
+  if (!rebuilt.ok) {
+    if (rebuilt.error.kind === 'version') return VERSION_MISMATCH;
+    return { kind: 'state_corrupt', divergence: locate(rebuilt.states, hashes) };
   }
-  // The screen needs the engine's events of every move (owners, move log, breakdowns).
-  const model = modelFromActions(log.header, log.actions, ctx);
-  if (model === null || stateHash(model.state) !== outcome.value.finalHash) return CORRUPT;
-  return { kind: 'restored', log, model, path, droppedTail: stored.droppedTail };
+  const last = hashes.at(-1);
+  if (last !== undefined && stateHash(rebuilt.model.state) !== last) {
+    // Only on a failure: every checkpoint, from the states already rebuilt (no further replay).
+    return { kind: 'state_corrupt', divergence: locate(rebuilt.states, hashes) };
+  }
+  return { kind: 'restored', log, model: rebuilt.model, path, droppedTail: stored.droppedTail };
 }
 
 /** Q7 resume; never throws. */

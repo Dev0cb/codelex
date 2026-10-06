@@ -67,6 +67,30 @@ describe('records (TM-01)', () => {
     expect(decodeRecords(bad)).toEqual({ ok: false, index: 0 });
   });
 
+  it('flags a mid-file length that points past the end of the file as corrupt, not as a torn tail', () => {
+    for (const record of [0, 1]) {
+      const bad = file.slice();
+      const offsets = [0, encodeRecord(payloads[0] ?? '').length];
+      const at = offsets[record] ?? 0;
+      const view = new DataView(bad.buffer);
+      // Grows the length so the record would swallow the records after it and run past the end of the file.
+      view.setUint32(at, view.getUint32(at) + 200);
+      expect(decodeRecords(bad)).toEqual({ ok: false, index: record });
+    }
+  });
+
+  it('flags a bad checksum on a record that swallowed the next record header as corrupt', () => {
+    const bad = file.slice();
+    const view = new DataView(bad.buffer);
+    const last = encodeRecord(payloads[2] ?? '').length;
+    // Record 1 now spans to the end of the file, over record 2's binary header.
+    view.setUint32(
+      encodeRecord(payloads[0] ?? '').length,
+      view.getUint32(encodeRecord(payloads[0] ?? '').length) + last,
+    );
+    expect(decodeRecords(bad)).toEqual({ ok: false, index: 1 });
+  });
+
   it('flags an oversized length before the tail as corrupt', () => {
     const oversized = new Uint8Array(RECORD_HEADER_BYTES + MAX_RECORD_BYTES + 1).fill(0x20);
     new DataView(oversized.buffer).setUint32(0, MAX_RECORD_BYTES + 1);

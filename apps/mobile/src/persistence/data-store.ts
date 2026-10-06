@@ -79,6 +79,10 @@ export class DataStore {
       : { kind: 'corrupt' };
   }
 
+  list(): readonly string[] {
+    return this.fs.list();
+  }
+
   exists(name: string): boolean {
     return this.fs.size(name) !== null;
   }

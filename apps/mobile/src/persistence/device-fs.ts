@@ -16,16 +16,17 @@ import type { FsPrimitives } from './data-store';
 export const DATA_DIR = 'codelex-data';
 
 export function createDeviceFs(): FsPrimitives {
-  let directory: Directory | null = null;
-  const dir = (): Directory => {
-    if (directory === null) {
-      const created = new Directory(Paths.document, DATA_DIR);
-      created.create({ intermediates: true, idempotent: true });
-      directory = created;
+  const directory = new Directory(Paths.document, DATA_DIR);
+  let created = false;
+  /** Reads never create the directory: a build that never saved a match leaves no trace on the disk. */
+  const writable = (): Directory => {
+    if (!created) {
+      directory.create({ intermediates: true, idempotent: true });
+      created = true;
     }
     return directory;
   };
-  const file = (name: string): File => new File(dir(), name);
+  const file = (name: string, parent: Directory = directory): File => new File(parent, name);
   return {
     read(name) {
       const f = file(name);
@@ -36,20 +37,21 @@ export function createDeviceFs(): FsPrimitives {
       return f.exists ? f.size : null;
     },
     write(name, bytes) {
-      file(name).write(bytes);
+      file(name, writable()).write(bytes);
     },
     append(name, bytes) {
-      file(name).write(bytes, { append: true });
+      file(name, writable()).write(bytes, { append: true });
     },
     rename(from, to) {
-      file(from).rename(to);
+      file(from, writable()).rename(to);
     },
     remove(name) {
       const f = file(name);
       if (f.exists) f.delete();
     },
     list() {
-      return dir()
+      if (!directory.exists) return [];
+      return directory
         .list()
         .filter((entry) => entry instanceof File)
         .map((entry) => entry.name);

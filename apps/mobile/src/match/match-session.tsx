@@ -147,7 +147,7 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       if (next === current) return;
       if (persistence !== null) {
         // Written before the move is shown (Q7, TM-01); on failure play continues from memory.
-        const outcome = persistTransition(persistence.journal, current, next);
+        const outcome = persistTransition(persistence.journal, current, next, ctx);
         if (outcome === 'failed') setLowStorage(true);
         if (outcome === 'saved') setLowStorage(false);
         if (current.state.status !== 'finished' && next.state.status === 'finished') {

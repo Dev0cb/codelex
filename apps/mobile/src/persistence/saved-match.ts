@@ -3,7 +3,13 @@
  * the app finds at start, and what it writes after each accepted action and at the end of a match. The provider
  * (`match/match-session.tsx`) and the process-kill tests drive exactly these functions.
  */
-import { stateHash, type EngineContext, type MatchState } from '@codelex/game-engine';
+import {
+  apply,
+  stateHash,
+  type EngineContext,
+  type MatchState,
+  type StateHash,
+} from '@codelex/game-engine';
 
 import type { MatchModel } from '../match/match-model';
 import { HUMAN_SEAT } from '../match/play-config';
@@ -88,25 +94,56 @@ function open(persistence: Persistence, ctx: EngineContext): SavedMatch {
   }
 }
 
+/** Runs a best-effort write; a failure (full disk) is not an error for the caller. */
+function bestEffort(write: () => void): void {
+  try {
+    write();
+  } catch {
+    // Low storage: see the callers.
+  }
+}
+
+const CORRUPT: SavedMatch = { kind: 'state_corrupt', divergence: null };
+
 /**
- * The saved match at start (Q7 resume, TM-02). Never throws: any failure is `state_corrupt`. A resume that crashed
- * the app twice in a row is not attempted again (D-1 crash counter).
+ * The saved match at start (Q7 resume, TM-02). Never throws: a log that cannot be read is `state_corrupt`. A resume
+ * that crashed the app twice in a row is not attempted again (D-1 crash counter). The counter is best effort: on a
+ * full disk it cannot be written, and the resume runs anyway, because calling a healthy match corrupt would let
+ * "Start a new match" delete it. With nothing saved (first launch, or a paused build that never played) nothing is
+ * written at all.
  */
 export function openSavedMatch(persistence: Persistence, ctx: EngineContext): SavedMatch {
   const { store } = persistence;
   try {
-    const attempts = readGuard(store);
-    if (attempts >= MAX_UNCLEAN_RESUMES) {
-      store.remove(GUARD_FILE);
-      return { kind: 'state_corrupt', divergence: null };
-    }
-    store.replace(GUARD_FILE, [String(attempts + 1)]);
-    const saved = open(persistence, ctx);
-    store.remove(GUARD_FILE);
-    return saved;
+    if (store.list().length === 0) return { kind: 'none' };
   } catch {
-    return { kind: 'state_corrupt', divergence: null };
+    return { kind: 'none' };
   }
+  let attempts = 0;
+  try {
+    attempts = readGuard(store);
+  } catch {
+    // An unreadable counter counts as no counter.
+  }
+  if (attempts >= MAX_UNCLEAN_RESUMES) {
+    bestEffort(() => {
+      store.remove(GUARD_FILE);
+    });
+    return CORRUPT;
+  }
+  bestEffort(() => {
+    store.replace(GUARD_FILE, [String(attempts + 1)]);
+  });
+  let saved: SavedMatch;
+  try {
+    saved = open(persistence, ctx);
+  } catch {
+    saved = CORRUPT;
+  }
+  bestEffort(() => {
+    store.remove(GUARD_FILE);
+  });
+  return saved;
 }
 
 export type PersistOutcome = 'unchanged' | 'saved' | 'failed';
@@ -120,11 +157,30 @@ export function persistTransition(
   journal: MatchJournal,
   before: MatchModel,
   after: MatchModel,
+  ctx: EngineContext,
 ): PersistOutcome {
-  if (after.actions.length === before.actions.length) return 'unchanged';
-  const action = after.actions[after.actions.length - 1];
-  if (action === undefined || after.actions.length !== before.actions.length + 1) return 'failed';
-  if (!journal.commit(action, stateHash(after.state))) return 'failed';
+  const added = after.actions.slice(before.actions.length);
+  if (added.length === 0) return 'unchanged';
+  // One command applies one action today. If more ever arrive at once, each still gets its record and the hash of
+  // the state after it (re-applied from `before`), so the log never skips a move.
+  let state = before.state;
+  let ok = true;
+  for (const [i, action] of added.entries()) {
+    let hash: StateHash;
+    if (i === added.length - 1) {
+      hash = stateHash(after.state);
+    } else {
+      const applied = apply(state, action, ctx);
+      if (!applied.ok) {
+        journal.invalidate();
+        return 'failed';
+      }
+      state = applied.value.state;
+      hash = stateHash(state);
+    }
+    ok = journal.commit(action, hash) && ok;
+  }
+  if (!ok) return 'failed';
   if (after.state.actionCount % SNAPSHOT_EVERY === 0) journal.snapshot(after.state);
   return 'saved';
 }

@@ -65,6 +65,10 @@ class Directory {
     this.uri = pathOf(parts);
   }
 
+  get exists() {
+    return existsSync(this.uri) && statSync(this.uri).isDirectory();
+  }
+
   create(options = {}) {
     if (options.idempotent && existsSync(this.uri)) return;
     mkdirSync(this.uri, { recursive: Boolean(options.intermediates) });

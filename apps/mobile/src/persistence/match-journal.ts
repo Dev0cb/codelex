@@ -50,6 +50,7 @@ export class MatchJournal {
   /** Every record of the current log, to rewrite it after a failed write. */
   private records: string[] = [];
   private dirty = false;
+  private broken = false;
 
   constructor(private readonly store: DataStore) {}
 
@@ -70,13 +71,28 @@ export class MatchJournal {
     return ok;
   }
 
-  /** A new match: drops any previous in-progress match, then writes the header record. */
+  /**
+   * A new match: drops any previous in-progress match, then writes the header record. Only the log write decides
+   * the result: a stale snapshot left behind is harmless (its hash never matches the new log).
+   */
   start(header: MatchConfig): boolean {
     this.records = [headerRecord(header)];
-    const removed = this.attempt(() => {
+    this.broken = false;
+    this.attempt(() => {
       this.store.remove(FILES.snapshot);
     });
-    return this.rewrite() && removed;
+    return this.rewrite();
+  }
+
+  /**
+   * The in-memory records no longer describe the match (an action could not be recorded): nothing more is written
+   * for this match, and the snapshot goes, so the log on disk stays a valid prefix of what was played.
+   */
+  invalidate(): void {
+    this.broken = true;
+    this.attempt(() => {
+      this.store.remove(FILES.snapshot);
+    });
   }
 
   /** Continue a restored match: its records are the log on disk (rewritten if it had a torn tail). */
@@ -84,6 +100,7 @@ export class MatchJournal {
     // Stored logs always carry one hash per action (`parseActionLog` checks the lengths).
     const hashes = log.stateHashes ?? [];
     this.records = [headerRecord(log.header)];
+    this.broken = false;
     log.actions.forEach((action, i) => {
       const hash = hashes[i];
       if (hash !== undefined) this.records.push(actionRecord(action, hash));
@@ -94,6 +111,7 @@ export class MatchJournal {
 
   /** One accepted action (Q7): true once the record is written. */
   commit(action: Action, hash: StateHash): boolean {
+    if (this.broken) return false;
     const record = actionRecord(action, hash);
     this.records.push(record);
     if (this.dirty) return this.rewrite();
@@ -106,7 +124,7 @@ export class MatchJournal {
 
   /** Q7: only after the log append for `state` succeeded, so a snapshot is never ahead of the log. */
   snapshot(state: MatchState): boolean {
-    if (this.dirty) return false;
+    if (this.dirty || this.broken) return false;
     return this.attempt(() => {
       this.store.replace(FILES.snapshot, [serializeState(state)]);
     });
@@ -125,6 +143,7 @@ export class MatchJournal {
   abandon(): boolean {
     this.records = [];
     this.dirty = false;
+    this.broken = false;
     return this.attempt(() => {
       this.store.remove(FILES.snapshot);
       this.store.remove(FILES.log);

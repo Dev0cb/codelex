@@ -6,6 +6,11 @@
  * Reading follows TM-01: the last record may be torn by a kill or a power loss mid-append (short, or its bytes never
  * reached the disk), so a bad record that reaches the end of the file is dropped: it was never shown as committed,
  * because the UI commits a move only after the append returned. Any bad record before it means the file is corrupt.
+ *
+ * "Reaches the end of the file" is not enough on its own: a damaged length in the middle of the file can also run
+ * past the end. A real torn tail is a record the app wrote, cut short: its length is within the cap and its bytes are
+ * printable ASCII (JSON) followed only by zeros (blocks that never reached the disk). A record that would swallow
+ * the binary header of a later record fails that test and is corruption, never a silently dropped tail.
  */
 import { crc32 } from './crc32';
 
@@ -17,6 +22,18 @@ export const RECORD_HEADER_BYTES = 8;
 export const MAX_RECORD_BYTES = 64 * 1024;
 
 const MAX_ASCII = 0x7f;
+const PRINTABLE_MIN = 0x20;
+const PRINTABLE_MAX = 0x7e;
+
+/** Bytes of a record the app wrote, cut short: printable ASCII, then only zeros. */
+function isTornWrite(bytes: Uint8Array): boolean {
+  let zeros = false;
+  for (const byte of bytes) {
+    if (byte === 0) zeros = true;
+    else if (zeros || byte < PRINTABLE_MIN || byte > PRINTABLE_MAX) return false;
+  }
+  return true;
+}
 
 export function encodeRecord(payload: string): Uint8Array {
   if (payload.length > MAX_RECORD_BYTES) throw new RangeError('record payload too large');
@@ -60,15 +77,15 @@ export function decodeRecords(bytes: Uint8Array): DecodedRecords {
     // A header or payload that runs past the end of the file is the torn tail.
     if (bytes.length - at < RECORD_HEADER_BYTES) return { ok: true, records, droppedTail: true };
     const length = view.getUint32(at);
+    if (length > MAX_RECORD_BYTES) return { ok: false, index };
     const end = at + RECORD_HEADER_BYTES + length;
-    if (end > bytes.length) return { ok: true, records, droppedTail: true };
-    const payload = bytes.subarray(at + RECORD_HEADER_BYTES, end);
+    const payload = bytes.subarray(at + RECORD_HEADER_BYTES, Math.min(end, bytes.length));
     const text =
-      length <= MAX_RECORD_BYTES && crc32(payload) === view.getUint32(at + 4)
-        ? asciiText(payload)
-        : null;
+      end <= bytes.length && crc32(payload) === view.getUint32(at + 4) ? asciiText(payload) : null;
     if (text === null) {
-      return end === bytes.length ? { ok: true, records, droppedTail: true } : { ok: false, index };
+      return end >= bytes.length && isTornWrite(payload)
+        ? { ok: true, records, droppedTail: true }
+        : { ok: false, index };
     }
     records.push(text);
     at = end;

@@ -19,7 +19,13 @@ import {
 import { createBundledLexiconSource } from '../lexicon/bundled-lexicon-source';
 import { loadLexicon, type LoadedLexicon } from '../lexicon/load-lexicon';
 import { botRequestFor } from './bot-runner';
-import { reduceMatch, startModel, type MatchCommand, type MatchModel } from './match-model';
+import {
+  canExchange,
+  reduceMatch,
+  startModel,
+  type MatchCommand,
+  type MatchModel,
+} from './match-model';
 import { BOT_SEAT, HUMAN_SEAT, PLAY_BOT, playMatchConfig } from './play-config';
 
 let cached: Promise<LoadedLexicon> | undefined;
@@ -110,12 +116,15 @@ export function botDecision(state: MatchState, lexicon: LoadedLexicon) {
 /**
  * A full vs-bot match driven through `reduceMatch`, as the app plays it: the player's moves come from the Beginner on
  * test-only streams (tiles placed through the rack, then PLAY; any other choice becomes a Pass), the bot's from its
- * own `bot:<seat>:<n>` request. Stops at the end of the match or after `maxActions` actions.
+ * own `bot:<seat>:<n>` request. Stops at the end of the match or after `maxActions` actions. With `player:
+ * 'exchange'` the player exchanges one tile whenever the engine allows it (the bot's words keep resetting the
+ * scoreless count), which gives long matches for timing tests.
  */
 export function scriptMatch(
   seed: SeedHex,
   lexicon: LoadedLexicon,
   maxActions = Number.POSITIVE_INFINITY,
+  player: 'beginner' | 'exchange' = 'beginner',
 ): { readonly start: MatchModel; readonly steps: readonly ScriptedStep[] } {
   const ctx = { lexicon: lexicon.index };
   const start = startModel(newPlayState(seed, lexicon));
@@ -124,7 +133,10 @@ export function scriptMatch(
   while (model.state.status === 'in_progress' && steps.length < maxActions) {
     const { state } = model;
     let commands: MatchCommand[];
-    if (state.seatOnTurn === HUMAN_SEAT) {
+    const first = model.slots[0];
+    if (state.seatOnTurn === HUMAN_SEAT && player === 'exchange' && canExchange(state) && first) {
+      commands = [{ type: 'exchange', slotIds: [first.id] }];
+    } else if (state.seatOnTurn === HUMAN_SEAT) {
       const action = scriptedAction(state, `test:${String(state.actionCount)}`, lexicon);
       commands =
         action.type === 'PLACE_WORD'

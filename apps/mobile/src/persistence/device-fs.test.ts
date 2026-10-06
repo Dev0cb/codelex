@@ -5,6 +5,8 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { createRequire } from 'node:module';
 
+import { Directory, Paths } from 'expo-file-system';
+
 import { DataStore } from './data-store';
 import { createDeviceFs, DATA_DIR } from './device-fs';
 
@@ -13,6 +15,14 @@ jest.mock('expo-file-system', () => jest.requireActual('../../jest/expo-file-sys
 const requireCjs = createRequire(__filename);
 
 describe('device file primitives', () => {
+  it('reads without creating the data directory (nothing saved = nothing on disk)', () => {
+    const fs = createDeviceFs();
+    expect(fs.list()).toEqual([]);
+    expect(fs.read('a')).toBeNull();
+    fs.remove('a');
+    expect(new Directory(Paths.document, DATA_DIR).exists).toBe(false);
+  });
+
   it('writes, appends, renames, lists and removes in the data directory', () => {
     const fs = createDeviceFs();
     expect(fs.read('a')).toBeNull();

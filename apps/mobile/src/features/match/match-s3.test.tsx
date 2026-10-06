@@ -24,7 +24,6 @@ import { createJsThreadBotRunner, type BotRunner } from '../../match/bot-runner'
 import { MatchSessionProvider } from '../../match/match-session';
 import { BOT_SEAT, HUMAN_SEAT, playMatchConfig } from '../../match/play-config';
 import {
-  botDecision,
   humanStarts,
   loadBundledLexicon,
   newPlayState,
@@ -209,19 +208,24 @@ async function releaseBot(gate: ReturnType<typeof gatedRunner>, replica: MatchSt
 function diskWithBotThinking(
   seed: SeedHex,
   minActions = 3,
-): { disk: MemoryFs; replica: MatchState } {
+): { disk: MemoryFs; replica: MatchState; nextBotMove: Action | undefined } {
   const { start, steps } = scriptMatch(seed, lexicon, minActions + 4);
   const disk = new MemoryFs();
   const { journal } = createPersistence(disk);
   journal.start(playMatchConfig(seed, lexicon.index));
   let before = start;
   for (const step of steps) {
-    expect(persistTransition(journal, before, step.after)).toBe('saved');
+    expect(persistTransition(journal, before, step.after, { lexicon: lexicon.index })).toBe(
+      'saved',
+    );
     before = step.after;
     if (before.actions.length >= minActions && before.state.seatOnTurn === BOT_SEAT) break;
   }
   expect(before.state.seatOnTurn).toBe(BOT_SEAT);
-  return { disk: disk.reboot(), replica: before.state };
+  const n = before.actions.length;
+  // The move the bot played next in the uninterrupted match.
+  const nextBotMove = steps[n]?.after.actions[n];
+  return { disk: disk.reboot(), replica: before.state, nextBotMove };
 }
 
 /** PLAY NOW, once the saved match has been read (the button is disabled while it is being read). */
@@ -247,8 +251,8 @@ async function homeReady(): Promise<void> {
 describe('S3 resume through the screens (AC-11, AC-12)', () => {
   it('restores every committed move after a kill during the bot turn, and the bot plays the same move', async () => {
     const seed = humanStarts(lexicon, 1201);
-    const { disk, replica } = diskWithBotThinking(seed);
-    const expectedBotMove = botDecision(replica, lexicon);
+    const { disk, replica, nextBotMove } = diskWithBotThinking(seed);
+    expect(nextBotMove).toBeDefined();
     const gate = gatedRunner(lexicon.index);
     await renderApp({ seed, disk, runner: gate.runner });
     const card = await screen.findByTestId('home.resume');
@@ -267,9 +271,8 @@ describe('S3 resume through the screens (AC-11, AC-12)', () => {
       );
     });
     const after = await releaseBot(gate, replica);
-    expect(expectedBotMove.ok && gate.actions[0]).toEqual(
-      expectedBotMove.ok ? expectedBotMove.value.action : null,
-    );
+    // Through useMatch and the app's runner: the same move as the match that was never interrupted.
+    expect(gate.actions[0]).toEqual(nextBotMove);
     await waitFor(() => {
       expectSameAsEngine(after);
     });

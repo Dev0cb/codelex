@@ -226,6 +226,40 @@ describe('restoreMatch (Q7, TM-02)', () => {
   });
 });
 
+describe('resume cost (H1 target: p95 ≤ 300 ms on the reference Android, lexicon loaded)', () => {
+  it('restores a 100-action match in one pass, well inside a generous Node bound', () => {
+    // The first seed (from 3310) whose exchange-heavy match lasts 100 actions.
+    let long = scriptMatch(seedOf(3310), lexicon, 100, 'exchange');
+    for (let n = 3311; long.steps.length < 100 && n < 3330; n += 1) {
+      long = scriptMatch(seedOf(n), lexicon, 100, 'exchange');
+    }
+    expect(long.steps).toHaveLength(100);
+    const fs = new MemoryFs();
+    const journal = new MatchJournal(new DataStore(fs));
+    journal.start({ ...configOf(), seed: long.start.state.seed });
+    for (const [i, step] of long.steps.entries()) {
+      const action = step.after.actions[i];
+      if (action === undefined) throw new Error('missing action');
+      journal.commit(action, stateHash(step.after.state));
+    }
+    const timings: number[] = [];
+    let restored: ReturnType<typeof restoreFrom> | null = null;
+    for (let run = 0; run < 5; run += 1) {
+      const t0 = performance.now();
+      restored = restoreFrom(fs);
+      timings.push(performance.now() - t0);
+    }
+    expect(restored?.kind === 'restored' ? restored.model.state : null).toEqual(
+      long.steps.at(-1)?.after.state,
+    );
+    timings.sort((a, b) => a - b);
+    // About 9 ms median on Node today; Hermes on a low-end phone is 10–30× slower (API note §20 Q7), i.e. about
+    // 90–270 ms against the 300 ms H1 target. The bound only catches regressions (e.g. an O(n²) rebuild) on a
+    // loaded CI runner; the device number is measured in H1.
+    expect(timings[2]).toBeLessThan(60);
+  }, 60_000);
+});
+
 describe('storedLog envelopes', () => {
   it('rejects records that are not { a, h } and headers that are not { logVersion, header }', () => {
     const ok = (records: string[]) => storedLog({ kind: 'ok', records, droppedTail: false }).kind;
