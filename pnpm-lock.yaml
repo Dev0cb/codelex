@@ -150,6 +150,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: 7.1.1
         version: 7.1.1(eslint@10.11.0)
+      fast-check:
+        specifier: 4.10.2
+        version: 4.10.2
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@22.20.4)

@@ -9,6 +9,7 @@ import type { BotDecision, BotError } from '@codelex/bots';
 import type { Result } from '@codelex/config/result';
 import {
   apply,
+  createMatch,
   exchangeEligibility,
   observe,
   previewScore,
@@ -19,6 +20,7 @@ import {
   type EngineContext,
   type ExchangeEligibility,
   type Letter,
+  type MatchConfig,
   type MatchState,
   type Placement,
   type PreviewScore,
@@ -91,6 +93,8 @@ export interface MatchModel {
   readonly owners: Readonly<Record<string, Seat>>;
   /** Accepted actions, oldest first. */
   readonly log: readonly MoveEntry[];
+  /** The engine's canonical form of every accepted action, oldest first: what the on-device log stores (Q7). */
+  readonly actions: readonly Action[];
   readonly lastMove: LastMove | null;
   /** The engine's reason for the last rejected PLAY, until the placement changes (D-6). */
   readonly rejection: Notice | null;
@@ -172,6 +176,7 @@ export function startModel(state: MatchState): MatchModel {
     selectedSlotId: null,
     owners: {},
     log: [],
+    actions: [],
     lastMove: null,
     rejection: null,
     notice: null,
@@ -376,6 +381,7 @@ function afterApplied(
         : null,
     owners,
     log: entry === null ? model.log : [...model.log, entry],
+    actions: [...model.actions, action],
     lastMove: entry ?? model.lastMove,
     rejection: null,
     notice: conflict ? 'tile_conflict' : model.notice === 'tile_conflict' ? 'tile_conflict' : null,
@@ -546,6 +552,28 @@ export function reduceMatch(
     case 'bot_failed':
       return isCurrentBotTurn(model, command.tag) ? { ...model, failure: 'bot' } : model;
   }
+}
+
+/**
+ * The model of a restored match (AC-11): the match is created from its header and every logged action is applied
+ * again, so the board owners, the move log and its breakdowns are the engine's own. Pending tiles are never stored,
+ * so the player's rack comes back whole in rack order. Null when the engine refuses the header or any action; the
+ * caller has already verified the log (`resume.ts`), so that only happens on a programming error.
+ */
+export function modelFromActions(
+  header: MatchConfig,
+  actions: readonly Action[],
+  ctx: EngineContext,
+): MatchModel | null {
+  const created = createMatch(header, ctx);
+  if (!created.ok) return null;
+  let model = startModel(created.value.state);
+  for (const action of actions) {
+    const applied = apply(model.state, action, ctx);
+    if (!applied.ok) return null;
+    model = afterApplied(model, applied.value, new Set(), ctx);
+  }
+  return { ...model, notice: null };
 }
 
 /** The player's result once the match is over (R-END-003: equal places are a draw). */

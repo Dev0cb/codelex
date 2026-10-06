@@ -1,0 +1,77 @@
+/**
+ * Record framing of the on-device match log (threat model TM-01, API note §20 Q7 write path). A file is a sequence of
+ * records `[u32 BE payload length][u32 BE CRC-32 of the payload][payload]`; payloads are ASCII JSON (the app escapes
+ * anything else, so no text codec is needed on Hermes).
+ *
+ * Reading follows TM-01: the last record may be torn by a kill or a power loss mid-append (short, or its bytes never
+ * reached the disk), so a bad record that reaches the end of the file is dropped: it was never shown as committed,
+ * because the UI commits a move only after the append returned. Any bad record before it means the file is corrupt.
+ */
+import { crc32 } from './crc32';
+
+export const RECORD_HEADER_BYTES = 8;
+/**
+ * Cap of one record, the snapshot cap of TM-02: the largest record is a snapshot (`serializeState`, ≈ 2 KB); a log
+ * header is ≈ 300 B and one action ≈ 200 B.
+ */
+export const MAX_RECORD_BYTES = 64 * 1024;
+
+const MAX_ASCII = 0x7f;
+
+export function encodeRecord(payload: string): Uint8Array {
+  if (payload.length > MAX_RECORD_BYTES) throw new RangeError('record payload too large');
+  const out = new Uint8Array(RECORD_HEADER_BYTES + payload.length);
+  for (let i = 0; i < payload.length; i += 1) {
+    const code = payload.charCodeAt(i);
+    if (code > MAX_ASCII) throw new RangeError('record payload must be ASCII');
+    out[RECORD_HEADER_BYTES + i] = code;
+  }
+  const view = new DataView(out.buffer);
+  view.setUint32(0, payload.length);
+  view.setUint32(4, crc32(out.subarray(RECORD_HEADER_BYTES)));
+  return out;
+}
+
+export type DecodedRecords =
+  | {
+      readonly ok: true;
+      readonly records: readonly string[];
+      /** A torn last record was ignored (TM-01). */
+      readonly droppedTail: boolean;
+    }
+  /** `index` = the first bad record, which is not the last one. */
+  | { readonly ok: false; readonly index: number };
+
+function asciiText(bytes: Uint8Array): string | null {
+  let text = '';
+  for (const byte of bytes) {
+    if (byte > MAX_ASCII) return null;
+    text += String.fromCharCode(byte);
+  }
+  return text;
+}
+
+export function decodeRecords(bytes: Uint8Array): DecodedRecords {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const records: string[] = [];
+  let at = 0;
+  while (at < bytes.length) {
+    const index = records.length;
+    // A header or payload that runs past the end of the file is the torn tail.
+    if (bytes.length - at < RECORD_HEADER_BYTES) return { ok: true, records, droppedTail: true };
+    const length = view.getUint32(at);
+    const end = at + RECORD_HEADER_BYTES + length;
+    if (end > bytes.length) return { ok: true, records, droppedTail: true };
+    const payload = bytes.subarray(at + RECORD_HEADER_BYTES, end);
+    const text =
+      length <= MAX_RECORD_BYTES && crc32(payload) === view.getUint32(at + 4)
+        ? asciiText(payload)
+        : null;
+    if (text === null) {
+      return end === bytes.length ? { ok: true, records, droppedTail: true } : { ok: false, index };
+    }
+    records.push(text);
+    at = end;
+  }
+  return { ok: true, records, droppedTail: false };
+}
