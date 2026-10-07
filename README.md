@@ -3,15 +3,16 @@
 > **Play the language of technology.**
 > Plateforme de jeu compétitif construite autour du langage, des concepts et de la culture de la technologie.
 
-Ce dépôt contient le **framework agentique** qui permet à une équipe d'agents Claude Code (pilotée par un humain)
-de construire CODELEX de bout en bout — du game design à la production — avec des garde-fous de niveau production.
+Ce dépôt contient **le jeu CODELEX** (moteur de règles, bots, lexicon, application mobile) et le **framework agentique**
+qui permet à une équipe d'agents Claude Code (pilotée par un humain) de le construire de bout en bout — du game design
+à la production — avec des garde-fous de niveau production.
 
 > Langue : la vision et ce guide sont en français ; le code, les prompts d'agents et les standards sont en anglais
 > (convention d'une équipe internationale).
 
 ---
 
-## 1. Ce que contient le framework
+## 1. Ce que contient le dépôt
 
 | Brique | Emplacement | Rôle |
 |---|---|---|
@@ -20,21 +21,37 @@ de construire CODELEX de bout en bout — du game design à la production — av
 | 14 workflows (skills) | `.claude/skills/` | `/sprint-plan` `/feature-spec` `/design` `/adr` `/threat-model` `/implement` `/review` `/ship` `/release-mobile` `/lexicon-add` `/balance-check` `/season-plan` `/scaffold` `/incident` |
 | Garde-fous déterministes | `.claude/hooks/` + `.claude/settings.json` | Bloquent force-push / push direct sur main, `terraform apply`, `--no-verify`, lecture/écriture de secrets, édition des lockfiles, clés API dans le code ; revalident automatiquement le lexicon et le framework après chaque édition |
 | Vision produit | `docs/vision/PRODUCT_VISION.md` | Les 28 sections de la vision, avec des IDs stables `V-xx` |
-| Architecture & décisions | `docs/architecture/`, `docs/adr/` | Architecture cible + 10 ADR fondatrices |
+| Architecture & décisions | `docs/architecture/`, `docs/adr/` | Architecture cible + 13 ADR (fondatrices, outillage, déterminisme/replay, versions de règles) |
 | Roadmap | `docs/roadmap/ROADMAP.md` | Phases 0 → 6, épics, critères de sortie mesurables |
 | Game design | `docs/game/` | Règles (IDs testables `R-…`), équilibrage, spécification du lexicon, progression |
 | Standards | `docs/standards/` | Ingénierie, Definition of Done, tests, production readiness, catalogue analytics |
-| Lexicon seed | `packages/lexicon/` | Schéma JSON, formules, validateur, 319 termes EN/FR sur 9 catégories, graphe de relations |
+| Moteur de jeu | `packages/game-engine/` | Règles pures et déterministes (plateau, sac, placement, score, replay vérifiable), versions de règles (ADR-0014) |
+| Bots | `packages/bots/` | Adversaires déterministes Beginner et Strategist, simulateur d'équilibrage |
+| Lexicon | `packages/lexicon/` | Schéma JSON, formules, validateur, 1 439 termes EN/FR sur 9 catégories, 2 154 formes jouables, 2 307 relations, index compact |
+| Application mobile | `apps/mobile/` | React Native + Expo : partie contre un bot, plateau Skia, détail des points, reprise de partie, journal local |
+| Design system, i18n, observabilité | `packages/design-system/`, `packages/i18n/`, `packages/observability/` | Tokens et composants, catalogues EN/FR, logger et métriques |
+| Site public | `site/` | Politique de confidentialité EN/FR publiée sur GitHub Pages |
 | Auto-validation | `tools/framework/` | Valide agents/skills/hooks/références croisées ; tests des hooks |
-| CI | `.github/workflows/ci.yml` | Validation framework + lexicon, lint/typecheck/test des paquets affectés, audit des dépendances |
+| CI | `.github/workflows/` | `ci.yml` (validation, lint/typecheck/test, audit des dépendances, immutabilité des goldens), `codeql.yml`, `secret-scan.yml`, `balance-check.yml`, `pages.yml` |
 
 ## 2. Démarrage
 
 ```bash
-nvm use            # Node 22
+nvm install && nvm use   # Node 22 (lu dans .nvmrc) — Node 24 est refusé
+corepack enable          # pnpm 10.28.0 (fixé dans package.json)
 pnpm install
-pnpm validate      # framework + lexicon + tests des garde-fous
+pnpm validate            # framework + lexicon + tests des garde-fous
+pnpm test                # tests de tous les paquets
 ```
+
+**Tester le jeu sur Android** (build interne, sans Play Store) :
+
+```bash
+cd apps/mobile
+npx eas-cli build -p android --profile preview
+```
+
+EAS renvoie un lien pour installer l'APK sur le téléphone. Détails : `docs/runbooks/android-internal-test.md`.
 
 Puis ouvrez Claude Code à la racine du dépôt. Le hook `SessionStart` affiche la branche, le sprint courant et le
 workflow à suivre.
@@ -54,7 +71,8 @@ Workflows spécialisés : `/lexicon-add` (contenu), `/balance-check` (simulation
 `/season-plan` (saisons), `/release-mobile` (stores), `/incident` (production), `/scaffold` (nouveau paquet).
 
 **Exemples de demandes**
-- « /sprint-plan » → reprend la Phase 0 (outillage monorepo, stack locale, protocol).
+
+- « /sprint-plan » → planifie le prochain sprint de la roadmap.
 - « /feature-spec Mode Blitz 60 secondes classé »
 - « /lexicon-add 40 termes Cybersecurity pour la Season 03 Cyber War »
 - « /balance-check réduire le bonus Full Stack de 50 à 40 »
@@ -77,6 +95,10 @@ sable : la protection de branche GitHub et les droits cloud restent les vrais co
 
 ## 6. État
 
-Phase 0 (fondations) en cours : framework agentique ☑, CI ◐, lexicon seed ☑ (319 termes, 302 relations). Prochaine étape :
-`/sprint-plan` pour l'outillage monorepo (E-0.2), la stack locale (E-0.3) et `packages/protocol` (E-0.5), puis la
-Phase 1 — le moteur de jeu.
+- **Phase 0 (fondations)** ☑ terminée.
+- **Phase 1 (jeu jouable contre des bots, hors ligne)** en cours : sprints 1 à 3 terminés (moteur, bots, lexicon de
+  playtest, application mobile). Le jeu tourne sur un téléphone Android via un build interne. Règles de jeu : v1.
+- **Prochaine étape :** sprint 4 — mesures sur appareil, choix de l'adversaire (Strategist), puis playtest interne
+  (objectif ≥ 30 joueurs).
+
+Suivi détaillé : `docs/roadmap/ROADMAP.md` et `docs/sprints/`.
