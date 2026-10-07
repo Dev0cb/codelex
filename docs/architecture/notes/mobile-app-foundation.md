@@ -38,6 +38,20 @@ bundle.
 
 Bundle identifiers, the EAS project and store accounts are not set (§7.1).
 
+### 2.1 SDK upgrade checklist
+
+Run in the dedicated SDK upgrade PR, and record the result of each step in its body.
+
+1. `expo install --fix`; every native module at its `bundledNativeModules.json` version; update the table above.
+2. **Re-pin the Hermes VM (ADR-0016 §D6).** Read `sdks/.hermesv1version` from the new `react-native` and the
+   `hermes-compiler` version from `pnpm-lock.yaml`; resolve the tag to its commit (`git ls-remote --tags`) and
+   check that it equals the `hermes-compiler` npm `gitHead`; update the Hermes pin file (ADR-0016 §D2.1); let the
+   "Hermes goldens" job build the new VM (cold cache) and pass; record the cold build time. The job fails until the
+   pin matches.
+3. Re-check the dependency-audit exceptions that name an SDK upgrade (§7.2, `docs/security/audit-exceptions.md`).
+4. `bundle:check` green; state the bundle size delta.
+5. Re-run the device Diagnostics runner (ADR-0016 §D4) on a preview build before the next playtest build ships.
+
 ## 3. Lexicon index (`.clxi`) loading
 
 Implements lexicon-index note §3.4 (consumer side) and §3.5 (loading) on mobile. Done in sprint A1 after L6.
