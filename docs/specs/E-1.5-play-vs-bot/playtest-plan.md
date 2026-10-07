@@ -253,7 +253,8 @@ Copy this section into `docs/specs/E-1.5-play-vs-bot/playtest-readout.md` at the
 
 Dependency for `data-analyst` and `mobile-engineer`: `app_backgrounded { foreground_ms }` and
 `app_opened.previous_exit_unclean` (bool) were added to `docs/standards/ANALYTICS_EVENTS.md` in sprint 3 SP1,
-together with `bot_match_finished.score_margin` and `bag_count_at_end`. Data-analyst sign-off is pending (OQ-3).
+together with `bot_match_finished.score_margin` and `bag_count_at_end`. Data-analyst sign-off: given in sprint 4 D1
+(OQ-3, answered below).
 
 ### 4.2 Headline
 
@@ -358,6 +359,8 @@ Recruited testers get a short "we are a bit later than planned" note if T moves 
 - OQ-2 (privacy-compliance + counsel): the three `LEGAL_REVIEW_REQUIRED` items; whether TestFlight per-tester crash
   attribution needs to be mentioned more prominently.
 - OQ-3 (data-analyst): accept the two catalogue additions in §4.1 or propose another way to measure foreground time.
+  **Answered (sprint 4 D1):** both accepted; session and crash-free reconstruction are written in
+  `docs/standards/ANALYTICS_EVENTS.md`, "Data-analyst notes (sprint 4 D1)".
 - OQ-4 (mobile-engineer): confirm Android vitals visibility for internal-track builds at ~20 testers.
 
 ## Reviews required

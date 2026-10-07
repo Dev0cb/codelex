@@ -657,6 +657,11 @@ slicing, rollout and measurement method.
 - **OQ-SP2-4 (data-analyst, mobile-engineer).** Does `previous_exit_unclean` count an OS low-memory kill in the
   background as unclean? If so, crash-free will read low on exactly the low-end Android devices we target. The
   definition belongs to the catalogue (`ANALYTICS_EVENTS.md`) and should be fixed in D1 before S6a.
+  *D1 answer (2026-10-07, data-analyst + mobile-engineer recommendation; product owner decision pending):* **no**. The
+  marker is on disk only while the app is `active`, so an OS kill (low-memory or other) or a swipe-away while the app
+  is in the background or `inactive` is not an unclean exit; a crash, OS kill or power loss while active is. The
+  definition is in the catalogue ("App lifecycle properties") and the pure model with its tests in
+  `apps/mobile/src/analytics/session-marker.ts`. Reversible until S6a ships.
 - **OQ-SP2-5 (data-analyst).** Crash-free is only recorded for consenting testers with S6a on, and only from the
   next launch. With no crash SDK and no Apple/Google org accounts yet, iOS crash-free in Stage 0 may rest on the
   unclean-exit flag alone. Confirm that this is acceptable for the Stage 0 gate (crash-free ≥ 99.0 %).
