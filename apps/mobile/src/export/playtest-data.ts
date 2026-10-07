@@ -40,6 +40,10 @@ export const PLAYTEST_EXPORT_MAX_EVENTS = 5000;
 
 const count = () => z.int().check(z.minimum(0));
 
+/**
+ * Needs at least one event: S6c disables Share on an empty queue (design §5.9). `analytics_buffer_flushed` is recorded
+ * when the tester confirms "Sent", so it travels in the next file.
+ */
 export const PlaytestDataExportSchema = z
   .strictObject({
     exportFormat: z.literal(EXPORT_FORMAT),

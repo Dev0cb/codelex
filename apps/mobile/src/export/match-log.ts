@@ -7,7 +7,7 @@
  * unreadable: { exportFormat: 1, kind: 'codelex.match_log', app, raw: <base64 of the record file, ≤ 256 KiB> }
  * ```
  *
- * - `log` is the engine's action log (`serializeActionLog` / `parseActionLog`, ADR-0013 §D2): header (seed, versions,
+ * - `log` is the JSON value of `serializeActionLog` output (ADR-0013 §D2; TM-04 wording): header (seed, versions,
  *   profile, setup), accepted actions, state hashes. It is validated by the engine's own strict parser, so the rules
  *   about its content live in one place. It holds no time, identifier or path (TM-01).
  * - `divergence` is the first divergent checkpoint when the log failed to replay (TM-10).
@@ -25,6 +25,7 @@ import type { Result } from '@codelex/config/result';
 import { parseActionLog, type ActionLog } from '@codelex/game-engine';
 import * as z from 'zod/mini';
 
+// App modules outside the portable set keep the app's extensionless imports (this file is app-only anyway).
 import { LOG_MAX_BYTES } from '../persistence/match-journal';
 import type { Divergence } from '../persistence/resume';
 import {
@@ -46,9 +47,19 @@ export const MATCH_LOG_EXPORT_MAX_BYTES = 384 * 1024;
 const BASE64_MAX_CHARS = Math.ceil(MATCH_LOG_RAW_MAX_BYTES / 3) * 4;
 const HASH = () => z.string().check(z.regex(/^[0-9a-f]{16}$/));
 
-/** An action log the engine accepts (strict schema, canonical actions, registered rules version). */
-const isActionLog = (value: unknown): boolean =>
-  typeof value === 'object' && value !== null && parseActionLog(JSON.stringify(value)).ok;
+/**
+ * An action log the engine accepts (strict schema, canonical actions, registered rules version). The value is
+ * re-serialised for `parseActionLog`: one extra parse, bounded by the file cap. Hostile depth makes `JSON.stringify`
+ * throw, which counts as "not a log" (TM-08).
+ */
+const isActionLog = (value: unknown): boolean => {
+  if (typeof value !== 'object' || value === null) return false;
+  try {
+    return parseActionLog(JSON.stringify(value)).ok;
+  } catch {
+    return false;
+  }
+};
 const ActionLogSchema = z.custom<ActionLog>(isActionLog, 'not an action log the engine accepts');
 
 const base = {

@@ -128,6 +128,29 @@ describe('match log export (exportFormat 1, TM-04)', () => {
     for (const candidate of bad) expect(decodeMatchLog(JSON.stringify(candidate)).ok).toBe(false);
   });
 
+  it('decoder: deep nesting and prototype keys are INVALID results, never exceptions (TM-08)', () => {
+    const depth = 150_000; // arrays: 2 bytes per level
+    const objectDepth = 60_000; // objects: 6 bytes per level, under the cap
+    const envelope = `"exportFormat":1,"kind":"codelex.match_log","app":${JSON.stringify(APP)}`;
+    const deepLog = `{${envelope},"log":${'{"a":'.repeat(objectDepth)}1${'}'.repeat(objectDepth)}}`;
+    const deepArray = `{${envelope},"log":${'['.repeat(depth)}${']'.repeat(depth)}}`;
+    for (const text of [deepLog, deepArray]) {
+      expect(utf8Length(text)).toBeLessThanOrEqual(MATCH_LOG_EXPORT_MAX_BYTES);
+      const decoded = decodeMatchLog(text);
+      expect(decoded.ok).toBe(false);
+      if (!decoded.ok) expect(decoded.error.code).toBe('INVALID');
+    }
+    const ok = encodeMatchLog(APP, logOf(3304, 2), null);
+    if (!ok.ok) throw new Error('encode failed');
+    // An own `__proto__` key as the first member of the top-level object, and inside the log.
+    const polluted = `{"__proto__":{"admin":true},${ok.value.slice(1)}`;
+    expect(decodeMatchLog(polluted).ok).toBe(false);
+    const at = ok.value.indexOf('"log":{') + '"log":{'.length;
+    const pollutedLog = `${ok.value.slice(0, at)}"__proto__":{"admin":true},${ok.value.slice(at)}`;
+    expect(decodeMatchLog(pollutedLog).ok).toBe(false);
+    expect(({} as Record<string, unknown>)['admin']).toBeUndefined();
+  });
+
   it('exports an unreadable record file as base64, capped at the TM-02 log cap', () => {
     const bytes = Uint8Array.from([0, 1, 2, 250, 251, 252, 253]);
     const encoded = encodeRawMatchLog(APP, bytes);

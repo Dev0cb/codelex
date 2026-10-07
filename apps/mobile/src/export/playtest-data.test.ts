@@ -87,7 +87,7 @@ describe('playtest data export (exportFormat 1)', () => {
       ].sort(),
     );
     const forbidden = new Set(
-      'device model os email name phone ip lat lon lng location advertising idfa gaid imei serial mac path stack'.split(
+      'device model os email name phone ip lat lon lng location advertising idfa gaid imei serial mac file dir uri stack'.split(
         ' ',
       ),
     );
@@ -137,6 +137,19 @@ describe('playtest data export (exportFormat 1)', () => {
     const polluted = `{"__proto__":{"admin":true},${encoded.value.slice(1)}`;
     expect(decodePlaytestExport(polluted).ok).toBe(false);
     expect(({} as Record<string, unknown>)['admin']).toBeUndefined();
+  });
+
+  it('decoder: deep nesting is an INVALID result, never an exception (TM-08)', () => {
+    const depth = 150_000; // arrays: 2 bytes per level
+    const objectDepth = 60_000; // objects: 6 bytes per level, under the cap
+    const deepArray = `{"events":${'['.repeat(depth)}${']'.repeat(depth)}}`;
+    const deepObject = `{"events":[${'{"a":'.repeat(objectDepth)}1${'}'.repeat(objectDepth)}]}`;
+    for (const text of [deepArray, deepObject]) {
+      expect(utf8Length(text)).toBeLessThanOrEqual(PLAYTEST_EXPORT_MAX_BYTES);
+      const decoded = decodePlaytestExport(text);
+      expect(decoded.ok).toBe(false);
+      if (!decoded.ok) expect(decoded.error.code).toBe('INVALID');
+    }
   });
 
   it('caps the file at 1,000,000 bytes (TM-08) and 5,000 events (queue cap)', () => {

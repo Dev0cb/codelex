@@ -62,10 +62,9 @@ export function encodeExport<T>(
   file: T,
   maxBytes: number,
 ): Result<string, ExportError> {
-  const parsed = schema.safeParse(file);
-  if (!parsed.success)
-    return { ok: false, error: { code: 'INVALID', issues: issuesOf(parsed.error) } };
-  const text = JSON.stringify(parsed.data);
+  const parsed = safeValidate(schema, file);
+  if (!parsed.ok) return parsed;
+  const text = JSON.stringify(parsed.value);
   const bytes = utf8Length(text);
   if (bytes > maxBytes) return { ok: false, error: { code: 'TOO_LARGE', bytes, maxBytes } };
   return { ok: true, value: text };
@@ -88,8 +87,23 @@ export function decodeExport<T>(
   } catch {
     return { ok: false, error: { code: 'INVALID', issues: ['<root>: invalid_json'] } };
   }
-  const parsed = schema.safeParse(json);
-  return parsed.success
-    ? { ok: true, value: parsed.data }
-    : { ok: false, error: { code: 'INVALID', issues: issuesOf(parsed.error) } };
+  return safeValidate(schema, json);
+}
+
+/** Pathological input never escapes as an exception. */
+export const UNPARSEABLE: ExportError = { code: 'INVALID', issues: ['<root>: unparseable'] };
+
+/**
+ * `schema.safeParse` that never throws: hostile input (e.g. ~150k levels of nesting, which can overflow the stack in
+ * a refinement's `JSON.stringify`) is an `INVALID` result, as TM-08 requires, never an exception.
+ */
+function safeValidate<T>(schema: z.ZodMiniType<T>, input: unknown): Result<T, ExportError> {
+  try {
+    const parsed = schema.safeParse(input);
+    return parsed.success
+      ? { ok: true, value: parsed.data }
+      : { ok: false, error: { code: 'INVALID', issues: issuesOf(parsed.error) } };
+  } catch {
+    return { ok: false, error: UNPARSEABLE };
+  }
 }
