@@ -8,6 +8,7 @@ export {
   corpusSchema,
   ERROR_CODE,
   OBSERVED_MAX_BYTES,
+  OBSERVED_MAX_DEPTH,
   parseRunnerReport,
   parseRunnerReportText,
   RUNNER_FORMAT,
@@ -35,12 +36,17 @@ export {
   comparableView,
   compareReports,
   compareReportTexts,
+  DEFAULT_RUNTIME_EXPECTATION,
+  DESCRIBED_ISSUES_MAX,
   describeComparison,
+  type CompareOptions,
   type ComparisonFailure,
   type ComparisonResult,
   type ComparisonSuccess,
   type ReportLocation,
   type ReportSide,
+  type RuntimeExpectation,
+  type RuntimeKind,
 } from './compare.js';
 export type { ReportIssue } from './issues.js';
 export type { JcsValue } from './jcs.js';

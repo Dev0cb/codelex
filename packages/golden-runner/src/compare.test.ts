@@ -6,6 +6,7 @@ import {
   compareReports,
   compareReportTexts,
   describeComparison,
+  DESCRIBED_ISSUES_MAX,
   DIAGNOSTICS_REPORT_MAX_BYTES,
   type ComparisonResult,
 } from './index.js';
@@ -75,18 +76,20 @@ describe('compareReports (ADR-0016 §D3.2)', () => {
     const hermes = hermesReport();
     casesOf(hermes, 4).pop();
     suites(hermes)[4]!['summary'] = { pass: 1, fail: 0, error: 0 };
-    const error = failure(compareReports(nodeReport(), hermes));
-    expect(error).toMatchObject({
+    expect(failure(compareReports(nodeReport(), hermes))).toEqual({
       kind: 'mismatch',
-      location: { path: '$.suites[4].cases[1]', suiteId: 'replays/v1', caseId: 'seeded-match-003' },
+      location: { path: '$.suites[4].cases[1].id', suiteId: 'replays/v1' },
+      reference: '"seeded-match-003"',
       candidate: null,
     });
-    if (error.kind === 'mismatch') expect(error.reference).toContain('fedcba9876543210');
-    const reversed = failure(compareReports(hermes, nodeReport()));
-    expect(reversed).toMatchObject({ kind: 'mismatch', reference: null });
-    expect(describeComparison(compareReports(hermes, nodeReport()))).toContain(
-      'reference (absent)',
-    );
+    const swapped = { expect: { reference: ['hermes-cli'], candidate: ['node'] } } as const;
+    const reversed = compareReports(hermes, nodeReport(), swapped);
+    expect(failure(reversed)).toMatchObject({
+      kind: 'mismatch',
+      reference: null,
+      candidate: '"seeded-match-003"',
+    });
+    expect(describeComparison(reversed)).toContain('reference (absent)');
   });
 
   it('names an observed key present on one side only, even an Object.prototype name', () => {
@@ -104,13 +107,51 @@ describe('compareReports (ADR-0016 §D3.2)', () => {
     });
   });
 
-  it('treats a different suite order as a difference', () => {
+  it('reports misaligned suites at the suite id, with both ids', () => {
     const hermes = hermesReport();
     suites(hermes).reverse();
-    const error = failure(compareReports(nodeReport(), hermes));
-    expect(error).toMatchObject({
+    expect(failure(compareReports(nodeReport(), hermes))).toEqual({
       kind: 'mismatch',
-      location: { path: '$.suites[0].cases[0].id', suiteId: 'rng', caseId: 'pcg32/seed-0/first-8' },
+      location: { path: '$.suites[0].id', suiteId: 'rng' },
+      reference: '"rng"',
+      candidate: '"replays/v1"',
+    });
+  });
+
+  it('reports a missing suite at its id', () => {
+    const hermes = hermesReport();
+    suites(hermes).pop();
+    hermes['timings'] = {};
+    expect(failure(compareReports(nodeReport(), hermes))).toEqual({
+      kind: 'mismatch',
+      location: { path: '$.suites[4].id', suiteId: 'replays/v1' },
+      reference: '"replays/v1"',
+      candidate: null,
+    });
+    const swapped = { expect: { reference: ['hermes-cli'], candidate: ['node'] } } as const;
+    expect(failure(compareReports(hermes, nodeReport(), swapped))).toMatchObject({
+      location: { path: '$.suites[4].id', suiteId: 'replays/v1' },
+      reference: null,
+    });
+  });
+
+  it('reports reordered cases at the case id, with both ids', () => {
+    const hermes = hermesReport();
+    casesOf(hermes, 0).reverse();
+    expect(failure(compareReports(nodeReport(), hermes))).toEqual({
+      kind: 'mismatch',
+      location: { path: '$.suites[0].cases[0].id', suiteId: 'rng' },
+      reference: '"pcg32/seed-0/first-8"',
+      candidate: '"derive/bag"',
+    });
+  });
+
+  it('reports a corpus difference before misaligned suites', () => {
+    const hermes = hermesReport();
+    suites(hermes).reverse();
+    (hermes['corpus'] as Doc)['botVersion'] = 3;
+    expect(failure(compareReports(nodeReport(), hermes))).toMatchObject({
+      location: { path: '$.corpus.botVersion' },
     });
   });
 
@@ -144,14 +185,14 @@ describe('compareReports (ADR-0016 §D3.2)', () => {
   });
 
   it('fails when both reports are equal but a case did not pass', () => {
-    const make = (): Doc => {
-      const report = nodeReport();
+    const make = (runtime: 'node' | 'hermes'): Doc => {
+      const report = runtime === 'node' ? nodeReport() : hermesReport();
       casesOf(report, 2)[0] = { id: 'appendix-a3', status: 'error', errorCode: 'RangeError' };
       suites(report)[2]!['summary'] = { pass: 0, fail: 0, error: 1 };
       report['verdict'] = 'fail';
       return report;
     };
-    const result = compareReports(make(), make());
+    const result = compareReports(make('node'), make('hermes'));
     expect(failure(result)).toEqual({
       kind: 'not-passing',
       location: { path: '$.suites[2].cases[0]', suiteId: 'jcs', caseId: 'appendix-a3' },
@@ -174,10 +215,49 @@ describe('compareReports (ADR-0016 §D3.2)', () => {
     });
   });
 
+  describe('runtimes (a misconfigured job must not compare Node with Node)', () => {
+    it('requires a Node reference and a Hermes candidate by default', () => {
+      const result = compareReports(nodeReport(), nodeReport());
+      expect(failure(result)).toEqual({
+        kind: 'wrong-runtime',
+        side: 'candidate',
+        actual: 'node',
+        expected: ['hermes-cli', 'hermes-app'],
+      });
+      expect(describeComparison(result)).toBe(
+        'candidate report ran on "node", expected "hermes-cli" or "hermes-app"',
+      );
+      expect(failure(compareReports(hermesReport(), hermesReport()))).toEqual({
+        kind: 'wrong-runtime',
+        side: 'reference',
+        actual: 'hermes-cli',
+        expected: ['node'],
+      });
+      expect(failure(compareReports(diagnosticsReport(), diagnosticsReport()))).toMatchObject({
+        kind: 'wrong-runtime',
+        side: 'reference',
+        actual: 'hermes-app',
+      });
+    });
+
+    it('accepts other pairs only when asked explicitly', () => {
+      const cliVsDevice = {
+        expect: { reference: ['hermes-cli'], candidate: ['hermes-app'] },
+      } as const;
+      expect(compareReports(hermesReport(), diagnosticsReport(), cliVsDevice).ok).toBe(true);
+      expect(
+        compareReportTexts(
+          JSON.stringify(hermesReport()),
+          JSON.stringify(diagnosticsReport()),
+          cliVsDevice,
+        ).ok,
+      ).toBe(true);
+    });
+  });
+
   describe('device layer: a Diagnostics report compared with the Node report', () => {
     it('passes when the embedded runner report is equal', () => {
       expect(compareReports(nodeReport(), diagnosticsReport()).ok).toBe(true);
-      expect(compareReports(diagnosticsReport(), nodeReport()).ok).toBe(true);
     });
 
     it('fails naming the case when the device computed something else', () => {
@@ -225,24 +305,35 @@ describe('compareReports (ADR-0016 §D3.2)', () => {
     it('does not mistake a runner report mentioning "diagnosticsFormat" for a Diagnostics report', () => {
       const report = nodeReport();
       casesOf(report, 3)[0]!['observed'] = { diagnosticsFormat: 1 };
-      const text = JSON.stringify(report);
-      expect(compareReportTexts(text, text).ok).toBe(true);
+      const hermes = hermesReport();
+      hermes['suites'] = report['suites'];
+      expect(compareReportTexts(JSON.stringify(report), JSON.stringify(hermes)).ok).toBe(true);
+    });
+
+    it('rejects a deeply nested text without overflowing the stack', () => {
+      const node = JSON.stringify(nodeReport());
+      const deep = `${'['.repeat(100_000)}1${']'.repeat(100_000)}`;
+      const hermes = JSON.stringify(hermesReport()).replace('[1,2,4294967295,0]', deep);
+      expect(failure(compareReportTexts(node, hermes))).toEqual({
+        kind: 'invalid-report',
+        side: 'candidate',
+        issues: [
+          { path: '$', message: 'nested deeper than 64 levels: outside the ADR-0013 §D3 subset' },
+        ],
+      });
     });
   });
 
   describe('properties', () => {
-    it('a report always equals itself, whatever runtime and timings say', () => {
+    it('a Node report equals the same run on any Hermes runtime, whatever timings say', () => {
       fc.assert(
         fc.property(
-          fc.constantFrom('node', 'hermes-cli', 'hermes-app'),
+          fc.constantFrom('hermes-cli', 'hermes-app'),
           fc.nat({ max: 1000 }),
           fc.nat({ max: 100000 }),
           (kind, bytecodeVersion, totalMs) => {
             const other = nodeReport();
-            other['runtime'] =
-              kind === 'node'
-                ? { kind, version: 'v22' }
-                : { kind, version: '250829098.0.17', bytecodeVersion };
+            other['runtime'] = { kind, version: '250829098.0.17', bytecodeVersion };
             other['timings'] = { jcs: { totalMs } };
             expect(compareReports(nodeReport(), other).ok).toBe(true);
           },
@@ -272,5 +363,20 @@ describe('compareReports (ADR-0016 §D3.2)', () => {
         { seed: 20261007, numRuns: 100 },
       );
     });
+  });
+
+  it('lists at most 20 parse issues', () => {
+    const bad = hermesReport();
+    suites(bad)[0]!['cases'] = Array.from({ length: 25 }, (_, i) => ({
+      id: `c${String(i)}`,
+      status: 'pass',
+      observed: 0.5,
+    }));
+    const text = describeComparison(compareReports(nodeReport(), bad));
+    expect(text).toMatch(/^candidate report is invalid: /);
+    const issues = failure(compareReports(nodeReport(), bad));
+    const total = issues.kind === 'invalid-report' ? issues.issues.length : 0;
+    expect(total).toBeGreaterThan(DESCRIBED_ISSUES_MAX);
+    expect(text.endsWith(`; and ${String(total - DESCRIBED_ISSUES_MAX)} more`)).toBe(true);
   });
 });

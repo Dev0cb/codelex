@@ -155,6 +155,24 @@ describe('Diagnostics report diagnosticsFormat 1 (ADR-0016 §D4, E-1.5 "Device t
       expect(paths(report)).toContain('$.benches.decisionEquality.bots[1].positions');
     });
 
+    it('lists each bot once and each mismatched position once', () => {
+      const report = diagnosticsReport();
+      const bots = at(report, 'benches', 'decisionEquality')['bots'] as Doc[];
+      bots[1]!['mismatchedPositionIds'] = ['p1', 'p1'];
+      bots[1]!['equal'] = 18;
+      expect(paths(report)).toContain('$.benches.decisionEquality.bots[1].mismatchedPositionIds');
+
+      const twice = diagnosticsReport();
+      const equality = at(twice, 'benches', 'decisionEquality')['bots'] as Doc[];
+      equality[1]!['botId'] = 'beginner';
+      expect(paths(twice)).toContain('$.benches.decisionEquality.bots');
+
+      const think = diagnosticsReport();
+      const thinkBots = at(think, 'benches', 'botThink')['bots'] as Doc[];
+      thinkBots[1]!['botId'] = 'beginner';
+      expect(paths(think)).toContain('$.benches.botThink.bots');
+    });
+
     it('requires exactly 10 matches for drift', () => {
       const report = diagnosticsReport();
       (at(report, 'benches', 'drift')['matches'] as unknown[]).pop();
@@ -211,5 +229,43 @@ describe('Diagnostics parse keeps the bytes it was given', () => {
   it('rejects a "__proto__" key that zod would drop', () => {
     const text = JSON.stringify(diagnosticsReport()).replace('"cNode":', '"__proto__":{},"cNode":');
     expect(parseDiagnosticsReportText(text).ok).toBe(false);
+  });
+});
+
+describe('nesting inside the wrapper', () => {
+  function nested(levels: number): unknown {
+    let value: unknown = 1;
+    for (let i = 0; i < levels; i++) value = [value];
+    return value;
+  }
+  function withObserved(observed: unknown): Doc {
+    const report = diagnosticsReport();
+    const runner = at(report, 'runner');
+    ((runner['suites'] as Doc[])[0]!['cases'] as Doc[])[0]!['observed'] = observed;
+    return report;
+  }
+
+  it('accepts the deepest observed a runner report allows', () => {
+    expect(parseDiagnosticsReport(withObserved(nested(32))).ok).toBe(true);
+  });
+
+  it('rejects deeper observed values with a depth message, never a misleading one', () => {
+    const result = parseDiagnosticsReport(withObserved(nested(59)));
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toEqual([
+        { path: '$', message: 'nested deeper than 64 levels: outside the ADR-0013 §D3 subset' },
+      ]);
+    }
+    const shallower = parseDiagnosticsReport(withObserved(nested(40)));
+    expect(shallower.ok).toBe(false);
+    if (!shallower.ok) {
+      expect(shallower.error).toEqual([
+        {
+          path: '$.runner.suites[0].cases[0].observed',
+          message: 'observed is nested deeper than 32 levels: outside the ADR-0013 §D3 subset',
+        },
+      ]);
+    }
   });
 });

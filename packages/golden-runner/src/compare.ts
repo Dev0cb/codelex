@@ -3,17 +3,41 @@
  * is accepted on either side and contributes its embedded runner report), removes `runtime` and `timings`, and
  * compares the bytes of the engine's own JCS serialiser (`@codelex/game-engine/canonical`, ADR-0013 §D3).
  *
- * Pass means: both parse, the canonical bytes are equal and the verdict is `pass`. Failures are typed and name
- * the first differing suite and case (or the first case that did not pass), with both values as canonical JSON.
+ * Pass means: both parse, the runtimes are the expected ones (by default a Node reference and a Hermes candidate, so
+ * a misconfigured job cannot compare Node with Node), the canonical bytes are equal and the verdict is `pass`.
+ * Failures are typed and name the first differing suite and case (or the first case that did not pass), with both
+ * values as canonical JSON.
  */
 import { err, ok, type Result } from '@codelex/config/result';
 import { canonicalJson } from '@codelex/game-engine/canonical';
 
 import { DIAGNOSTICS_REPORT_MAX_BYTES, parseDiagnosticsReport } from './diagnostics-report.js';
 import { formatPath, parseJsonText, type ReportIssue } from './issues.js';
-import { parseRunnerReport, type RunnerReport } from './runner-report.js';
+import { parseRunnerReport, type RunnerReport, type RunnerRuntime } from './runner-report.js';
 
 export type ReportSide = 'reference' | 'candidate';
+
+export type RuntimeKind = RunnerRuntime['kind'];
+
+/** Runtime kinds each side may have. */
+export interface RuntimeExpectation {
+  readonly reference: readonly RuntimeKind[];
+  readonly candidate: readonly RuntimeKind[];
+}
+
+/** §D3.2 / §D4: the Node report is the reference; the Hermes CLI or the app is the candidate. */
+export const DEFAULT_RUNTIME_EXPECTATION: RuntimeExpectation = {
+  reference: ['node'],
+  candidate: ['hermes-cli', 'hermes-app'],
+};
+
+export interface CompareOptions {
+  /** Overrides {@link DEFAULT_RUNTIME_EXPECTATION} (for instance CLI against device, both Hermes). */
+  readonly expect?: RuntimeExpectation;
+}
+
+/** `describeComparison` lists at most this many parse issues. */
+export const DESCRIBED_ISSUES_MAX = 20;
 
 /** Where two reports first differ. `suiteId` / `caseId` are set when the difference is inside one. */
 export interface ReportLocation {
@@ -27,6 +51,13 @@ export type ComparisonFailure =
       readonly kind: 'invalid-report';
       readonly side: ReportSide;
       readonly issues: readonly ReportIssue[];
+    }
+  | {
+      /** A side ran on a runtime the comparison does not expect (e.g. Node compared with Node). */
+      readonly kind: 'wrong-runtime';
+      readonly side: ReportSide;
+      readonly actual: RuntimeKind;
+      readonly expected: readonly RuntimeKind[];
     }
   | {
       readonly kind: 'mismatch';
@@ -69,7 +100,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 /** A Diagnostics report (it has `diagnosticsFormat`) or a bare runner report, reduced to its runner report. */
 function runnerReportOf(value: unknown, side: ReportSide): Result<RunnerReport, ComparisonFailure> {
   const parsed =
-    isRecord(value) && 'diagnosticsFormat' in value
+    isRecord(value) && Object.hasOwn(value, 'diagnosticsFormat')
       ? mapOk(parseDiagnosticsReport(value), (d) => d.runner)
       : parseRunnerReport(value);
   return parsed.ok ? parsed : err({ kind: 'invalid-report', side, issues: parsed.error });
@@ -147,15 +178,73 @@ function locate(path: Path, ...reports: readonly RunnerReport[]): ReportLocation
   };
 }
 
+function idMismatch(
+  path: Path,
+  reference: string | undefined,
+  candidate: string | undefined,
+  suiteId: string | undefined,
+): ComparisonFailure {
+  const id = suiteId ?? reference ?? candidate;
+  return {
+    kind: 'mismatch',
+    location: { path: formatPath(path), ...(id === undefined ? {} : { suiteId: id }) },
+    reference: reference === undefined ? null : canonicalJson(reference),
+    candidate: candidate === undefined ? null : canonicalJson(candidate),
+  };
+}
+
 /**
- * Compares two decoded reports (runner or Diagnostics). `reference` is normally the Node report of the same
- * commit; `candidate` the Hermes CLI report or a device Diagnostics report.
+ * First misalignment of suite ids, then of case ids within each suite, reported at `$.suites[i].id` or
+ * `$.suites[i].cases[j].id` with both ids. Checked before the field-by-field walk, which would otherwise name a
+ * `cases` field (it sorts before `id`) of two unrelated suites.
  */
-export function compareReports(reference: unknown, candidate: unknown): ComparisonResult {
+function firstIdMismatch(ref: RunnerReport, cand: RunnerReport): ComparisonFailure | undefined {
+  const suites = Math.max(ref.suites.length, cand.suites.length);
+  for (let s = 0; s < suites; s++) {
+    const a = ref.suites[s]?.id;
+    const b = cand.suites[s]?.id;
+    if (a !== b) return idMismatch(['suites', s, 'id'], a, b, undefined);
+  }
+  for (const [s, suite] of ref.suites.entries()) {
+    const other = cand.suites[s]?.cases ?? [];
+    const cases = Math.max(suite.cases.length, other.length);
+    for (let c = 0; c < cases; c++) {
+      const a = suite.cases[c]?.id;
+      const b = other[c]?.id;
+      if (a !== b) return idMismatch(['suites', s, 'cases', c, 'id'], a, b, suite.id);
+    }
+  }
+  return undefined;
+}
+
+function checkRuntime(
+  report: RunnerReport,
+  side: ReportSide,
+  expected: readonly RuntimeKind[],
+): ComparisonFailure | undefined {
+  const actual = report.runtime.kind;
+  return expected.includes(actual) ? undefined : { kind: 'wrong-runtime', side, actual, expected };
+}
+
+/**
+ * Compares two decoded reports (runner or Diagnostics). `reference` is the Node report of the same commit;
+ * `candidate` the Hermes CLI report or a device Diagnostics report (see {@link CompareOptions} to change that).
+ */
+export function compareReports(
+  reference: unknown,
+  candidate: unknown,
+  options: CompareOptions = {},
+): ComparisonResult {
   const ref = runnerReportOf(reference, 'reference');
   if (!ref.ok) return ref;
   const cand = runnerReportOf(candidate, 'candidate');
   if (!cand.ok) return cand;
+
+  const expected = options.expect ?? DEFAULT_RUNTIME_EXPECTATION;
+  const runtime =
+    checkRuntime(ref.value, 'reference', expected.reference) ??
+    checkRuntime(cand.value, 'candidate', expected.candidate);
+  if (runtime) return err(runtime);
 
   const refView = comparableView(ref.value);
   const candView = comparableView(cand.value);
@@ -163,8 +252,12 @@ export function compareReports(reference: unknown, candidate: unknown): Comparis
   const candBytes = canonicalJson(candView);
 
   if (refBytes !== candBytes) {
+    // Corpus first (it sorts first canonically), then misaligned suite/case ids, then the first differing field.
+    const corpus = firstDifference(refView.corpus, candView.corpus, ['corpus']);
+    const ids = corpus ? undefined : firstIdMismatch(ref.value, cand.value);
+    if (ids) return err(ids);
     // Canonical texts differ, so the documents differ somewhere; `[]` (the root) is a defensive fallback only.
-    const path = firstDifference(refView, candView, []) ?? [];
+    const path = corpus ?? firstDifference(refView, candView, []) ?? [];
     return err({
       kind: 'mismatch',
       location: locate(path, ref.value, cand.value),
@@ -194,12 +287,16 @@ export function compareReports(reference: unknown, candidate: unknown): Comparis
  * report if its top level has `diagnosticsFormat` and as a runner report otherwise (whose schema enforces the
  * 256 KB runner budget on the canonical bytes).
  */
-export function compareReportTexts(referenceText: string, candidateText: string): ComparisonResult {
+export function compareReportTexts(
+  referenceText: string,
+  candidateText: string,
+  options: CompareOptions = {},
+): ComparisonResult {
   const ref = decode(referenceText, 'reference');
   if (!ref.ok) return ref;
   const cand = decode(candidateText, 'candidate');
   if (!cand.ok) return cand;
-  return compareReports(ref.value, cand.value);
+  return compareReports(ref.value, cand.value, options);
 }
 
 function decode(text: string, side: ReportSide): Result<unknown, ComparisonFailure> {
@@ -214,10 +311,18 @@ export function describeComparison(result: ComparisonResult): string {
   }
   const failure = result.error;
   switch (failure.kind) {
-    case 'invalid-report':
-      return `${failure.side} report is invalid: ${failure.issues
+    case 'invalid-report': {
+      const listed = failure.issues
+        .slice(0, DESCRIBED_ISSUES_MAX)
         .map((issue) => `${issue.path}: ${issue.message}`)
-        .join('; ')}`;
+        .join('; ');
+      const more = failure.issues.length - DESCRIBED_ISSUES_MAX;
+      return `${failure.side} report is invalid: ${listed}${more > 0 ? `; and ${String(more)} more` : ''}`;
+    }
+    case 'wrong-runtime':
+      return `${failure.side} report ran on "${failure.actual}", expected ${failure.expected
+        .map((kind) => `"${kind}"`)
+        .join(' or ')}`;
     case 'mismatch':
       return `reports differ at ${where(failure.location)}: reference ${failure.reference ?? '(absent)'}, candidate ${failure.candidate ?? '(absent)'}`;
     case 'not-passing':

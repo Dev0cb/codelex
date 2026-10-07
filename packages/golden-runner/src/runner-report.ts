@@ -21,9 +21,12 @@ import {
   jcsCount,
   jcsPositive,
   jcsText,
+  exceedsDepth,
   jcsValue,
+  MAX_DEPTH,
   sameCanonical,
   SHA256_HEX,
+  tooDeepMessage,
 } from './jcs.js';
 
 export const RUNNER_FORMAT = 1;
@@ -54,15 +57,25 @@ export const suiteIdSchema = jcsText(ID_MAX).regex(SUITE_ID, {
 
 const caseIdSchema = jcsText(ID_MAX);
 
-const observedSchema = jcsValue.refine(
-  (value) => {
-    const text = canonicalOrUndefined(value);
-    return text !== undefined && text.length <= OBSERVED_MAX_BYTES;
-  },
-  {
-    message: `observed must be at most ${String(OBSERVED_MAX_BYTES)} bytes of canonical JSON (report its SHA-256 instead)`,
-  },
-);
+/**
+ * `observed` nests at most 32 levels, so a report stays within the serialiser's 64 even inside the Diagnostics
+ * wrapper (report 5 levels + wrapper 1 + observed 32).
+ */
+export const OBSERVED_MAX_DEPTH = 32;
+
+const observedSchema = jcsValue.superRefine((value, ctx) => {
+  if (exceedsDepth(value, OBSERVED_MAX_DEPTH)) {
+    ctx.addIssue({ code: 'custom', message: `observed is ${tooDeepMessage(OBSERVED_MAX_DEPTH)}` });
+    return;
+  }
+  const text = canonicalOrUndefined(value);
+  if (text === undefined || text.length > OBSERVED_MAX_BYTES) {
+    ctx.addIssue({
+      code: 'custom',
+      message: `observed must be at most ${String(OBSERVED_MAX_BYTES)} bytes of canonical JSON (report its SHA-256 instead)`,
+    });
+  }
+});
 
 export const runtimeSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('node'), version: jcsText(VERSION_MAX) }),
@@ -196,6 +209,8 @@ export type RunnerRuntime = z.infer<typeof runtimeSchema>;
 
 /** Validates a runner report value (already decoded from JSON). */
 export function parseRunnerReport(value: unknown): Result<RunnerReport, ReportIssue[]> {
+  if (exceedsDepth(value, MAX_DEPTH))
+    return err([{ path: '$', message: tooDeepMessage(MAX_DEPTH) }]);
   const parsed = runnerReportSchema.safeParse(value);
   if (!parsed.success) return err(issuesOf(parsed.error));
   return sameCanonical(value, parsed.data) ? ok(parsed.data) : err([CHANGED_BY_PARSING]);

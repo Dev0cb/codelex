@@ -17,7 +17,15 @@ import { err, ok, type Result } from '@codelex/config/result';
 import { z } from 'zod';
 
 import { CHANGED_BY_PARSING, issuesOf, parseJsonText, type ReportIssue } from './issues.js';
-import { jcsCount, jcsPositive, jcsText, sameCanonical } from './jcs.js';
+import {
+  exceedsDepth,
+  jcsCount,
+  jcsPositive,
+  jcsText,
+  MAX_DEPTH,
+  sameCanonical,
+  tooDeepMessage,
+} from './jcs.js';
 import { RUNNER_REPORT_MAX_BYTES, runnerReportSchema } from './runner-report.js';
 
 export const DIAGNOSTICS_FORMAT = 1;
@@ -83,13 +91,24 @@ function bench<T extends z.core.$ZodLooseShape>(shape: T) {
   ]);
 }
 
+/** True when no two items share `key` (per-bot lists name each bot once; position ids are listed once). */
+function distinct<T>(key: (item: T) => string): (items: readonly T[]) => boolean {
+  return (items) => new Set(items.map(key)).size === items.length;
+}
+
 const decisionEqualityBot = z
   .strictObject({
     botId: botIdSchema,
     positions: z.literal(DECISION_POSITIONS_PER_BOT),
     equal: jcsCount,
     /** Golden position ids whose device decision key differs from the Node golden decision. */
-    mismatchedPositionIds: z.array(jcsText(128)).max(DECISION_POSITIONS_PER_BOT),
+    mismatchedPositionIds: z
+      .array(jcsText(128))
+      .max(DECISION_POSITIONS_PER_BOT)
+      .refine(
+        distinct((id: string) => id),
+        { message: 'mismatchedPositionIds must be distinct' },
+      ),
   })
   .refine((b) => b.equal + b.mismatchedPositionIds.length === b.positions, {
     message: 'equal + mismatchedPositionIds.length must equal positions',
@@ -118,7 +137,11 @@ export const benchesSchema = z.strictObject({
         }),
       )
       .min(1)
-      .max(MAX_BOTS),
+      .max(MAX_BOTS)
+      .refine(
+        distinct((bot: { botId: string }) => bot.botId),
+        { message: 'each botId at most once' },
+      ),
   }),
   /** bots-api §6 constants measured on device (note §7.1). */
   constants: bench({
@@ -129,7 +152,16 @@ export const benchesSchema = z.strictObject({
     tFixed: timingValueSchema,
   }),
   /** Device decisions equal the Node golden decisions (note §7.4). */
-  decisionEquality: bench({ bots: z.array(decisionEqualityBot).min(1).max(MAX_BOTS) }),
+  decisionEquality: bench({
+    bots: z
+      .array(decisionEqualityBot)
+      .min(1)
+      .max(MAX_BOTS)
+      .refine(
+        distinct((bot: { botId: string }) => bot.botId),
+        { message: 'each botId at most once' },
+      ),
+  }),
   /** Sustained play: compute p95 per match over consecutive matches (note §7.6). */
   drift: bench({
     botId: botIdSchema,
@@ -180,6 +212,8 @@ export type DiagnosticsBenches = z.infer<typeof benchesSchema>;
 export type DiagnosticsDevice = z.infer<typeof deviceSchema>;
 
 export function parseDiagnosticsReport(value: unknown): Result<DiagnosticsReport, ReportIssue[]> {
+  if (exceedsDepth(value, MAX_DEPTH))
+    return err([{ path: '$', message: tooDeepMessage(MAX_DEPTH) }]);
   const parsed = diagnosticsReportSchema.safeParse(value);
   if (!parsed.success) return err(issuesOf(parsed.error));
   return sameCanonical(value, parsed.data) ? ok(parsed.data) : err([CHANGED_BY_PARSING]);

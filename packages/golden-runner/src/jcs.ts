@@ -5,7 +5,7 @@
  *
  * Pure (ADR-0016 §D3.2): no `Date`, `Math.random`, `Intl`, `TextEncoder` or `node:*`.
  */
-import { canonicalJson, isJcsInteger } from '@codelex/game-engine/canonical';
+import { canonicalJson, isJcsInteger, JCS_MAX_DEPTH } from '@codelex/game-engine/canonical';
 import { z } from 'zod';
 
 /** Printable ASCII only (ADR-0013 §D3). */
@@ -35,12 +35,40 @@ export const jcsCount = jcsInteger.check(z.nonnegative());
 /** A positive integer of the JCS subset. */
 export const jcsPositive = jcsInteger.check(z.positive());
 
-/** Any value of the JCS subset (recursive; depth is bounded by {@link isCanonicalisable}). */
+/**
+ * Any value of the JCS subset. Recursive: callers bound the depth with {@link exceedsDepth} before zod sees the
+ * value (the report parsers do), because zod recurses on the native stack.
+ */
 export type JcsValue = string | number | readonly JcsValue[] | { readonly [key: string]: JcsValue };
 
 export const jcsValue: z.ZodType<JcsValue> = z.lazy(() =>
   z.union([jcsString, jcsInteger, z.array(jcsValue), z.record(jcsString, jcsValue)]),
 );
+
+/** Deepest nesting the engine serialiser accepts (ADR-0013 §D4.8): 64 containers. */
+export const MAX_DEPTH = JCS_MAX_DEPTH;
+
+/**
+ * True when `value` nests more than `limit` arrays/objects on some path (a scalar is depth 0, `[]` depth 1).
+ * Iterative with an explicit stack, so a 100,000-deep array is rejected without touching the native stack.
+ */
+export function exceedsDepth(value: unknown, limit: number): boolean {
+  const stack: [unknown, number][] = [[value, 0]];
+  for (let item = stack.pop(); item !== undefined; item = stack.pop()) {
+    const [node, depth] = item;
+    if (typeof node !== 'object' || node === null) continue;
+    const level = depth + 1;
+    if (level > limit) return true;
+    for (const child of Array.isArray(node) ? node : Object.values(node))
+      stack.push([child, level]);
+  }
+  return false;
+}
+
+/** Message for a document nested deeper than `limit`. */
+export function tooDeepMessage(limit: number): string {
+  return `nested deeper than ${String(limit)} levels: outside the ADR-0013 §D3 subset`;
+}
 
 /**
  * Canonical text of `value` per the engine serialiser, or `undefined` if `value` is outside the subset (for

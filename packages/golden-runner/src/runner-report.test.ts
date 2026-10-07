@@ -6,6 +6,7 @@ import { clone, hermesReport, nodeReport } from '../test/fixtures.js';
 import {
   checkRunnerReportSize,
   OBSERVED_MAX_BYTES,
+  OBSERVED_MAX_DEPTH,
   parseRunnerReport,
   parseRunnerReportText,
   RUNNER_REPORT_MAX_BYTES,
@@ -13,6 +14,15 @@ import {
 } from './index.js';
 
 type Doc = Record<string, unknown>;
+
+const TOO_DEEP_64 = 'nested deeper than 64 levels: outside the ADR-0013 §D3 subset';
+
+/** `levels` nested arrays around 1 (`nested(1)` is `[1]`). */
+function nested(levels: number): unknown {
+  let value: unknown = 1;
+  for (let i = 0; i < levels; i++) value = [value];
+  return value;
+}
 
 function suites(report: Doc): Doc[] {
   return report['suites'] as Doc[];
@@ -70,12 +80,32 @@ describe('runner report runnerFormat 1 (ADR-0016 §D3.1)', () => {
       expect(paths(report).some((p) => p.startsWith('$.suites[0].cases[0].observed'))).toBe(true);
     });
 
-    it('rejects nesting deeper than the engine serialiser allows', () => {
-      let deep: unknown = 1;
-      for (let i = 0; i < 70; i++) deep = [deep];
+    it('rejects a document nested deeper than the engine serialiser allows, before zod', () => {
       const report = nodeReport();
-      casesOf(report, 0)[0]!['observed'] = deep;
-      expect(parseRunnerReport(report).ok).toBe(false);
+      casesOf(report, 0)[0]!['observed'] = nested(70);
+      expect(issuesFor(report)).toEqual([{ path: '$', message: TOO_DEEP_64 }]);
+    });
+
+    it(`limits observed to ${String(OBSERVED_MAX_DEPTH)} levels with a clear message`, () => {
+      const report = nodeReport();
+      casesOf(report, 0)[0]!['observed'] = nested(OBSERVED_MAX_DEPTH);
+      expect(parseRunnerReport(report).ok).toBe(true);
+      casesOf(report, 0)[0]!['observed'] = nested(OBSERVED_MAX_DEPTH + 1);
+      expect(issuesFor(report)).toEqual([
+        {
+          path: '$.suites[0].cases[0].observed',
+          message: 'observed is nested deeper than 32 levels: outside the ADR-0013 §D3 subset',
+        },
+      ]);
+    });
+
+    it('rejects a 100,000-deep text (200 KB) without overflowing the stack', () => {
+      const deep = `${'['.repeat(100_000)}1${']'.repeat(100_000)}`;
+      const text = JSON.stringify(nodeReport()).replace('[1,2,4294967295,0]', deep);
+      expect(parseRunnerReportText(text)).toEqual({
+        ok: false,
+        error: [{ path: '$', message: TOO_DEEP_64 }],
+      });
     });
 
     it('rejects a "__proto__" key that JSON.parse made an own property', () => {
