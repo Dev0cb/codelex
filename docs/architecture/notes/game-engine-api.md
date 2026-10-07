@@ -61,8 +61,10 @@ seeded RNG (`./rng`).
   "type": "module",
   "sideEffects": false,
   "exports": {
-    ".":     { "types": "./dist/index.d.ts",     "default": "./dist/index.js" },
-    "./rng": { "types": "./dist/rng/index.d.ts", "default": "./dist/rng/index.js" }
+    ".":           { "types": "./dist/index.d.ts",     "default": "./dist/index.js" },
+    "./rng":       { "types": "./dist/rng/index.d.ts", "default": "./dist/rng/index.js" },
+    "./canonical": { "types": "./dist/canonical.d.ts", "default": "./dist/canonical.js" },
+    "./draft":     { "types": "./dist/draft.d.ts",     "default": "./dist/draft.js" }
   },
   "dependencies": {
     "@codelex/config":  "workspace:*",   // runtime: ./result only
@@ -71,16 +73,20 @@ seeded RNG (`./rng`).
 }
 ```
 
-- Two entries only. `.` = everything in §4–§13; `./rng` = §14 (bots and tests import it without the rules code).
-  *(ADR-0014, from E6)* A third entry, `./draft`, exports only the draft opt-in token (§4.1.1). Lint bans it under
-  `apps/**` and `services/**`.
+- Four entries, each with one purpose:
+  - `.` = everything in §4–§13;
+  - `./rng` = §14 (bots and tests import it without the rules code);
+  - `./canonical` *(ADR-0016 §D3.2, sprint 4 A2)* = the JCS subset serialiser (`canonicalJson`, `isJcsInteger`,
+    `JCS_MAX_DEPTH`), so the golden runner compares reports with the engine's own canonical bytes instead of a
+    second implementation;
+  - `./draft` *(ADR-0014, from E6)* = the draft opt-in token only (§4.1.1); lint bans it under `apps/**` and
+    `services/**`.
+
   No `./internal`, no `./testing`: fixture states for golden cases are built inside the engine's own tests; bots and
   mobile build fixture **observations** directly (plain objects).
 - Source layout (internal, may change): `src/{board,bag,placement,validation,scoring,modes/classic,replay,rng,hash}/`.
-  Hashing (SHA-256, JCS subset) is internal; it is not exported from `.`. *(ADR-0016 §D3.2, sprint 4 A2)* A fourth
-  entry, `./canonical`, re-exports the JCS subset serialiser (`canonicalJson`, `isJcsInteger`, `JCS_MAX_DEPTH`)
-  so that the golden runner compares reports with the engine's own canonical bytes instead of a second
-  implementation. SHA-256 stays internal.
+  Hashing is not exported from `.`; SHA-256 is internal everywhere, the JCS serialiser is public only through
+  `./canonical`.
 - Imports allowed by lint (`codelex/pure-imports`): relative, `@codelex/lexicon` (types), `@codelex/config/result`.
   No zod: input shape checks are hand-written (§8.2, §13.7).
 
