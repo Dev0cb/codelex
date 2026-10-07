@@ -164,6 +164,8 @@ below are design targets: a miss triggers a layout/table review, not an automati
 | C-10 | *(v0.4)* **Premature lock-up:** matches ending on R-TURN-004 while the bag still holds ≥ 7 tiles (tiles that could still have been exchanged into play), ÷ all matches. This, not the raw share of R-TURN-004 endings, is the lock-up signal: R-TURN-004 is the normal ending whenever nobody goes out (55–67 % of matches even on a 60,000-word English lexicon) | ≤ 5 % | lexicon short forms and hooks (batch content); 11×11 fallback rule below |
 | C-11 | *(v0.4)* Mean tiles played on the board per 1v1 match (of 100) | ≥ 90 | as C-10 |
 
+*C-05 status (0.6):* missed by `engineRulesVersion` 1 (43.11 %); accepted for Phase 1 casual vs-bot play only, target unchanged, decision note `docs/game/decisions/2026-10-c05-risk-acceptance.md`.
+
 ## Simulation protocol
 - ≥ 10,000 games per variant, identical seed sets for baseline and variant, seats swapped half the time.
 - Report mean ± 95% CI; use paired comparisons on shared seeds.
@@ -183,6 +185,8 @@ R-TURN-004 with ≥ 7 tiles in the bag", i.e. C-10, and/or C-11 < 90 tiles) is *
 `docs/game/decisions/2026-10-b2-response.md` D1. Until the product owner decides, the trigger is read literally.
 
 ## Changelog
+- 0.6 — 2026-10-07 — `game-designer` (sprint 4 task G1): pointer to the C-05 risk acceptance
+  (`docs/game/decisions/2026-10-c05-risk-acceptance.md`). Targets and invariants unchanged.
 - 0.5 — 2026-10-04 — `game-designer` (sprint 3 task L7, T-4a/T-6): derivation record for the draft `letters-v2`
   (batch 3, `lexiconVersion` e568477b5592a994) with the committed tool `tools/letters/derive.mjs`; implicit
   tie and rounding conventions made explicit; `lexiconVersion` effect and `gameValue` decoupling (ADR-0014 §D5)
