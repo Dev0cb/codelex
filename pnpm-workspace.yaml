@@ -28,6 +28,10 @@ overrides:
   # GHSA-68fv-2mgg-jv7q (source-map-js >=1.0.0 <1.2.2, high): dev-only via @vitest/coverage-v8 > magicast; 1.2.2 is
   # the patched release in the same major.
   "source-map-js@>=1.0.0 <1.2.2": ^1.2.2
+  # GHSA-hp3w-g68c-fv3c (sprintf-js <= 1.1.3, moderate, no patched version): js-yaml 3.x requires argparse 1.x (and
+  # through it sprintf-js) only from its CLI bin/js-yaml.js, never from the library that babel-plugin-istanbul >
+  # @istanbuljs/load-nyc-config loads; dropping the dependency removes sprintf-js from the graph.
+  "js-yaml@<4>argparse": "-"
 
 # Audit exceptions: each one needs a written justification, an expiry date and a security-engineer review
 # (CLAUDE.md §7). Register: docs/security/audit-exceptions.md. Remove an entry as soon as a fix is published.
