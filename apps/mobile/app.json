@@ -19,7 +19,10 @@
     },
     "plugins": ["expo-router", "expo-localization", "./plugins/with-backup-exclusion.cjs"],
     "extra": {
-      "privacyPolicyUrl": "https://dev0cb.github.io/codelex/privacy/"
+      "privacyPolicyUrl": "https://dev0cb.github.io/codelex/privacy/",
+      "eas": {
+        "projectId": "5ac28758-405e-433c-b3d9-92bbfcd5c997"
+      }
     },
     "experiments": {
       "typedRoutes": false
