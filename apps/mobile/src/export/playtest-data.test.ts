@@ -132,7 +132,9 @@ describe('playtest data export (exportFormat 1)', () => {
     });
     const encoded = encodePlaytestExport(fileOf(events(1)));
     if (!encoded.ok) throw new Error('encode failed');
-    const polluted = encoded.value.replace('{', '{"__proto__":{"admin":true},');
+    // Insert an own `__proto__` key as the first member of the top-level object.
+    expect(encoded.value.startsWith('{')).toBe(true);
+    const polluted = `{"__proto__":{"admin":true},${encoded.value.slice(1)}`;
     expect(decodePlaytestExport(polluted).ok).toBe(false);
     expect(({} as Record<string, unknown>)['admin']).toBeUndefined();
   });
