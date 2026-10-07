@@ -30,8 +30,8 @@ Non-goals: no runtime utilities beyond `Result`; no tsconfig presets (see §4); 
 - No root (`"."`) export: consumers import the subpath they need, so a runtime import of `./result` never
   pulls ESLint or Vitest into a bundle.
 - Sources in `src/<entry>/index.ts`, built with `tsc` to `dist/`. Tooling entries must be plain JS at runtime
-  because ESLint, Prettier and Vitest load them with Node (Node 22.12 floor does not guarantee type
-  stripping). `turbo.json` already makes `lint`, `typecheck` and `test` depend on `^build`.
+  because ESLint, Prettier and Vitest load them with Node (the Node 22.12 floor of the time did not
+  guarantee type stripping; the floor is 22.18 since sprint 4 D1, and the built `dist/` stays the contract). `turbo.json` already makes `lint`, `typecheck` and `test` depend on `^build`.
 - ESLint, Prettier, Vitest, typescript-eslint and plugins are `peerDependencies` of `@codelex/config` and
   `devDependencies` of the root workspace, so one version is resolved repo-wide.
 
