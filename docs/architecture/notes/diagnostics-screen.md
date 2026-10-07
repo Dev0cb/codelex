@@ -1,8 +1,8 @@
 # Design note — preview-only Diagnostics screen (DG1)
 
 - Status: Proposed · Date: 2026-10-07 · Owner/author: solution-architect (with mobile-engineer)
-- Reviewed-by: pending mobile-engineer, ux-ui-designer (copy and accessibility, §8), security-engineer (§10, sign-off
-  required by sprint task A3)
+- Reviewed-by: security-engineer 2026-10-07 (§10: approved with conditions SC-1..SC-6); pending mobile-engineer,
+  ux-ui-designer (copy and accessibility, §8)
 - Sprint: `docs/sprints/2026-10-07-phase1-dogfood-readiness.md`, task A3. Unblocks DG1, then H1.
 - Inputs (normative): ADR-0016 §D1 and §D4; `bots-off-ui-thread.md` §6–§7; E-1.5 spec "Device timings (H1)", Q-17
   and OQ-SP2-1..6; E-1.5 design §5.8 (Settings) and §5.9 (share); threat model
@@ -128,7 +128,8 @@ New file `apps/mobile/bundle-preview-only.json` (owner mobile-engineer, reviewed
   missing map or bundle fails, and the check fails if `EXPO_PUBLIC_CODELEX_DIAGNOSTICS` is set in its environment.
 - **Positive control.** A new script `bundle:check:diagnostics` (a Node script that sets the variable and spawns
   `expo export --platform android --source-maps --output-dir dist-diagnostics`) runs the same functions on that
-  export and **requires** at least one path per pattern group and both markers. CI runs it in the existing
+  export and **requires** at least one source under `apps/mobile/src/diagnostics/`, at least one golden-runner
+  source (`packages/golden-runner/` or `node_modules/@codelex/golden-runner/`) and both markers. CI runs it in the existing
   "Bundle-size budget" step, after `bundle:check`, under the same affected filter. Turbo already keys `build` on
   `EXPO_PUBLIC_*`; the new task declares the same `env` and outputs `dist-diagnostics/**`. It prints the preview
   bundle delta (§9).
@@ -267,7 +268,8 @@ sequenceDiagram
 No exemption: CLAUDE.md §1.6 and the `no-literal-ui-strings` lint apply to this screen as to any other. The keys
 live in `apps/mobile/src/diagnostics/messages/{en,fr}.json` (same key pattern, ICU subset and FR typography;
 checked by `checkCatalogs({ en, fr })` in a test) and are formatted with `formatMessage` in the locale of
-`I18nProvider`. Generic keys that already ship (`common.*`, `export.error.file`, `export.error.share`) are reused.
+`I18nProvider`. Generic keys are reused: `common.*` (ships today) and `export.error.file`, `export.error.share`
+(design export errors, added to the shared catalog with S6, which DG1 depends on).
 Final copy: ux-ui-designer (light review; developer surface).
 
 | Key                       | EN                                                                                                                 | FR                                                                                                                                                                |
@@ -337,28 +339,69 @@ Checks to sign off, in this note (A3) and again on the DG1 PR:
    (zod, size cap; threat model TB6).
 9. **Distribution.** The `preview-diagnostics` build goes to the owner's phone only; the install link is not shared.
 
-Sign-off: **pending — security-engineer** (name, date, result). Not signed by the author.
+Sign-off: **security-engineer, 2026-10-07: approved with conditions.** Checks 1–9 are sound as designed. The gate
+mechanism was verified against the locked toolchain: `babel-preset-expo` 57.0.13 `plugins/inline-env-vars.js` inlines
+`process.env.EXPO_PUBLIC_*` only when the caller is not dev (an unset variable becomes `undefined`), and
+`metro-transform-worker` 0.84.6 runs `constantFoldingPlugin` before `collectDependencies` when `dev` is false; the
+plugin folds `undefined === "1"` and drops the consequent of the ternary, and treats any call in a test as not
+foldable (§3.1 is accurate). The conditions below are DG1 acceptance criteria; the DG1 PR is not mergeable without
+them, and the §10 review is repeated on that PR.
+
+- **SC-1 (DG1-b, devops-sre; closes a gap in check 1).** The CI absence check proves only the CI `expo export`.
+  Shipped builds are bundled on EAS, where EAS project environment variables (the `preview` environment) also reach
+  `EXPO_PUBLIC_*`. So: no EAS project environment variable named `EXPO_PUBLIC_CODELEX_DIAGNOSTICS` exists in any
+  environment, and a script `bundle:check:artefact <apk|ipa>` runs the same `markersIn` on the bundle embedded in
+  the built artefact (`assets/index.android.bundle`, `main.jsbundle`). Every Stage 0 and Stage 1 build passes it
+  before distribution, recorded with the TM-09 evidence; the H1 `preview-diagnostics` artefact must show both
+  markers (inverse check). Threat model I-8 / TM-12.
+- **SC-2 (DG1-a; Medium).** ESLint flat config replaces a rule's options, it does not merge them. A mobile-local
+  `no-restricted-imports` on `src/**` would silently drop the shared ADR-0014 §D4 draft-rules ban
+  (`draftRulesPreset`, `apps/**`), and a new `no-restricted-syntax` block would drop the existing i18n and colour
+  selectors. DG1-a restates the existing entries in every new block, and a test (ESLint `calculateConfigForFile` or
+  lint fixtures) shows that an `@codelex/game-engine/draft` import and literal JSX text still fail in both
+  `src/features/**` and `src/diagnostics/**`.
+- **SC-3 (DG1-b).** The absence check and the positive control run in the same CI step under the same filter; the
+  step fails if either is skipped while the other runs. A test proves a deliberately unguarded import of
+  `src/diagnostics/entry` fails the absence check (already in DG1-b, kept as a security condition).
+- **SC-4 (DG1-e).** Hermes runtime properties are picked key by key from an allowlist, like `Platform.constants`
+  (never spread); the A2 Diagnostics wrapper is strict (unknown keys rejected) with bounded-length ASCII strings for
+  every device and build field. Test with mocked `Platform.constants` and runtime properties carrying extra keys.
+- **SC-5 (DG1-a).** The `eas.json` test also asserts that `preview-diagnostics` keeps `distribution: "internal"`
+  and that no `submit` profile or `channel` exists for it, so it cannot be submitted to a store or tester track.
+- **SC-6 (H1, product owner).** The `preview-diagnostics` build is never uploaded to Play internal testing,
+  TestFlight or any tester group, and its install link is not shared; the H1 record names its EAS build id. It
+  has the same application id and signing key as the playtest build, so a leaked APK would install over a tester's
+  app.
+
+Non-blocking notes: the positive control exports android only, which is acceptable because folding does not depend
+on the platform and the absence check covers ios; `createScratchFs()` may live in `src/diagnostics/` so production
+carries no scratch factory (mobile-engineer's choice); a distinct application id for `preview-diagnostics` would add
+OS-level data isolation and make the build visibly different, but needs an `app.config` step (with OQ-DG-2).
+OQ-DG-1 is answered in §12.
 
 ## 11. Tasks
 
-| ID    | Owner                              | Task                                     | Acceptance criteria                                                                                                                                                                                                                                  |
-| ----- | ---------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DG1-a | mobile-engineer                    | Gate, profile, lint                      | `preview-diagnostics` profile (§2); gate file (§3.2); lint rules (§3.2); `node:test` on `eas.json` for check 2 of §10; production export has no diagnostics code                                                                                     |
-| DG1-b | mobile-engineer, devops-sre        | Bundle proof                             | `bundle-preview-only.json`; absence check in `bundle:check`; `bundle:check:diagnostics` positive control in CI; unit tests of §3.3; green on the DG1 PR; a deliberately unguarded import fails the absence check in a test                           |
-| DG1-c | mobile-engineer, ux-ui-designer    | Entry and screen                         | 7-tap entry on the S6a versions row (§4); modal with suites, progress, cancel, interruption (§5.1); local EN/FR catalog passes `checkCatalogs`; accessibility minimum (§8); component tests in EN and FR                                             |
-| DG1-d | mobile-engineer                    | Suites and resume probe                  | Suites 1–5 wired to the runner and bench module; integer µs timings; `createScratchFs()` refuses `DATA_DIR`; `MemoryFs` test proves `codelex-data` unchanged after a run and after a cancel; scratch deleted in every exit path                      |
-| DG1-e | mobile-engineer                    | Report and share                         | `DiagnosticsReport` (A2) parsed before write; device and build fields as in §7 only (test with a mocked `Platform.constants` containing `Fingerprint`/`Serial`); shared via the S6c helper; whole-directory sweep; no queue entry after a run (test) |
-| DG1-f | mobile-engineer                    | Responsiveness panel                     | Suite 6 as in §5; records whether drop-commit latency was measured or observed                                                                                                                                                                       |
-| BN1   | ai-engineer (game-engine-engineer) | Bench module in `@codelex/golden-runner` | Position generator moved from `packages/bots/test/support` (Node harness uses it too); same 200 positions and seeds as P5 §2; offline fit of `c_node`, `c_cand`, `T_fixed` in the Node tooling; package marker export                                |
-| SEC   | security-engineer                  | Review                                   | §10 signed on this note (A3) and on the DG1 PR                                                                                                                                                                                                       |
-| H1    | mobile-engineer, product owner     | Device run                               | Build `preview-diagnostics`; run from Home → Settings; share; runner part equal to Node (§D3.2); timings recorded with model, RAM, Android version and the device-class label (Q-17)                                                                 |
+| ID    | Owner                              | Task                                     | Acceptance criteria                                                                                                                                                                                                                                        |
+| ----- | ---------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DG1-a | mobile-engineer                    | Gate, profile, lint                      | `preview-diagnostics` profile (§2); gate file (§3.2); lint rules (§3.2); `node:test` on `eas.json` for check 2 of §10; production export has no diagnostics code; SC-2, SC-5                                                                               |
+| DG1-b | mobile-engineer, devops-sre        | Bundle proof                             | `bundle-preview-only.json`; absence check in `bundle:check`; `bundle:check:diagnostics` positive control in CI; unit tests of §3.3; green on the DG1 PR; a deliberately unguarded import fails the absence check in a test; SC-1, SC-3                     |
+| DG1-c | mobile-engineer, ux-ui-designer    | Entry and screen                         | 7-tap entry on the S6a versions row (§4); modal with suites, progress, cancel, interruption (§5.1); local EN/FR catalog passes `checkCatalogs`; accessibility minimum (§8); component tests in EN and FR                                                   |
+| DG1-d | mobile-engineer                    | Suites and resume probe                  | Suites 1–5 wired to the runner and bench module; integer µs timings; `createScratchFs()` refuses `DATA_DIR`; `MemoryFs` test proves `codelex-data` unchanged after a run and after a cancel; scratch deleted in every exit path                            |
+| DG1-e | mobile-engineer                    | Report and share                         | `DiagnosticsReport` (A2) parsed before write; device and build fields as in §7 only (test with a mocked `Platform.constants` containing `Fingerprint`/`Serial`); shared via the S6c helper; whole-directory sweep; no queue entry after a run (test); SC-4 |
+| DG1-f | mobile-engineer                    | Responsiveness panel                     | Suite 6 as in §5; records whether drop-commit latency was measured or observed                                                                                                                                                                             |
+| BN1   | ai-engineer (game-engine-engineer) | Bench module in `@codelex/golden-runner` | Position generator moved from `packages/bots/test/support` (Node harness uses it too); same 200 positions and seeds as P5 §2; offline fit of `c_node`, `c_cand`, `T_fixed` in the Node tooling; package marker export                                      |
+| SEC   | security-engineer                  | Review                                   | §10 signed on this note (A3, done 2026-10-07 with SC-1..SC-6) and on the DG1 PR                                                                                                                                                                            |
+| H1    | mobile-engineer, product owner     | Device run                               | Build `preview-diagnostics`; run from Home → Settings; share; runner part equal to Node (§D3.2); timings recorded with model, RAM, Android version and the device-class label (Q-17)                                                                       |
 
 ## 12. Open questions and assumptions
 
 1. **OQ-DG-1 (product owner, security-engineer).** DS-2 adds a second preview-class profile instead of setting the
    constant in `preview`. If the owner prefers one build for dogfood and H1, the constant can move to `preview` for
    Stage 0 only (team testers could then open the screen); the playtest build for Stage 1 must come from a profile
-   without it. Recommendation: keep DS-2.
+   without it. Recommendation: keep DS-2. **Security-engineer (2026-10-07): keep DS-2 at every stage, Stage 0
+   included.** A constant that is in `preview` for Stage 0 and must be removed for Stage 1 is a stage-dependent
+   setting that can be forgotten; team members who need the screen install the `preview-diagnostics` build
+   individually (SC-6 applies to them).
 2. **OQ-DG-2 (mobile-engineer).** Commit SHA in the report: `EXPO_PUBLIC_*` values in `eas.json` are static, so the
    commit is not available to the bundle without an `app.config` step. Until then, H1 records the commit from the
    EAS build page and the comparison keys on `corpus.digest` and the versions.
