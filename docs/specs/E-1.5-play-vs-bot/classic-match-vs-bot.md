@@ -1,8 +1,10 @@
 # Classic match vs bot (offline, guest)
 
 - Epic: E-1.5 (depends on E-1.1, E-1.2, E-1.3, E-1.4; feeds E-1.6) · Vision refs: V-01, V-02, V-03, V-07, V-13, V-15 · Status: Ready for design
-- Owner: product-strategist · Last update: 2026-10-04 (sprint 3 SP1: game-designer findings F-1/F-2 folded into
-  AC-3/AC-5, every AC re-checked against GAME_RULES 0.3.1 and BALANCE 0.4, analytics moved into the catalogue)
+- Owner: product-strategist · Last update: 2026-10-07 (sprint 4 SP2: S6 split into S6a–S6d, "Send match log" in
+  S6d, H1 device-class note, AC-19 remote fetch deferred to a Stage 1 gate, no crash SDK in Phase 1; see
+  "Amendment SP2"). Previous: 2026-10-04 (sprint 3 SP1: game-designer findings F-1/F-2 folded into AC-3/AC-5, every
+  AC re-checked against GAME_RULES 0.3.1 and BALANCE 0.4, analytics moved into the catalogue)
 - Next reviews: `game-designer` (rules, bot feel), `ux-ui-designer` (flows, FTUE, copy), then `data-analyst`,
   `privacy-compliance`, `mobile-engineer`, `solution-architect` (see end of document). SP1 re-review: `game-designer`
   (AC-3, AC-5, AC-7, AC-10 wording), `data-analyst` (catalogue entries), `privacy-compliance` (FYI, new fields).
@@ -20,7 +22,7 @@ are:
 | Median session length | ≥ 8 min | Yes (client analytics) |
 | "Would play again" | ≥ 70% | Yes (in-app one-tap survey + debrief) |
 | First-player win rate (Classic 1v1, equal bots) | ≤ 52% in simulation | No, gated by E-1.3 simulator / E-1.6 balance; this feature only consumes the calibrated config |
-| Crash-free sessions | ≥ 99.5% | Yes (TestFlight / Play Console crash stats + local unclean-exit flag) |
+| Crash-free sessions | ≥ 99.5% | Yes (local unclean-exit flag `app_opened.previous_exit_unclean`, plus Play vitals / TestFlight crash stats when available; no crash SDK in Phase 1, Q-15) |
 
 Evidence today: none (no build exists). This spec is the vehicle that produces the first evidence.
 
@@ -212,10 +214,16 @@ all rules are applied by the engine, never re-implemented in the app (CLAUDE.md 
   background only if a network is available (never blocking play); Given `play_vs_bot.enabled` is off, Then PLAY
   NOW shows "Matches are paused for an update — back soon" instead of starting a match, and an in-progress match
   can still be resumed and finished.
+
+  *(SP2, 2026-10-07: the remote config fetch is **not built** in Phase 1 sprint 4. Bundled defaults are acceptable
+  for the Stage 0 team dogfood; the remote fetch and a working remote kill switch are a **Stage 1 gate**. The AC
+  text is unchanged: flag resolution from bundled defaults and the `play_vs_bot.enabled` off behaviour still hold
+  and are still tested. See "Amendment SP2".)*
 - **AC-20 Determinism and bug reports.** Given a saved match (seed, `engineRulesVersion`, `lexiconVersion`, lexicon
   profile, ordered action log; R-CORE-005), When it is replayed through the engine, Then the final state hash equals
   the stored hash; and a playtest-only "Send match log" action in Settings exports this data (no PII) for bug
-  reports.
+  reports. *(SP2: the replay-hash part ships with S3; the "Send match log" action ships in slice S6d with the
+  TM-04/05/07 confirm sheet.)*
 
 ## Non-goals
 
@@ -327,7 +335,7 @@ rule IDs, not constants, so they hold for either version; AC-7's "6 scoreless tu
 | "Would play again" = Yes | **Primary** (phase exit) | ≥ 70% of testers who answered (last answer per install) | `playtest_survey_answered` + debrief interviews |
 | Median session length | Exit | ≥ 8 min | `app_opened` + `app_backgrounded.foreground_ms` (session closes after 30 min in background, Q-12; length = sum of foreground intervals) |
 | Active playtesters | Exit | ≥ 30 installs with ≥ 1 completed match | `bot_match_finished` |
-| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | TestFlight / Play Console crash stats; `app_opened.previous_exit_unclean` |
+| Crash-free sessions | Exit + guardrail | ≥ 99.5% (iOS and Android separately) | `app_opened.previous_exit_unclean` (S6a); Play vitals once the Play org account exists, TestFlight crash stats when available (no crash SDK, Q-15) |
 | First-player win rate (simulation) | Exit (dependency) | ≤ 52% (B-01) | E-1.3 simulator / E-1.6 report, not this app |
 | Time-to-first-match | Secondary | p50 ≤ 60 s, p90 ≤ 120 s | `onboarding_step_completed` (`first_launch` → `first_move`) |
 | Match completion rate | Secondary | ≥ 65% of started matches finished (not abandoned) ⚙ | `bot_match_started` / `bot_match_finished` |
@@ -355,6 +363,25 @@ rule IDs, not constants, so they hold for either version; AC-7's "6 scoreless tu
 | Human win rate vs Strategist | outside 20–50% ⚙ |
 | Resign rate | > 15% of matches ⚙ |
 | Knowledge Card dwell p50 | < 1 s (card opened by mistake) → UX review |
+
+### Device timings (H1) — device class and method (SP2, 2026-10-07)
+
+The reference-device thresholds above (AC-1, AC-8, AC-13 and the bot response guardrail) are read in two ways:
+on device through the catalogue events (S6a onwards), and in the H1 device benchmark (raw timings, Q-14).
+
+- **Device class label.** H1 measurements taken on the product owner's own phone are labelled **"owner device"**
+  unless that phone meets the low-end reference class defined in "Target players & context" (Android 10+, 2–3 GB
+  RAM, entry-level SoC). Only a reference-class measurement can pass or fail a reference-device threshold; an
+  "owner device" result is evidence, not a gate. The reference-device measurement stays an **owner ask** (3–5
+  low-end reference phones, playtest plan §1.1) until such a device is available. Every recorded H1 result names
+  the phone model, RAM and Android version.
+- **Method.** Timings come from a **preview-only Diagnostics screen** (sprint 4 task DG1) running on a **release
+  Hermes build** (EAS preview profile), never on a dev client, whose development-mode checks and unminified bundle
+  distort timings. The screen runs the golden runner and the device benches and shares a JSON report through the OS share
+  sheet. It is removed from production builds at build time; a production bundle test proves its marker strings are
+  absent.
+- ASSUMPTION: the Diagnostics report carries no PII. Device model and OS version are allowed in preview builds
+  only (sprint 4 task A2); the report is shared by the owner, not by playtesters.
 
 ### Events
 
@@ -407,6 +434,11 @@ Flags are evaluated through the OpenFeature client (ARCHITECTURE §6) with **bun
 config fetched opportunistically when online (AC-19). Since gameplay is offline, a remote kill switch takes effect
 at the next launch with network; the hard fallback is pulling the build from the internal track.
 
+**SP2 (2026-10-07): until the AC-19 remote fetch is built, flags resolve from bundled defaults only.** This is
+accepted for Stage 0 (team dogfood, 5–10 people, daily builds possible): changing a flag means shipping a build,
+and the halt action is the hard fallback (fix build, or expire the build in TestFlight/Play). A working remote kill
+switch is a **Stage 1 gate** (see "Playtest distribution").
+
 | Flag | Default (playtest build) | Purpose |
 |---|---|---|
 | `play_vs_bot.enabled` | on | Master switch for starting new matches (in-progress matches can finish) |
@@ -416,33 +448,61 @@ at the next launch with network; the hard fallback is pulling the build from the
 | `match.live_score_preview` | on | AC-5 (lexicon-free preview, R-SCORE-009) |
 | `board.tech_squares.enabled` | **off** | AC-3 (F-2). No effect while the pinned layout has no tech squares; turning it on never adds tech squares at runtime |
 | `knowledge_card.post_match.enabled` | on | AC-13/AC-14 kill switch |
-| `knowledge_card.in_match.enabled` | off | Reserved for a later experiment (Q-6); not built in slice 1–6 |
-| `playtest.survey.enabled` | on | AC-18 |
-| `analytics.upload.enabled` | on | Stop uploads without a build (buffer still respects consent) |
+| `knowledge_card.in_match.enabled` | off | Reserved for a later experiment (Q-6); not built in slices S1–S6d |
+| `playtest.survey.enabled` | on | AC-18 (slice S6b) |
+| `analytics.upload.enabled` | on | Stop uploads without a build (buffer still respects consent). SP2: dark-launch flag of slices S6a and S6c (see ASSUMPTION below) |
+| `playtest.match_log.enabled` | on | SP2, ASSUMPTION: dark-launch flag of slice S6d ("Send match log" row in Settings and on the corrupt-state card) |
+
+SP2 (2026-10-07): each S6 slice merges with its flag **off** as the bundled default on `main`; the column above is
+the value in the Stage 0 / Stage 1 playtest build, flipped once the slice has passed its review. ASSUMPTION: while
+`analytics.upload.enabled` is off, the consented queue records nothing, and the first-run notice, the Settings
+"Playtest data" section and the export entry points are hidden; the non-analytics Settings rows (sound, vibration,
+motion, handedness, versions) are not behind it. Consent (AC-17) still applies on top when the flag is on.
+ASSUMPTION: `playtest.match_log.enabled` is a new flag so S6d can merge and be killed independently of the
+analytics export; it changes no AC.
 
 `PLAY_RULES_VERSION` is **not** a flag. It is a build constant (AC-3, ADR-0014): the rules version that new matches
 pin cannot be changed by remote config. Switching v1 ↔ v2 means shipping a new build.
 
 ### Thin slices (each behind a flag, each measurable)
 
-| Slice | Content | Flag | Measure |
-|---|---|---|---|
-| S1 | Home + PLAY NOW + full match vs Beginner + minimal end screen | `play_vs_bot.enabled` | match completion, crash-free |
-| S2 | Score breakdown + summary (best word, term chips, New to you) | same | play again rate |
-| S3 | Persistence, resume, single in-progress match | same | resume failure rate |
-| S4 | Strategist + opponent selector | `bots.strategist.enabled` | win rate per bot |
-| S5 | Post-match Knowledge Card + related terms | `knowledge_card.post_match.enabled` | card open rate, dwell |
-| S6 | Analytics buffer/upload, consent toggle, survey, Send match log | `analytics.upload.enabled`, `playtest.survey.enabled` | data completeness |
+| Slice | Content | ACs | Flag | Measure |
+|---|---|---|---|---|
+| S1 | Home + PLAY NOW + full match vs Beginner + minimal end screen | AC-1..AC-4, AC-6, AC-7, AC-8 (Beginner), AC-10 (minimal end) | `play_vs_bot.enabled` | match completion, crash-free |
+| S2 | Score breakdown + summary (best word, term chips, New to you) | AC-4 (breakdown), AC-5, AC-10 | same | play again rate |
+| S3 | Persistence, resume, single in-progress match; replay hash (no export) | AC-11, AC-12, AC-20 (replay hash only) | same | resume failure rate |
+| S4 | Strategist + opponent selector | AC-8 (Strategist), AC-9 | `bots.strategist.enabled` | win rate per bot |
+| S5 | Post-match Knowledge Card + related terms | AC-13, AC-14 | `knowledge_card.post_match.enabled` | card open rate, dwell |
+| S6a | Persistent consented event queue (survives kill/reboot, cap and drop count, 30-day expiry), consent toggle and first-run notice, Settings screen, install-scoped id shown in Settings, `app_opened.previous_exit_unclean`, `app_backgrounded.foreground_ms` | AC-17 (recording, consent, purge, install id) | `analytics.upload.enabled` | events per session recorded vs expected (queue completeness, drop count); median session length and crash-free computable from a dogfood export |
+| S6b | Playtest survey ("Would you play CODELEX again?") | AC-18 | `playtest.survey.enabled` | survey answer rate (answered ÷ shown), dismiss rate |
+| S6c | "Send playtest data" share: export screen, OS share sheet, envelope `exportFormat: 1`, temp-file cleanup, "Did you send the file?" confirm, end-of-session prompt | AC-17 (export, prompt, "Sent" confirmation) | `analytics.upload.enabled` | export completeness (installs with ≥ 1 export ÷ active installs; Q-1 trigger < 80 %) |
+| S6d | "Send match log" in Settings and on the corrupt-state card, with the TM-04/05/07 confirm sheet | AC-20 (export part) | `playtest.match_log.enabled` | share of severity S1/S2 bug reports with a match log attached; share of logs that replay to the stored hash |
 
-i18n (EN/FR) and accessibility are part of every slice, not a final slice.
+i18n (EN/FR, AC-15) and accessibility (AC-16) are part of every slice, not a final slice. AC-19 belongs to no
+single slice: the bundled-defaults half ships with the flags of each slice, the remote fetch is a Stage 1 gate
+(SP2). The ACs column is the SP2 mapping of the existing slices (S1–S5 unchanged in content, mapped from their
+sprint records).
+
+SP2 slicing notes (2026-10-07):
+
+- The S6 row of SP1 ("Analytics buffer/upload, consent toggle, survey, Send match log") is replaced by S6a–S6d. Each
+  is independently shippable and reviewable; dependencies: S6b and S6c need S6a; S6d needs the S6c share and
+  temp-file cleanup path (TM-04).
+- **"Send match log" is in S6d, not S3** (Q5 exit-check finding S4). The S3 PR (#75) shipped persistence and
+  resume and added the `matchlog.*` catalogue keys, but not the export action (moved per threat-model task P9).
+  ASSUMPTION (to verify in the S6d PR): until S6d ships, the corrupt-state card offers "Start a new match" only.
+- S6a measure is completeness, not volume: an S6a build that drops events silently fails its slice even if the queue
+  looks full.
 
 ### Playtest distribution
 
 1. **Stage 0 — team dogfood** (5–10 people, 3–5 days): TestFlight internal testers + Google Play **internal
-   testing** track. Gate to next stage: no S1/S2 bug open, crash-free ≥ 99.0%, all slices S1–S6 behind flags on.
+   testing** track. Gate to next stage: no S1/S2 bug open, crash-free ≥ 99.0%, all slices S1–S6d behind flags on.
+   Flags come from bundled defaults in Stage 0 (AC-19 remote fetch not built; SP2).
 2. **Stage 1 — internal playtest** (≥ 30 players, 14 days): TestFlight (internal/external group with beta review
    as needed) + Play internal/closed testing track; ≥ 30% low-end Android; mix EN/FR; two moderated debrief
-   sessions (5–8 players each) plus the in-app survey.
+   sessions (5–8 players each) plus the in-app survey. **Additional Stage 1 gate (SP2):** the AC-19 remote config
+   fetch is built and a remote kill switch (`play_vs_bot.enabled` off) has been shown to reach a dogfood device.
 3. **Readout**: `data-analyst` produces the Phase 1 exit readout; `product-strategist` recommends go/no-go for
    Phase 2.
 
@@ -456,8 +516,9 @@ TestFlight/Play and notify testers.
 - **Guest only, no PII.** No account, email, name, phone, contacts, location or advertising ID. The only
   identifier is an install-scoped random UUID (pseudonymous), reset on reinstall. Match data stays on device;
   only playtest analytics leave it, through a user-initiated share (AC-17). No Sentry or other crash SDK in the
-  playtest build (Q-1/Q-7 decision): crash-free rate comes from TestFlight / Play Console crash statistics and a
-  local unclean-exit flag.
+  playtest build (Q-1/Q-7 decision, confirmed for all of Phase 1 by Q-15): crash-free rate comes from the local
+  unclean-exit flag (`app_opened.previous_exit_unclean`, S6a) and from Play vitals / TestFlight crash statistics
+  when available.
 - **Consent (Q-7, decided).** Written enrollment consent first (only enrolled testers receive the build), then a
   one-time non-blocking in-app notice and a Settings toggle, default on; off = nothing recorded or exported, queue
   purged (AC-17). The consent form covers on-device storage (ePrivacy Art. 5(3)), the export, and the
@@ -477,7 +538,8 @@ TestFlight/Play and notify testers.
 - **Security / integrity.** Results are local and non-competitive, so client-side computation is acceptable here
   and does not contradict principle 1 (server authority applies to ranked, tournament, Arena and Daily results).
   Local results must never be importable as competitive facts. Tampering with a local install has nothing to
-  gain. The "Send match log" export contains no PII.
+  gain. The "Send match log" export (slice S6d) contains no PII; its confirm sheet and share/cleanup path close
+  threat-model items TM-04, TM-05 and TM-07 (`docs/security/threat-models/e-1.5-s1-persistence-match-log.md`).
 - **Monetisation.** No store, prices, ads or purchasable items. No pay-to-win surface exists in this build.
 - **Retention ethics.** No streaks, no notifications, no "come back" penalties, no fake urgency.
 
@@ -545,8 +607,63 @@ the playtest starts.
   timings stay in the H1 device benchmark. Rejected: per-match histograms on `bot_match_finished` only. Abandoned
   and in-progress matches would lose their latency data, and that data is exactly what the slow-device cases
   produce.
+- **Q-15 (SP2, 2026-10-07; sprint 4 planning) No crash SDK in Phase 1.** Q-1, Q-7 and threat-model item TM-10 stand
+  for the whole of Phase 1, not only the playtest build. Crash-free sessions are measured by
+  `app_opened.previous_exit_unclean` (S6a) plus Play vitals once the Play organisation account exists (TestFlight
+  crash statistics on iOS when available). Rejected: adding Sentry now. It would reverse Q-1/Q-7 and TM-10, add a
+  third-party processor (privacy policy and consent change) and spend bundle headroom (88.2 % used). ADR-0009
+  (Sentry for clients) still applies from Phase 2. ICE: impact medium (better crash stacks) × confidence high ÷
+  effort high (legal + consent + bundle) → no. Trade-off accepted: no stack traces in Phase 1; severity S1/S2 crashes
+  are reproduced from owner reports and, after S6d, from match logs.
+- **Q-16 (SP2, 2026-10-07) AC-19 remote config fetch deferred to a Stage 1 gate.** Bundled defaults only for the
+  Stage 0 team dogfood (5–10 people, builds can ship daily, halt = fix build or expire build). Before Stage 1
+  (≥ 30 external testers, ≤ 1 planned rebuild, playtest plan §3.4) the fetch and a remote kill switch must work.
+  ICE: deferring saves a sprint-4 slice at low risk for a team-only cohort; it is not acceptable for Stage 1, where
+  tuning and halting rely on remote config.
+- **Q-17 (SP2, 2026-10-07) H1 device class.** An H1 result on the owner's phone is labelled "owner device" unless
+  the phone meets the low-end reference class; reference measurements remain an owner ask. Timings come from the
+  preview-only Diagnostics screen (DG1) on a release Hermes build, never a dev client (see "Device timings (H1)").
 - `LEGAL_REVIEW_REQUIRED`: Senegal Law 2008-12 (prior declaration to the CDP? legal ground for the Senegal → EU
   transfer), validity of employee consent, retention periods above.
+
+## Amendment SP2 (2026-10-07, sprint 4 task SP2)
+
+Source: `docs/sprints/2026-10-07-phase1-dogfood-readiness.md` (decisions taken in planning) and the Q5 exit check
+(`docs/sprints/2026-10-06-phase1-playtest-gates-exit-check.md`, finding S4). No AC changes meaning; the changes are
+slicing, rollout and measurement method.
+
+| Change | Where | Why |
+|---|---|---|
+| S6 split into S6a (consented queue, consent toggle, Settings, install id, `previous_exit_unclean`, `foreground_ms`; AC-17), S6b (survey; AC-18), S6c ("Send playtest data", `exportFormat: 1`; AC-17 export), S6d ("Send match log" + TM-04/05/07 sheet; AC-20 export) | Thin slices table, Flags table | Thin, independently reviewable slices; S6a–S6c are what make the three exit KPIs measurable (sprint 4 indicator 4) |
+| "Send match log" moved from S3 to S6d | Thin slices, AC-20 note, Privacy notes, traceability, design §3.1/§5.8/§5.10.2/§10 | Q5 finding S4: the S3 PR had moved it (threat-model task P9) but the spec table had not |
+| ACs column added to the slices table | Thin slices table | Every AC maps to a slice |
+| New flag `playtest.match_log.enabled` (ASSUMPTION) and dark-launch reading of `analytics.upload.enabled` (ASSUMPTION) | Flags table | Each slice behind its own kill switch |
+| H1 device class and method | "Device timings (H1)", Q-17 | The owner's phone may not be low-end; dev clients distort timings |
+| AC-19 remote fetch not built; bundled defaults for Stage 0; remote kill switch is a Stage 1 gate | AC-19 note, Flags & rollout, Playtest distribution, Q-16 | Sprint 4 scope; Stage 0 is team-only |
+| No crash SDK in Phase 1 | Exit criteria table, KPIs, Privacy notes, Q-15 | Keeps Q-1/Q-7 and TM-10 |
+
+### Open questions raised by SP2
+
+- **OQ-SP2-1 (product-strategist, qa-engineer).** The Stage 0 gate says "all slices S1–S6d behind flags on", but
+  sprint 4 makes S4 a stretch and its success indicator 4 counts only S5 and S6a–S6c. May Stage 0 start without S4
+  and/or S6d? Not changed here. Recommendation to discuss: S4 is not needed for a team dogfood if Strategist is
+  covered before Stage 1 (playtest plan §0 already gates Stage 1 on it); S6d is strongly wanted because without it
+  S1/S2 bug reports have no match log.
+- **OQ-SP2-2 (data-analyst, mobile-engineer).** `analytics.upload.enabled` was defined as "stop uploads"; Phase 1
+  has no upload. Confirm the dark-launch reading above (flag off = nothing recorded, playtest-data UI hidden), or
+  introduce a separate recording flag.
+- **OQ-SP2-3 (mobile-engineer, security-engineer).** Accept the new `playtest.match_log.enabled` flag for S6d, or
+  gate S6d under an existing flag.
+- **OQ-SP2-4 (data-analyst, mobile-engineer).** Does `previous_exit_unclean` count an OS low-memory kill in the
+  background as unclean? If so, crash-free will read low on exactly the low-end Android devices we target. The
+  definition belongs to the catalogue (`ANALYTICS_EVENTS.md`) and should be fixed in D1 before S6a.
+- **OQ-SP2-5 (data-analyst).** Crash-free is only recorded for consenting testers with S6a on, and only from the
+  next launch. With no crash SDK and no Apple/Google org accounts yet, iOS crash-free in Stage 0 may rest on the
+  unclean-exit flag alone. Confirm that this is acceptable for the Stage 0 gate (crash-free ≥ 99.0 %).
+- **OQ-SP2-6 (security-engineer).** TM-07 says remote config "may only hide" the export address. With no remote
+  config in Stage 0, TM-07 reduces to the build constant. Confirm that TM-07 can close in S6d and be re-checked when
+  AC-19 is built for Stage 1. The threat model still says "S6" for TM-04/05/07; its owner should update it to
+  S6c/S6d (not edited here).
 
 ## Test traceability
 
@@ -570,8 +687,8 @@ the playtest starts.
 | AC-16 | Accessibility audit (VoiceOver/TalkBack) checklist; component tests tap-to-place; reduced-motion snapshot; 200% text scale screenshots |
 | AC-17 | Unit tests queue persistence, cap/drop, flush on connectivity, purge on consent off; schema tests for each event (zod); PII lint on event payloads |
 | AC-18 | Component test survey shown at 1st and 3rd completion only, dismissible, non-blocking; flag off test |
-| AC-19 | Unit tests flag resolution order (cached → bundled), background fetch non-blocking; Maestro `play_vs_bot.enabled` off with and without in-progress match |
-| AC-20 | Engine replay test: stored action log → identical state hash (property test across seeds); manual export check for absence of PII |
+| AC-19 | Unit tests flag resolution order (cached → bundled), background fetch non-blocking; Maestro `play_vs_bot.enabled` off with and without in-progress match. SP2: until the fetch is built, only the bundled-defaults path and the flag-off behaviour are tested; the cached-config and fetch tests are part of the Stage 1 gate |
+| AC-20 | Engine replay test: stored action log → identical state hash (property test across seeds); manual export check for absence of PII. SP2: the export tests (TM-04 allowlist, schema and temp-file cleanup; TM-05 confirm sheet in EN/FR; TM-07 address allowlist) land with S6d |
 
 ## Review — game-designer (2026-10-02)
 

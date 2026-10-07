@@ -2,9 +2,11 @@
 
 - Epic: E-1.5 (feeds the Phase 1 exit readout) · Sprint task: T2 (`docs/sprints/2026-10-03-phase1-bots-app-foundation.md`)
 - Owner: product-strategist · Co-owners: privacy-compliance (consent), mobile-engineer (distribution), data-analyst
-  (readout) · Status: Draft for review · Last update: 2026-10-03
+  (readout) · Status: Draft for review · Last update: 2026-10-07 (sprint 4 SP2: S6a–S6d slice names, AC-19 remote
+  config as a Stage 1 gate, crash-free sources without a crash SDK, H1 device class; parent spec "Amendment SP2")
 - Parent spec: `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.md` (its Decisions section is binding here: no
-  backend, tester-triggered export, no crash SDK, adult cohort, written consent at enrollment). Nothing in this plan
+  backend, tester-triggered export, no crash SDK in all of Phase 1 (Q-15), adult cohort, written consent at
+  enrollment). Nothing in this plan
   changes product scope; it prepares everything that has lead time so Stage 1 can start the day its gates are met.
 
 ## 0. What this plan must deliver (ROADMAP Phase 1 exit)
@@ -16,6 +18,10 @@
 | "Would play again"     | ≥ 70 % Yes                                         | one-tap survey (last answer per install) + debrief                      | §4, §4.6     |
 | Crash-free sessions    | ≥ 99.5 %, iOS and Android separately               | TestFlight / Play Console + local unclean-exit flag                     | §4           |
 | First-player win rate  | ≤ 52 %                                             | E-1.3 simulator (B2), not this playtest                                 | out of scope |
+
+Crash-free sources (parent spec Q-15, 2026-10-07): the local unclean-exit flag `app_opened.previous_exit_unclean`
+(slice S6a) is the primary source; Play vitals are added once the Play organisation account exists, and TestFlight
+crash statistics on iOS when available. No crash SDK is added in Phase 1.
 
 Stage 1 starts on **gates, not dates** (§5): lexicon batch 3 (E-1.7, ≥ 2,000 forms, ≥ 30 two-letter) merged and
 bundled, Strategist bot shipped (E-1.3), Stage 0 dogfood gate passed, legal review closed.
@@ -224,6 +230,10 @@ ASSUMPTION: "tu" in FR, consistent with the in-app tone (parent spec); counsel m
 Build pipeline: `eas build` → `eas submit` to TestFlight and the Play internal track (owner: mobile-engineer;
 devops-sre wires CI). Halt criteria and kill switches are the parent spec's ("Flags & rollout").
 
+Remote config (parent spec AC-19, Q-16): not built for Stage 0. Stage 0 flags come from bundled defaults, so a flag
+change or a halt means a new build or expiring the build. "Tuning via remote config only" in Stage 1 therefore
+depends on the AC-19 fetch, which is a Stage 1 gate (§5).
+
 ## 4. Readout template (for `data-analyst`)
 
 Copy this section into `docs/specs/E-1.5-play-vs-bot/playtest-readout.md` at the end of Stage 1.
@@ -302,15 +312,17 @@ product owner (e.g. Quick Classic 11×11, lexicon gaps, bot tuning).
 
 T is set when **all** gates are true: lexicon batch 3 bundled (≥ 2,000 forms, ≥ 30 two-letter, E-1.6/B2
 diagnostics within the game-designer thresholds), Strategist bot merged (E-1.3) and within AC-8 latency on the
-reference device, slices S1–S6 behind flags, Stage 0 gate passed, `LEGAL_REVIEW_REQUIRED` items closed, store
-groups ready. Everything below can start now (2026-10-03), so lead time should never be on the critical path.
+reference device, slices S1–S6d behind flags, AC-19 remote config fetch and remote kill switch working (parent spec
+Q-16), Stage 0 gate passed, `LEGAL_REVIEW_REQUIRED` items closed, store groups ready. "On the reference device"
+means a low-end reference-class phone: an H1 result labelled "owner device" does not meet this gate on its own
+(parent spec Q-17). Everything below can start now (2026-10-03), so lead time should never be on the critical path.
 
 | When                     | Item                                                                                             | Owner                              | Done when                                        |
 | ------------------------ | ------------------------------------------------------------------------------------------------ | ---------------------------------- | ------------------------------------------------ |
 | Now (week of 2026-10-03) | Start Apple and Google org enrollments (D-U-N-S); decide bundle ID / package name                | product owner                      | accounts verified                                |
 | Now                      | Send consent text, DATA_MAP additions and the three `LEGAL_REVIEW_REQUIRED` items to counsel     | privacy-compliance                 | counsel answer recorded in parent spec Decisions |
 | T−5 weeks (or now)       | Name channel contacts (Dakar community organiser, school contact); EAS org created               | product owner, mobile-engineer     | contacts agreed                                  |
-| T−4 weeks                | Catalogue additions (`app_backgrounded`, `previous_exit_unclean`) accepted into ANALYTICS_EVENTS | data-analyst                       | merged before S6                                 |
+| T−4 weeks                | Catalogue additions (`app_backgrounded`, `previous_exit_unclean`) accepted into ANALYTICS_EVENTS | data-analyst                       | merged before S6a                                |
 | T−4 weeks                | Enrollment form live with consent v1 (after counsel); recruitment opens                          | product-strategist                 | form live                                        |
 | T−3 weeks                | Privacy policy URL published; mailbox alias and EU storage ready                                 | tech-writer, data-analyst          | URLs tested                                      |
 | T−2 weeks                | Quota check #1; device loans ordered if low-end Android < 13 enrolled                            | product-strategist, qa-engineer    | quotas on track                                  |
