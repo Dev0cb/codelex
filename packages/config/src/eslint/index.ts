@@ -230,6 +230,9 @@ const IO_GLOBALS = [
 /** Allow-list of module specifiers (besides relative imports) for game-engine. */
 const GAME_ENGINE_ALLOWED_IMPORTS = ['^@codelex/lexicon(/.*)?$', '^@codelex/config/result$'];
 
+/** Local plugin hosting `codelex/pure-imports`, shared by the game-engine and golden-runner purity blocks. */
+const CODELEX_PLUGIN: ESLint.Plugin = { rules: { 'pure-imports': pureImportsRule } };
+
 /**
  * Allow-list for the golden runner (ADR-0016 §D3.2): the public engine entries it compares and runs (never
  * `./draft`), bots, the Result type and zod. No `node:*`: a Node-only host module, when added, gets its own
@@ -642,7 +645,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       basePath,
       files: PURE_FILES,
       ignores: PURE_EXEMPT_FILES,
-      plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
+      plugins: { codelex: CODELEX_PLUGIN },
       rules: {
         'codelex/pure-imports': ['error', { allow: GAME_ENGINE_ALLOWED_IMPORTS }],
         'no-restricted-globals': [
@@ -660,7 +663,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       basePath,
       files: GOLDEN_RUNNER_FILES,
       ignores: PURE_EXEMPT_FILES,
-      plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
+      plugins: { codelex: CODELEX_PLUGIN },
       rules: {
         'codelex/pure-imports': [
           'error',
