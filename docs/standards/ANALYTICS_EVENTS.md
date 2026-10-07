@@ -31,7 +31,7 @@ PII class: `none` · `pseudonymous` · `personal` (needs consent/legal basis not
 
 | Event · property | Type | Definition |
 |---|---|---|
-| `app_opened.previous_exit_unclean` *(v2)* | boolean, cold start only | `true` when the "session open" marker was still present at this cold start. The marker is written at launch and whenever the app becomes `active`, and removed whenever it moves to `background` or `inactive` (React Native `AppState`). So `true` means the previous process ended **while the app was active in the foreground**: a crash, an OS kill or a power loss. A process that ends while the app is in the background or `inactive` is **not** unclean: an OS low-memory kill of a backgrounded app (routine on low-end Android), a swipe-away from the recent apps or the iOS app switcher, a reboot with the app in the background. A crash while backgrounded is not counted either (accepted blind spot; Play vitals cover it). `false` on a first launch. Pure model and tests: `apps/mobile/src/analytics/session-marker.ts`. Mechanism: `docs/architecture/notes/mobile-app-foundation.md` §6. Feeds local crash-free sessions (E-1.5 KPIs, playtest plan §4.1). *(D1, 2026-10-07, OQ-SP2-4: recommendation of data-analyst and mobile-engineer, "an OS kill in the background is not a crash"; product owner decision pending, reversible before S6a ships)* |
+| `app_opened.previous_exit_unclean` *(v2)* | boolean, cold start only | `true` when the "session open" marker was still present at this cold start, i.e. the previous process ended while the app was user-facing: a crash, an OS kill or a power loss in the foreground, **including during startup**. The marker is always written at launch (the app has no background modes, so every cold start is user-initiated); until the app has been `active` once only `background` removes it (iOS passes through `inactive` while launching, and a boot crash must count); after that it is written whenever the app becomes `active` and removed whenever it moves to `background` or `inactive` (React Native `AppState`). A process that ends while the app is in the background, or `inactive` after use, is **not** unclean: an OS low-memory kill of a backgrounded app (routine on low-end Android), a swipe-away from the recent apps or the iOS app switcher, a reboot with the app in the background. Accepted blind spots: a crash while backgrounded (Play vitals cover it) and a crash while `inactive` after use (notification centre, control centre, call banner). The value is decided at launch and carried by the first `app_opened` of the process. `false` on a first launch. Pure model, S6a contract and tests: `apps/mobile/src/analytics/session-marker.ts`. Mechanism: `docs/architecture/notes/mobile-app-foundation.md` §6. Feeds local crash-free sessions (E-1.5 KPIs, playtest plan §4.1). *(D1, 2026-10-07, OQ-SP2-4: recommendation of data-analyst and mobile-engineer, "an OS kill in the background is not a crash"; product owner decision pending, reversible before S6a ships)* |
 | `app_backgrounded.foreground_ms` | integer ≥ 0 | Milliseconds the app was in the foreground since the matching `app_opened` (or the last return to the foreground). Monotonic clock, not wall clock. Feeds session length (E-1.5 Q-12: a session closes after 30 min in background; length = sum of foreground intervals) |
 
 ## Client-local playtest events (E-1.5, Phase 1)
@@ -70,7 +70,8 @@ property names, types or required/optional. So the property types in the two tab
 Wire form of one event (queue and export): `{ event, schema_version, event_id, occurred_at, user_id, session_id,
 app_version, platform, locale, properties: { … } }`, all keys required, unknown keys rejected at both levels.
 `schema_version` is the `v` column; `occurred_at` is an ISO 8601 UTC timestamp from the device clock; `platform` is
-`ios`/`android`; `user_id` is the install-scoped random id. The export file wraps the events in the envelope
+`ios`/`android`; `user_id` is the install-scoped random id; `session_id` is a random UUID v4 per process (new at
+each cold start), a grouping key only: readout sessions follow Q-12 (below), not `session_id`. The export file wraps the events in the envelope
 `exportFormat: 1` (`apps/mobile/src/export/playtest-data.ts`), which also carries the export time, so there is no
 per-event `uploaded_at` (the E-1.5 "Events" ASSUMPTION is met at file level).
 
@@ -94,13 +95,14 @@ without the other).
 | `bot_match_started` | Local match vs bot created (E-1.5 AC-3) | `local_match_id` (uuid), `mode` (`classic`), `format` (`untimed-vs-bot`), `bot_personality` (`beginner`/`strategist`), `first_player` (`player`/`bot`), `lexicon_version` (string, 16 hex), `engine_rules_version` (int ≥ 1; the `PLAY_RULES_VERSION` pinned in the header), `bot_version` (int ≥ 1; `BOT_VERSION`), `is_first_match` (bool) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `bot_match_finished` | Local match ends (R-END-001, R-TURN-004 or R-END-002) | `local_match_id` (uuid), `bot_personality` (enum; values of `bot_match_started`), `bot_version` (int ≥ 1), `engine_rules_version` (int ≥ 1), `result` (`win`/`loss`/`draw`, from the player's side), `end_reason` (`out` = R-END-001 / `scoreless_turns` = R-TURN-004 / `resign` = R-END-002), `player_score` (int, final, may be negative), `bot_score` (int, final, may be negative), `score_margin` (int = `player_score − bot_score`, signed; F-9), `bag_count_at_end` (int 0–100; tiles left in the bag when the match ended; b2-response T-9, C-10 split 0 / 1–6 / ≥ 7), `tiles_on_board_at_end` (int 0–100; C-11), `forced_pass_tail` (int ≥ 0; trailing consecutive Pass turns, both seats, taken while the bag held < 7 tiles; 0 unless `end_reason` = `scoreless_turns`; P-1 input), `active_duration_ms` (int ≥ 0), `turns` (int ≥ 0), `words_played` (int ≥ 0), `rejected_attempts` (int ≥ 0), `exchanges` (int ≥ 0), `passes` (int ≥ 0), `resume_count` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `bot_match_abandoned` | In-progress match discarded | `local_match_id` (uuid), `reason` (`replaced_by_new`/`version_mismatch`/`state_corrupt`), `turns` (int ≥ 0), `active_duration_ms` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
-| `bot_match_resumed` | Match restored after background or cold start (AC-11) | `local_match_id` (uuid), `resume_source` (`background`/`cold_start`), `away_ms` (int ≥ 0), `restore_ms` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
+| `bot_match_resumed` | Match restored after background or cold start (AC-11), or a cold-start restore that failed (then `bot_match_abandoned` follows with `state_corrupt` or `version_mismatch`) | `local_match_id` (uuid), `resume_source` (`background`/`cold_start`), `away_ms` (int ≥ 0), `restore_ms` (int ≥ 0), `restore_path` (`in_memory`/`snapshot`/`full_replay`/`failed`; threat model TM-10: `in_memory` iff `resume_source` = `background` (the process kept the state); on a cold start, `snapshot` or `full_replay` = `RestorePath` of `persistence/resume.ts`, `failed` = no state rebuilt) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `bot_decision_made` | The bot's decision is applied by the engine (one per bot turn; also after a resume recomputation, AC-11) | `local_match_id` (uuid), `action_index` (int ≥ 0; actions in the log before this decision, the `n` of the `bot:<seat>:<n>` stream), `bot_personality` (enum; values of `bot_match_started`), `bot_version` (int ≥ 1), `engine_rules_version` (int ≥ 1), `compute_ms_bucket` (enum, below; `chooseAction` wall time on device), `total_ms_bucket` (enum, below; bot turn start → move rendered, think delay included), `budget_exhausted` (bool; `BotDecision.budgetExhausted`, BOT-4), `nodes_used_bucket` (enum, below; `BotDecision.nodesUsed`), `automaton` (`gaddag`/`dawg`; BOT-8), `action_kind` (`place_word`/`exchange`/`pass`), `fallback` (bool; BOT-6 rule-correct fallback used), `recomputed` (bool; decision recomputed after a resume) | pseudonymous (properties: none) | mobile-engineer (fields from `BotDecision`, owned by ai-engineer) | playtest default | 1 |
 | `bot_word_played` | Valid word applied locally (player or bot) | `local_match_id` (uuid), `actor` (`player`/`bot`), `term_id` (canonical id), `form_kind` (`canonical`/`plural`/`verb_s`/`verb_ed`/`verb_ing`; E-1.7), `category` (enum; the term's primary lexicon category), `difficulty` (enum; lexicon difficulty), `points` (int ≥ 0), `bonus_flags` (set of `term`/`full_stack`/`chain`/`tech_square`; `tech_square` never set while tech squares are off), `think_ms` (int ≥ 0), `turn` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
-| `word_rejected` | Player's PLAY rejected by the engine | `local_match_id` (uuid), `reason` (`not_in_lexicon`/`placement`/`cross_word`), `word_length` (int 0–15), `think_ms` (int ≥ 0), `turn` (int ≥ 0). The attempted form is excluded (E-1.5 Q-8) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
+| `word_rejected` | Player's PLAY rejected by the engine | `local_match_id` (uuid), `reason` (`not_in_lexicon`/`placement`/`cross_word`), `word_length` (int 1–15), `think_ms` (int ≥ 0), `turn` (int ≥ 0). The attempted form is excluded (E-1.5 Q-8) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `match_summary_action` | Action tapped on the summary | `local_match_id` (uuid), `action` (`play_again`/`change_opponent`/`home`/`discover`), `ms_on_summary` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `knowledge_card_closed` | Card dismissed | `term_id` (canonical id), `source` (`post_match`/`graph`), `dwell_ms` (int ≥ 0), `related_taps` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `playtest_survey_answered` | One-tap survey answered or dismissed | `survey_id` (string id), `question_id` (`would_play_again`), `answer` (`yes`/`maybe`/`no`/`dismissed`), `matches_completed` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
+| `playtest_survey_shown` | One-tap survey displayed on the summary (E-1.5 AC-18; at most twice per install) | `survey_id` (string id), `question_id` (`would_play_again`), `matches_completed` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 | `analytics_buffer_flushed` | Queue exported through "Send playtest data" (AC-17) | `events_sent` (int ≥ 0), `events_dropped_since_last` (int ≥ 0), `oldest_event_age_ms` (int ≥ 0) | pseudonymous (properties: none) | mobile-engineer | playtest default | 1 |
 
 **Latency and node buckets** (lower bound inclusive, upper bound exclusive; closed enums):
@@ -135,15 +137,22 @@ without the other).
 
 - `app_backgrounded.foreground_ms` and `app_opened.previous_exit_unclean` are accepted as the way to measure
   session length and local crash-free. No other mechanism is needed in Phase 1.
+- Ordering: events of one install are ordered by their position in the export files (the queue is append-only and
+  exported oldest first; files in `exportedAt` order). `occurred_at` (device clock, may jump) is used only to place
+  intervals in time and to measure background gaps, never to reorder events.
 - Session reconstruction, per install: each `app_backgrounded` closes one foreground interval
-  `[occurred_at − foreground_ms, occurred_at]`. Intervals separated by ≤ 30 min of background are one session (Q-12);
-  session length = sum of `foreground_ms`. A cold start whose `previous_exit_unclean = true` closes the last open
-  interval at the last event recorded before it (a lower bound, because a crash leaves no `app_backgrounded`).
-- Crash-free sessions = 1 − (sessions ended by an unclean exit ÷ sessions), per platform. A session is "ended by an
-  unclean exit" when the next cold start of that install has `previous_exit_unclean = true`. A session with no
-  later cold start in the export has an unknown outcome: it is left out of the rate and its count is reported.
-- Wall-clock timestamps (`occurred_at`) are used only to order and group events of one install; durations come
-  from `foreground_ms` (monotonic clock).
+  `[occurred_at − foreground_ms, occurred_at]`; an interval is **open** from an `app_opened` until its
+  `app_backgrounded`. Intervals separated by ≤ 30 min of background are one session (Q-12); session length = sum of
+  `foreground_ms`. `session_id` is not used for this.
+- Crash attribution: a cold start with `previous_exit_unclean = true` ends the session holding the open interval, if
+  there is one; that interval is closed at the last event recorded before the cold start (a lower bound, because a
+  crash leaves no `app_backgrounded`). If there is no open interval (the previous session ended cleanly and the
+  crashed process recorded nothing, e.g. a boot crash), it counts as a separate **zero-length crashed session**: it
+  enters the crash-free rate and is left out of session length.
+- Crash-free sessions = 1 − (sessions ended by an unclean exit ÷ sessions), per platform. A session with no later
+  cold start in the export has an unknown outcome: it is left out of the rate and its count is reported.
+- Survey answer rate (S6b) = `playtest_survey_answered` with `answer` ≠ `dismissed` ÷ `playtest_survey_shown`; dismiss rate = `answer = dismissed` ÷ shown; the rest were ignored (the survey never
+  blocks Play again, AC-18). `playtest_survey_shown` was added for this: without it "shown" was not computable.
 
 ### Privacy-compliance FYI (sprint 3 SP1; review requested, not a blocker for schema work)
 
@@ -161,15 +170,19 @@ without the other).
 - 2026-10-07 (sprint 4 D1, `mobile-engineer` with `data-analyst`; no build has emitted these events yet, so no
   version bump):
   - "Schema contract" paragraph: type grammar, wire form, zod schemas frozen against this section by a test.
-  - Count and duration properties typed `int ≥ 0`, versions `int ≥ 1`, `word_rejected.word_length` `int 0–15`,
-    `term_id` typed `canonical id` everywhere; `bot_score` may be negative like `player_score`. Clarifications
-    only: no meaning changes.
+  - Count and duration properties typed `int ≥ 0`, versions `int ≥ 1`, `word_rejected.word_length` `int 1–15`,
+    `term_id` typed `canonical id` everywhere; `bot_score` may be negative like `player_score`. Types tightened; no
+    emitted data affected (nothing has been emitted yet).
+  - `bot_match_resumed.restore_path` added (threat model TM-10), with `in_memory` for background resumes.
+  - New event `playtest_survey_shown` (S6b answer rate).
   - New table of typed properties for the reused events (`app_opened`, `onboarding_step_completed`,
     `knowledge_card_opened`, `knowledge_graph_navigated`); `cold_start_ms` and `previous_exit_unclean` present on cold
     starts only; `network_type` values.
-  - `previous_exit_unclean`: an OS kill or swipe-away while the app is in the background or `inactive` is not an
-    unclean exit (OQ-SP2-4 recommendation; product owner decision pending).
-  - Data-analyst notes D1: session and crash-free reconstruction (answers playtest plan OQ-3).
+  - `previous_exit_unclean`: a crash during startup counts; an OS kill or swipe-away while the app is in the
+    background or `inactive` after use is not an unclean exit (OQ-SP2-4 recommendation; product owner decision
+    pending).
+  - `session_id` defined as per process. Data-analyst notes D1: ordering, session, crash attribution and crash-free
+    reconstruction (answers playtest plan OQ-3); survey answer rate.
 
 - 2026-10-04 (sprint 3 SP1, `product-strategist` drafting for `data-analyst`):
   - `app_opened` v2 adds `previous_exit_unclean`.

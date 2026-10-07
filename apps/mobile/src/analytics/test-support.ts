@@ -63,6 +63,7 @@ const PROPERTIES: {
     resume_source: 'cold_start',
     away_ms: 3_600_000,
     restore_ms: 120,
+    restore_path: 'snapshot',
   },
   bot_decision_made: {
     local_match_id: MATCH_ID,
@@ -100,6 +101,11 @@ const PROPERTIES: {
   },
   match_summary_action: { local_match_id: MATCH_ID, action: 'play_again', ms_on_summary: 4000 },
   knowledge_card_closed: { term_id: 'api', source: 'graph', dwell_ms: 2500, related_taps: 1 },
+  playtest_survey_shown: {
+    survey_id: 'stage0',
+    question_id: 'would_play_again',
+    matches_completed: 1,
+  },
   playtest_survey_answered: {
     survey_id: 'stage0',
     question_id: 'would_play_again',
@@ -128,6 +134,7 @@ const VERSIONS: { readonly [N in EventName]: number } = {
   word_rejected: 1,
   match_summary_action: 1,
   knowledge_card_closed: 1,
+  playtest_survey_shown: 1,
   playtest_survey_answered: 1,
   analytics_buffer_flushed: 1,
 };

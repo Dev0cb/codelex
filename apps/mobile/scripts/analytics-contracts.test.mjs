@@ -23,7 +23,7 @@ const backgrounded = {
 };
 
 test('event schemas load and validate in Node', () => {
-  assert.equal(events.EVENT_NAMES.length, 16);
+  assert.equal(events.EVENT_NAMES.length, 17);
   assert.deepEqual(events.parseAnalyticsEvent(backgrounded), { ok: true, event: backgrounded });
   assert.equal(events.parseAnalyticsEvent({ ...backgrounded, extra: 1 }).ok, false);
 });
@@ -45,5 +45,5 @@ test('a playtest export round-trips through decodePlaytestExport in Node', () =>
 });
 
 test('the session-marker model loads in Node', () => {
-  assert.equal(marker.decideAtLaunch(true, 'active').previousExitUnclean, true);
+  assert.equal(marker.decideAtLaunch(true).previousExitUnclean, true);
 });

@@ -15,11 +15,13 @@ import {
   CANONICAL_ID_PATTERN,
   CATEGORY_IDS,
   COMPUTE_MS_BUCKETS,
+  EVENT_NAMES,
   EVENT_SCHEMAS,
   NODES_USED_BUCKETS,
   STRING_ID_PATTERN,
   type EventName,
 } from './events.ts';
+import { sampleEvent } from './test-support.ts';
 
 const REPO_ROOT = join(__dirname, '../../../..');
 const CATALOGUE = readFileSync(join(REPO_ROOT, 'docs/standards/ANALYTICS_EVENTS.md'), 'utf8');
@@ -136,8 +138,8 @@ type Shape =
   | { readonly kind: 'bool' }
   | { readonly kind: 'int'; readonly min: number; readonly max: number }
   | { readonly kind: 'enum'; readonly values: readonly string[] }
-  | { readonly kind: 'set'; readonly values: readonly string[] }
-  | { readonly kind: 'pattern'; readonly pattern: string };
+  | { readonly kind: 'set'; readonly values: readonly string[]; readonly maxItems: number }
+  | { readonly kind: 'pattern'; readonly pattern: string; readonly maxLength?: number };
 
 interface Descriptor {
   readonly shape: Shape;
@@ -188,7 +190,9 @@ function expected(
   const of = (shape: Shape): Descriptor => ({ shape, optional });
   if (base === 'uuid') return of({ kind: 'uuid' });
   if (base === 'bool') return of({ kind: 'bool' });
-  if (base === 'canonical id') return of({ kind: 'pattern', pattern: CANONICAL_ID_PATTERN.source });
+  if (base === 'canonical id') {
+    return of({ kind: 'pattern', pattern: CANONICAL_ID_PATTERN.source, maxLength: 64 });
+  }
   if (base === 'string id') return of({ kind: 'pattern', pattern: STRING_ID_PATTERN.source });
   if (base === 'string' && parts[1] === '16 hex') return of({ kind: 'pattern', pattern: HEX16 });
   const int = /^int(?:\s*≥\s*(-?\d+)|\s+(-?\d+)–(-?\d+))?(?:\s|=|$)/.exec(base);
@@ -197,7 +201,10 @@ function expected(
     if (int[2] !== undefined) return of({ kind: 'int', min: Number(int[2]), max: Number(int[3]) });
     return of({ kind: 'int', min: MIN_SAFE, max: MAX_SAFE });
   }
-  if (base.startsWith('set of')) return of({ kind: 'set', values: backticked(base) });
+  if (base.startsWith('set of')) {
+    const values = backticked(base);
+    return of({ kind: 'set', values, maxItems: values.length });
+  }
   if (base === 'enum') {
     const values = prop.name === 'bot_personality' ? personalities : ENUM_REFERENCES[prop.name];
     if (values === undefined) throw new Error(`${event}.${prop.name}: unresolved enum reference`);
@@ -214,9 +221,11 @@ function expected(
 interface JsonSchema {
   readonly type?: string;
   readonly enum?: readonly string[];
-  readonly const?: string;
+  readonly const?: string | number;
   readonly format?: string;
   readonly pattern?: string;
+  readonly maxLength?: number;
+  readonly maxItems?: number;
   readonly minimum?: number;
   readonly maximum?: number;
   readonly items?: JsonSchema;
@@ -230,15 +239,21 @@ function actualShape(schema: JsonSchema): Shape {
   if (schema.type === 'integer') {
     return { kind: 'int', min: schema.minimum ?? -Infinity, max: schema.maximum ?? Infinity };
   }
-  if (schema.const !== undefined) return { kind: 'enum', values: [schema.const] };
+  if (schema.const !== undefined) return { kind: 'enum', values: [String(schema.const)] };
   if (schema.enum !== undefined) return { kind: 'enum', values: schema.enum };
   if (schema.type === 'array' && schema.items !== undefined) {
     const items = actualShape(schema.items);
-    return { kind: 'set', values: items.kind === 'enum' ? items.values : [] };
+    return {
+      kind: 'set',
+      values: items.kind === 'enum' ? items.values : [],
+      maxItems: schema.maxItems ?? Infinity,
+    };
   }
   if (schema.type === 'string' && schema.format === 'uuid') return { kind: 'uuid' };
   if (schema.type === 'string' && schema.pattern !== undefined) {
-    return { kind: 'pattern', pattern: schema.pattern };
+    return schema.maxLength === undefined
+      ? { kind: 'pattern', pattern: schema.pattern }
+      : { kind: 'pattern', pattern: schema.pattern, maxLength: schema.maxLength };
   }
   throw new Error(`schema outside the grammar: ${JSON.stringify(schema)}`);
 }
@@ -290,7 +305,45 @@ const MAIN_TABLE = tables(CATALOGUE.slice(0, CATALOGUE.indexOf('\n### App lifecy
 describe('analytics catalogue ↔ zod schemas (AC-17, sprint 4 D1)', () => {
   it('finds the two typed tables of the E-1.5 client section', () => {
     expect(clientTables).toHaveLength(2);
-    expect(CATALOGUE_EVENTS.length).toBeGreaterThanOrEqual(16);
+    expect(CATALOGUE_EVENTS.length).toBeGreaterThanOrEqual(17);
+  });
+
+  it('matches the "Wire form" paragraph: envelope keys, all required, typed', () => {
+    const contract = section('Client-local playtest events');
+    const start = contract.indexOf('Wire form of one event');
+    const paragraph = contract.slice(start, contract.indexOf('\n\n', start)).replace(/\n/g, ' ');
+    const braces = paragraph.slice(paragraph.indexOf('{'), paragraph.indexOf('properties:'));
+    const wireKeys = [...braces.matchAll(/([a-z_]+)[,\s]/g)].map((m) => m[1]);
+    const platforms = backticked(
+      paragraph.slice(paragraph.indexOf('`platform` is') + 13).split(';')[0] ?? '',
+    );
+    for (const name of EVENT_NAMES) {
+      const json = toJSONSchema(EVENT_SCHEMAS[name].schema, { io: 'input' }) as JsonSchema;
+      const keys = Object.keys(json.properties ?? {});
+      expect(keys.sort()).toEqual([...wireKeys, 'properties'].sort());
+      expect([...(json.required ?? [])].sort()).toEqual(keys.sort());
+      const p = json.properties ?? {};
+      expect(p['platform']?.enum).toEqual(platforms);
+      expect(p['occurred_at']?.format).toBe('date-time');
+      for (const id of ['event_id', 'user_id', 'session_id']) expect(p[id]?.format).toBe('uuid');
+      expect(p['schema_version']?.const).toBe(EVENT_SCHEMAS[name].version);
+      expect(p['event']?.const).toBe(name);
+    }
+  });
+
+  it('rejects a duplicate value in every set property', () => {
+    for (const event of CATALOGUE_EVENTS) {
+      for (const prop of event.properties) {
+        if (!(prop.type ?? '').startsWith('set of')) continue;
+        const name = event.name as EventName;
+        const sample = sampleEvent(name);
+        const value = backticked(prop.type ?? '')[0];
+        (sample['properties'] as Record<string, unknown>)[prop.name] = [value, value];
+        expect(EVENT_SCHEMAS[name].schema.safeParse(sample).success).toBe(false);
+        (sample['properties'] as Record<string, unknown>)[prop.name] = [value];
+        expect(EVENT_SCHEMAS[name].schema.safeParse(sample).success).toBe(true);
+      }
+    }
   });
 
   it('has a schema for exactly the catalogue events, no more, no fewer', () => {
@@ -387,7 +440,16 @@ describe('catalogue parser', () => {
       optional: true,
     });
     expect(d('string, 16 hex').shape).toEqual({ kind: 'pattern', pattern: HEX16 });
-    expect(d('set of `a`/`b`; `c` reserved').shape).toEqual({ kind: 'set', values: ['a', 'b'] });
+    expect(d('set of `a`/`b`; `c` reserved').shape).toEqual({
+      kind: 'set',
+      values: ['a', 'b'],
+      maxItems: 2,
+    });
+    expect(d('canonical id').shape).toEqual({
+      kind: 'pattern',
+      pattern: CANONICAL_ID_PATTERN.source,
+      maxLength: 64,
+    });
     expect(d('`out` = R-1 / `resign` = R-2').shape).toEqual({
       kind: 'enum',
       values: ['out', 'resign'],

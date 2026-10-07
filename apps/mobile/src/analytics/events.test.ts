@@ -64,13 +64,21 @@ describe('E-1.5 analytics events', () => {
     expect(parseAnalyticsEvent(extraEnvelope).ok).toBe(false);
   });
 
-  it.each(NAMES)('%s: rejects a missing required property', (name) => {
-    const event = sampleEvent(name);
-    const props = event['properties'] as Record<string, unknown>;
-    const key = Object.keys(props).find((k) => !(name === 'app_opened' && k !== 'network_type'));
-    if (key === undefined) throw new Error('no required key');
-    event['properties'] = Object.fromEntries(Object.entries(props).filter(([k]) => k !== key));
-    expect(parseAnalyticsEvent(event).ok).toBe(false);
+  it.each(NAMES)('%s: rejects the event when any single key is missing', (name) => {
+    // Every property and envelope key is required. For app_opened the two optional cold-start properties come as a
+    // pair, so dropping either one alone is rejected too.
+    const props = sampleEvent(name)['properties'] as Record<string, unknown>;
+    for (const key of Object.keys(props)) {
+      const event = sampleEvent(name);
+      event['properties'] = Object.fromEntries(Object.entries(props).filter(([k]) => k !== key));
+      expect(parseAnalyticsEvent(event).ok).toBe(false);
+    }
+    for (const key of Object.keys(sampleEvent(name))) {
+      const event = Object.fromEntries(
+        Object.entries(sampleEvent(name)).filter(([k]) => k !== key),
+      );
+      expect(parseAnalyticsEvent(event).ok).toBe(false);
+    }
   });
 
   it('rejects the wrong schema_version, an unknown event and a non-object', () => {

@@ -252,7 +252,18 @@ export const BotMatchResumed = defineEvent(
     resume_source: z.enum(['background', 'cold_start']),
     away_ms: intAtLeast(0),
     restore_ms: intAtLeast(0),
-  }),
+    /**
+     * TM-10. `in_memory` iff `resume_source` = `background` (the process kept the state). On a cold start:
+     * `snapshot` / `full_replay` = `RestorePath` of `persistence/resume.ts`; `failed` = no state rebuilt (a
+     * `bot_match_abandoned` with `state_corrupt` or `version_mismatch` follows).
+     */
+    restore_path: z.enum(['in_memory', 'snapshot', 'full_replay', 'failed']),
+  }).check(
+    z.refine(
+      (p) => (p.restore_path === 'in_memory') === (p.resume_source === 'background'),
+      'restore_path is in_memory exactly when resume_source is background',
+    ),
+  ),
 );
 
 export const BotDecisionMade = defineEvent(
@@ -299,7 +310,7 @@ export const WordRejected = defineEvent(
   props({
     local_match_id: uuid(),
     reason: z.enum(['not_in_lexicon', 'placement', 'cross_word']),
-    word_length: intBetween(0, 15),
+    word_length: intBetween(1, 15),
     think_ms: intAtLeast(0),
     turn: intAtLeast(0),
   }),
@@ -323,6 +334,17 @@ export const KnowledgeCardClosed = defineEvent(
     source: z.enum(['post_match', 'graph']),
     dwell_ms: intAtLeast(0),
     related_taps: intAtLeast(0),
+  }),
+);
+
+/** Denominator of the S6b answer rate (catalogue data-analyst notes D1). */
+export const PlaytestSurveyShown = defineEvent(
+  'playtest_survey_shown',
+  1,
+  props({
+    survey_id: stringId(),
+    question_id: z.literal('would_play_again'),
+    matches_completed: intAtLeast(0),
   }),
 );
 
@@ -365,6 +387,7 @@ export const EVENT_SCHEMAS = {
   word_rejected: WordRejected,
   match_summary_action: MatchSummaryAction,
   knowledge_card_closed: KnowledgeCardClosed,
+  playtest_survey_shown: PlaytestSurveyShown,
   playtest_survey_answered: PlaytestSurveyAnswered,
   analytics_buffer_flushed: AnalyticsBufferFlushed,
 } as const;
@@ -388,6 +411,7 @@ export const AnalyticsEventSchema = z.discriminatedUnion('event', [
   WordRejected.schema,
   MatchSummaryAction.schema,
   KnowledgeCardClosed.schema,
+  PlaytestSurveyShown.schema,
   PlaytestSurveyAnswered.schema,
   AnalyticsBufferFlushed.schema,
 ]);
