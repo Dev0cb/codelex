@@ -1,6 +1,6 @@
 # 0016 — Hermes golden runner: a source-built `hermes` VM in CI and one runner for CI and device
 
-- Status: Proposed
+- Status: Accepted (product owner, 2026-10-07, in session; sprint task A1)
 - Date: 2026-10-07
 - Deciders: product owner (human), solution-architect, devops-sre, mobile-engineer, game-engine-engineer,
   ai-engineer; security-engineer review requested (supply chain of the CI build, §D2.4)
