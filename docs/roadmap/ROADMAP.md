@@ -33,7 +33,7 @@ exporters moved to Phase 2 (E-2.0, E-2.3, E-2.9). Bundle budgets arrive with the
 Goal: prove the fun.
 In progress since 2026-10-02 — sprint 1 `docs/sprints/2026-10-02-phase1-engine-core.md` done (exit check 2026-10-03);
 sprint 2 `docs/sprints/2026-10-03-phase1-bots-app-foundation.md` closed (exit check 2026-10-04; H1 device timings and
-stretch S1 carried over); sprint 3 `docs/sprints/2026-10-04-phase1-playtest-gates.md` closed (exit check 2026-10-06; P3 Hermes job, S4 and H1 carried over); sprint 4 not yet planned.
+stretch S1 carried over); sprint 3 `docs/sprints/2026-10-04-phase1-playtest-gates.md` closed (exit check 2026-10-06; P3 Hermes job, S4 and H1 carried over); sprint 4 `docs/sprints/2026-10-07-phase1-dogfood-readiness.md` planned 2026-10-07.
 
 | ID    | Epic                                                                                                   | Owner                             |
 | ----- | ------------------------------------------------------------------------------------------------------ | --------------------------------- |
