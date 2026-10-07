@@ -25,7 +25,11 @@ import {
 import { rebuildModel, type MatchModel } from '../match/match-model';
 import type { StoredLog } from './match-journal';
 
-/** How the state was rebuilt (TM-10 `restore_path`, for analytics in slice S6). */
+/**
+ * How the state was rebuilt: the cold-start values of `bot_match_resumed.restore_path` (TM-10). The event's other
+ * values come from the caller, not from here: `failed` when `restoreMatch` returns `state_corrupt` or
+ * `version_mismatch`, `in_memory` for a background resume.
+ */
 export type RestorePath = 'snapshot' | 'full_replay';
 
 /** First divergent checkpoint of a log that failed to replay, for "Send match log" (TM-04, slice S6). */
