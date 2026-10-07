@@ -3,13 +3,26 @@
  * D1). Pure decisions only: slice S6a owns the file I/O and the `AppState` subscription and must drive them through
  * these functions.
  *
- * The rule: the "session open" marker is on disk exactly while the app is `active` (in the foreground and
- * interactive). It is written at launch and on every move to `active`, and removed on every move to `background` or
- * `inactive`. At the next cold start, a marker still on disk means the previous process ended while active: a crash,
- * an OS kill or a power loss in the foreground. An OS kill while the app is in the background (the routine
- * low-memory kill on low-end Android) or `inactive` (the iOS app switcher, where a swipe-away kills the app) is NOT an
- * unclean exit. A crash while backgrounded is not counted either (accepted blind spot; Play vitals cover it).
+ * The rule: the "session open" marker is on disk while the app is user-facing.
+ * - It is **always written at launch** (the app declares no background modes, so every cold start is user-initiated).
+ *   Until the app has been `active` once, only `background` removes it: iOS passes through `inactive` while it
+ *   launches, and a crash at boot (a JS throw, a native crash before the first `active`) must still be reported.
+ * - After the first `active`: written on every move to `active`, removed on every move to `background` or `inactive`.
+ *
+ * At the next cold start, a marker still on disk means the previous process ended while user-facing: a crash, an OS
+ * kill or a power loss in the foreground, including during startup. An OS kill while the app is in the background (the
+ * routine low-memory kill on low-end Android) or `inactive` after use (the iOS app switcher, where a swipe-away kills
+ * the app) is NOT an unclean exit. Accepted blind spots: a crash while backgrounded (Play vitals cover it), and a
+ * crash while `inactive` after use (notification centre, control centre, call banner).
  * Recommendation of data-analyst and mobile-engineer; the product owner's decision is pending (OQ-SP2-4).
+ *
+ * S6a contract:
+ * 1. At process start, read the marker, call `decideAtLaunch`, write the marker (`state.present` is true).
+ * 2. Subscribe with `AppState.addEventListener('change', …)` and, in the same tick, feed `AppState.currentState`
+ *    through `onAppStateChange` too (a transition between the two is otherwise lost). Write or delete the file
+ *    whenever `present` changes.
+ * 3. Hold `previousExitUnclean` in memory and put it on the first `app_opened` of the process (the cold start), even
+ *    if that comes later than the launch (the marker is consumed at launch, the event fires on the first foreground).
  *
  * Portable: no imports, so Node can reuse it (readout and tests).
  */
@@ -23,42 +36,37 @@ export const SESSION_MARKER_FILE = 'session.open';
 /** React Native `AppStateStatus` values (`unknown` and `extension` are iOS-only edge states). */
 export type AppStateValue = 'active' | 'background' | 'inactive' | 'unknown' | 'extension';
 
-export type MarkerAction = 'write' | 'clear' | 'keep';
-
-/** What to do with the marker when `AppState` changes to `next`. */
-export function markerActionOnChange(next: AppStateValue): MarkerAction {
-  switch (next) {
-    case 'active':
-      return 'write';
-    case 'background':
-    case 'inactive':
-      return 'clear';
-    case 'unknown':
-    case 'extension':
-      return 'keep';
-  }
+export interface MarkerState {
+  /** The marker file is on disk. */
+  readonly present: boolean;
+  /** The app has been `active` at least once in this process. */
+  readonly seenActive: boolean;
 }
 
 export interface LaunchDecision {
   /** The value of `app_opened.previous_exit_unclean` for this cold start. */
   readonly previousExitUnclean: boolean;
-  /** What to do with the marker once it has been read. */
-  readonly action: Exclude<MarkerAction, 'keep'>;
+  /** The marker state to establish now: always written. */
+  readonly state: MarkerState;
 }
 
-/**
- * At a cold start, after reading whether the previous process left its marker. The marker then reflects this
- * process: written unless the app starts in the background or `inactive` (a stale marker is never kept). A first
- * launch finds no marker, hence `false`.
- */
-export function decideAtLaunch(markerFound: boolean, initial: AppStateValue): LaunchDecision {
-  const now = markerActionOnChange(initial);
-  return { previousExitUnclean: markerFound, action: now === 'clear' ? 'clear' : 'write' };
+/** At a cold start, after reading whether the previous process left its marker. A first launch finds none: `false`. */
+export function decideAtLaunch(markerFound: boolean): LaunchDecision {
+  return { previousExitUnclean: markerFound, state: { present: true, seenActive: false } };
 }
 
-/** The marker after applying `action` to a marker that was `present`. */
-export function applyMarkerAction(present: boolean, action: MarkerAction): boolean {
-  if (action === 'write') return true;
-  if (action === 'clear') return false;
-  return present;
+/** The marker state after `AppState` reports `next` (a change event, or the current state at subscription). */
+export function onAppStateChange(state: MarkerState, next: AppStateValue): MarkerState {
+  switch (next) {
+    case 'active':
+      return { present: true, seenActive: true };
+    case 'background':
+      return { present: false, seenActive: state.seenActive };
+    case 'inactive':
+      // During launch (never active yet) iOS reports `inactive`: keep the marker so a boot crash is counted.
+      return state.seenActive ? { present: false, seenActive: true } : state;
+    case 'unknown':
+    case 'extension':
+      return state;
+  }
 }

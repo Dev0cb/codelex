@@ -192,11 +192,12 @@ format:check test`.
   note.
 
 - **Crash reporting:** no SDK (E-1.5 Q-1/Q-7, Q-15). Slice S6a adds the unclean-exit flag: the "session open"
-  marker (`session.open` in the data directory, TM-03) is written at launch and whenever `AppState` becomes `active`,
-  and removed whenever it becomes `background` or `inactive`; at the next cold start a remaining marker means the
-  previous process died while active, reported as `app_opened.previous_exit_unclean` (E-1.5 analytics). A
-  background OS kill is not unclean (OQ-SP2-4, sprint 4 D1). Pure decisions and tests:
-  `src/analytics/session-marker.ts`. Crash-free rates also come from TestFlight and Play Console.
+  marker (`session.open` in the data directory, TM-03) is always written at launch; before the first `active` only
+  `background` removes it (a boot crash through iOS `inactive` still counts); after that it is written whenever
+  `AppState` becomes `active` and removed whenever it becomes `background` or `inactive`. At the next cold start a
+  remaining marker means the previous process died user-facing, reported as `app_opened.previous_exit_unclean`
+  (E-1.5 analytics). A background OS kill is not unclean (OQ-SP2-4, sprint 4 D1). Pure decisions, the S6a contract
+  (read `AppState.currentState` in the same tick as subscribing) and tests: `src/analytics/session-marker.ts`. Crash-free rates also come from TestFlight and Play Console.
 - **Analytics and export contracts (sprint 4 D1).** Event schemas in `src/analytics/events.ts` (zod/mini, frozen
   against `docs/standards/ANALYTICS_EVENTS.md` by `catalogue.test.ts`); export envelopes `exportFormat: 1` in
   `src/export/` (`playtest-data.ts` for S6c, `match-log.ts` for S6d, TM-04). The analytics modules and
