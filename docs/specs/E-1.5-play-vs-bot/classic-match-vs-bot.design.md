@@ -700,6 +700,9 @@ Rules:
   off").
 - **Install id**: read-only, selectable, with Copy (toast `common.copied`). It is the same id displayed on the export
   screen.
+- **Slices (spec amendment SP2, 2026-10-07).** The screen, the consent toggle, the notice and the install id ship in
+  S6a; "Send playtest data" (5.9) in S6c; the "Send match log" row in S6d. Rows of a slice not yet shipped are not
+  rendered (no disabled placeholders).
 - **Send match log**: sheet with `matchlog.scope.*` (in-progress match, else the last finished one, else
   `matchlog.empty`), then the OS share sheet with the file (moves, seed, versions, final hash; no PII). Works with
   consent off (it is user-initiated debugging data, not telemetry).
@@ -786,7 +789,8 @@ The card replaces the resume card on Home and is shown on every launch until the
 ```
 
 - Triggers: `RULES_VERSION_UNSUPPORTED`, `LEXICON_MISMATCH` (→ `version_mismatch`), or hash/decoding failure
-  (→ `state_corrupt`, copy `resume.corrupt` plus a secondary text button **Send match log**).
+  (→ `state_corrupt`, copy `resume.corrupt` plus a secondary text button **Send match log**; the button ships with
+  slice S6d behind `playtest.match_log.enabled`, and until then the card offers "Start a new match" only).
 - `bot_match_abandoned` (`reason`) is emitted once per `local_match_id` when the state is first detected as
   unusable; the stored match is deleted when "Start a new match" is tapped. There is no "discard" separate action and no
   punishment copy.
@@ -1049,10 +1053,10 @@ Summary keys except `summary.new_to_you`/`summary.new_badge`, which wait for the
 
 Keys added by `mobile-engineer` in slice S3, pending translation review: the §10.2 resume and cannot-resume keys,
 `match.resume.restored`, `match.low_storage`, `summary.new_to_you`, `summary.new_badge`, and the §10.5 `matchlog.*`
-keys for slice S6. Threat model TM-05 changed two of them: `matchlog.confirm.body` now says "No personal data in the
+keys for slice S6d. Threat model TM-05 changed two of them: `matchlog.confirm.body` now says "No personal data in the
 file" (the file holds none; an email does reveal the sender), and the new `matchlog.email_notice` is shown under it.
 It differs from `export.email_notice` because the match log carries no tester ID. The confirm sheet that renders
-both ships with "Send match log" in S6.
+both ships with "Send match log" in S6d (spec amendment SP2, 2026-10-07: S6 is split into S6a–S6d).
 
 All user-facing strings live in `packages/i18n` catalogues, ICU MessageFormat. `{…}` = argument. French uses *tu*.
 Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` resolves to `bot.<id>.name`.
