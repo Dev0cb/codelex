@@ -226,6 +226,8 @@ On the reference mid-range Android (4 GB RAM, Snapdragon 6-series class) and one
 
 - S1: implement §4 (seam, JS runner, input rules), feature-flagged with the slice (`play_vs_bot.enabled`).
 - H1: §7; apply §6. If B is chosen: ADR-0015 (second runtime, Bundle Mode), with security-engineer review of the
-  Metro/Babel changes and devops-sre for Sentry symbolication of the worker runtime.
+  Metro/Babel changes and devops-sre for Sentry symbolication of the worker runtime. The number ADR-0015 stays
+  reserved for this decision (ADR-0016, numbering note); if §6 has not fired by the sprint 4 exit check (Q6), it
+  may be released there and is then left unused.
 - ai-engineer: the cheaper key build (bots-api §5.6 step 1) helps every option; option C only if §6 fires and
   Bundle Mode fails.
