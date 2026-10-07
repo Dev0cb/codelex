@@ -9,7 +9,14 @@ interface SourceNode {
 
 interface Options {
   readonly allow?: readonly string[];
+  /** Package named in messages (default `game-engine`). */
+  readonly label?: string;
+  /** Human-readable allow-list for messages (default: the game-engine list). */
+  readonly allowed?: string;
 }
+
+const DEFAULT_LABEL = 'game-engine';
+const DEFAULT_ALLOWED = 'relative imports, @codelex/lexicon, @codelex/config/result';
 
 /**
  * Allow-list for module specifiers: relative imports (cross-package escapes are judged by the
@@ -22,20 +29,26 @@ export const pureImportsRule: Rule.RuleModule = {
     schema: [
       {
         type: 'object',
-        properties: { allow: { type: 'array', items: { type: 'string' } } },
+        properties: {
+          allow: { type: 'array', items: { type: 'string' } },
+          label: { type: 'string' },
+          allowed: { type: 'string' },
+        },
         additionalProperties: false,
       },
     ],
     messages: {
       forbidden:
-        "'{{source}}' is not on the game-engine allow-list (relative imports, @codelex/lexicon, @codelex/config/result): game-engine must stay pure (ENGINEERING §2).",
+        "'{{source}}' is not on the {{label}} allow-list ({{allowed}}): {{label}} must stay pure (ENGINEERING §2).",
       dynamic:
-        'Module specifiers must be string literals in game-engine so they can be checked (ENGINEERING §2).',
+        'Module specifiers must be string literals in {{label}} so they can be checked (ENGINEERING §2).',
     },
   },
   create(context) {
     const options = (context.options[0] ?? {}) as Options;
     const allow = (options.allow ?? []).map((pattern) => new RegExp(pattern));
+    const label = options.label ?? DEFAULT_LABEL;
+    const allowed = options.allowed ?? DEFAULT_ALLOWED;
 
     function specifier(node: SourceNode | null | undefined): string | null | undefined {
       if (!node) return undefined;
@@ -50,11 +63,15 @@ export const pureImportsRule: Rule.RuleModule = {
       const value = specifier(source);
       if (value === undefined) return;
       if (value === null) {
-        context.report({ node: report, messageId: 'dynamic' });
+        context.report({ node: report, messageId: 'dynamic', data: { label } });
         return;
       }
       if (value.startsWith('.') || allow.some((re) => re.test(value))) return;
-      context.report({ node: report, messageId: 'forbidden', data: { source: value } });
+      context.report({
+        node: report,
+        messageId: 'forbidden',
+        data: { source: value, label, allowed },
+      });
     }
 
     const tsListeners: Record<string, (node: Rule.Node) => void> = {
@@ -84,7 +101,7 @@ export const pureImportsRule: Rule.RuleModule = {
         if (node.callee.type === 'Identifier' && node.callee.name === 'require') {
           const [first] = node.arguments;
           if (first) check(node, first);
-          else context.report({ node, messageId: 'dynamic' });
+          else context.report({ node, messageId: 'dynamic', data: { label } });
         }
       },
     };

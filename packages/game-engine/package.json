@@ -18,6 +18,10 @@
       "types": "./dist/rng/index.d.ts",
       "default": "./dist/rng/index.js"
     },
+    "./canonical": {
+      "types": "./dist/canonical.d.ts",
+      "default": "./dist/canonical.js"
+    },
     "./draft": {
       "types": "./dist/draft.d.ts",
       "default": "./dist/draft.js"

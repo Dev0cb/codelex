@@ -67,8 +67,14 @@ input (action logs) before it reaches the RNG.
 §D4 amendment). Without it a draft is `RULES_VERSION_UNSUPPORTED` (`status: 'draft'`). Simulator
 and tests only: lint bans the entry under `apps/**` and `services/**`.
 
-SHA-256 and the JCS subset (`src/hash/`) are internal since E4 (API note §3): callers hash states with
-`stateHash`. Internal rules modules: `actions/` (parse, validate), `placement/`, `bag/`, `scoring/` (score,
+### `@codelex/game-engine/canonical` (ADR-0016 §D3.2)
+
+`canonicalJson(value)` (RFC 8785 text of the ADR-0013 §D3 subset; throws `TypeError`/`RangeError` outside it),
+`isJcsInteger(value)` and `JCS_MAX_DEPTH` (64). The same function that `stateHash` uses, re-exported so that the
+golden runner (`@codelex/golden-runner`) compares Node and Hermes reports byte for byte without a second
+serialiser. Read-only: it adds no rule and changes no outcome.
+
+SHA-256 (`src/hash/`) is internal since E4 (API note §3): callers hash states with `stateHash`. Internal rules modules: `actions/` (parse, validate), `placement/`, `bag/`, `scoring/` (score,
 end; rules decided in GAME_RULES v0.3.1, API note §16 Q-GD-1…5), `state/`, `replay/`.
 
 Tests: golden cases in `test/golden/` (RNG, SHA-256, JCS, scoring `v1`, replay `v1` GC-DET-01, `rules-digests.json`;

@@ -151,6 +151,8 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       'packages/game-engine/src/clean-allowed-apis.ts',
       'packages/game-engine/src/clean-test-only-apis.test.ts',
       'packages/bots/src/clean-integer-bot.ts',
+      'packages/golden-runner/src/clean-runner.ts',
+      'packages/golden-runner/src/clean-tooling-in-test.test.ts',
       'services/svc-a/src/clean.ts',
       'services/svc-a/src/helper.ts',
       'services/svc-a/src/clean-game-engine.ts',
@@ -510,6 +512,28 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       const ids = await ruleIds('packages/clean/src/index.ts');
       expect(ids).not.toContain('no-restricted-properties');
       expect(ids).not.toContain('no-restricted-globals');
+    });
+  });
+
+  describe('golden-runner purity and determinism (ADR-0016 §D3.2)', () => {
+    it.each([
+      ['a Node built-in', 'packages/golden-runner/src/bad-node-import.ts', 'codelex/pure-imports'],
+      [
+        'the draft rules entry',
+        'packages/golden-runner/src/bad-draft-import.ts',
+        'codelex/pure-imports',
+      ],
+      ['Date.now', 'packages/golden-runner/src/bad-date-now.ts', 'no-restricted-properties'],
+      ['global fetch', 'packages/golden-runner/src/bad-global-fetch.ts', 'no-restricted-globals'],
+    ])('%s FAILS', async (_name, file, rule) => {
+      expect(await ruleIds(file)).toContain(rule);
+    });
+
+    it('names golden-runner and its allow-list in the message', async () => {
+      const found = await messagesIn(mode, 'packages/golden-runner/src/bad-node-import.ts');
+      expect(found.find((m) => m.ruleId === 'codelex/pure-imports')?.message).toMatch(
+        /^'node:fs' is not on the golden-runner allow-list/,
+      );
     });
   });
 

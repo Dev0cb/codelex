@@ -42,8 +42,14 @@ const TS_FILES = ['**/*.{ts,tsx,mts,cts}'];
 const JS_FILES = ['**/*.{js,mjs,cjs}'];
 const TEST_FILES = ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'];
 const TOOLING_FILES = ['**/*.config.{js,mjs,cjs,ts,mts}'];
-const DETERMINISTIC_FILES = ['packages/game-engine/**', 'packages/bots/**'];
+const DETERMINISTIC_FILES = [
+  'packages/game-engine/**',
+  'packages/bots/**',
+  'packages/golden-runner/**',
+];
 const PURE_FILES = ['packages/game-engine/**'];
+/** ADR-0016 §D3.2: the golden runner core is pure like the engine, with its own import allow-list. */
+const GOLDEN_RUNNER_FILES = ['packages/golden-runner/**'];
 /** ADR-0014 §D1: the one file allowed to tell rules versions apart. */
 const RULES_REGISTRY_FILE = 'packages/game-engine/src/rules/registry.ts';
 const ENGINE_SOURCE_FILES = ['packages/game-engine/src/**'];
@@ -223,6 +229,21 @@ const IO_GLOBALS = [
 
 /** Allow-list of module specifiers (besides relative imports) for game-engine. */
 const GAME_ENGINE_ALLOWED_IMPORTS = ['^@codelex/lexicon(/.*)?$', '^@codelex/config/result$'];
+
+/** Local plugin hosting `codelex/pure-imports`, shared by the game-engine and golden-runner purity blocks. */
+const CODELEX_PLUGIN: ESLint.Plugin = { rules: { 'pure-imports': pureImportsRule } };
+
+/**
+ * Allow-list for the golden runner (ADR-0016 §D3.2): the public engine entries it compares and runs (never
+ * `./draft`), bots, the Result type and zod. No `node:*`: a Node-only host module, when added, gets its own
+ * documented exemption here.
+ */
+const GOLDEN_RUNNER_ALLOWED_IMPORTS = [
+  '^@codelex/game-engine(/(rng|canonical))?$',
+  '^@codelex/bots$',
+  '^@codelex/config/result$',
+  '^zod$',
+];
 
 /**
  * ADR-0013 §D4.2/§D4.6: banned globals in every deterministic file (shipped code and tests). Date, crypto and
@@ -560,8 +581,8 @@ function uniqueByName<T extends { name: string }>(entries: readonly T[]): T[] {
 }
 
 /**
- * Determinism bans (ENGINEERING §3) for game-engine and bots; purity (import allow-list, IO globals)
- * for game-engine only. `basePath` anchors the globs at the repository root, so the bans apply
+ * Determinism bans (ENGINEERING §3) for game-engine, bots and golden-runner; purity (import allow-list, IO
+ * globals) for game-engine and golden-runner (each with its own allow-list). `basePath` anchors the globs at the repository root, so the bans apply
  * whatever the cwd / config location (per-package eslint.config.js, as under `turbo run lint`).
  */
 export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[] {
@@ -624,9 +645,35 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       basePath,
       files: PURE_FILES,
       ignores: PURE_EXEMPT_FILES,
-      plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
+      plugins: { codelex: CODELEX_PLUGIN },
       rules: {
         'codelex/pure-imports': ['error', { allow: GAME_ENGINE_ALLOWED_IMPORTS }],
+        'no-restricted-globals': [
+          'error',
+          ...uniqueByName([
+            ...GLOBAL_OBJECTS,
+            ...DETERMINISM_GLOBALS,
+            ...SHIPPED_GLOBALS,
+            ...IO_GLOBALS,
+          ]),
+        ],
+      },
+    },
+    {
+      basePath,
+      files: GOLDEN_RUNNER_FILES,
+      ignores: PURE_EXEMPT_FILES,
+      plugins: { codelex: CODELEX_PLUGIN },
+      rules: {
+        'codelex/pure-imports': [
+          'error',
+          {
+            allow: GOLDEN_RUNNER_ALLOWED_IMPORTS,
+            label: 'golden-runner',
+            allowed:
+              'relative imports, @codelex/game-engine (., ./rng, ./canonical), @codelex/bots, @codelex/config/result, zod',
+          },
+        ],
         'no-restricted-globals': [
           'error',
           ...uniqueByName([

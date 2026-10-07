@@ -51,4 +51,34 @@ describe('codelex/pure-imports', () => {
   ])('rejects: %s', (code, messageId) => {
     expect(messages(code)).toContain(messageId);
   });
+
+  it('names game-engine and its allow-list by default', () => {
+    const [message] = linter.verify("import fs from 'node:fs';", config, 'x.ts');
+    expect(message?.message).toBe(
+      "'node:fs' is not on the game-engine allow-list (relative imports, @codelex/lexicon, @codelex/config/result): game-engine must stay pure (ENGINEERING §2).",
+    );
+  });
+
+  it('names another pure package and its allow-list when configured', () => {
+    const labelled: Linter.Config[] = [
+      {
+        files: ['**/*.ts'],
+        languageOptions: { parser: tseslint.parser },
+        plugins: { codelex: { rules: { 'pure-imports': pureImportsRule } } },
+        rules: {
+          'codelex/pure-imports': [
+            'error',
+            { allow: ['^zod$'], label: 'golden-runner', allowed: 'relative imports, zod' },
+          ],
+        },
+      },
+    ];
+    const found = linter
+      .verify("import fs from 'node:fs'; const m = await import(name);", labelled, 'x.ts')
+      .map((m) => m.message);
+    expect(found).toEqual([
+      "'node:fs' is not on the golden-runner allow-list (relative imports, zod): golden-runner must stay pure (ENGINEERING §2).",
+      'Module specifiers must be string literals in golden-runner so they can be checked (ENGINEERING §2).',
+    ]);
+  });
 });
