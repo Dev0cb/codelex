@@ -1,28 +1,20 @@
 <!--
-=====================================================================================================================
-OWNER-FILLED PLACEHOLDERS — the product owner must replace every one of these before publication.
-They appear verbatim in this file and in site/privacy/index.html and site/privacy/fr/index.html.
-
-  [CONTROLLER_NAME]   Legal name (and postal address) of the entity or person responsible for the playtest data.
-                      Do not publish until a real controller is named. No legal entity is assumed here.
-  [CONTACT_EMAIL]     Privacy contact address (requests for access, deletion, objection, withdrawal).
-  [PLAYTEST_MAILBOX]  The fixed EU-hosted address that "Send playtest data" and "Send match log" suggest (spec Q-1,
-                      threat model TM-07). Only needed once slice S6 ships; keep the placeholder until then.
-  [EU_PROVIDER]       Name of the EU-hosted provider for the enrollment form, the playtest mailbox and the restricted
-                      storage (playtest plan §1.3, spec Q-1).
-=====================================================================================================================
+Owner-filled facts (filled 2026-10-07, from the product owner):
+  Controller: Malick BA (individual; no postal address published on this playtest page).
+  Privacy contact and playtest mailbox: titanfst00@gmail.com.
+  Providers: Google (Gmail, Google Forms, Google Drive), not hosted in a single region; Expo (EAS) hosts the APK.
 -->
 
 # CODELEX privacy policy (Phase 1 Android playtest)
 
 - Document: `docs/legal/privacy-policy.md` · Owner: `privacy-compliance` · Approver: product owner + counsel
-- Version: **playtest-privacy-v1.0** · Date: **2026-10-06**
+- Version: **playtest-privacy-v1.1** · Date: **2026-10-07**
 - Published copies: `site/privacy/index.html` (EN, <https://dev0cb.github.io/codelex/privacy/>) and
   `site/privacy/fr/index.html` (FR, <https://dev0cb.github.io/codelex/privacy/fr/>).
 - **Sync rule.** This file is the source of truth. The two HTML pages are kept in sync by hand with it: any change
   here changes both pages in the same PR, with the same version and date. The HTML pages carry the version string
-  `playtest-privacy-v1.0` so a reviewer can check them with
-  `grep -c "playtest-privacy-v1.0" docs/legal/privacy-policy.md site/privacy/index.html site/privacy/fr/index.html`.
+  `playtest-privacy-v1.1` so a reviewer can check them with
+  `grep -c "playtest-privacy-v1.1" docs/legal/privacy-policy.md site/privacy/index.html site/privacy/fr/index.html`.
 - Facts used: `docs/compliance/DATA_MAP.md`, `docs/standards/ANALYTICS_EVENTS.md` (client-local playtest events),
   `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.md` (AC-10, AC-11, AC-17, AC-19, AC-20, privacy notes, Q-1, Q-2,
   Q-7), `docs/specs/E-1.5-play-vs-bot/playtest-plan.md` (§1.3 roster, §2 consent text),
@@ -37,14 +29,24 @@ They appear verbatim in this file and in site/privacy/index.html and site/privac
 
 1. Legal basis for the match-log email: this policy states legitimate interest (Art. 6(1)(f)) because the export must
    stay available with analytics consent off (TM-05, TM-06). DATA_MAP's mailbox row says "consent". Counsel picks one.
-2. Senegal → EU transfer: legal ground and whether a prior declaration to the CDP is required (Law 2008-12).
+2. Transfers out of the tester's country (Senegal, France, elsewhere): legal ground and whether a prior declaration
+   or authorisation from the CDP is required (Law 2008-12).
 3. Validity of employee consent (team testers).
 4. Retention periods (30 days on device, 7 days mailbox, 6 months raw files, playtest end + 12 months roster).
-5. Whether the controller needs a postal address and an EU representative on this page.
+5. Whether the controller (an individual) needs a postal address and an Art. 27 GDPR representative on this page.
 6. Remote config (AC-19, S6): the host is not chosen. Before the fetch is turned on, name the host here and confirm it
    receives no identifier other than the IP address.
 7. The consent form (`playtest-plan.md` §2) still names Apple TestFlight. The playtest is now Android only; align the
-   form with this policy (or the reverse if iOS returns).
+   form with this policy (or the reverse if iOS returns). The form must also stop referring to a Google Play test
+   track: the app is shared as an EAS internal-distribution install link.
+8. US transfer via Google: the sign-up form (Google Forms), the playtest mailbox (Gmail, `titanfst00@gmail.com`) and
+   the restricted storage (Google Drive) run on a consumer Google account. Counsel must confirm (a) whether Google
+   acts as processor or as independent controller under consumer terms (no Workspace data processing terms), (b) the
+   transfer mechanism to the United States (EU-US Data Privacy Framework certification and/or SCCs) and its adequacy
+   for Senegalese testers, and (c) whether moving to a Workspace account with signed data processing terms is required
+   before Stage 1.
+9. Expo (650 Industries, United States) serves the APK download and sees the tester's IP address and device/browser
+   data under its own privacy policy. Counsel to confirm that describing this as Expo's own processing is adequate.
 
 ## English
 
@@ -52,8 +54,8 @@ They appear verbatim in this file and in site/privacy/index.html and site/privac
 
 - CODELEX is a word game about technology. This policy covers the **Phase 1 playtest** of the Android app
   (`com.codelex.app`) and the sign-up form for that playtest. It is not the policy of a public release.
-- The playtest is for **adults (18+) who were invited** through the sign-up form. The app is shared through an
-  internal Google Play testing link only.
+- The playtest is for **adults (18+) who were invited** through the sign-up form. The app is shared through a private
+  install link only.
 - **Today, nothing leaves your phone.** The app has no account, no server, no ads, no analytics service and no crash
   reporting service. Your matches are saved on your phone so you can resume them.
 - **When the next update ships** (marked "when enabled" below), you will be able to send two files yourself, by
@@ -62,15 +64,15 @@ They appear verbatim in this file and in site/privacy/index.html and site/privac
 
 ### 1. Who is responsible
 
-[CONTROLLER_NAME] is the controller of the personal data described here. Contact for any privacy question or
-request: [CONTACT_EMAIL].
+Malick BA, an individual, is the controller of the personal data described here. Contact for any privacy question
+or request: titanfst00@gmail.com.
 
 ### 2. Who can take part
 
 You must be **18 or older** to take part. You confirm it when you sign up. The app is not meant for children. It is
 not directed to children under 13 and we do not knowingly collect data from anyone under 18. If you are under 18,
 please do not install the app. If we learn that someone under 18 took part, we remove them from the playtest and
-delete the data we hold about them. If you think this happened, write to [CONTACT_EMAIL].
+delete the data we hold about them. If you think this happened, write to titanfst00@gmail.com.
 
 The app has no age check of its own, because it is only shared with the invited roster. A public version will have an
 age check before it is released.
@@ -79,18 +81,19 @@ age check before it is released.
 
 #### 3.1 Signing up for the playtest (now)
 
-Through the sign-up form, we collect: your name, your email address (the Google account email we use to invite you to
-the test track), a yes/no confirmation that you are 18 or older (not your birth date), your country, your preferred
+Through the sign-up form (a Google Form), we collect: your name, your email address (which we use to send you the
+install link), a yes/no confirmation that you are 18 or older (not your birth date), your country, your preferred
 language (English or French), your phone type (Android standard or entry-level), whether you work in software,
 whether you want a debrief call, and the version and date of the consent you gave.
 
 This list is kept apart from the game data. We never write the app's random identifier into it.
 
-#### 3.2 Getting the app through Google Play (now)
+#### 3.2 Getting the app (now)
 
-Google delivers the app through its internal testing track using your Google account. Google Play shows us
-aggregated statistics about installs, crashes and app stability. Google's own privacy policy applies to your Google
-account and to the data Google collects through Google Play.
+The app is not on Google Play. It is an Android app file (APK) built and hosted by Expo Application Services (EAS,
+run by 650 Industries, "Expo"). We send you a private install link. When you open it, Expo's servers see the usual
+technical data of a download, such as your IP address and your device and browser information. Expo handles that
+data under its own privacy policy. We do not receive install or stability statistics from Google Play or from Expo.
 
 #### 3.3 Playing and resuming a match (now; stays on your phone)
 
@@ -135,7 +138,7 @@ It does not include your name, email, location, contacts, advertising ID, device
 type.
 
 These events **leave your phone only when you tap "Send playtest data"**. Your phone's share menu opens, and you choose
-to email the file to [PLAYTEST_MAILBOX]. Because the email shows your address, the file can then be linked to you.
+to email the file to titanfst00@gmail.com. Because the email shows your address, the file can then be linked to you.
 
 If you switch the setting off, nothing more is recorded and the events still on your phone are deleted.
 
@@ -146,7 +149,7 @@ file with: the moves, the seed, the game and word-list versions, the check value
 and the platform. It contains **no identifier, no time stamp and no device details**, and it does not include the
 random identifier of section 3.6. It works even when "Playtest data" is off.
 
-You send it yourself by email to [PLAYTEST_MAILBOX]. The team then sees your email address and anything your email
+You send it yourself by email to titanfst00@gmail.com. The team then sees your email address and anything your email
 app adds (such as your display name and the sending time).
 
 #### 3.8 Settings download (when enabled)
@@ -172,7 +175,6 @@ crash-reporting software from other companies.
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Sign-up details                                                      | Check eligibility, invite you, contact you, keep a record of your consent | Your consent (Art. 6(1)(a)); keeping the record of consent: legal obligation (Art. 6(1)(c), Art. 7(1))  |
 | Match log, snapshot, resume counter, "New to you" list on your phone | Let you resume matches and show the summary. We never receive them        | Storing them on your phone is strictly necessary for the feature you use (ePrivacy Directive Art. 5(3)) |
-| Google Play statistics                                               | See whether the app is stable                                             | Our legitimate interest in shipping a stable app (Art. 6(1)(f))                                         |
 | Playtest data (when enabled)                                         | Decide whether the game is fun and stable enough to keep building         | Your consent (Art. 6(1)(a)), which you can withdraw in Settings                                         |
 | Match log email (when enabled)                                       | Reproduce and fix the bug you report                                      | Our legitimate interest in fixing bugs you report yourself (Art. 6(1)(f))                               |
 | Settings download (when enabled)                                     | Switch features on or off safely                                          | Our legitimate interest in running the app safely (Art. 6(1)(f))                                        |
@@ -188,7 +190,7 @@ automated decisions about you.
 | Match log and snapshot on your phone         | The match in progress and the last finished match only                                                                                            |
 | "New to you" list on your phone              | Until you uninstall the app or clear its data                                                                                                     |
 | Playtest events on your phone (when enabled) | Until you confirm they were sent, and at most 30 days (at most 5,000 events, oldest dropped first); deleted at once if you switch the setting off |
-| Emails to [PLAYTEST_MAILBOX] (when enabled)  | Attachments are moved to restricted storage in the EU within 7 days, then the emails are deleted                                                  |
+| Emails to our mailbox (when enabled)         | Attachments are moved to restricted storage (Google Drive) within 7 days, then the emails are deleted                                             |
 | Received playtest files and match logs       | Deleted 6 months after the playtest ends. Only anonymous totals are kept                                                                          |
 | Debrief notes                                | Deleted 6 months after the playtest ends                                                                                                          |
 | Sign-up details                              | 12 months after the playtest ends, as a record of your consent                                                                                    |
@@ -203,16 +205,19 @@ mailbox uses two-factor sign-in and no automatic forwarding.
 
 Service providers:
 
-- **Google** (Google Play internal testing and its statistics), under its own terms for your Google account.
-- **[EU_PROVIDER]**, which hosts the sign-up form, the playtest mailbox and the restricted storage in the EU.
+- **Google**, which provides the sign-up form (Google Forms), the playtest mailbox (Gmail) and the restricted storage
+  (Google Drive).
+- **Expo (EAS, by 650 Industries)**, which builds and hosts the app file and serves the private install link. It
+  handles download data under its own privacy policy.
 - **Your own email provider**, when you choose to send a file (when enabled). You choose it; its terms apply.
 
 There is no other third party.
 
 ### 7. Where it is stored
 
-Data we receive is stored in the European Union. If you live outside the EU (for example in Senegal), sending us a
-file or signing up transfers your data to the EU. Google may process data in other countries under its own terms.
+Data we receive is stored with Google, which may store and process it in several countries, including the United
+States, under its standard contractual clauses and data-transfer commitments. So signing up or sending us a file may
+transfer your data outside your country. Expo, which serves the app download, is also based in the United States.
 
 ### 8. Your rights
 
@@ -223,9 +228,9 @@ at any time; this does not affect what was done before.
 How:
 
 - **Data on your phone:** switch off "Playtest data" (when enabled), or uninstall the app. We have no copy of it.
-- **Data you sent us:** write to [CONTACT_EMAIL]. For playtest data, give us the identifier shown in Settings. For
-  match logs, write from the address you sent them from. We delete the matching files.
-- **Leaving the playtest:** write to [CONTACT_EMAIL]; we remove you from the roster, except the record of your consent
+- **Data you sent us:** write to titanfst00@gmail.com. For playtest data, give us the identifier shown in Settings.
+  For match logs, write from the address you sent them from. We delete the matching files.
+- **Leaving the playtest:** write to titanfst00@gmail.com; we remove you from the roster, except the record of your consent
   that we must keep.
 
 We answer within one month. You can also complain to a data protection authority: the CNIL in France, the CDP
@@ -241,7 +246,7 @@ side, access is limited to named people, and received files are checked as untru
 We will tell testers by email before any change that affects what we collect, and we will update the version and date
 below. A public release of CODELEX will come with a new policy.
 
-Version playtest-privacy-v1.0 · 2026-10-06 · Contact: [CONTACT_EMAIL]
+Version playtest-privacy-v1.1 · 2026-10-07 · Contact: titanfst00@gmail.com
 
 ## Français
 
@@ -251,7 +256,7 @@ Version playtest-privacy-v1.0 · 2026-10-06 · Contact: [CONTACT_EMAIL]
   Android (`com.codelex.app`) et le formulaire d'inscription à ce playtest. Ce n'est pas la politique d'une version
   publique.
 - Le playtest est réservé aux **adultes (18 ans et plus) invités** via le formulaire d'inscription. L'app est diffusée
-  uniquement par un lien de test interne Google Play.
+  uniquement par un lien d'installation privé.
 - **Aujourd'hui, rien ne quitte ton téléphone.** L'app n'a ni compte, ni serveur, ni publicité, ni service de mesure
   d'audience, ni service de rapport de plantage. Tes parties sont enregistrées sur ton téléphone pour que tu puisses
   les reprendre.
@@ -261,8 +266,8 @@ Version playtest-privacy-v1.0 · 2026-10-06 · Contact: [CONTACT_EMAIL]
 
 ### 1. Responsable du traitement
 
-[CONTROLLER_NAME] est responsable du traitement des données personnelles décrites ici. Contact pour toute question
-ou demande : [CONTACT_EMAIL].
+Malick BA, personne physique, est responsable du traitement des données personnelles décrites ici. Contact pour
+toute question ou demande : titanfst00@gmail.com.
 
 ### 2. Qui peut participer
 
@@ -270,7 +275,7 @@ Tu dois avoir **18 ans ou plus** pour participer. Tu le confirmes à l'inscripti
 enfants. Elle ne s'adresse pas aux moins de 13 ans et nous ne collectons pas sciemment de données sur des personnes de
 moins de 18 ans. Si tu as moins de 18 ans, n'installe pas l'app. Si nous apprenons qu'une personne mineure a
 participé, nous la retirons du playtest et supprimons les données que nous détenons sur elle. Si tu penses que c'est
-le cas, écris à [CONTACT_EMAIL].
+le cas, écris à titanfst00@gmail.com.
 
 L'app n'a pas de contrôle d'âge intégré, car elle n'est partagée qu'avec la liste des personnes invitées. Une version
 publique aura un contrôle d'âge avant sa sortie.
@@ -279,19 +284,21 @@ publique aura un contrôle d'âge avant sa sortie.
 
 #### 3.1 Inscription au playtest (maintenant)
 
-Via le formulaire d'inscription, nous collectons : ton nom, ton adresse e-mail (celle de ton compte Google, utilisée
-pour t'inviter sur la piste de test), une confirmation oui/non que tu as 18 ans ou plus (pas ta date de naissance),
+Via le formulaire d'inscription (un formulaire Google Forms), nous collectons : ton nom, ton adresse e-mail (utilisée
+pour t'envoyer le lien d'installation), une confirmation oui/non que tu as 18 ans ou plus (pas ta date de naissance),
 ton pays, ta langue préférée (anglais ou français), ton type de téléphone (Android standard ou d'entrée de gamme), si
 tu travailles dans le logiciel, si tu souhaites un entretien de debrief, et la version et la date du consentement
 donné.
 
 Cette liste est conservée à part des données de jeu. Nous n'y inscrivons jamais l'identifiant aléatoire de l'app.
 
-#### 3.2 Obtenir l'app via Google Play (maintenant)
+#### 3.2 Obtenir l'app (maintenant)
 
-Google distribue l'app via sa piste de test interne, avec ton compte Google. Google Play nous montre des statistiques
-agrégées sur les installations, les plantages et la stabilité de l'app. La politique de confidentialité de Google
-s'applique à ton compte Google et aux données que Google collecte via Google Play.
+L'app n'est pas sur Google Play. C'est un fichier d'app Android (APK) compilé et hébergé par Expo Application Services
+(EAS, exploité par 650 Industries, « Expo »). Nous t'envoyons un lien d'installation privé. Quand tu l'ouvres, les
+serveurs d'Expo voient les données techniques habituelles d'un téléchargement, comme ton adresse IP et des
+informations sur ton appareil et ton navigateur. Expo traite ces données selon sa propre politique de
+confidentialité. Nous ne recevons aucune statistique d'installation ou de stabilité, ni de Google Play ni d'Expo.
 
 #### 3.3 Jouer et reprendre une partie (maintenant ; reste sur ton téléphone)
 
@@ -344,7 +351,7 @@ Cela n'inclut ni ton nom, ni ton e-mail, ni ta position, ni tes contacts, ni ton
 modèle de ton téléphone, ni ton numéro, ni aucun texte que tu saisis.
 
 Ces événements **ne quittent ton téléphone que lorsque tu touches « Envoyer les données de playtest »**. Le menu de
-partage de ton téléphone s'ouvre et tu choisis d'envoyer le fichier par e-mail à [PLAYTEST_MAILBOX]. Comme l'e-mail
+partage de ton téléphone s'ouvre et tu choisis d'envoyer le fichier par e-mail à titanfst00@gmail.com. Comme l'e-mail
 montre ton adresse, le fichier peut alors être relié à toi.
 
 Si tu désactives le réglage, plus rien n'est enregistré et les événements encore présents sur ton téléphone sont
@@ -358,7 +365,7 @@ mots, les valeurs de contrôle, la version et le numéro de build de l'app, et l
 identifiant, ni horodatage, ni détail sur l'appareil**, ni l'identifiant aléatoire de la section 3.6. Cela fonctionne
 même si « Données de playtest » est désactivé.
 
-Tu l'envoies toi-même par e-mail à [PLAYTEST_MAILBOX]. L'équipe voit alors ton adresse e-mail et ce que ton app de
+Tu l'envoies toi-même par e-mail à titanfst00@gmail.com. L'équipe voit alors ton adresse e-mail et ce que ton app de
 messagerie ajoute (comme ton nom affiché et l'heure d'envoi).
 
 #### 3.8 Téléchargement des réglages (une fois activé)
@@ -385,7 +392,6 @@ aucun logiciel de mesure d'audience, de publicité ou de rapport de plantage d'u
 | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Données d'inscription                                                                             | Vérifier l'éligibilité, t'inviter, te contacter, garder la preuve de ton consentement    | Ton consentement (art. 6(1)(a)) ; conservation de la preuve du consentement : obligation légale (art. 6(1)(c), art. 7(1)) |
 | Journal de partie, instantané, compteur de reprise, liste « Nouveaux pour toi » sur ton téléphone | Te permettre de reprendre tes parties et afficher le résumé. Nous ne les recevons jamais | Leur stockage sur ton téléphone est strictement nécessaire à la fonction que tu utilises (directive ePrivacy, art. 5(3))  |
-| Statistiques Google Play                                                                          | Vérifier que l'app est stable                                                            | Notre intérêt légitime à livrer une app stable (art. 6(1)(f))                                                             |
 | Données de playtest (une fois activé)                                                             | Décider si le jeu est assez fun et stable pour continuer à le développer                 | Ton consentement (art. 6(1)(a)), que tu peux retirer dans les Réglages                                                    |
 | E-mail du journal de partie (une fois activé)                                                     | Reproduire et corriger le bug que tu signales                                            | Notre intérêt légitime à corriger les bugs que tu signales toi-même (art. 6(1)(f))                                        |
 | Téléchargement des réglages (une fois activé)                                                     | Activer ou désactiver des fonctions en sécurité                                          | Notre intérêt légitime à faire fonctionner l'app en sécurité (art. 6(1)(f))                                               |
@@ -401,7 +407,7 @@ Nous n'utilisons rien de tout cela pour de la publicité, nous ne le vendons jam
 | Journal de partie et instantané sur ton téléphone          | Uniquement la partie en cours et la dernière partie terminée                                                                                                                |
 | Liste « Nouveaux pour toi » sur ton téléphone              | Jusqu'à ce que tu désinstalles l'app ou effaces ses données                                                                                                                 |
 | Événements de playtest sur ton téléphone (une fois activé) | Jusqu'à ce que tu confirmes leur envoi, et 30 jours au plus (5 000 événements au plus, les plus anciens supprimés d'abord) ; supprimés aussitôt si tu désactives le réglage |
-| E-mails envoyés à [PLAYTEST_MAILBOX] (une fois activé)     | Les pièces jointes sont déplacées vers un stockage restreint dans l'UE sous 7 jours, puis les e-mails sont supprimés                                                        |
+| E-mails envoyés à notre boîte (une fois activé)            | Les pièces jointes sont déplacées vers un stockage restreint (Google Drive) sous 7 jours, puis les e-mails sont supprimés                                                   |
 | Fichiers de playtest et journaux de partie reçus           | Supprimés 6 mois après la fin du playtest. Seuls des totaux anonymes sont conservés                                                                                         |
 | Notes de debrief                                           | Supprimées 6 mois après la fin du playtest                                                                                                                                  |
 | Données d'inscription                                      | 12 mois après la fin du playtest, comme preuve de ton consentement                                                                                                          |
@@ -417,10 +423,10 @@ automatique.
 
 Prestataires :
 
-- **Google** (piste de test interne Google Play et ses statistiques), selon ses propres conditions pour ton compte
-  Google.
-- **[EU_PROVIDER]**, qui héberge dans l'UE le formulaire d'inscription, la boîte de réception du playtest et le
-  stockage restreint.
+- **Google**, qui fournit le formulaire d'inscription (Google Forms), la boîte de réception du playtest (Gmail) et le
+  stockage restreint (Google Drive).
+- **Expo (EAS, de 650 Industries)**, qui compile et héberge le fichier de l'app et sert le lien d'installation privé.
+  Expo traite les données de téléchargement selon sa propre politique de confidentialité.
 - **Ton propre fournisseur de messagerie**, quand tu choisis d'envoyer un fichier (une fois activé). C'est toi qui le
   choisis ; ses conditions s'appliquent.
 
@@ -428,9 +434,10 @@ Il n'y a aucun autre tiers.
 
 ### 7. Lieu de stockage
 
-Les données que nous recevons sont stockées dans l'Union européenne. Si tu vis hors de l'UE (par exemple au Sénégal),
-t'inscrire ou nous envoyer un fichier transfère tes données vers l'UE. Google peut traiter des données dans d'autres
-pays selon ses propres conditions.
+Les données que nous recevons sont stockées chez Google, qui peut les stocker et les traiter dans plusieurs pays, dont
+les États-Unis, dans le cadre de ses clauses contractuelles types et de ses engagements en matière de transfert de
+données. T'inscrire ou nous envoyer un fichier peut donc transférer tes données hors de ton pays. Expo, qui sert le
+téléchargement de l'app, est aussi établie aux États-Unis.
 
 ### 8. Tes droits
 
@@ -443,10 +450,10 @@ Comment :
 
 - **Données sur ton téléphone :** désactive « Données de playtest » (une fois activé) ou désinstalle l'app. Nous n'en
   avons pas de copie.
-- **Données que tu nous as envoyées :** écris à [CONTACT_EMAIL]. Pour les données de playtest, donne-nous
+- **Données que tu nous as envoyées :** écris à titanfst00@gmail.com. Pour les données de playtest, donne-nous
   l'identifiant affiché dans les Réglages. Pour les journaux de partie, écris depuis l'adresse utilisée pour les
   envoyer. Nous supprimons les fichiers correspondants.
-- **Quitter le playtest :** écris à [CONTACT_EMAIL] ; nous te retirons de la liste, sauf la preuve de ton
+- **Quitter le playtest :** écris à titanfst00@gmail.com ; nous te retirons de la liste, sauf la preuve de ton
   consentement que nous devons conserver.
 
 Nous répondons sous un mois. Tu peux aussi saisir une autorité de protection des données : la CNIL en France, la CDP
@@ -463,4 +470,4 @@ les fichiers reçus sont contrôlés comme des données non fiables avant d'êtr
 Nous préviendrons les testeurs par e-mail avant tout changement qui touche à ce que nous collectons, et nous mettrons
 à jour la version et la date ci-dessous. Une version publique de CODELEX aura une nouvelle politique.
 
-Version playtest-privacy-v1.0 · 2026-10-06 · Contact : [CONTACT_EMAIL]
+Version playtest-privacy-v1.1 · 2026-10-07 · Contact : titanfst00@gmail.com
