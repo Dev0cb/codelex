@@ -77,7 +77,10 @@ seeded RNG (`./rng`).
   No `./internal`, no `./testing`: fixture states for golden cases are built inside the engine's own tests; bots and
   mobile build fixture **observations** directly (plain objects).
 - Source layout (internal, may change): `src/{board,bag,placement,validation,scoring,modes/classic,replay,rng,hash}/`.
-  Hashing (SHA-256, JCS subset) is internal; it is not exported.
+  Hashing (SHA-256, JCS subset) is internal; it is not exported from `.`. *(ADR-0016 §D3.2, sprint 4 A2)* A fourth
+  entry, `./canonical`, re-exports the JCS subset serialiser (`canonicalJson`, `isJcsInteger`, `JCS_MAX_DEPTH`)
+  so that the golden runner compares reports with the engine's own canonical bytes instead of a second
+  implementation. SHA-256 stays internal.
 - Imports allowed by lint (`codelex/pure-imports`): relative, `@codelex/lexicon` (types), `@codelex/config/result`.
   No zod: input shape checks are hand-written (§8.2, §13.7).
 
