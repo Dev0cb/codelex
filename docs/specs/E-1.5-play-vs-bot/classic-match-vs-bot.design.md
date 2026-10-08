@@ -1058,13 +1058,6 @@ file" (the file holds none; an email does reveal the sender), and the new `match
 It differs from `export.email_notice` because the match log carries no tester ID. The confirm sheet that renders
 both ships with "Send match log" in S6d (spec amendment SP2, 2026-10-07: S6 is split into S6a–S6d).
 
-Keys added by `mobile-engineer` in slice S6a, pending translation review: `common.back`, `common.dismiss`,
-`home.settings.a11y`, the §10.2 `notice.analytics.*` keys, and the §10.5 Settings keys the slice renders
-(`settings.title`, `settings.section.playtest|play|about`, `settings.analytics.*`, `settings.install_id.*`,
-`settings.motion*`, `settings.about.versions`, `settings.language.note`, `settings.save_error`). Not added yet:
-`common.copy`/`common.copied` (the tester ID is selectable text; a Copy button needs a clipboard module, not a
-dependency today), sound/haptics/auto-zoom/handedness rows (features not built), and the S6c/S6d export keys.
-
 All user-facing strings live in `packages/i18n` catalogues, ICU MessageFormat. `{…}` = argument. French uses *tu*.
 Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` resolves to `bot.<id>.name`.
 
@@ -1281,6 +1274,13 @@ Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` reso
 Category names come from `categories.json` (`name.en` / `name.fr`); difficulty strings above are the card's own.
 
 ### 10.5 Settings, export, match log
+
+Keys added by `mobile-engineer` in slice S6a, pending translation review: `common.back`, `common.dismiss`,
+`home.settings.a11y`, the §10.2 `notice.analytics.*` keys, and the §10.5 Settings keys the slice renders
+(`settings.title`, `settings.section.playtest|play|about`, `settings.analytics.*`, `settings.install_id.*`,
+`settings.motion*`, `settings.about.versions`, `settings.language.note`, `settings.save_error`). Not added yet:
+`common.copy`/`common.copied` (the tester ID is selectable text; a Copy button needs a clipboard module, not a
+dependency today), sound/haptics/auto-zoom/handedness rows (features not built), and the S6c/S6d export keys.
 
 | Key | EN | FR |
 |---|---|---|
