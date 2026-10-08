@@ -33,6 +33,13 @@ describe('flags', () => {
     });
   });
 
+  it('ship the Knowledge Card off by default (E-1.5 S5, AC-14; SP2 dark launch)', () => {
+    expect(FLAG_DEFAULTS['knowledge_card.post_match.enabled']).toBe(false);
+    expect(parseFlagOverrides('knowledge_card.post_match.enabled=1')).toEqual({
+      'knowledge_card.post_match.enabled': true,
+    });
+  });
+
   it('ship the S2 defaults: live preview on (AC-5), tech squares off (AC-3)', () => {
     expect(FLAG_DEFAULTS['match.live_score_preview']).toBe(true);
     expect(FLAG_DEFAULTS['board.tech_squares.enabled']).toBe(false);

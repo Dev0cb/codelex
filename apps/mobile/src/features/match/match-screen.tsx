@@ -24,6 +24,9 @@ import { boardSquares, squareLabel, type SquareView } from '../../board/board-sc
 import { BoardView } from '../../board/board-view';
 import { FOCUS_THRESHOLD } from '../../board/geometry';
 import { useFlag } from '../../config/flags-provider';
+import { prewarmBundledCards } from '../../knowledge/bundled-cards';
+import { useLexicon } from '../../lexicon/lexicon-gate';
+import { useCardDeps } from '../knowledge/use-card-deps';
 import { useI18n } from '../../i18n/i18n-provider';
 import { breakdownChips } from '../../match/breakdown';
 import {
@@ -50,7 +53,7 @@ import {
   MoveLogSheet,
 } from './match-sheets';
 import { RackView } from './rack-view';
-import { SummaryScreen } from './summary-screen';
+import { SummaryScreen, type SummaryScreenProps } from './summary-screen';
 import { ThinkingIndicator } from './thinking-indicator';
 
 /** E-1.5 §5.5.10: the final board stays 600 ms before the end screen (reduced motion: immediately). */
@@ -129,6 +132,11 @@ function ScoreBlock({
   );
 }
 
+/** The Summary with Knowledge Cards when the flag is on (decodes the card text only once the Summary mounts). */
+function SummaryWithCards(props: Omit<SummaryScreenProps, 'cards'>): JSX.Element {
+  return <SummaryScreen {...props} cards={useCardDeps()} />;
+}
+
 function MatchSession(): JSX.Element {
   const { t } = useI18n();
   const tokens = useTokens();
@@ -162,8 +170,15 @@ function MatchSession(): JSX.Element {
     [t],
   );
   const finished = model?.state.status === 'finished';
+  const cardsEnabled = useFlag('knowledge_card.post_match.enabled');
+  const lexiconVersion = useLexicon().descriptor.lexiconVersion;
 
   const finishedState = finished ? model.state : null;
+  // S5: decode the Knowledge Card text during the end-of-match hold, so the Summary opens without that work.
+  useEffect(() => {
+    if (finishedState === null || !cardsEnabled) return;
+    return prewarmBundledCards(lexiconVersion);
+  }, [finishedState, cardsEnabled, lexiconVersion]);
   useEffect(() => {
     if (finishedState === null) return;
     const timer = setTimeout(
@@ -260,7 +275,7 @@ function MatchSession(): JSX.Element {
     finished && endDue === model.state ? summarize(model, session?.newToYou ?? null) : null;
   if (summary !== null) {
     return (
-      <SummaryScreen
+      <SummaryWithCards
         summary={summary}
         botName={botName}
         letters={letters}
