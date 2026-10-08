@@ -1,5 +1,5 @@
-// Node stand-in for expo-crypto's `digest` and `getRandomBytes` under Jest (node:crypto instead of the native module).
-const { createHash, randomBytes } = require('node:crypto');
+// Node stand-in for expo-crypto's `digest`, `getRandomBytes` and `randomUUID` under Jest (node:crypto instead of the native module).
+const { createHash, randomBytes, randomUUID } = require('node:crypto');
 
 const CryptoDigestAlgorithm = { SHA256: 'SHA-256' };
 
@@ -15,4 +15,4 @@ function getRandomBytes(byteCount) {
   return new Uint8Array(randomBytes(byteCount));
 }
 
-module.exports = { CryptoDigestAlgorithm, digest, getRandomBytes };
+module.exports = { CryptoDigestAlgorithm, digest, getRandomBytes, randomUUID };

@@ -4,10 +4,12 @@ import type { JSX } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { AnalyticsProvider, InteractiveMark } from '../analytics/analytics-provider';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { createBundledLexiconSource } from '../lexicon/bundled-lexicon-source';
 import { LexiconGate } from '../lexicon/lexicon-gate';
 import { MatchSessionProvider } from '../match/match-session';
+import { MotionPreferenceProvider } from '../settings/motion-preference';
 
 const styles = StyleSheet.create({ root: { flex: 1 } });
 
@@ -15,21 +17,27 @@ const styles = StyleSheet.create({ root: { flex: 1 } });
 const bundledLexicon = createBundledLexiconSource();
 
 /**
- * Root layout: gesture root (board drag later), i18n, then the lexicon gate: no route mounts until the lexicon index
- * is loaded and verified (never partial play), then the match session (one saved match, slice S3) and a header-less
- * stack.
+ * Root layout: gesture root (board drag later), the playtest recorder (outermost, so the session marker is written
+ * at launch, before anything that could crash at boot; slice S6a), the Settings motion choice, i18n, then the lexicon
+ * gate: no route mounts until the lexicon index is loaded and verified (never partial play), then the match session
+ * (one saved match, slice S3) and a header-less stack. `InteractiveMark` ends the cold start for `app_opened`.
  */
 export function RootLayout(): JSX.Element {
   return (
     <GestureHandlerRootView style={styles.root}>
-      <I18nProvider>
-        <LexiconGate source={bundledLexicon}>
-          <MatchSessionProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </MatchSessionProvider>
-        </LexiconGate>
-        <StatusBar style="auto" />
-      </I18nProvider>
+      <AnalyticsProvider>
+        <MotionPreferenceProvider>
+          <I18nProvider>
+            <LexiconGate source={bundledLexicon}>
+              <MatchSessionProvider>
+                <Stack screenOptions={{ headerShown: false }} />
+                <InteractiveMark />
+              </MatchSessionProvider>
+            </LexiconGate>
+            <StatusBar style="auto" />
+          </I18nProvider>
+        </MotionPreferenceProvider>
+      </AnalyticsProvider>
     </GestureHandlerRootView>
   );
 }

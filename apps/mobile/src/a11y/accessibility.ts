@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, type AccessibilityChangeEventName } from 'react-native';
 
+import { useMotionPreference } from '../settings/motion-preference';
+
 /** `full` or `reduced` (E-1.4 §3 rule 3). Every animation in the app has a reduced twin. */
 export type MotionMode = 'full' | 'reduced';
 
@@ -31,11 +33,14 @@ const isReduceMotionEnabled = (): Promise<boolean> => AccessibilityInfo.isReduce
 const isScreenReaderEnabled = (): Promise<boolean> => AccessibilityInfo.isScreenReaderEnabled();
 
 /**
- * Reduced motion follows the OS setting (E-1.5 D-22; the Settings override "Follow system / Reduce / Full" arrives
- * with the Settings screen). Starts reduced until the OS answers, so nothing animates against the player's choice.
+ * Reduced motion (E-1.5 D-22): the Settings "Animations" choice when it is Reduced or Full, else the OS setting.
+ * Starts reduced until the OS answers, so nothing animates against the player's choice.
  */
 export function useMotionMode(): MotionMode {
-  return useOsSetting(isReduceMotionEnabled, 'reduceMotionChanged', true) ? 'reduced' : 'full';
+  const { preference } = useMotionPreference();
+  const osReduced = useOsSetting(isReduceMotionEnabled, 'reduceMotionChanged', true);
+  if (preference !== 'system') return preference;
+  return osReduced ? 'reduced' : 'full';
 }
 
 /** True while TalkBack or VoiceOver runs: the board then exposes its accessible grid (D-21). */
