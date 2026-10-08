@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -15,6 +18,19 @@ describe('category tokens (E-1.4 §1.2 `color.category.*`, E-1.5 §7.1)', () => 
     const { category } = getTokens(scheme);
     expect(Object.keys(category).sort()).toEqual([...CATEGORY_IDS].sort());
     for (const id of CATEGORY_IDS) expect(isHexColor(category[id])).toBe(true);
+  });
+
+  it('list exactly the lexicon registry categories, with their icon names, in registry order', () => {
+    const registry = JSON.parse(
+      readFileSync(
+        fileURLToPath(new URL('../../lexicon/data/categories.json', import.meta.url)),
+        'utf8',
+      ),
+    ) as { categories: { id: string; icon: string }[] };
+    expect(registry.categories.map((c) => c.id)).toEqual([...CATEGORY_IDS]);
+    for (const c of registry.categories) {
+      expect(CATEGORY_ICONS[c.id as (typeof CATEGORY_IDS)[number]]).toBe(c.icon);
+    }
   });
 
   it('use the E-1.5 §7.1 values for the dark (brand reference) scheme', () => {
