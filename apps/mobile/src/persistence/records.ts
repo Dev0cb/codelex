@@ -56,14 +56,28 @@ export type DecodedRecords =
       /** A torn last record was ignored (TM-01). */
       readonly droppedTail: boolean;
     }
-  /** `index` = the first bad record, which is not the last one. */
-  | { readonly ok: false; readonly index: number };
+  /**
+   * `index` = the first bad record, which is not the last one; `records` = the good records before it (an owner may
+   * salvage them, e.g. the analytics queue; the match log never does).
+   */
+  | { readonly ok: false; readonly index: number; readonly records: readonly string[] };
 
+/** Bytes converted per `String.fromCharCode` call: far below any engine's argument limit. */
+const TEXT_CHUNK = 4096;
+
+/**
+ * Chunked conversion: one string append per byte made a full analytics queue (≈ 3.7 MB, slice S6a) take seconds to
+ * load; chunks keep it linear and fast on Hermes.
+ */
 function asciiText(bytes: Uint8Array): string | null {
+  for (let i = 0; i < bytes.length; i += 1) if ((bytes[i] ?? 0) > MAX_ASCII) return null;
   let text = '';
-  for (const byte of bytes) {
-    if (byte > MAX_ASCII) return null;
-    text += String.fromCharCode(byte);
+  for (let at = 0; at < bytes.length; at += TEXT_CHUNK) {
+    // `apply` takes the typed array as an array-like (a spread would walk it with the iterator protocol).
+    text += String.fromCharCode.apply(
+      null,
+      bytes.subarray(at, at + TEXT_CHUNK) as unknown as number[],
+    );
   }
   return text;
 }
@@ -77,7 +91,7 @@ export function decodeRecords(bytes: Uint8Array): DecodedRecords {
     // A header or payload that runs past the end of the file is the torn tail.
     if (bytes.length - at < RECORD_HEADER_BYTES) return { ok: true, records, droppedTail: true };
     const length = view.getUint32(at);
-    if (length > MAX_RECORD_BYTES) return { ok: false, index };
+    if (length > MAX_RECORD_BYTES) return { ok: false, index, records };
     const end = at + RECORD_HEADER_BYTES + length;
     const payload = bytes.subarray(at + RECORD_HEADER_BYTES, Math.min(end, bytes.length));
     const text =
@@ -85,7 +99,7 @@ export function decodeRecords(bytes: Uint8Array): DecodedRecords {
     if (text === null) {
       return end >= bytes.length && isTornWrite(payload)
         ? { ok: true, records, droppedTail: true }
-        : { ok: false, index };
+        : { ok: false, index, records };
     }
     records.push(text);
     at = end;

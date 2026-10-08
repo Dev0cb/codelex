@@ -64,7 +64,7 @@ describe('records (TM-01)', () => {
     const bad = file.slice();
     const at = RECORD_HEADER_BYTES + 2; // inside the first payload
     bad[at] = (bad[at] ?? 0) ^ 0xff;
-    expect(decodeRecords(bad)).toEqual({ ok: false, index: 0 });
+    expect(decodeRecords(bad)).toEqual({ ok: false, index: 0, records: [] });
   });
 
   it('flags a mid-file length that points past the end of the file as corrupt, not as a torn tail', () => {
@@ -75,7 +75,11 @@ describe('records (TM-01)', () => {
       const view = new DataView(bad.buffer);
       // Grows the length so the record would swallow the records after it and run past the end of the file.
       view.setUint32(at, view.getUint32(at) + 200);
-      expect(decodeRecords(bad)).toEqual({ ok: false, index: record });
+      expect(decodeRecords(bad)).toEqual({
+        ok: false,
+        index: record,
+        records: payloads.slice(0, record),
+      });
     }
   });
 
@@ -88,13 +92,13 @@ describe('records (TM-01)', () => {
       encodeRecord(payloads[0] ?? '').length,
       view.getUint32(encodeRecord(payloads[0] ?? '').length) + last,
     );
-    expect(decodeRecords(bad)).toEqual({ ok: false, index: 1 });
+    expect(decodeRecords(bad)).toEqual({ ok: false, index: 1, records: payloads.slice(0, 1) });
   });
 
   it('flags an oversized length before the tail as corrupt', () => {
     const oversized = new Uint8Array(RECORD_HEADER_BYTES + MAX_RECORD_BYTES + 1).fill(0x20);
     new DataView(oversized.buffer).setUint32(0, MAX_RECORD_BYTES + 1);
-    expect(decodeRecords(concat(oversized, file))).toEqual({ ok: false, index: 0 });
+    expect(decodeRecords(concat(oversized, file))).toEqual({ ok: false, index: 0, records: [] });
   });
 
   it('never throws on arbitrary bytes', () => {
@@ -116,6 +120,6 @@ describe('records (TM-01)', () => {
     const forged = record.slice();
     forged[RECORD_HEADER_BYTES] = 0xc3;
     new DataView(forged.buffer).setUint32(4, crc32(forged.subarray(RECORD_HEADER_BYTES)));
-    expect(decodeRecords(concat(forged, record))).toEqual({ ok: false, index: 0 });
+    expect(decodeRecords(concat(forged, record))).toEqual({ ok: false, index: 0, records: [] });
   });
 });
