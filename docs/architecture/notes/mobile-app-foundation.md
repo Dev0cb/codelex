@@ -136,8 +136,8 @@ data }`. `data` is the payload `{ categories, ids, display, en, fr }` (columns i
   `knowledge_card.post_match.enabled` on: during the 600 ms end-of-match hold, else synchronously when the Summary
   mounts. Card building is then synchronous lookups (AC-13 ≤ 300 ms); H1 measures the decode on Hermes.
 - **Size and budget** (sprint 4, 1,432 terms): 286,131 B of JSON → 127,836 B base64, inlined in the JS bundle and
-  counted on `bundleBytes`; no asset or lexicon line moves. The whole slice measured +162,864 B android
-  (3,818,540 → 3,981,404 B, 91.9 %) and +162,880 B iOS (3,635,756 → 3,798,636 B, 92.2 %).
+  counted on `bundleBytes`; no asset or lexicon line moves. The whole slice measured +164,996 B android
+  (3,818,540 → 3,983,536 B, 92.0 %) and +164,988 B iOS (3,635,756 → 3,800,744 B, 92.3 %).
 - **Rejected:** the plain JSON module (+388,948 B android, 97.2 % of the budget, French text stored as UTF-16 by
   Hermes); a separate binary asset (about 90 KB deflated: over the iOS `assetBytes` headroom of 3.9 KB, and on the
   lexicon line it would consume the index growth headroom of the P7 2,550-form ceiling); `zod/mini` for the shape

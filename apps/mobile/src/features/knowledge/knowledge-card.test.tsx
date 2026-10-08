@@ -6,7 +6,7 @@
 import type { Locale } from '@codelex/i18n';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 import type { JSX } from 'react';
 import { AccessibilityInfo, AppState, type AppStateStatus } from 'react-native';
 import { State } from 'react-native-gesture-handler';
@@ -20,7 +20,7 @@ import type { CardsText, TermText } from '../../knowledge/cards-data';
 import type { CardDeps } from '../../knowledge/card-model';
 import type { MatchSummary } from '../../match/summary';
 import { loadBundledLexicon } from '../../match/test-support';
-import { SummaryScreen } from '../match/summary-screen';
+import { SHEET_DISMISS_MS, SummaryScreen } from '../match/summary-screen';
 import { SWIPE_GESTURE_ID } from './knowledge-card-sheet';
 
 jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
@@ -124,6 +124,47 @@ async function show(
 const sheetOpen = (): boolean => screen.queryByTestId('card.sheet') !== null;
 
 describe('Knowledge Card kill switch (AC-14)', () => {
+  it('renders the same Summary as without the card feature (S2 call, no cards prop)', async () => {
+    const off = await show({ cardsOn: false });
+    const offTree = JSON.stringify(off.toJSON());
+    await off.unmount();
+    const s2 = await render(
+      <SafeAreaProvider
+        initialMetrics={{
+          frame: { x: 0, y: 0, width: 360, height: 800 },
+          insets: { top: 0, left: 0, right: 0, bottom: 0 },
+        }}
+      >
+        <I18nProvider locale="en">
+          <SummaryScreen
+            summary={SUMMARY}
+            botName="Beginner Bot"
+            letters={LETTERS}
+            canPlayAgain
+            onPlayAgain={onPlayAgain}
+            onHome={() => undefined}
+          />
+        </I18nProvider>
+      </SafeAreaProvider>,
+    );
+    expect(JSON.stringify(s2.toJSON())).toBe(offTree);
+    expect(offTree).not.toContain('›');
+    expect(offTree).not.toContain('summary.term.');
+  });
+
+  it('closes an open card (with its dwell) when the switch turns off', async () => {
+    const view = await show();
+    await fireEvent.press(screen.getByTestId('summary.term.kubernetes'));
+    clock = 3_500;
+    await view.rerender(<Harness deps={null} locale="en" summary={SUMMARY} />);
+    expect(sheetOpen()).toBe(false);
+    expect(calls.at(-1)).toEqual({
+      event: 'knowledge_card_closed',
+      properties: { term_id: 'kubernetes', source: 'post_match', dwell_ms: 2500, related_taps: 0 },
+    });
+    expect(screen.queryByTestId('summary.term.kubernetes')).toBeNull();
+  });
+
   it('shows chips but no tappable chip, no best-word link, no Discover and no sheet', async () => {
     await show({ cardsOn: false });
     const chips = within(screen.getByTestId('summary.terms.you'));
@@ -225,6 +266,9 @@ describe('Knowledge Card (AC-13)', () => {
 
   it('opens the best word as its canonical card with "Played as"', async () => {
     await show();
+    expect(screen.getByTestId('summary.bestWord.open').props.accessibilityLabel).toBe(
+      'Best word: PODS · 62 pts · You. Double tap to open the card for Pod',
+    );
     await fireEvent.press(screen.getByTestId('summary.bestWord.open'));
     expect(screen.getByTestId('card.title').props.children).toBe('Pod');
     expect(screen.getByTestId('card.playedAs').props.children).toBe('Played as PODS');
@@ -340,5 +384,61 @@ describe('Knowledge Card (AC-13)', () => {
     await fireEvent.press(screen.getByTestId('summary.term.kubernetes'));
     expect(sheetOpen()).toBe(false);
     expect(screen.getByTestId('summary.cardError').props.children).toBe("Couldn't open this card.");
+  });
+});
+
+describe('Knowledge Card focus and labels (§9.2, §10.6)', () => {
+  const focusedTestIds = (spy: { mock: { calls: unknown[][] } }): unknown[] =>
+    spy.mock.calls.map((call) => (call[0] as { props?: { testID?: unknown } }).props?.testID);
+
+  it('returns focus to the chip that opened the card once the sheet has gone', async () => {
+    const spy = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent');
+    await show();
+    await fireEvent.press(screen.getByTestId('summary.term.kubernetes'));
+    spy.mockClear();
+    await fireEvent.press(screen.getByTestId('card.close'));
+    expect(focusedTestIds(spy)).not.toContain('summary.term.kubernetes');
+    await waitFor(() => {
+      expect(focusedTestIds(spy)).toContain('summary.term.kubernetes');
+    });
+    expect(SHEET_DISMISS_MS).toBeGreaterThanOrEqual(200);
+  });
+
+  it('returns focus to the Discover button itself (an accessible control)', async () => {
+    const spy = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent');
+    await show();
+    await fireEvent.press(screen.getByTestId('summary.discover'));
+    spy.mockClear();
+    await fireEvent.press(screen.getByTestId('card.close'));
+    await waitFor(() => {
+      expect(focusedTestIds(spy)).toContain('summary.discover');
+    });
+  });
+
+  it('labels a chip without a category name without an empty slot', async () => {
+    await show({ text: { ...cards, category: () => undefined } });
+    expect(screen.getByTestId('summary.term.kubernetes').props.accessibilityLabel).toBe(
+      'Kubernetes, new to you, double tap to open',
+    );
+    await fireEvent.press(screen.getByTestId('summary.term.kubernetes'));
+    const related = within(screen.getByTestId('card.related')).getAllByRole('button')[0];
+    expect(String(related?.props.accessibilityLabel)).toMatch(/^[^,]+, double tap to open$/);
+  });
+
+  it('clears the error line when the sheet later closes', async () => {
+    let gone = true;
+    const text: CardsText = {
+      ...cards,
+      term: (id) => (gone && id === 'kubernetes' ? undefined : cards.term(id)),
+    };
+    gone = false;
+    await show({ text });
+    gone = true;
+    await fireEvent.press(screen.getByTestId('summary.term.kubernetes'));
+    expect(screen.getByTestId('summary.cardError')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('summary.term.docker'));
+    expect(screen.queryByTestId('summary.cardError')).toBeNull();
+    await fireEvent.press(screen.getByTestId('card.close'));
+    expect(screen.queryByTestId('summary.cardError')).toBeNull();
   });
 });

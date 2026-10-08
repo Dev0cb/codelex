@@ -1,7 +1,7 @@
 import { CATEGORY_IDS, type CategoryTokenId } from '@codelex/design-system';
 import type { LetterTable } from '@codelex/game-engine';
 import type { MessageKey } from '@codelex/i18n';
-import { useCallback, useRef, useState, type JSX } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react';
 import {
   AccessibilityInfo,
   Platform,
@@ -14,13 +14,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useI18n } from '../../i18n/i18n-provider';
-import { knowledgeCard, type CardDeps } from '../../knowledge/card-model';
+import { chipTerm, type CardDeps, type CardTerm } from '../../knowledge/card-model';
 import type { CardTarget } from '../../knowledge/card-stack';
 import { HUMAN_SEAT } from '../../match/play-config';
 import type { MatchSummary, TermChip } from '../../match/summary';
 import { useTokens } from '../../theme/use-tokens';
 import { Button } from '../../ui/button';
 import { categoryGlyph } from '../knowledge/category-glyph';
+import { termChipLabel } from '../knowledge/chip-label';
 import { KnowledgeCardSheet } from '../knowledge/knowledge-card-sheet';
 import { useCardSheet } from '../knowledge/use-card-sheet';
 
@@ -63,6 +64,8 @@ export interface SummaryScreenProps {
 /** Trailing chevron of a tappable chip or row (an icon glyph, not copy); mirrored in RTL. */
 const CHEVRON_GLYPH = '›';
 const BEST_KEY = 'summary.bestWord';
+/** Sheet dismiss (`motion.base` 200 ms) plus a margin, before focus returns to the invoking control. */
+export const SHEET_DISMISS_MS = 250;
 const DISCOVER_KEY = 'summary.discover';
 
 /** Remembers which control opened the card, so focus returns to it when the sheet closes (§9.2). */
@@ -85,13 +88,14 @@ function NewTag({ chip }: { readonly chip: TermChip }) {
 function Chips({
   chips,
   testID,
-  cards,
+  terms,
   invokers,
   onOpen,
 }: {
   readonly chips: readonly TermChip[];
   readonly testID: string;
-  readonly cards: CardDeps | null;
+  /** Card term per chip id; absent or null = inert chip. */
+  readonly terms: ReadonlyMap<string, CardTerm | null>;
   readonly invokers: InvokerRefs;
   readonly onOpen: (chip: TermChip, key: string) => void;
 }) {
@@ -109,7 +113,7 @@ function Chips({
   return (
     <View testID={testID} style={[styles.wrap, { gap: space[2] }]}>
       {chips.map((chip) => {
-        const card = cards === null ? null : knowledgeCard(cards, chip.termId, chip.form);
+        const card = terms.get(chip.termId) ?? null;
         if (card === null) {
           // AC-14 (flag off) and AC-13 (no definition): inert, no chevron, no ripple, not a button.
           return (
@@ -132,11 +136,11 @@ function Chips({
               else invokers.set(key, node);
             }}
             accessibilityRole="button"
-            accessibilityLabel={t('a11y.chip.term', {
-              term: card.display,
-              category: card.category?.name ?? '',
-              state: t(chip.isNew ? 'a11y.chip.state.new' : 'a11y.chip.state.known'),
-            })}
+            accessibilityLabel={termChipLabel(
+              t,
+              card,
+              t(chip.isNew ? 'a11y.chip.state.new' : 'a11y.chip.state.known'),
+            )}
             onPress={() => {
               onOpen(chip, key);
             }}
@@ -198,9 +202,12 @@ export function SummaryScreen({
   const [invokers] = useState<InvokerRefs>(() => new Map());
   const invoker = useRef<string | null>(null);
   const [openFailed, setOpenFailed] = useState(false);
+  /** Set on close; focus moves back once the sheet has gone (an effect below). */
+  const [refocus, setRefocus] = useState<string | null>(null);
   const openCard = useCallback(
     (target: CardTarget, key: string) => {
       invoker.current = key;
+      setRefocus(null);
       setOpenFailed(!sheet.open(target));
     },
     [sheet],
@@ -211,28 +218,48 @@ export function SummaryScreen({
     },
     [openCard],
   );
-  // §9.2: closing the sheet returns focus to the control that opened it.
+  // §9.2: closing the sheet returns focus to the control that opened it, once the Modal has dismissed (its
+  // `onDismiss` is iOS-only, so the focus waits for the dismiss animation on both platforms).
   const closeSheet = useCallback(() => {
     sheet.close();
-    const node = invoker.current === null ? undefined : invokers.get(invoker.current);
-    if (node !== undefined) AccessibilityInfo.sendAccessibilityEvent(node, 'focus');
-  }, [sheet, invokers]);
+    setOpenFailed(false);
+    setRefocus(invoker.current);
+  }, [sheet]);
+  const sheetOpen = sheet.card !== null;
+  useEffect(() => {
+    if (refocus === null || sheetOpen) return;
+    const timer = setTimeout(() => {
+      const node = invokers.get(refocus);
+      if (node !== undefined) AccessibilityInfo.sendAccessibilityEvent(node, 'focus');
+      setRefocus(null);
+    }, SHEET_DISMISS_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [refocus, sheetOpen, invokers]);
   const back = useCallback(() => {
     if (sheet.depth > 1) sheet.back();
     else closeSheet();
   }, [sheet, closeSheet]);
 
-  const bestCard =
-    cards === null || best === null
-      ? null
-      : knowledgeCard(cards, best.termId, best.canonicalForm, best.form);
+  // Tappability and chip text, once per Summary (not per render): no related-term walk until a card opens.
+  const chipTerms = useMemo(() => {
+    const terms = new Map<string, CardTerm | null>();
+    if (cards === null) return terms;
+    for (const chip of [...summary.terms.you, ...summary.terms.bot]) {
+      if (!terms.has(chip.termId)) terms.set(chip.termId, chipTerm(cards, chip.termId, chip.form));
+    }
+    return terms;
+  }, [cards, summary]);
+  const bestTerm = useMemo(
+    () =>
+      cards === null || best === null ? null : chipTerm(cards, best.termId, best.canonicalForm),
+    [cards, best],
+  );
   // §5.6: Discover opens the first tappable chip of the player's group (else the bot's); hidden when none is.
-  const discover =
-    cards === null
-      ? undefined
-      : [...summary.terms.you, ...summary.terms.bot].find(
-          (chip) => knowledgeCard(cards, chip.termId, chip.form) !== null,
-        );
+  const discover = [...summary.terms.you, ...summary.terms.bot].find(
+    (chip) => (chipTerms.get(chip.termId) ?? null) !== null,
+  );
   const bestText =
     best === null
       ? t('summary.best_word.none')
@@ -306,7 +333,7 @@ export function SummaryScreen({
           <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
             {t('summary.best_word')}
           </Text>
-          {best === null || bestCard === null ? (
+          {best === null || bestTerm === null ? (
             <Text testID="summary.bestWord" style={[type.body, { color: color.textPrimary }]}>
               {bestText}
             </Text>
@@ -318,7 +345,10 @@ export function SummaryScreen({
                 else invokers.set(BEST_KEY, node);
               }}
               accessibilityRole="button"
-              accessibilityHint={t('a11y.chip.state.known')}
+              accessibilityLabel={t('a11y.best_word.open', {
+                detail: bestText,
+                term: bestTerm.display,
+              })}
               onPress={() => {
                 openCard(
                   { termId: best.termId, form: best.canonicalForm, playedAs: best.form },
@@ -373,7 +403,7 @@ export function SummaryScreen({
               <Chips
                 chips={summary.terms.you}
                 testID="summary.terms.you"
-                cards={cards}
+                terms={chipTerms}
                 invokers={invokers}
                 onOpen={openChip}
               />
@@ -381,25 +411,22 @@ export function SummaryScreen({
               <Chips
                 chips={summary.terms.bot}
                 testID="summary.terms.bot"
-                cards={cards}
+                terms={chipTerms}
                 invokers={invokers}
                 onOpen={openChip}
               />
               {discover !== undefined && (
-                <View
+                <Button
+                  testID="summary.discover"
                   ref={(node) => {
                     if (node === null) invokers.delete(DISCOVER_KEY);
                     else invokers.set(DISCOVER_KEY, node);
                   }}
-                >
-                  <Button
-                    testID="summary.discover"
-                    label={t('summary.discover')}
-                    onPress={() => {
-                      openChip(discover, DISCOVER_KEY);
-                    }}
-                  />
-                </View>
+                  label={t('summary.discover')}
+                  onPress={() => {
+                    openChip(discover, DISCOVER_KEY);
+                  }}
+                />
               )}
             </>
           )}

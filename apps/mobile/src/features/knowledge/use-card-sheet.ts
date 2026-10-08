@@ -77,6 +77,14 @@ export function useCardSheet(deps: CardDeps | null, now: () => number = Date.now
     };
   }, [clock, show]);
 
+  // Kill switch flipped (or the card text became unusable) while a card is open: close every card now, with its
+  // dwell, instead of leaving a hidden stack whose clock keeps running.
+  const disabled = deps === null;
+  const hasOpenCards = stack.length > 0;
+  useEffect(() => {
+    if (disabled && hasOpenCards) apply(closeCards(stackRef.current, clock()));
+  }, [disabled, hasOpenCards, apply, clock]);
+
   const top = stack.at(-1);
   const card = useMemo(
     () =>

@@ -5,7 +5,7 @@ import type { LoadedLexicon } from '../lexicon/load-lexicon';
 import { loadBundledLexicon } from '../match/test-support';
 import { bundledCards } from './bundled-cards';
 import type { CardsText, TermText } from './cards-data';
-import { MAX_RELATED, hasCard, knowledgeCard, type CardDeps } from './card-model';
+import { MAX_RELATED, chipTerm, hasCard, knowledgeCard, type CardDeps } from './card-model';
 
 jest.mock('expo-asset', () => jest.requireActual('../../jest/expo-asset.cjs'));
 jest.mock('expo-crypto', () => jest.requireActual('../../jest/expo-crypto.cjs'));
@@ -70,6 +70,24 @@ describe('knowledgeCard (AC-13)', () => {
       definition: 'EN only.',
       definitionFallback: true,
     });
+  });
+
+  it('gives a chip the display and category of its card without building it', () => {
+    const card = knowledgeCard(deps('fr'), 'kubernetes', 'KUBERNETES');
+    expect(chipTerm(deps('fr'), 'kubernetes', 'KUBERNETES')).toEqual({
+      termId: card?.termId,
+      form: card?.form,
+      display: card?.display,
+      category: card?.category,
+    });
+    expect(chipTerm(deps(), 'kubernetes', 'DOCKER')).toBeNull();
+    const text = withText({ kubernetes: undefined });
+    expect(chipTerm(deps('en', text), 'kubernetes', 'KUBERNETES')).toBeNull();
+  });
+
+  it('has a null category when the text does not name it', () => {
+    const text: CardsText = { ...cards, category: () => undefined };
+    expect(chipTerm(deps('en', text), 'kubernetes', 'KUBERNETES')?.category).toBeNull();
   });
 
   it('has no card for a term without any usable definition, or unknown to the index', () => {

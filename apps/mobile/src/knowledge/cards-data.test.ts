@@ -62,6 +62,27 @@ describe('decodeCardsAsset', () => {
 
   it.each([
     ['not an object', 'x', 'CARDS_MISSING'],
+    ['a fractional jsonLength', envelope(PAYLOAD, { jsonLength: 1.5 }), 'CARDS_MISSING'],
+    ['a negative jsonLength', envelope(PAYLOAD, { jsonLength: -1 }), 'CARDS_MISSING'],
+    ['a non-numeric jsonLength', envelope(PAYLOAD, { jsonLength: '9' }), 'CARDS_MISSING'],
+    ['a missing data string', envelope(PAYLOAD, { data: 7 }), 'CARDS_MISSING'],
+    ['a bad lexiconVersion', envelope(PAYLOAD, { lexiconVersion: 'nope' }), 'CARDS_MISSING'],
+    ['an empty id', envelope({ ...PAYLOAD, ids: ['', 'pod'] }), 'CARDS_CORRUPT'],
+    ['a non-string display', envelope({ ...PAYLOAD, display: ['API', 3] }), 'CARDS_CORRUPT'],
+    ['an empty definition', envelope({ ...PAYLOAD, en: ['', null] }), 'CARDS_CORRUPT'],
+    ['a non-string definition', envelope({ ...PAYLOAD, fr: [null, 5] }), 'CARDS_CORRUPT'],
+    ['a short EN column', envelope({ ...PAYLOAD, en: ['x'] }), 'CARDS_CORRUPT'],
+    ['a short FR column', envelope({ ...PAYLOAD, fr: [null] }), 'CARDS_CORRUPT'],
+    [
+      'a category that is not an object',
+      envelope({ ...PAYLOAD, categories: ['x'] }),
+      'CARDS_CORRUPT',
+    ],
+    [
+      'a category with an empty icon',
+      envelope({ ...PAYLOAD, categories: [{ id: 'x', icon: '', name: { en: 'X', fr: 'X' } }] }),
+      'CARDS_CORRUPT',
+    ],
     ['an unknown format', envelope(PAYLOAD, { format: 2 }), 'CARDS_MISSING'],
     ['an unknown encoding', envelope(PAYLOAD, { encoding: 'gzip' }), 'CARDS_MISSING'],
     ['bad base64', envelope(PAYLOAD, { data: '***' }), 'CARDS_CORRUPT'],

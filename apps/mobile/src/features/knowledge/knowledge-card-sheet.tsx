@@ -20,6 +20,7 @@ import type { CategoryBadge, KnowledgeCard, RelatedTerm } from '../../knowledge/
 import { DIFFICULTY_KEY } from '../../match/breakdown';
 import { useTokens } from '../../theme/use-tokens';
 import { categoryGlyph } from './category-glyph';
+import { termChipLabel } from './chip-label';
 
 /** System mono until a bundled mono face is decided (D-28). */
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -77,11 +78,7 @@ function RelatedChip({
     <Pressable
       testID={`card.related.${term.termId}`}
       accessibilityRole="button"
-      accessibilityLabel={t('a11y.chip.term', {
-        term: term.display,
-        category: term.category?.name ?? '',
-        state: t('a11y.chip.state.known'),
-      })}
+      accessibilityLabel={termChipLabel(t, term, t('a11y.chip.state.known'))}
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,

@@ -96,6 +96,15 @@ export function hasCard(deps: CardDeps, termId: string, form: string): boolean {
 }
 
 /**
+ * What a tappable chip shows (display form, primary category) when the term has a card, else null (inert chip).
+ * Cheaper than {@link knowledgeCard}: no related-term walk.
+ */
+export function chipTerm(deps: CardDeps, termId: string, form: string): CardTerm | null {
+  const ref = resolve(deps.index, termId, form);
+  return ref === undefined || definitionOf(deps, termId) === null ? null : cardTerm(deps, ref);
+}
+
+/**
  * The card of `termId` (canonical `form`), or null when it has no card. `playedAs` is the form as played (blanks
  * may be lowercase); it is shown only when it differs from the canonical form. Related terms: the index's
  * neighbours that have a card, same primary category first, then by display form in the app locale (design §13.2
