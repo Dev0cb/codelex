@@ -48,6 +48,9 @@ describe('shipped catalogs', () => {
       min: 7,
       status: 'Your turn',
       scope: 'your current match',
+      term: 'Kubernetes',
+      level: 'Expert',
+      category: 'DevOps',
     };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });
