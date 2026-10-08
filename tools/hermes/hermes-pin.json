@@ -1,0 +1,5 @@
+{
+  "$comment": "Hermes VM pin of ADR-0016 §D2.1: the tag is react-native's sdks/.hermesv1version as resolved from apps/mobile; the commit is the real pin (tags can move) and equals the npm gitHead of hermes-compiler. Re-pin on every Expo SDK bump (mobile-app-foundation.md §2.1). Checked by hermes-pin.test.mjs.",
+  "tag": "hermes-v250829098.0.17",
+  "commit": "3477757eb2475555cf8d8df24bfb1deb0613880d"
+}
