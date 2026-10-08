@@ -53,7 +53,11 @@ beforeAll(() => {
     },
     'game-engine': {
       dir: 'packages/game-engine',
-      exports: { '.': './src/clean.ts', './draft': './src/draft.ts' },
+      exports: {
+        '.': './src/clean.ts',
+        './draft': './src/draft.ts',
+        './golden/rng.json': './test/golden/rng.json',
+      },
     },
     config: {
       dir: 'packages/config',
@@ -153,6 +157,8 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       'packages/bots/src/clean-integer-bot.ts',
       'packages/golden-runner/src/clean-runner.ts',
       'packages/golden-runner/src/clean-tooling-in-test.test.ts',
+      'packages/golden-runner/src/clean-corpus.ts',
+      'packages/golden-runner/src/host/clean-node-host.ts',
       'services/svc-a/src/clean.ts',
       'services/svc-a/src/helper.ts',
       'services/svc-a/src/clean-game-engine.ts',
@@ -525,6 +531,26 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       ],
       ['Date.now', 'packages/golden-runner/src/bad-date-now.ts', 'no-restricted-properties'],
       ['global fetch', 'packages/golden-runner/src/bad-global-fetch.ts', 'no-restricted-globals'],
+      [
+        'a draft golden file',
+        'packages/golden-runner/src/bad-draft-golden.ts',
+        'codelex/pure-imports',
+      ],
+      [
+        'a Node-only lexicon entry',
+        'packages/golden-runner/src/bad-lexicon-validate.ts',
+        'codelex/pure-imports',
+      ],
+      [
+        'JSON.stringify in a host',
+        'packages/golden-runner/src/host/bad-host-json-stringify.ts',
+        'no-restricted-properties',
+      ],
+      [
+        'Math.random in a host',
+        'packages/golden-runner/src/host/bad-host-math-random.ts',
+        'no-restricted-properties',
+      ],
     ])('%s FAILS', async (_name, file, rule) => {
       expect(await ruleIds(file)).toContain(rule);
     });

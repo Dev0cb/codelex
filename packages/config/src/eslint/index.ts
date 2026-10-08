@@ -50,6 +50,18 @@ const DETERMINISTIC_FILES = [
 const PURE_FILES = ['packages/game-engine/**'];
 /** ADR-0016 §D3.2: the golden runner core is pure like the engine, with its own import allow-list. */
 const GOLDEN_RUNNER_FILES = ['packages/golden-runner/**'];
+/**
+ * ADR-0016 §D3 item 2 hosts (sprint 4 P3): the Node CLIs (report to stdout, compare two files), their `bin/`
+ * wrappers, the Hermes CLI entry and the `scripts/` that bundle it. They read files, `process`, clocks for timings and the runtime's own globals, so they are exempt from the
+ * determinism and purity blocks; `JSON.stringify` and `Math.random` stay banned (a host prints the engine's
+ * canonical bytes and never adds entropy). Nothing in `src/host/**` may be imported by the core (the core entry's
+ * own allow-list has no path to it), and the app bundle (DG1) imports only the core entry.
+ */
+const GOLDEN_RUNNER_HOST_FILES = [
+  'packages/golden-runner/src/host/**',
+  'packages/golden-runner/bin/**',
+  'packages/golden-runner/scripts/**',
+];
 /** ADR-0014 §D1: the one file allowed to tell rules versions apart. */
 const RULES_REGISTRY_FILE = 'packages/game-engine/src/rules/registry.ts';
 const ENGINE_SOURCE_FILES = ['packages/game-engine/src/**'];
@@ -64,7 +76,13 @@ const PURE_EXEMPT_FILES = [...TEST_FILES, ...TOOLING_FILES];
 export function genericPreset(options: CodelexEslintOptions): Linter.Config[] {
   return defineConfig(
     {
-      ignores: ['**/dist/**', '**/coverage/**', '**/node_modules/**', '**/.tmp-*/**'],
+      ignores: [
+        '**/dist/**',
+        '**/coverage/**',
+        '**/node_modules/**',
+        '**/.tmp-*/**',
+        '**/.hermes-out/**',
+      ],
     },
     {
       files: TS_FILES,
@@ -240,7 +258,13 @@ const CODELEX_PLUGIN: ESLint.Plugin = { rules: { 'pure-imports': pureImportsRule
  */
 const GOLDEN_RUNNER_ALLOWED_IMPORTS = [
   '^@codelex/game-engine(/(rng|canonical))?$',
+  // Published, immutable golden data (sprint 4 P3), never `test/golden/drafts/`.
+  '^@codelex/game-engine/golden/(rng|sha256|jcs)\\.json$',
+  '^@codelex/game-engine/golden/(scoring|replays)/v[0-9]+/[a-z0-9.-]+\\.json$',
   '^@codelex/bots$',
+  '^@codelex/bots/golden/decisions-b[0-9]+-r[0-9]+\\.json$',
+  // The pure lexicon index (reference index, `.clxi` build and decode) for the golden fixture lexicons.
+  '^@codelex/lexicon/index$',
   '^@codelex/config/result$',
   '^zod$',
 ];
@@ -591,6 +615,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
     {
       basePath,
       files: DETERMINISTIC_FILES,
+      ignores: GOLDEN_RUNNER_HOST_FILES,
       rules: {
         'no-restricted-properties': ['error', ...DETERMINISM_PROPERTIES, ...FLOAT_PROPERTIES],
         'no-restricted-syntax': ['error', ...DETERMINISM_SELECTORS, ...ADR_D4_SELECTORS],
@@ -602,7 +627,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
       // These rule entries replace the ones above, so they repeat them.
       basePath,
       files: DETERMINISTIC_FILES,
-      ignores: TEST_FILES,
+      ignores: [...TEST_FILES, ...GOLDEN_RUNNER_HOST_FILES],
       rules: {
         'no-restricted-properties': [
           'error',
@@ -662,7 +687,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
     {
       basePath,
       files: GOLDEN_RUNNER_FILES,
-      ignores: PURE_EXEMPT_FILES,
+      ignores: [...PURE_EXEMPT_FILES, ...GOLDEN_RUNNER_HOST_FILES],
       plugins: { codelex: CODELEX_PLUGIN },
       rules: {
         'codelex/pure-imports': [
@@ -671,7 +696,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
             allow: GOLDEN_RUNNER_ALLOWED_IMPORTS,
             label: 'golden-runner',
             allowed:
-              'relative imports, @codelex/game-engine (., ./rng, ./canonical), @codelex/bots, @codelex/config/result, zod',
+              'relative imports, @codelex/game-engine (., ./rng, ./canonical, published goldens), @codelex/bots (and its published goldens), @codelex/lexicon/index, @codelex/config/result, zod',
           },
         ],
         'no-restricted-globals': [
@@ -682,6 +707,19 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
             ...SHIPPED_GLOBALS,
             ...IO_GLOBALS,
           ]),
+        ],
+      },
+    },
+    {
+      // ADR-0016 §D3 item 2 hosts: the narrow exemption documented at GOLDEN_RUNNER_HOST_FILES.
+      basePath,
+      files: GOLDEN_RUNNER_HOST_FILES,
+      ignores: TEST_FILES,
+      rules: {
+        'no-restricted-properties': [
+          'error',
+          ...SHIPPED_PROPERTIES,
+          ...DETERMINISM_PROPERTIES.filter((p) => p.object === 'Math'),
         ],
       },
     },
