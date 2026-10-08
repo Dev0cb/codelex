@@ -22,11 +22,14 @@ S1 adds `board` (E-1.4 §1.2 board, tile and premium roles; premium tints derive
 Since E-1.5 S2 the board tokens are also exported as DTCG JSON for web (§1.1): `tokens/board.dark.json`,
 `tokens/board.light.json` (board palette, overlay) and `tokens/board.shared.json` (motion, layout, radius). The
 TypeScript source stays the source of truth; `tokens:write` regenerates the files and `tokens-json.test.ts` fails
-when they drift. TODO: category, mono type and elevation tokens, and chrome colours in the JSON export.
+when they drift. E-1.5 S5 adds `category`
+(`color.category.*`, E-1.5 §7.1 dark values; light values darkened per A-2 until each hue reaches 3:1 on
+`bgSurface` and `bgRaised`, checked by `categoryContrastFailures`) and `CATEGORY_ICONS` (registry icon names). TODO:
+mono type and elevation tokens, and chrome and category colours in the JSON export.
 
 ## API
 
-- `getTokens(scheme)` → `{ status, scheme, color, space, type, board, motion, layout, radius, overlay }`; `resolveColorScheme(osAppearance)` (dark default).
+- `getTokens(scheme)` → `{ status, scheme, color, space, type, board, motion, layout, radius, overlay, category }`; `resolveColorScheme(osAppearance)` (dark default).
 - Names: `COLOR_ROLES` (`bgBase`, `bgSurface`, `bgRaised`, `borderSubtle`, `textPrimary`, `textMuted`,
   `accentPrimary`, `accentOnPrimary`, `feedbackError|Warning|Info`), `SPACE_STEPS` (`0..8`), `TYPE_ROLES`
   (`display`, `title`, `heading`, `bodyL`, `body`, `bodyS`, `caption`).
