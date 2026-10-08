@@ -16,6 +16,12 @@ export const FLAG_DEFAULTS = {
    * only expose tech squares the pinned `engineRulesVersion` defines, never add them at runtime (R-CORE-005).
    */
   'board.tech_squares.enabled': false,
+  /**
+   * E-1.5 AC-17, dark-launch flag of slices S6a and S6c (spec "Flags & rollout", SP2). Off = the consented queue
+   * records nothing and reads or writes no file; the first-run notice and the Settings "Playtest data" section are
+   * hidden. Non-analytics Settings rows are not behind it. Consent still applies on top when it is on.
+   */
+  'analytics.upload.enabled': false,
 } as const satisfies Readonly<Record<string, boolean>>;
 
 export type FlagKey = keyof typeof FLAG_DEFAULTS;

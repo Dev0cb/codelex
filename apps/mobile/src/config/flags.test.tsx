@@ -11,6 +11,13 @@ describe('flags', () => {
     expect(resolveFlags({})['play_vs_bot.enabled']).toBe(false);
   });
 
+  it('ship analytics.upload.enabled off (S6a dark launch, SP2)', () => {
+    expect(FLAG_DEFAULTS['analytics.upload.enabled']).toBe(false);
+    expect(parseFlagOverrides('analytics.upload.enabled=1')).toEqual({
+      'analytics.upload.enabled': true,
+    });
+  });
+
   it('parse build-time overrides, ignoring unknown keys and malformed values', () => {
     expect(parseFlagOverrides(undefined)).toEqual({});
     expect(parseFlagOverrides('')).toEqual({});
