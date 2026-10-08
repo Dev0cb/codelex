@@ -21,6 +21,11 @@ export interface TermChip {
   readonly form: string;
   /** First played by the player on this device (the NEW tag, design §5.6); always false for the bot's chips. */
   readonly isNew: boolean;
+  /**
+   * The first inflection this side played (PODS for POD) when it never played the canonical form itself: the card's
+   * "Played as" line (E-1.7 AC-12). Null otherwise.
+   */
+  readonly playedAs: string | null;
 }
 
 export interface BestWord {
@@ -28,6 +33,9 @@ export interface BestWord {
   readonly form: string;
   readonly points: number;
   readonly seat: Seat;
+  /** Canonical term of the main word, for its Knowledge Card (design §5.6 "Tap opens the canonical card"). */
+  readonly termId: string;
+  readonly canonicalForm: string;
 }
 
 export interface MatchSummary {
@@ -61,7 +69,16 @@ function bestOf(words: readonly WordEntry[]): BestWord | null {
       best = entry;
     }
   }
-  return best === null ? null : { form: best.form, points: best.points, seat: best.seat };
+  const main = best?.breakdown.words.find((w) => w.main);
+  return best === null || main === undefined
+    ? null
+    : {
+        form: best.form,
+        points: best.points,
+        seat: best.seat,
+        termId: main.termId,
+        canonicalForm: main.canonicalForm,
+      };
 }
 
 function termsOf(
@@ -73,12 +90,18 @@ function termsOf(
   for (const entry of words) {
     if (entry.seat !== seat) continue;
     for (const word of entry.breakdown.words) {
-      if (!seen.has(word.termId)) {
+      const inflection = word.form === word.canonicalForm ? null : word.form;
+      const chip = seen.get(word.termId);
+      if (chip === undefined) {
         seen.set(word.termId, {
           termId: word.termId,
           form: word.canonicalForm,
           isNew: fresh?.has(word.termId) ?? false,
+          playedAs: inflection,
         });
+      } else if (chip.playedAs !== null && inflection === null) {
+        // The canonical form was played too: no "Played as" line.
+        seen.set(word.termId, { ...chip, playedAs: null });
       }
     }
   }

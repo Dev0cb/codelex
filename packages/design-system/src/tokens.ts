@@ -3,7 +3,8 @@
  * the chrome colour roles of §1.2, the type ramp of §1.4 (system font) and `space.0..8` of §1.5, with the spec
  * values. Keys are flat camelCase as in spec §1.1 (`color.bg.base` → `color.bgBase`, `type.body.s` → `type.bodyS`).
  * Board, tile, premium, motion, layout, radius and overlay tokens live in `board-tokens.ts` (slice S1).
- * TODO: category, mono type and elevation tokens, and the move to the DTCG JSON files of §1.1 (`tokens/*.json`)
+ * Category hues live in `category-tokens.ts` (E-1.5 slice S5).
+ * TODO: mono type and elevation tokens, and the move to the DTCG JSON files of §1.1 (`tokens/*.json`)
  * generating this same typed shape, so consumers do not change.
  */
 import {
@@ -18,6 +19,7 @@ import {
   type OverlayTokens,
   type RadiusTokens,
 } from './board-tokens.js';
+import { CATEGORY_PALETTES, type CategoryPalette } from './category-tokens.js';
 
 /**
  * Lifecycle of the token set. `partial` = spec values for the groups exported here, other groups pending (S1);
@@ -88,6 +90,8 @@ export interface Tokens {
   readonly layout: LayoutTokens;
   readonly radius: RadiusTokens;
   readonly overlay: OverlayTokens;
+  /** `color.category.*` (E-1.4 §1.2): one hue per lexicon category, always shown with its icon and name. */
+  readonly category: CategoryPalette;
 }
 
 // E-1.4 §1.2 (dark = E-1.5 §7.1; light = assumption A-2, the contrast tests decide).
@@ -149,6 +153,7 @@ export function getTokens(scheme: ColorScheme): Tokens {
     layout: LAYOUT,
     radius: RADIUS,
     overlay: OVERLAYS[scheme],
+    category: CATEGORY_PALETTES[scheme],
   };
 }
 

@@ -1,0 +1,67 @@
+# E-1.5 slice S5 (AC-13): Summary → Knowledge Card → related term → Back → Close → Play again, offline-capable (local
+# data only). The player passes every turn (as in the S1 flow), so the bot's words fill the term chips and Discover
+# opens the first card. The card never opens on its own: the flow asserts no sheet on the Summary first. Card
+# contents, locale fallback, events and the kill switch (AC-14) are covered by the Jest tests in
+# src/features/knowledge/knowledge-card.test.tsx.
+# Needs a dev build with EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1,knowledge_card.post_match.enabled=1 and
+# APP_ID set to its bundle id / package.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.status'
+- repeat:
+    while:
+      notVisible:
+        id: 'summary.result'
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: 'match.action.pass'
+              enabled: true
+          commands:
+            - tapOn:
+                id: 'match.action.pass'
+            - tapOn:
+                id: 'match.pass.confirm'
+      - waitForAnimationToEnd:
+          timeout: 2000
+- assertVisible:
+    id: 'summary.result'
+- assertNotVisible:
+    id: 'card.sheet'
+- scrollUntilVisible:
+    element:
+      id: 'summary.discover'
+- tapOn:
+    id: 'summary.discover'
+- assertVisible:
+    id: 'card.title'
+- assertVisible:
+    id: 'card.definition'
+- runFlow:
+    when:
+      visible:
+        id: 'card.related'
+    commands:
+      - tapOn:
+          id: 'card.related.*'
+          index: 0
+      - assertVisible:
+          id: 'card.back'
+      - tapOn:
+          id: 'card.back'
+      - assertNotVisible:
+          id: 'card.back'
+- tapOn:
+    id: 'card.close'
+- assertNotVisible:
+    id: 'card.sheet'
+- tapOn:
+    id: 'summary.playAgain'
+- assertVisible:
+    id: 'match.status'

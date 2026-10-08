@@ -100,25 +100,49 @@ function playMatch(seedState: MatchState, stopAfter?: number): Played {
   return { model, replica, events };
 }
 
-/** Independent reading of the replica's events: best turn (D-15 tie rules) and canonical terms per seat. */
+interface ExpectedBest {
+  form: string;
+  points: number;
+  seat: number;
+  termId: string;
+  canonicalForm: string;
+}
+
+/**
+ * Independent reading of the replica's events: best turn (D-15 tie rules), canonical terms per seat, and per term
+ * the forms each seat played in order (for "Played as", E-1.7 AC-12).
+ */
 function fromEvents(events: readonly MatchEvent[]) {
-  let best: { form: string; points: number; seat: number } | null = null;
+  let best: ExpectedBest | null = null;
   const terms: [Set<string>, Set<string>] = [new Set(), new Set()];
+  const forms: [Map<string, string[]>, Map<string, string[]>] = [
+    new Map<string, string[]>(),
+    new Map<string, string[]>(),
+  ];
   for (const event of events) {
     if (event.type !== 'WORD_PLACED') continue;
     const main = event.breakdown.words.find((w) => w.main);
     if (main === undefined) continue;
-    for (const w of event.breakdown.words) terms[event.seat]?.add(w.termId);
+    for (const w of event.breakdown.words) {
+      terms[event.seat]?.add(w.termId);
+      forms[event.seat]?.set(w.termId, [...(forms[event.seat]?.get(w.termId) ?? []), w.form]);
+    }
     const points = event.breakdown.total;
     if (
       best === null ||
       points > best.points ||
       (points === best.points && main.form.length > best.form.length)
     ) {
-      best = { form: main.form, points, seat: event.seat };
+      best = {
+        form: main.form,
+        points,
+        seat: event.seat,
+        termId: main.termId,
+        canonicalForm: main.canonicalForm,
+      };
     }
   }
-  return { best, terms };
+  return { best, terms, forms };
 }
 
 describe('match summary (AC-10)', () => {
@@ -165,6 +189,18 @@ describe('match summary (AC-10)', () => {
       expect(new Set(summary.terms.bot.map((t) => t.termId))).toEqual(expected.terms[BOT_SEAT]);
       // Chips are deduplicated by canonical term (E-1.7 AC-12).
       expect(summary.terms.you.length).toBe(expected.terms[HUMAN_SEAT].size);
+      // "Played as" = the first inflection played, only when the canonical form itself never was.
+      for (const [seat, chips] of [
+        [HUMAN_SEAT, summary.terms.you],
+        [BOT_SEAT, summary.terms.bot],
+      ] as const) {
+        for (const chip of chips) {
+          const played = expected.forms[seat].get(chip.termId) ?? [];
+          expect(chip.playedAs).toBe(
+            played.includes(chip.form) ? null : (played.find((f) => f !== chip.form) ?? null),
+          );
+        }
+      }
     },
     120_000,
   );

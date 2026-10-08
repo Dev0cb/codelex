@@ -9,6 +9,11 @@ Slice S2 adds the match HUD (menu with move log, board legend and Resign), the e
 sheet), the lexicon-free "Base N" preview (flag `match.live_score_preview`, default on), Shuffle and Exchange, and
 the Summary (result, scores with rack adjustments, end reason, margin, best word, canonical term chips, the bot's
 last rack). Flag `board.tech_squares.enabled` exists, default off, with no effect on the pinned v1 layout (AC-3).
+Slice S5 adds the post-match Knowledge Card (AC-13/AC-14) behind `knowledge_card.post_match.enabled` (bundled default
+**off**): term chips, the best word and "Discover the terms you played" open a bottom sheet with the term's category,
+difficulty, definition (EN fallback with a tag) and up to 5 related terms, from local data only (the `.clxi` plus
+`assets/lexicon/cards.json`, see the foundation note §3.3). Its events go through `src/analytics/emitter.ts`, a no-op
+until the S6a recorder plugs in.
 
 - Owner: `mobile-engineer` (consult `ux-ui-designer` for visuals, `realtime-engineer` for the protocol)
 - Coverage: 80 % on lines, statements, functions and branches, read from `@codelex/config/vitest` `basePreset`
@@ -41,14 +46,17 @@ src/a11y/           reduced motion and screen-reader hooks
 src/config/         feature flags (bundled defaults + build-time overrides)
 src/ui/             token-only primitives (Button, Sheet)
 src/i18n/           I18nProvider / useI18n over @codelex/i18n (device locale, EN fallback)
+src/knowledge/      card text decoder (raw DEFLATE + base64), card model and card stack (pure)
+src/features/knowledge/  Knowledge Card sheet, card hooks, category glyphs
 src/lexicon/        .clxi loader (pure, injected platform source), LexiconGate / useLexicon, E-1.5 §5.10.1 error state
 src/linking/        deep-link guard used by src/app/+native-intent.ts (GHSA-vcc3-ghjq-m6fr)
 src/theme/          useTokens() over @codelex/design-system (OS appearance, dark default)
 scripts/            prepare:lexicon, bundle-size budget and bundle-contents check (node:test)
-assets/lexicon/     lexicon.clxi + lexicon.json, written by prepare:lexicon (git-ignored, never edit)
+assets/lexicon/     lexicon.clxi + lexicon.json + cards.json (card text), written by prepare:lexicon (git-ignored,
+                    never edit)
 jest/               Jest-only stand-ins: .clxi transformer, Node versions of expo-asset/-file-system/-crypto, Skia
                     stand-in, worklets resolver, Gesture Handler setup
-e2e/                Maestro flows (S1: full match vs Beginner; S2: HUD, Resign, Summary)
+e2e/                Maestro flows (S1: full match vs Beginner; S2: HUD, Resign, Summary; S5: Knowledge Card)
 metro.config.cjs    Expo defaults + `clxi` asset extension (lexicon index)
 bundle-budget.json  bytes per platform for the Hermes bundle, the bundled code assets and the lexicon index
 bundle-forbidden-packages.json  toolchain packages that must never be bundled (audit exceptions)
