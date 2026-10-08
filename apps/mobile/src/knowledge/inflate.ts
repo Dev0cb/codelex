@@ -4,8 +4,17 @@
  * uncompressed (mobile-app-foundation note §3.3), so the app carries this small decoder instead of a dependency.
  *
  * Table-driven: each Huffman code gets a single-level lookup table indexed by the next `maxBits` input bits (LSB
- * first, as DEFLATE packs them), so a symbol costs one table read. Every malformed input throws `InflateError` (no
- * partial output is ever returned); the output never exceeds `maxLength`, so hostile input cannot grow memory.
+ * first, as DEFLATE packs them), so a symbol costs one table read. Every input this decoder rejects throws
+ * `InflateError` (no partial output is ever returned); the output never exceeds `maxLength`, so hostile input cannot
+ * grow memory.
+ *
+ * It decodes every valid RFC 1951 stream (property-tested against zlib, including stored blocks after Huffman
+ * blocks), but it is more lenient than a strict validator, which is acceptable for a bundled, version-checked asset
+ * whose decoded JSON is shape-checked afterwards:
+ * - distances above 32,768 are accepted as long as they stay inside the output;
+ * - incomplete Huffman codes are accepted (zlib accepts them only for a single distance code); a missing code
+ *   reads as an invalid code when it is met;
+ * - `decodeBase64` ignores non-zero trailing bits before the padding (non-canonical base64).
  */
 
 export class InflateError extends Error {
@@ -178,10 +187,14 @@ export function inflateRaw(input: Uint8Array, maxLength = Number.POSITIVE_INFINI
     final = bits(1);
     const type = bits(2);
     if (type === 0) {
-      // Stored: skip to the byte boundary (fewer than 8 bits are buffered), then LEN and its complement.
-      consume(bitCnt);
+      // Stored: drop the bits left in the current byte, then give back the whole bytes the bit buffer read ahead
+      // (`symbol` fills up to 15 bits, so up to 22 bits, i.e. 2 whole bytes, can be buffered after a Huffman
+      // block): LEN and NLEN start at the next byte boundary of the input, not of the buffer.
+      consume(bitCnt & 7);
+      pos -= bitCnt >> 3;
       bitBuf = 0;
       bitCnt = 0;
+      consumed = pos * 8;
       if (pos + 4 > input.length) fail('truncated stored block');
       const len = (input[pos] ?? 0) | ((input[pos + 1] ?? 0) << 8);
       const nlen = (input[pos + 2] ?? 0) | ((input[pos + 3] ?? 0) << 8);
@@ -201,7 +214,8 @@ export function inflateRaw(input: Uint8Array, maxLength = Number.POSITIVE_INFINI
     for (;;) {
       const sym = symbol(literals);
       if (sym < 256) {
-        ensure(1);
+        // Fast path: grow (and check the cap) only when the buffer is full.
+        if (outLen >= out.length) ensure(1);
         out[outLen] = sym;
         outLen += 1;
         continue;
@@ -215,10 +229,15 @@ export function inflateRaw(input: Uint8Array, maxLength = Number.POSITIVE_INFINI
       const distance = (DIST_BASE[di] ?? 0) + bits(DIST_EXTRA[di] ?? 0);
       if (distance > outLen) fail('distance before the start of the output');
       ensure(length);
-      // Byte by byte: a match may overlap its own output (distance < length).
-      for (let k = 0; k < length; k += 1) {
-        out[outLen] = out[outLen - distance] ?? 0;
-        outLen += 1;
+      if (distance >= length) {
+        out.copyWithin(outLen, outLen - distance, outLen - distance + length);
+        outLen += length;
+      } else {
+        // Byte by byte: the match overlaps its own output (distance < length).
+        for (let k = 0; k < length; k += 1) {
+          out[outLen] = out[outLen - distance] ?? 0;
+          outLen += 1;
+        }
       }
     }
   } while (final === 0);
@@ -232,7 +251,10 @@ const BASE64_VALUES: Int16Array = (() => {
   return values;
 })();
 
-/** Standard base64 (RFC 4648 §4, with padding) to bytes; throws {@link InflateError} on anything else. */
+/**
+ * Standard base64 (RFC 4648 §4, with padding) to bytes; throws {@link InflateError} on a character outside the
+ * alphabet or a length that is not a multiple of 4. Non-zero trailing bits before the padding are ignored (lenient).
+ */
 export function decodeBase64(text: string): Uint8Array {
   if (text.length % 4 !== 0) fail('base64 length is not a multiple of 4');
   const padding = text.endsWith('==') ? 2 : text.endsWith('=') ? 1 : 0;
