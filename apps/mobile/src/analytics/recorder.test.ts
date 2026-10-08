@@ -203,6 +203,16 @@ describe('PlaytestAnalytics: previous_exit_unclean (session-marker.ts S6a contra
     expect(fs.files.has(SESSION_MARKER_FILE)).toBe(true);
   });
 
+  it('treats an unexpected AppState value as unknown (before the native module answers)', () => {
+    const fs = new MemoryFs();
+    const h = boot(fs);
+    h.analytics.start();
+    h.analytics.onAppState(null as unknown as 'active');
+    expect(fs.files.has(SESSION_MARKER_FILE)).toBe(true);
+    h.analytics.onAppState('background');
+    expect(fs.files.has(SESSION_MARKER_FILE)).toBe(false);
+  });
+
   it('starts once per process', () => {
     const fs = new MemoryFs();
     const h = launch(boot(fs));
@@ -230,6 +240,19 @@ describe('PlaytestAnalytics: recording', () => {
     h.analytics.record('app_backgrounded', { foreground_ms: 7 });
     expect(names(fs)).toEqual(['app_backgrounded']);
     expect(new EventQueue(new DataStore(fs.reboot()), () => T0).dropped().invalid).toBe(3);
+  });
+
+  it('holds events recorded before start and keeps them only with consent', () => {
+    const fs = new MemoryFs();
+    const h = boot(fs);
+    h.analytics.record('app_backgrounded', { foreground_ms: 3 });
+    launch(h);
+    expect(queued(fs).map((e) => propsOf(e))).toEqual([{ foreground_ms: 3 }]);
+    h.analytics.setConsent(false);
+    const next = boot(fs.reboot());
+    next.analytics.record('app_backgrounded', { foreground_ms: 4 });
+    launch(next);
+    expect([...next.fs.files.keys()]).toEqual([CONSENT_FILE]);
   });
 
   it('keeps events recorded before the queue loaded, in order', () => {

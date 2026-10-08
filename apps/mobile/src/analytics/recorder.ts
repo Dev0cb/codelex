@@ -1,7 +1,8 @@
 /**
  * The playtest recorder (E-1.5 AC-17, slice S6a), without React: the one object that decides whether anything is
  * recorded, builds the wire-form envelope, validates every event with the D1 schemas before it is queued, and owns
- * the session marker and the lifecycle events. `analytics-provider.tsx` drives it from `AppState` and the first
+ * the session marker and the lifecycle events. Validation uses `event-guard.ts` (the zod-free mirror of the D1
+ * schemas, tested equal to them): no zod in the app bundle. `analytics-provider.tsx` drives it from `AppState` and the first
  * route; the tests drive it directly.
  *
  * Gates, outermost first:
@@ -21,14 +22,9 @@
 import { DataStore, type FsPrimitives } from '../persistence/data-store';
 import { CONSENT_FILE, readChoices, writeChoices, type AnalyticsChoices } from './consent';
 import { EventQueue, QUEUE_FILES, type DroppedCounts } from './event-queue';
-import {
-  EVENT_SCHEMAS,
-  parseAnalyticsEvent,
-  type AnalyticsEvent,
-  type EventName,
-  type EventProperties,
-  type Platform,
-} from './events';
+import { eventVersion, guardEvent, type GuardedEvent } from './event-guard';
+import type { AnalyticsCall, AnalyticsEmitter } from './emitter';
+import type { AnalyticsEvent, EventName, EventProperties, Platform } from './events';
 import { ensureInstallId, INSTALL_ID_FILE } from './install-id';
 import {
   INITIAL_LIFECYCLE,
@@ -50,6 +46,14 @@ export const ANALYTICS_FILE_NAMES: ReadonlySet<string> = new Set([
   INSTALL_ID_FILE,
   CONSENT_FILE,
   SESSION_MARKER_FILE,
+]);
+
+const APP_STATES: ReadonlySet<string> = new Set<AppStateValue>([
+  'active',
+  'background',
+  'inactive',
+  'unknown',
+  'extension',
 ]);
 
 /** The marker's content does not matter (`session-marker.ts`): one constant byte. */
@@ -95,7 +99,8 @@ const DISABLED: AnalyticsSnapshot = {
   installId: null,
 };
 
-export class PlaytestAnalytics {
+/** Also the app's {@link AnalyticsEmitter} (`emitter.ts`): features emit through `useAnalytics().emit(…)`. */
+export class PlaytestAnalytics implements AnalyticsEmitter {
   private readonly store: DataStore;
   private readonly queue: EventQueue;
   private readonly sessionId: string;
@@ -110,6 +115,12 @@ export class PlaytestAnalytics {
   private lifecycle: LifecycleState = INITIAL_LIFECYCLE;
   /** Validated events recorded before the queue loaded (`null` = an invalid one, counted at load). */
   private pending: (AnalyticsEvent | null)[] = [];
+  /** Recorded before `start()` (dropped there if recording is off). */
+  private beforeStart: {
+    readonly name: EventName;
+    readonly properties: unknown;
+    readonly at: number;
+  }[] = [];
   private snapshot: AnalyticsSnapshot = DISABLED;
   private readonly listeners = new Set<() => void>();
 
@@ -139,12 +150,17 @@ export class PlaytestAnalytics {
       // Also finishes a purge a kill interrupted.
       this.purgeFiles();
     }
+    const held = this.beforeStart;
+    this.beforeStart = [];
+    for (const { name, properties, at } of held) this.build(name, properties, at);
     this.publish();
   }
 
   /** An `AppState` report: a change event, or the current state at subscription (contract step 2). */
-  readonly onAppState = (next: AppStateValue): void => {
+  readonly onAppState = (reported: AppStateValue): void => {
     if (!this.enabled) return;
+    // `currentState` can be null or another value before the native module answers: treat it as `unknown`.
+    const next: AppStateValue = APP_STATES.has(reported) ? reported : 'unknown';
     this.appState = next;
     if (this.marker !== null) this.setMarker(onAppStateChange(this.marker, next));
     this.step({ type: 'app_state', next, at: this.platform.monoMs() });
@@ -174,21 +190,39 @@ export class PlaytestAnalytics {
    * it, or drops and counts it as invalid (catalogue "Validation"). Nothing at all when recording is off.
    */
   record<N extends EventName>(name: N, properties: EventProperties<N>): void {
+    this.recordAny(name, properties);
+  }
+
+  /** `AnalyticsEmitter.emit` (S5 seam): the same as {@link record}, for an event given as data. */
+  readonly emit = (call: AnalyticsCall): void => {
+    this.recordAny(call.event, call.properties);
+  };
+
+  private recordAny(name: EventName, properties: unknown): void {
+    if (this.enabled && !this.started) {
+      // Child components' mount effects run before the provider's: held until `start()` knows the consent.
+      this.beforeStart.push({ name, properties, at: this.platform.wallMs() });
+      return;
+    }
+    this.build(name, properties, this.platform.wallMs());
+  }
+
+  private build(name: EventName, properties: unknown, at: number): void {
     if (!this.recording()) return;
-    let parsed: ReturnType<typeof parseAnalyticsEvent>;
+    let parsed: GuardedEvent;
     try {
-      parsed = parseAnalyticsEvent({
+      parsed = guardEvent({
         event: name,
-        schema_version: EVENT_SCHEMAS[name].version,
+        schema_version: eventVersion(name),
         event_id: this.platform.randomUUID(),
-        occurred_at: new Date(this.platform.wallMs()).toISOString(),
+        occurred_at: new Date(at).toISOString(),
         user_id: this.installId,
         session_id: this.sessionId,
         ...this.platform.context(),
         properties,
       });
     } catch {
-      parsed = { ok: false, issues: ['<root>: unbuildable'] };
+      parsed = { ok: false };
     }
     const event = parsed.ok ? parsed.event : null;
     if (!this.loaded) {

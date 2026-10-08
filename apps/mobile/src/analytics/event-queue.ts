@@ -22,10 +22,11 @@
  * Start-up cost: loading reads each record's sequence number and time only (no schema check), and runs after the
  * first render (the recorder defers it). The full schema check runs when the events are read for an export.
  */
-import type { DataStore} from '../persistence/data-store';
+import type { DataStore } from '../persistence/data-store';
 import { type ReadRecords } from '../persistence/data-store';
 import { asciiJson } from '../persistence/match-journal';
-import { parseAnalyticsEvent, type AnalyticsEvent } from './events';
+import { guardEvent } from './event-guard';
+import type { AnalyticsEvent } from './events';
 
 export const QUEUE_FILE = 'analytics.queue';
 export const QUEUE_META_FILE = 'analytics.meta';
@@ -151,7 +152,8 @@ export class EventQueue {
   }
 
   /**
-   * The queued events, oldest first, each checked against the D1 schemas (catalogue "Validation": queue read). An
+   * The queued events, oldest first, each checked again (`event-guard.ts`, the on-device mirror of the D1 schemas;
+   * catalogue "Validation": queue read). An
    * entry that fails is removed and counted as invalid, never exported.
    */
   events(): readonly AnalyticsEvent[] {
@@ -159,7 +161,7 @@ export class EventQueue {
     const valid: AnalyticsEvent[] = [];
     const kept: Entry[] = [];
     for (const entry of this.entries) {
-      const parsed = parseAnalyticsEvent(entry.event);
+      const parsed = guardEvent(entry.event);
       if (parsed.ok) {
         valid.push(parsed.event);
         kept.push(entry);
