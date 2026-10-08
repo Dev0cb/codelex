@@ -148,6 +148,8 @@
   "a11y.chip.state.new": "nouveau pour toi, touche deux fois pour ouvrir",
   "a11y.chip.state.known": "touche deux fois pour ouvrir",
   "a11y.chip.state.inert": "aucune fiche disponible",
+  "a11y.chip.term_no_category": "{term}, {state}",
+  "a11y.best_word.open": "Meilleur mot : {detail}. Touche deux fois pour ouvrir la fiche de {term}",
   "summary.rack_adjust": "Chevalets : toi {you}, {bot} {them}",
   "summary.end.resign": "Tu as déclaré forfait.",
   "summary.margin": "Écart : {margin}",

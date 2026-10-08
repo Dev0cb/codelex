@@ -51,6 +51,7 @@ describe('shipped catalogs', () => {
       term: 'Kubernetes',
       level: 'Expert',
       category: 'DevOps',
+      detail: 'PODS · 62 pts · You',
     };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });

@@ -148,6 +148,8 @@
   "a11y.chip.state.new": "new to you, double tap to open",
   "a11y.chip.state.known": "double tap to open",
   "a11y.chip.state.inert": "no card available",
+  "a11y.chip.term_no_category": "{term}, {state}",
+  "a11y.best_word.open": "Best word: {detail}. Double tap to open the card for {term}",
   "summary.rack_adjust": "Racks: you {you}, {bot} {them}",
   "summary.end.resign": "You resigned.",
   "summary.margin": "Margin: {margin}",
