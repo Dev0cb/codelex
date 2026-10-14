@@ -1,7 +1,7 @@
 /**
  * The provider follows the `session-marker.ts` S6a contract: start at mount, subscribe to `AppState` and feed the
- * current state in the same tick, load the queue after the first render; `InteractiveMark` releases the cold
- * `app_opened`; `useRecordEvent` is the typed emitter.
+ * current state in the same tick, load the queue when idle after the first render; `InteractiveMark` releases the
+ * cold `app_opened`; features emit through the S5 seam (`emitter.ts`).
  */
 import { describe, expect, it, jest } from '@jest/globals';
 import { act, render } from '@testing-library/react-native';
@@ -16,6 +16,7 @@ import {
   CreateAnalyticsContext,
   InteractiveMark,
   useAnalyticsSnapshot,
+  whenIdle,
 } from './analytics-provider';
 import { useAnalytics } from './emitter';
 import { EventQueue } from './event-queue';
@@ -99,5 +100,37 @@ describe('AnalyticsProvider', () => {
       </>,
     );
     expect(view.getByTestId('id').props.children).toBe('none');
+  });
+});
+
+describe('whenIdle', () => {
+  it('uses requestIdleCallback with a timeout when the runtime has it, and cancels', () => {
+    const scheduler = globalThis as { requestIdleCallback?: unknown; cancelIdleCallback?: unknown };
+    const saved = [scheduler.requestIdleCallback, scheduler.cancelIdleCallback];
+    const request = jest.fn<(task: () => void, options?: { timeout: number }) => number>(() => 7);
+    const cancel = jest.fn();
+    scheduler.requestIdleCallback = request;
+    scheduler.cancelIdleCallback = cancel;
+    const task = jest.fn();
+    whenIdle(task)();
+    expect(request).toHaveBeenCalledWith(task, { timeout: 2000 });
+    expect(cancel).toHaveBeenCalledWith(7);
+    [scheduler.requestIdleCallback, scheduler.cancelIdleCallback] = saved;
+  });
+
+  it('falls back to the next tick, cancellable', () => {
+    jest.useFakeTimers();
+    const scheduler = globalThis as { requestIdleCallback?: unknown };
+    const saved = scheduler.requestIdleCallback;
+    scheduler.requestIdleCallback = undefined;
+    const task = jest.fn();
+    whenIdle(task);
+    const cancelled = jest.fn();
+    whenIdle(cancelled)();
+    jest.runAllTimers();
+    expect(task).toHaveBeenCalled();
+    expect(cancelled).not.toHaveBeenCalled();
+    scheduler.requestIdleCallback = saved;
+    jest.useRealTimers();
   });
 });

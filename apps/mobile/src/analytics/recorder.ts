@@ -19,9 +19,9 @@
  * names of {@link ANALYTICS_FILE_NAMES}. Nothing here throws: storage failures are absorbed (and visible as drop
  * counts or a later new install id), so analytics can never break play.
  */
-import { DataStore, type FsPrimitives } from '../persistence/data-store';
+import { DataStore, TMP_SUFFIX, type FsPrimitives } from '../persistence/data-store';
 import { CONSENT_FILE, readChoices, writeChoices, type AnalyticsChoices } from './consent';
-import { EventQueue, QUEUE_FILES, type DroppedCounts } from './event-queue';
+import { EventQueue, QUEUE_FILE, QUEUE_FILES, type DroppedCounts } from './event-queue';
 import { eventVersion, guardEvent, type GuardedEvent } from './event-guard';
 import type { AnalyticsCall, AnalyticsEmitter } from './emitter';
 import type { AnalyticsEvent, EventName, EventProperties, Platform } from './events';
@@ -243,19 +243,30 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
   setConsent(on: boolean): boolean {
     if (!this.enabled) return false;
     if (on === this.choices.consent) return true;
+    if (on) {
+      // Nothing of the withdrawn pseudonym may survive into the new one (a leftover `install.id.tmp` would be
+      // promoted by the next start's recovery): purge again and check before the new id is made.
+      if (!this.purgeFiles() || !this.absent([INSTALL_ID_FILE, QUEUE_FILE])) {
+        this.publish();
+        return false;
+      }
+    }
     const choices = { ...this.choices, consent: on };
     if (!writeChoices(this.store, choices)) return false;
     this.choices = choices;
+    let ok = true;
     if (on) {
       this.installId = ensureInstallId(this.store, this.platform.randomUUID);
       this.loaded = true;
       this.setMarker(onAppStateChange({ present: false, seenActive: true }, this.appState));
       this.step({ type: 'restart', at: this.platform.monoMs() });
     } else {
-      this.purgeFiles();
+      // Recording stops now either way; a purge that could not delete everything is retried at the next start and
+      // reported to the tester (`settings.save_error`).
+      ok = this.purgeFiles();
     }
     this.publish();
-    return true;
+    return ok;
   }
 
   /** The first-run notice was dismissed, or Home was left (design §5.4). */
@@ -276,7 +287,7 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
 
   /** Drop counts since the last confirmed export (export file `dropped`, slice S6c). */
   dropped(): DroppedCounts {
-    return this.queue.dropped();
+    return this.recording() ? this.queue.dropped() : { queueCap: 0, expired: 0, invalid: 0 };
   }
 
   getSnapshot = (): AnalyticsSnapshot => this.snapshot;
@@ -330,9 +341,16 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
   }
 
   /** Consent off: queue, install id and marker deleted; the choice file stays. */
-  private purgeFiles(): void {
-    this.queue.purge();
-    for (const name of [INSTALL_ID_FILE, SESSION_MARKER_FILE]) {
+  /**
+   * Consent off: the queue, the install id and the marker are deleted, with any half-written temp file of every
+   * analytics file (the choice file itself stays). True when none of them is left on disk.
+   */
+  private purgeFiles(): boolean {
+    const queueGone = this.queue.purge();
+    const names = [INSTALL_ID_FILE, SESSION_MARKER_FILE, CONSENT_FILE].flatMap((name) =>
+      name === CONSENT_FILE ? [name + TMP_SUFFIX] : [name, name + TMP_SUFFIX],
+    );
+    for (const name of names) {
       this.attempt(() => {
         this.platform.fs.remove(name);
       });
@@ -340,7 +358,17 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     this.installId = null;
     this.marker = null;
     this.pending = [];
+    this.beforeStart = [];
     this.loaded = true;
+    return queueGone && this.absent(names);
+  }
+
+  private absent(names: readonly string[]): boolean {
+    try {
+      return names.every((name) => this.platform.fs.size(name) === null);
+    } catch {
+      return false;
+    }
   }
 
   private publish(): void {

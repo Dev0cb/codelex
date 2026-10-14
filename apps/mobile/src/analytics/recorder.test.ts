@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from '@jest/globals';
 
-import { DataStore } from '../persistence/data-store';
+import { DataStore, TMP_SUFFIX } from '../persistence/data-store';
 import { MemoryFs } from '../persistence/memory-fs';
 import { CONSENT_FILE } from './consent';
 import { EventQueue, QUEUE_FILE, QUEUE_MAX_AGE_MS, QUEUE_META_FILE } from './event-queue';
@@ -66,6 +66,7 @@ describe('PlaytestAnalytics: dark launch (analytics.upload.enabled off)', () => 
     h.analytics.onAppState('background');
     expect(h.analytics.setConsent(false)).toBe(false);
     h.analytics.markNoticeSeen();
+    expect(h.analytics.dropped()).toEqual({ queueCap: 0, expired: 0, invalid: 0 });
     expect(fs.boundaries).toBe(0);
     expect(fs.reads).toEqual([]);
     expect(h.analytics.getSnapshot()).toEqual({
@@ -370,6 +371,41 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     expect(events.map((e) => [e.event, e.user_id, e.properties])).toEqual([
       ['app_backgrounded', after, { foreground_ms: 600 }],
     ]);
+  });
+
+  it('leaves no temp file of the old pseudonym behind a withdrawal and a re-consent (review minor 1)', () => {
+    const fs = new MemoryFs();
+    const h = launch(boot(fs));
+    h.analytics.record('app_backgrounded', { foreground_ms: 1 });
+    const before = h.analytics.getSnapshot().installId ?? '';
+    fs.files.set(QUEUE_FILE + TMP_SUFFIX, fs.files.get(QUEUE_FILE) ?? new Uint8Array(0));
+    new DataStore(fs).replace(`${INSTALL_ID_FILE}-x`, [before]);
+    fs.files.set(
+      INSTALL_ID_FILE + TMP_SUFFIX,
+      fs.files.get(`${INSTALL_ID_FILE}-x`) ?? new Uint8Array(0),
+    );
+    fs.files.delete(`${INSTALL_ID_FILE}-x`);
+    expect(h.analytics.setConsent(false)).toBe(true);
+    expect([...fs.files.keys()]).toEqual([CONSENT_FILE]);
+    expect(h.analytics.setConsent(true)).toBe(true);
+    const next = launch(boot(fs.reboot()));
+    expect(next.analytics.queuedCount()).toBe(0);
+    expect(next.analytics.getSnapshot().installId).not.toBe(before);
+    expect(next.analytics.getSnapshot().installId).toBe(h.analytics.getSnapshot().installId);
+  });
+
+  it('refuses to re-consent while files of the old pseudonym cannot be deleted', () => {
+    const fs = new MemoryFs();
+    const h = launch(boot(fs));
+    h.analytics.setConsent(false);
+    fs.files.set(INSTALL_ID_FILE, Uint8Array.of(1));
+    const stuck = fs.remove.bind(fs);
+    fs.remove = (name: string): void => {
+      if (name === INSTALL_ID_FILE) throw new Error('EACCES');
+      stuck(name);
+    };
+    expect(h.analytics.setConsent(true)).toBe(false);
+    expect(h.analytics.getSnapshot()).toMatchObject({ consent: false, installId: null });
   });
 
   it('changes nothing when the choice cannot be saved (settings.save_error)', () => {

@@ -2,7 +2,8 @@
  * React wiring of the playtest recorder (slice S6a). The provider sits outside the lexicon gate so the session marker
  * is written at launch, before anything that could crash at boot (`session-marker.ts` contract step 1). In one
  * effect it starts the recorder, subscribes to `AppState` and, in the same tick, feeds `AppState.currentState`
- * (step 2); the queue loads after the first render. `<InteractiveMark />` inside the gate marks the first route as
+ * (step 2); the queue loads once the JS thread is idle after the first render (`requestIdleCallback`, bounded by a
+ * timeout; `InteractionManager` is only a deprecated stub in RN 0.86). `<InteractiveMark />` inside the gate marks the first route as
  * rendered, which releases the cold `app_opened`.
  *
  * Features emit through the S5 seam (`emitter.ts`: `useAnalytics().emit({ event, properties })`); this provider plugs
@@ -25,6 +26,29 @@ import { deviceAnalytics } from './device-analytics';
 import { AnalyticsContext } from './emitter';
 import type { AnalyticsSnapshot, PlaytestAnalytics } from './recorder';
 
+interface IdleScheduler {
+  requestIdleCallback?: (task: () => void, options?: { timeout: number }) => number;
+  cancelIdleCallback?: (handle: number) => void;
+}
+
+/** Longest wait for an idle moment before the queue loads anyway. */
+const LOAD_IDLE_TIMEOUT_MS = 2000;
+
+/** Runs `task` when the JS thread is idle (or on the next tick where that API is missing); returns a cancel. */
+export function whenIdle(task: () => void): () => void {
+  const scheduler = globalThis as IdleScheduler;
+  if (typeof scheduler.requestIdleCallback === 'function') {
+    const handle = scheduler.requestIdleCallback(task, { timeout: LOAD_IDLE_TIMEOUT_MS });
+    return () => {
+      scheduler.cancelIdleCallback?.(handle);
+    };
+  }
+  const timer = setTimeout(task, 0);
+  return () => {
+    clearTimeout(timer);
+  };
+}
+
 /** Creates the recorder for the flag value (tests inject one on an in-memory disk). */
 export type CreateAnalytics = (enabled: boolean) => PlaytestAnalytics;
 
@@ -41,11 +65,11 @@ export function AnalyticsProvider({ children }: { readonly children: ReactNode }
     analytics.start();
     const subscription = AppState.addEventListener('change', analytics.onAppState);
     analytics.onAppState(AppState.currentState);
-    const timer = setTimeout(() => {
+    const cancelLoad = whenIdle(() => {
       analytics.load();
-    }, 0);
+    });
     return () => {
-      clearTimeout(timer);
+      cancelLoad();
       subscription.remove();
     };
   }, [analytics]);

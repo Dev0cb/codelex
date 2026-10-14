@@ -20,6 +20,8 @@ interface RnPerformance {
 
 const perf = (globalThis as { performance?: RnPerformance }).performance;
 
+// React Native always installs `performance` (Hermes, RN 0.86), so the wall-clock branch is unreachable on devices;
+// it only keeps the module loadable where the global is missing (it would make foreground_ms wall-clock based).
 const monoMs = (): number => (perf === undefined ? Date.now() : perf.now());
 
 /**
