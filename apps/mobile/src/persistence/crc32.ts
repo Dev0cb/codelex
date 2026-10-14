@@ -14,6 +14,9 @@ const TABLE = ((): Uint32Array => {
 
 export function crc32(bytes: Uint8Array): number {
   let crc = 0xffffffff;
-  for (const byte of bytes) crc = (TABLE[(crc ^ byte) & 0xff] ?? 0) ^ (crc >>> 8);
+  // Indexed loop: the iterator protocol costs several times more per byte on Hermes and under Jest.
+  for (let i = 0; i < bytes.length; i += 1) {
+    crc = (TABLE[(crc ^ (bytes[i] ?? 0)) & 0xff] ?? 0) ^ (crc >>> 8);
+  }
   return (crc ^ 0xffffffff) >>> 0;
 }

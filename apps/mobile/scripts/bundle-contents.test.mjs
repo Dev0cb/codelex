@@ -5,7 +5,12 @@ import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { checkContents, packagesInSources, readExportSources } from './bundle-contents.mjs';
+import {
+  checkAbsent,
+  checkContents,
+  packagesInSources,
+  readExportSources,
+} from './bundle-contents.mjs';
 
 const appDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(appDir, '..', '..');
@@ -107,4 +112,24 @@ test('the forbidden list matches the audit register and pnpm auditConfig (no dri
       `${advisory} not in ignoreGhsas`,
     );
   }
+});
+
+test('checkAbsent fails when a size-guarded package is bundled, passes when absent (S6a zod)', () => {
+  const zodModule = '/node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/core.cjs';
+  const absent = [{ name: 'zod', reason: 'bundle budget' }];
+  const clean = checkAbsent({ android: CLEAN, ios: CLEAN }, absent, ['android', 'ios']);
+  assert.equal(clean.ok, true);
+  assert.match(clean.lines.join('\n'), /ok {3}android: zod absent/);
+  const dirty = checkAbsent({ android: [...CLEAN, zodModule], ios: CLEAN }, absent, [
+    'android',
+    'ios',
+  ]);
+  assert.equal(dirty.ok, false);
+  assert.match(dirty.lines.join('\n'), /FAIL android: zod is in the bundle \(bundle budget\)/);
+  assert.equal(checkAbsent({ android: CLEAN, ios: null }, absent, ['android', 'ios']).ok, false);
+  const listed = JSON.parse(readFileSync(join(appDir, 'bundle-must-be-absent.json'), 'utf8'));
+  assert.deepEqual(
+    listed.packages.map((p) => p.name),
+    ['zod'],
+  );
 });

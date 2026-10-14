@@ -4,6 +4,7 @@
  * on-device check (an `adb` backup and an iCloud backup hold no app data) is a manual release-checklist item.
  */
 import { describe, expect, it } from '@jest/globals';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
@@ -19,8 +20,18 @@ interface Plugin {
 }
 const plugin = requireCjs('../../plugins/with-backup-exclusion.cjs') as Plugin;
 const appJson = JSON.parse(readFileSync(join(__dirname, '../../app.json'), 'utf8')) as {
-  expo: { android: Record<string, unknown>; plugins: unknown[] };
+  expo: {
+    android: Record<string, unknown>;
+    ios: Record<string, unknown> & { infoPlist?: Record<string, unknown> };
+    plugins: unknown[];
+  };
 };
+
+/**
+ * Info.plist keys that would expose `<Documents>/codelex-data` (match logs, seed, install id, analytics queue) in the
+ * Files app and over USB file sharing. The TM-03 Documents deviation holds only while the build sets neither (R1-F2).
+ */
+const FILE_SHARING_KEYS = ['UIFileSharingEnabled', 'LSSupportsOpeningDocumentsInPlace'] as const;
 
 /** The didFinishLaunching part of the Expo SDK 57 template AppDelegate.swift. */
 const TEMPLATE_APP_DELEGATE = `internal import Expo
@@ -80,4 +91,21 @@ describe('backups exclude app data (TM-03)', () => {
     expect(plugin.applyIosBackupExclusion(patched)).toBe(patched);
     expect(() => plugin.applyIosBackupExclusion('class AppDelegate {}')).toThrow();
   });
+
+  it('never exposes the data directory in the Files app or over USB (R1-2, R1-F2)', () => {
+    const declared = appJson.expo.ios.infoPlist ?? {};
+    for (const key of FILE_SHARING_KEYS) expect(Object.hasOwn(declared, key)).toBe(false);
+    // The resolved config, after every config plugin ran (`expo config --type introspect`, no native folder needed).
+    const cli = requireCjs.resolve('expo/bin/cli');
+    const resolved = JSON.parse(
+      execFileSync(process.execPath, [cli, 'config', '--type', 'introspect', '--json'], {
+        cwd: join(__dirname, '../..'),
+        encoding: 'utf8',
+        env: { ...process.env, EXPO_NO_TELEMETRY: '1' },
+      }),
+    ) as { ios: { infoPlist: Record<string, unknown> } };
+    expect(resolved.ios.infoPlist['CFBundleShortVersionString']).toBe('0.1.0');
+    for (const key of FILE_SHARING_KEYS)
+      expect(Object.hasOwn(resolved.ios.infoPlist, key)).toBe(false);
+  }, 60_000);
 });

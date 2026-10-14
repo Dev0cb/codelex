@@ -13,15 +13,29 @@ import {
 
 import type { MatchModel } from '../match/match-model';
 import { HUMAN_SEAT } from '../match/play-config';
-import { DataStore, type FsPrimitives } from './data-store';
+import { DataStore, TMP_SUFFIX, type FsPrimitives } from './data-store';
 import { FILES, MatchJournal, readSnapshot, readStoredLog, SNAPSHOT_EVERY } from './match-journal';
 import { restoreMatch, type Divergence, type RestorePath } from './resume';
-import { TermsSeen } from './terms-seen';
+import { TERMS_FILE, TermsSeen } from './terms-seen';
 
 /** Counts resume attempts that did not return (TM-02 D-1). */
 export const GUARD_FILE = 'resume.guard';
 /** Two consecutive unclean exits during resume show the corrupt card instead of a third attempt. */
 export const MAX_UNCLEAN_RESUMES = 2;
+
+/**
+ * The files match persistence owns in the shared data directory. Analytics and settings (slice S6a) live there too
+ * (threat model TM-03, R1-4): "nothing saved" and `recover` look at these names only.
+ */
+export const MATCH_FILE_NAMES: ReadonlySet<string> = new Set([
+  FILES.log,
+  FILES.snapshot,
+  FILES.last,
+  TERMS_FILE,
+  GUARD_FILE,
+]);
+const isMatchFile = (name: string): boolean =>
+  MATCH_FILE_NAMES.has(name.endsWith(TMP_SUFFIX) ? name.slice(0, -TMP_SUFFIX.length) : name);
 
 export interface Persistence {
   readonly store: DataStore;
@@ -68,7 +82,7 @@ export function finishMatch(persistence: Persistence, model: MatchModel): Readon
 
 function open(persistence: Persistence, ctx: EngineContext): SavedMatch {
   const { store, journal } = persistence;
-  store.recover();
+  store.recover((name) => MATCH_FILE_NAMES.has(name));
   // A snapshot never outlives its log (rotation removes the log first).
   if (!store.exists(FILES.log)) {
     store.remove(FILES.snapshot);
@@ -115,7 +129,7 @@ const CORRUPT: SavedMatch = { kind: 'state_corrupt', divergence: null };
 export function openSavedMatch(persistence: Persistence, ctx: EngineContext): SavedMatch {
   const { store } = persistence;
   try {
-    if (store.list().length === 0) return { kind: 'none' };
+    if (!store.list().some(isMatchFile)) return { kind: 'none' };
   } catch {
     return { kind: 'none' };
   }

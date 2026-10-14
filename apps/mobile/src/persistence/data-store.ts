@@ -34,7 +34,8 @@ export const TMP_SUFFIX = '.tmp';
 export type ReadRecords =
   | { readonly kind: 'missing' }
   | { readonly kind: 'too_large' }
-  | { readonly kind: 'corrupt' }
+  /** `prefix` = the good records before the first bad one. */
+  | { readonly kind: 'corrupt'; readonly prefix: readonly string[] }
   | { readonly kind: 'ok'; readonly records: readonly string[]; readonly droppedTail: boolean };
 
 const concat = (parts: readonly Uint8Array[]): Uint8Array => {
@@ -50,12 +51,17 @@ const concat = (parts: readonly Uint8Array[]): Uint8Array => {
 export class DataStore {
   constructor(private readonly fs: FsPrimitives) {}
 
-  /** Closes an interrupted `replace` (see the module comment). Run once per process, before any read. */
-  recover(): void {
+  /**
+   * Closes an interrupted `replace` (see the module comment). Run once per process, before any read. Several owners
+   * share the data directory (match persistence, analytics, settings): each recovers only its own files (`owns`
+   * receives the target name, without {@link TMP_SUFFIX}), so none touches another's half-finished write.
+   */
+  recover(owns: (name: string) => boolean = () => true): void {
     const names = new Set(this.fs.list());
     for (const name of names) {
       if (!name.endsWith(TMP_SUFFIX)) continue;
       const target = name.slice(0, -TMP_SUFFIX.length);
+      if (!owns(target)) continue;
       const bytes = names.has(target) ? null : this.fs.read(name);
       const decoded = bytes === null ? null : decodeRecords(bytes);
       if (decoded?.ok === true && !decoded.droppedTail && decoded.records.length > 0) {
@@ -76,7 +82,7 @@ export class DataStore {
     const decoded = decodeRecords(bytes);
     return decoded.ok
       ? { kind: 'ok', records: decoded.records, droppedTail: decoded.droppedTail }
-      : { kind: 'corrupt' };
+      : { kind: 'corrupt', prefix: decoded.records };
   }
 
   list(): readonly string[] {

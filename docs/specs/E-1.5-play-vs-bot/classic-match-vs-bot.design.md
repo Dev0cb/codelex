@@ -1281,6 +1281,13 @@ Category names come from `categories.json` (`name.en` / `name.fr`); difficulty s
 
 ### 10.5 Settings, export, match log
 
+Keys added by `mobile-engineer` in slice S6a, pending translation review: `common.back`, `common.dismiss`,
+`home.settings.a11y`, the §10.2 `notice.analytics.*` keys, and the §10.5 Settings keys the slice renders
+(`settings.title`, `settings.section.playtest|play|about`, `settings.analytics.*`, `settings.install_id.*`,
+`settings.motion*`, `settings.about.versions`, `settings.language.note`, `settings.save_error`). Not added yet:
+`common.copy`/`common.copied` (the tester ID is selectable text; a Copy button needs a clipboard module, not a
+dependency today), sound/haptics/auto-zoom/handedness rows (features not built), and the S6c/S6d export keys.
+
 | Key | EN | FR |
 |---|---|---|
 | settings.title | Settings | Réglages |

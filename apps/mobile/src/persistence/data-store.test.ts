@@ -49,6 +49,24 @@ describe('DataStore.replace under a kill (TM-01)', () => {
   });
 });
 
+describe('DataStore.recover scope', () => {
+  it('recovers only the files its owner names, so two owners share one directory', () => {
+    const fs = new MemoryFs();
+    const store = new DataStore(fs);
+    store.replace('mine', ['old']);
+    store.replace('theirs', ['old']);
+    // Interrupted replaces of both files: a complete temp file next to a deleted target.
+    for (const name of ['mine', 'theirs']) {
+      fs.files.set(name + TMP_SUFFIX, fs.files.get(name) ?? new Uint8Array(0));
+      fs.files.delete(name);
+    }
+    store.recover((name) => name === 'mine');
+    expect(fs.files.has('mine')).toBe(true);
+    expect(fs.files.has(`theirs${TMP_SUFFIX}`)).toBe(true);
+    expect(fs.files.has('theirs')).toBe(false);
+  });
+});
+
 describe('DataStore.read', () => {
   it('checks the size cap before reading (TM-02)', () => {
     const fs = new MemoryFs();
@@ -65,7 +83,7 @@ describe('DataStore.read', () => {
     const bytes = fs.files.get('f');
     if (bytes === undefined) throw new Error('missing');
     bytes[9] = 0x7a;
-    expect(store.read('f', 1024)).toEqual({ kind: 'corrupt' });
+    expect(store.read('f', 1024)).toEqual({ kind: 'corrupt', prefix: [] });
   });
 
   it('moves a file over another and removes files', () => {

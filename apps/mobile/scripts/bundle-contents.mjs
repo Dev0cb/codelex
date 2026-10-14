@@ -76,3 +76,34 @@ export function checkContents(sourcesByPlatform, forbidden, platforms) {
   }
   return { ok, lines };
 }
+
+/**
+ * Size guard: packages that must stay out of the shipped bundles (bundle-must-be-absent.json). Same source-map proof
+ * as {@link checkContents}, separate list and message: these are budget decisions, not audit exceptions.
+ * @param {Record<string, string[] | null>} sourcesByPlatform
+ * @param {{ name: string, reason: string }[]} absent
+ * @param {string[]} platforms platforms that must be present
+ * @returns {{ ok: boolean, lines: string[] }}
+ */
+export function checkAbsent(sourcesByPlatform, absent, platforms) {
+  const lines = [];
+  let ok = true;
+  for (const platform of platforms) {
+    const sources = sourcesByPlatform[platform];
+    if (sources === undefined || sources === null || !Array.isArray(sources)) {
+      ok = false;
+      lines.push(`FAIL ${platform}: no source map in the export (build with --source-maps)`);
+      continue;
+    }
+    const present = packagesInSources(sources);
+    for (const { name, reason } of absent) {
+      if (present.has(name)) {
+        ok = false;
+        lines.push(`FAIL ${platform}: ${name} is in the bundle (${reason})`);
+      } else {
+        lines.push(`ok   ${platform}: ${name} absent (size guard)`);
+      }
+    }
+  }
+  return { ok, lines };
+}

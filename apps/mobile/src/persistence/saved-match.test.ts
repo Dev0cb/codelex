@@ -272,6 +272,18 @@ describe('retention, history and the resume guard (TM-01 D-3, TM-02 D-1, AC-10)'
     expect(fs.boundaries).toBe(0);
   });
 
+  it('ignores the files of other owners in the data directory (analytics, settings: S6a)', () => {
+    const fs = new MemoryFs();
+    new DataStore(fs).replace('analytics.queue', ['{}']);
+    fs.files.set('session.open', Uint8Array.of(1));
+    fs.files.set('install.id.tmp', Uint8Array.of(0));
+    const boundaries = fs.boundaries;
+    expect(openSavedMatch(createPersistence(fs), ctx)).toEqual({ kind: 'none' });
+    expect(fs.boundaries).toBe(boundaries);
+    // Another owner's interrupted write is left for that owner to recover.
+    expect(fs.files.has('install.id.tmp')).toBe(true);
+  });
+
   it('writes every action when the count jumps by more than one', () => {
     const fs = new MemoryFs();
     const persistence = createPersistence(fs);

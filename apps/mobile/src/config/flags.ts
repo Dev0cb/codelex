@@ -9,6 +9,12 @@
 export const FLAG_DEFAULTS = {
   /** Master switch for starting new matches vs a bot (E-1.5 AC-19); off = the Home "paused" card. */
   'play_vs_bot.enabled': false,
+  /**
+   * E-1.5 AC-17, dark-launch flag of slices S6a and S6c (spec "Flags & rollout", SP2). Off = the consented queue
+   * records nothing and reads or writes no file; the first-run notice and the Settings "Playtest data" section are
+   * hidden. Non-analytics Settings rows are not behind it. Consent still applies on top when it is on.
+   */
+  'analytics.upload.enabled': false,
   /** E-1.5 AC-5: the lexicon-free "Base N" preview of pending tiles (R-SCORE-009). Off = no preview at all. */
   'match.live_score_preview': true,
   /**

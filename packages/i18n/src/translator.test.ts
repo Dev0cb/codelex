@@ -16,6 +16,9 @@ describe('shipped catalogs', () => {
     const onError = vi.fn();
     const params = {
       version: 1,
+      app: '0.1.0',
+      rules: 1,
+      lexicon: '2f2cc6fca8fac92b',
       letter: 'A',
       points: 2,
       code: 'LEXICON_INDEX_CORRUPT',

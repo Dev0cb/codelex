@@ -27,7 +27,11 @@ describe('HomeScreen (E-1.5 §5.2)', () => {
     expect(screen.getByRole('header').props.children).toBe('CODELEX');
     expect(screen.getByText('Play the language of technology.')).toBeTruthy();
     const play = screen.getByRole('button', { name: 'PLAY NOW' });
-    expect(screen.getAllByRole('button')).toHaveLength(1);
+    // PLAY NOW is the one action of the thumb zone; the only other button is the Settings gear (S6a).
+    expect(screen.getAllByRole('button').map((b) => b.props.accessibilityLabel as string)).toEqual([
+      'Settings',
+      'PLAY NOW',
+    ]);
     await fireEvent.press(play);
     expect(router.push).toHaveBeenCalledWith('/match');
   });
@@ -35,7 +39,8 @@ describe('HomeScreen (E-1.5 §5.2)', () => {
   it('replaces PLAY NOW by an inert paused card when play_vs_bot.enabled is off (AC-19)', async () => {
     await renderHome('en', false);
     expect(screen.getByText('Matches are paused for an update — back soon')).toBeTruthy();
-    expect(screen.queryAllByRole('button')).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: 'PLAY NOW' })).toBeNull();
+    expect(screen.getAllByRole('button')).toHaveLength(1);
   });
 
   it('renders French copy', async () => {
