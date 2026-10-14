@@ -32,6 +32,10 @@ overrides:
   # through it sprintf-js) only from its CLI bin/js-yaml.js, never from the library that babel-plugin-istanbul >
   # @istanbuljs/load-nyc-config loads; dropping the dependency removes sprintf-js from the graph.
   "js-yaml@<4>argparse": "-"
+  # GHSA-8r5x-fm3f-whwj, GHSA-p8wg-vrv2-v86f (handlebars < 4.7.10, critical): dev-only via eslint-plugin-boundaries
+  # (and its @boundaries/elements), which renders lint messages, never user input; 4.7.10 is the patched release in
+  # the same major.
+  "handlebars@<4.7.10": ^4.7.10
 
 # Audit exceptions: each one needs a written justification, an expiry date and a security-engineer review
 # (CLAUDE.md §7). Register: docs/security/audit-exceptions.md. Remove an entry as soon as a fix is published.
