@@ -10,20 +10,25 @@
  * - `analytics.queue`: append-only, one record `{ s, e }` per event: a sequence number and the wire-form event.
  * - `analytics.meta`: one record `{ v: 1, first, dropped }`, replaced atomically. `first` is the lowest sequence number
  *   still queued: dropping events (cap, expiry, "Sent") only moves `first`, so it is one small atomic write and never
- *   rewrites the queue. Records below `first` are removed from the file later, by a compaction that rewrites only
- *   records the meta already excludes, so a kill at any point leaves a consistent queue.
+ *   rewrites the queue. Records below `first` are removed from the file later, by a compaction that runs only once the
+ *   meta excluding them is on disk, so a kill at any point leaves a consistent queue.
  *
  * Kill safety: an event is committed once its append returns. The cap is enforced after the append, so a kill
  * between the append and the meta write leaves one event too many, which the next load drops and counts. A torn last
  * record is the event that was being written (never committed); the file is rewritten before the next append so the
- * torn bytes never end up in the middle. A full disk keeps the event in memory and rewrites the whole file at the
- * next write.
+ * torn bytes never end up in the middle.
  *
- * Start-up cost: loading reads each record's sequence number and time only (no schema check), and runs after the
- * first render (the recorder defers it). The full schema check runs when the events are read for an export.
+ * Full disk: a failed append keeps the event in memory and the next write rewrites the whole file (with a back-off,
+ * so a full disk does not cost a full rewrite per event). A failed meta write is remembered (`metaDirty`) and retried
+ * before every later write; while the meta on disk is stale, events are never appended after records it still counts
+ * as live (the file is rewritten instead), so dropped or sent events can never come back after a restart.
+ *
+ * Start-up cost: loading reads each record's sequence number and time with two anchored regexes (no JSON parse, no
+ * schema check) and keeps only the text; the recorder defers it until the app is idle. The JSON parse and the full
+ * check (`event-guard.ts`) run when the events are read for an export. Node: a full queue (5,000 events, 3.7 MB)
+ * loads in ≈ 70 ms; the device figure is an H1 measurement.
  */
-import type { DataStore } from '../persistence/data-store';
-import { type ReadRecords } from '../persistence/data-store';
+import { TMP_SUFFIX, type DataStore, type ReadRecords } from '../persistence/data-store';
 import { asciiJson } from '../persistence/match-journal';
 import { guardEvent } from './event-guard';
 import type { AnalyticsEvent } from './events';
@@ -44,6 +49,8 @@ export const QUEUE_COMPACT_AFTER = 500;
  */
 export const QUEUE_MAX_BYTES = (QUEUE_CAP + QUEUE_COMPACT_AFTER + 1) * 2048;
 const META_MAX_BYTES = 1024;
+/** Longest wait, in appends, between two full-file rewrite attempts on a full disk. */
+const MAX_REWRITE_BACKOFF = 64;
 
 /** The `dropped` block of the export file, counted since the last confirmed "Sent". */
 export interface DroppedCounts {
@@ -51,7 +58,10 @@ export interface DroppedCounts {
   readonly queueCap: number;
   /** Events purged after 30 days. */
   readonly expired: number;
-  /** Events rejected by the schemas (at record time or on read), and unreadable queue data (counted once). */
+  /**
+   * Events rejected by the schemas (at record time or on read), and unreadable queue data: a corrupt or oversized
+   * queue file or an unreadable meta file counts once each (a lower bound).
+   */
   readonly invalid: number;
 }
 
@@ -60,9 +70,8 @@ const NO_DROPS: DroppedCounts = { queueCap: 0, expired: 0, invalid: 0 };
 interface Entry {
   readonly seq: number;
   readonly occurredMs: number;
-  /** The record payload, `{ s, e }`. */
+  /** The record payload, `{"s":…,"e":{…}}`; parsed only when the events are read. */
   readonly text: string;
-  readonly event: unknown;
 }
 
 interface Meta {
@@ -84,11 +93,11 @@ function parseJson(text: string): unknown {
   }
 }
 
-function parseMeta(read: ReadRecords): Meta {
-  const fallback: Meta = { first: 0, dropped: NO_DROPS };
-  if (read.kind !== 'ok' || read.records.length !== 1) return fallback;
+/** The stored meta; null when the file exists but cannot be read. */
+function parseMeta(read: ReadRecords): Meta | null {
+  if (read.kind !== 'ok' || read.records.length !== 1) return null;
   const meta = parseJson(read.records[0] ?? '');
-  if (!isObject(meta) || meta['v'] !== 1 || !isCount(meta['first'])) return fallback;
+  if (!isObject(meta) || meta['v'] !== 1 || !isCount(meta['first'])) return null;
   const dropped = meta['dropped'];
   if (
     !isObject(dropped) ||
@@ -96,7 +105,7 @@ function parseMeta(read: ReadRecords): Meta {
     !isCount(dropped['expired']) ||
     !isCount(dropped['invalid'])
   ) {
-    return fallback;
+    return null;
   }
   return {
     first: meta['first'],
@@ -108,14 +117,18 @@ function parseMeta(read: ReadRecords): Meta {
   };
 }
 
+/** Records are written by `asciiJson({ s, e })`: the sequence number leads, the envelope time comes first in `e`. */
+const RECORD_HEAD = /^\{"s":(0|[1-9]\d{0,15}),"e":\{/;
+const OCCURRED_AT = /"occurred_at":"([0-9T:.Z-]{1,40})"/;
+
 /** A record's sequence number and time; null when it is not a queue record. */
 function parseEntry(text: string): Entry | null {
-  const record = parseJson(text);
-  if (!isObject(record) || !isCount(record['s']) || !isObject(record['e'])) return null;
-  const occurred = record['e']['occurred_at'];
-  const occurredMs = typeof occurred === 'string' ? Date.parse(occurred) : Number.NaN;
+  const head = RECORD_HEAD.exec(text);
+  const seq = Number(head?.[1]);
+  if (!Number.isSafeInteger(seq)) return null;
+  const occurredMs = Date.parse(OCCURRED_AT.exec(text)?.[1] ?? '');
   if (!Number.isFinite(occurredMs)) return null;
-  return { seq: record['s'], occurredMs, text, event: record['e'] };
+  return { seq, occurredMs, text };
 }
 
 export class EventQueue {
@@ -129,15 +142,22 @@ export class EventQueue {
   private counts: DroppedCounts = NO_DROPS;
   /** The file does not match `entries` (torn tail, failed write): the next write rewrites it. */
   private dirty = false;
+  /** The meta on disk is older than `first`/`counts` (a failed write): retried before every later write. */
+  private metaDirty = false;
+  /** Appends left before the next rewrite attempt after a failed one (full disk). */
+  private rewriteWait = 0;
+  private rewriteBackoff = 0;
 
   /**
    * @param now Wall clock in ms (device clock, the time base of `occurred_at`), for the 30-day expiry.
    * @param cap The event cap (tests shrink it).
+   * @param compactAfter Dropped records kept in the file before a compaction (tests shrink it).
    */
   constructor(
     private readonly store: DataStore,
     private readonly now: () => number,
     private readonly cap: number = QUEUE_CAP,
+    private readonly compactAfter: number = QUEUE_COMPACT_AFTER,
   ) {}
 
   /** Live events in the queue. */
@@ -152,16 +172,18 @@ export class EventQueue {
   }
 
   /**
-   * The queued events, oldest first, each checked again (`event-guard.ts`, the on-device mirror of the D1 schemas;
-   * catalogue "Validation": queue read). An
-   * entry that fails is removed and counted as invalid, never exported.
+   * The queued events, oldest first, each parsed and checked again (`event-guard.ts`, the on-device mirror of the D1
+   * schemas; catalogue "Validation": queue read). An entry that fails is removed and counted as invalid, never
+   * exported. Known double count: a kill between the meta write and the file rewrite below leaves the bad records in
+   * the file with the meta already counting them, so the next read counts them once more (rare, over-reports).
    */
   events(): readonly AnalyticsEvent[] {
     this.load();
     const valid: AnalyticsEvent[] = [];
     const kept: Entry[] = [];
     for (const entry of this.entries) {
-      const parsed = guardEvent(entry.event);
+      const record = parseJson(entry.text);
+      const parsed = guardEvent(isObject(record) ? record['e'] : undefined);
       if (parsed.ok) {
         valid.push(parsed.event);
         kept.push(entry);
@@ -180,17 +202,20 @@ export class EventQueue {
 
   /**
    * Appends an event the recorder has validated. True once it is on disk; false when the write failed (full disk):
-   * the event stays queued in memory and the next write rewrites the file.
+   * the event stays queued in memory and a later write rewrites the file.
    */
   append(event: AnalyticsEvent): boolean {
     this.load();
+    const metaOk = this.flushMeta();
     const seq = this.nextSeq;
     this.nextSeq += 1;
     const text = asciiJson({ s: seq, e: event });
-    this.entries.push({ seq, occurredMs: Date.parse(event.occurred_at), text, event });
+    this.entries.push({ seq, occurredMs: Date.parse(event.occurred_at), text });
     let ok: boolean;
-    if (this.dirty) {
-      ok = this.rewrite();
+    if (this.dirty || !metaOk) {
+      // A stale meta must not see this record next to records it still counts as live: rewrite instead.
+      this.dirty = true;
+      ok = this.rewriteWithBackoff();
     } else {
       ok = this.attempt(() => {
         this.store.append(QUEUE_FILE, [text]);
@@ -210,17 +235,23 @@ export class EventQueue {
 
   /**
    * The tester confirmed "Yes, I sent it" (design §5.9, slice S6c): the `count` oldest events (those in the file) are
-   * cleared, and the drop counts restart, since they count losses since the last confirmed export.
+   * cleared, and the drop counts restart, since they count losses since the last confirmed export. True only once
+   * that is on disk; on false (full disk) S6c tells the tester it could not clear them, and the change is retried
+   * before the next write.
    */
-  clearSent(count: number): void {
+  clearSent(count: number): boolean {
     this.load();
     const n = Math.max(0, Math.min(count, this.entries.length));
-    this.drop(n, NO_DROPS);
+    return this.drop(n, NO_DROPS);
   }
 
-  /** Consent withdrawn (AC-17): every queue file is deleted. Sequence numbers restart from zero. */
-  purge(): void {
-    for (const name of [QUEUE_FILE, QUEUE_META_FILE]) {
+  /**
+   * Consent withdrawn (AC-17): every queue file, and any half-written temp file of one, is deleted. True when none
+   * is left on disk. Memory is reset either way (nothing more is recorded); sequence numbers restart from zero.
+   */
+  purge(): boolean {
+    const names = QUEUE_FILES.flatMap((name) => [name, name + TMP_SUFFIX]);
+    for (const name of names) {
       this.attempt(() => {
         this.store.remove(name);
       });
@@ -231,30 +262,38 @@ export class EventQueue {
     this.nextSeq = 0;
     this.counts = NO_DROPS;
     this.dirty = false;
+    this.metaDirty = false;
     this.loaded = true;
+    try {
+      return names.every((name) => !this.store.exists(name));
+    } catch {
+      return false;
+    }
   }
 
   /** Reads the files once (lazily); expires old events and enforces the cap. */
   private load(): void {
     if (this.loaded) return;
     this.loaded = true;
-    const meta = parseMeta(this.read(QUEUE_META_FILE, META_MAX_BYTES));
-    this.first = meta.first;
-    this.counts = meta.dropped;
-    this.nextSeq = meta.first;
+    const metaRead = this.read(QUEUE_META_FILE, META_MAX_BYTES);
+    const meta = metaRead.kind === 'missing' ? null : parseMeta(metaRead);
+    // A meta file that exists but cannot be read: its counts are lost, counted once.
+    let lost = metaRead.kind !== 'missing' && meta === null ? 1 : 0;
+    this.first = meta?.first ?? 0;
+    this.counts = meta?.dropped ?? NO_DROPS;
+    this.nextSeq = this.first;
     const read = this.read(QUEUE_FILE, QUEUE_MAX_BYTES);
     let records: readonly string[] = [];
-    let lost = 0;
     if (read.kind === 'ok') {
       records = read.records;
       this.dirty = read.droppedTail;
     } else if (read.kind === 'corrupt') {
       // Keep what is readable; what follows the bad record is unknown, counted once (a lower bound).
       records = read.prefix;
-      lost = 1;
+      lost += 1;
       this.dirty = true;
     } else if (read.kind === 'too_large') {
-      lost = 1;
+      lost += 1;
       this.dirty = true;
     }
     for (const text of records) {
@@ -275,10 +314,9 @@ export class EventQueue {
     while (expired < this.entries.length && (this.entries[expired]?.occurredMs ?? 0) < oldest) {
       expired += 1;
     }
-    const changed = lost > 0 || expired > 0;
     if (expired > 0) {
       this.drop(expired, { ...this.counts, expired: this.counts.expired + expired });
-    } else if (changed) {
+    } else if (lost > 0) {
       this.writeMeta();
     }
     if (!this.enforceCap() && this.dirty) this.rewrite();
@@ -300,24 +338,49 @@ export class EventQueue {
     return true;
   }
 
-  /** Drops the `n` oldest live events and stores `counts`: one meta write, then a compaction if due. */
-  private drop(n: number, counts: DroppedCounts): void {
+  /**
+   * Drops the `n` oldest live events and stores `counts`: one meta write, then a compaction if due. True when the
+   * meta is on disk.
+   */
+  private drop(n: number, counts: DroppedCounts): boolean {
     const removed = this.entries.splice(0, n);
     this.stale += removed.length;
     this.first = this.entries[0]?.seq ?? this.nextSeq;
     this.counts = counts;
-    // Compaction only once the meta excludes the records it removes; a dirty file is rewritten regardless.
     const metaWritten = this.writeMeta();
-    if ((metaWritten && this.stale >= QUEUE_COMPACT_AFTER) || this.dirty) this.rewrite();
+    // Compaction only once the meta excludes the records it removes; a dirty file is rewritten regardless (it then
+    // holds only live records, so even a stale meta cannot bring dropped ones back).
+    if ((metaWritten && this.stale >= this.compactAfter) || this.dirty) this.rewriteWithBackoff();
+    return metaWritten;
   }
 
-  /** Meta first, then the queue file (see the module comment: only already-excluded records disappear). */
+  /** Writes the meta if a previous write failed. True when the meta on disk is current. */
+  private flushMeta(): boolean {
+    return this.metaDirty ? this.writeMeta() : true;
+  }
+
   private writeMeta(): boolean {
-    return this.attempt(() => {
+    const ok = this.attempt(() => {
       this.store.replace(QUEUE_META_FILE, [
         asciiJson({ v: 1, first: this.first, dropped: this.counts }),
       ]);
     });
+    this.metaDirty = !ok;
+    return ok;
+  }
+
+  /** A rewrite, unless a recent one failed (full disk): then it waits a growing number of appends. */
+  private rewriteWithBackoff(): boolean {
+    if (this.rewriteWait > 0) {
+      this.rewriteWait -= 1;
+      return false;
+    }
+    const ok = this.rewrite();
+    this.rewriteBackoff = ok
+      ? 0
+      : Math.min(MAX_REWRITE_BACKOFF, Math.max(1, this.rewriteBackoff * 2));
+    this.rewriteWait = this.rewriteBackoff;
+    return ok;
   }
 
   /** Rewrites the queue file with the live entries only (compaction, or recovery after a failed write). */

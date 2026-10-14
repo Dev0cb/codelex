@@ -6,12 +6,13 @@
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
 
-import { DataStore } from '../persistence/data-store';
+import { DataStore, TMP_SUFFIX } from '../persistence/data-store';
 import { MemoryFs, ProcessKilled } from '../persistence/memory-fs';
 import { encodeRecord } from '../persistence/records';
 import { parseAnalyticsEvent, type AnalyticsEvent } from './events';
 import {
   EventQueue,
+  type DroppedCounts,
   QUEUE_CAP,
   QUEUE_COMPACT_AFTER,
   QUEUE_FILES,
@@ -36,10 +37,45 @@ function eventAt(n: number, occurredMs = T0): AnalyticsEvent {
 const ids = (events: readonly AnalyticsEvent[]): number[] =>
   events.map((e) => Number.parseInt(e.event_id.slice(-12), 16));
 
-function open(fs: MemoryFs, now = T0, cap = QUEUE_CAP): EventQueue {
+function open(fs: MemoryFs, now = T0, cap = QUEUE_CAP, compactAfter?: number): EventQueue {
   const store = new DataStore(fs);
   store.recover((name) => (QUEUE_FILES as readonly string[]).includes(name));
-  return new EventQueue(store, () => now, cap);
+  return new EventQueue(store, () => now, cap, compactAfter);
+}
+
+const NONE: DroppedCounts = { queueCap: 0, expired: 0, invalid: 0 };
+
+/** What the queue must hold: an executable model of AC-17's rules (no expiry in these scripts). */
+type Op =
+  | { readonly kind: 'append'; readonly n: number }
+  | { readonly kind: 'invalid' }
+  | { readonly kind: 'clear'; readonly k: number };
+interface Model {
+  readonly kept: readonly number[];
+  readonly counts: DroppedCounts;
+}
+
+function applyModel(model: Model, op: Op, cap: number): Model {
+  switch (op.kind) {
+    case 'append': {
+      const kept = [...model.kept, op.n];
+      const excess = Math.max(0, kept.length - cap);
+      return {
+        kept: kept.slice(excess),
+        counts: { ...model.counts, queueCap: model.counts.queueCap + excess },
+      };
+    }
+    case 'invalid':
+      return { ...model, counts: { ...model.counts, invalid: model.counts.invalid + 1 } };
+    case 'clear':
+      return { kept: model.kept.slice(op.k), counts: NONE };
+  }
+}
+
+function runOp(queue: EventQueue, op: Op): void {
+  if (op.kind === 'append') queue.append(eventAt(op.n));
+  else if (op.kind === 'invalid') queue.countInvalid();
+  else queue.clearSent(op.k);
 }
 
 describe('EventQueue', () => {
@@ -214,50 +250,173 @@ describe('EventQueue', () => {
     expect(open(fs.reboot()).dropped().invalid).toBe(4);
   });
 
-  it('ignores a meta file it cannot read', () => {
+  it('counts a meta file that exists but cannot be read as one invalid drop', () => {
     const fs = new MemoryFs();
     open(fs).append(eventAt(1));
     new DataStore(fs).replace(QUEUE_FILES[1], ['{"v":9}']);
-    expect(ids(open(fs.reboot()).events())).toEqual([1]);
+    const disk = fs.reboot();
+    const queue = open(disk);
+    expect(ids(queue.events())).toEqual([1]);
+    expect(queue.dropped().invalid).toBe(1);
+    expect(open(disk.reboot()).dropped().invalid).toBe(1);
   });
 
-  it('loses no committed event when the process is killed at any write boundary', () => {
-    // Run a scripted sequence once to count its boundaries, then kill at each one.
-    const script = (queue: EventQueue, committed: number[]): void => {
-      for (let n = 1; n <= 7; n += 1) {
-        if (queue.append(eventAt(n))) committed.push(n);
-        if (n === 4) queue.countInvalid();
-        if (n === 5) queue.clearSent(2);
-      }
-    };
+  it('never brings sent events back after a clear that hit a full disk (review M1)', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs);
+    for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
+    fs.fullAfter = 0;
+    expect(queue.clearSent(3)).toBe(false);
+    fs.fullAfter = null;
+    queue.append(eventAt(4));
+    expect(ids(open(fs.reboot()).events())).toEqual([4]);
+    expect(open(new MemoryFs()).clearSent(0)).toBe(true);
+  });
+
+  it('keeps cap drops and their count when the meta write hit a full disk', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs, T0, 2);
+    queue.append(eventAt(1));
+    queue.append(eventAt(2));
+    fs.fullAfter = 0;
+    expect(queue.append(eventAt(3))).toBe(false);
+    fs.fullAfter = null;
+    queue.append(eventAt(4));
+    const reopened = open(fs.reboot(), T0, 2);
+    expect(ids(reopened.events())).toEqual([3, 4]);
+    expect(reopened.dropped().queueCap).toBe(2);
+  });
+
+  it('retries a failed meta write before counting the next invalid event', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs, T0, 1);
+    queue.append(eventAt(1));
+    fs.fullAfter = 0;
+    queue.append(eventAt(2));
+    fs.fullAfter = null;
+    queue.countInvalid();
+    expect(open(fs.reboot(), T0, 1).dropped()).toEqual({ queueCap: 1, expired: 0, invalid: 1 });
+  });
+
+  it('backs off full-file rewrites on a full disk, then writes every queued event', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs);
+    queue.append(eventAt(1));
+    fs.fullAfter = 0;
+    const before = fs.writes.length;
+    for (let n = 2; n <= 41; n += 1) queue.append(eventAt(n));
+    // One failed append, then rewrites after 1, 2, 4, 8, 16 waits: far fewer than one per event.
+    expect(fs.writes.length - before).toBeLessThan(10);
+    fs.fullAfter = null;
+    for (let n = 42; n <= 120; n += 1) queue.append(eventAt(n));
+    expect(ids(open(fs.reboot()).events())).toEqual(Array.from({ length: 120 }, (_, i) => i + 1));
+  });
+
+  it('purges half-written temp files too', () => {
+    const fs = new MemoryFs();
+    open(fs).append(eventAt(1));
+    fs.files.set(QUEUE_FILES[0] + TMP_SUFFIX, Uint8Array.of(1));
+    fs.files.set(QUEUE_FILES[1] + TMP_SUFFIX, Uint8Array.of(1));
+    expect(open(fs).purge()).toBe(true);
+    expect([...fs.files.keys()]).toEqual([]);
+  });
+
+  it('reports a purge that could not delete a file', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs);
+    queue.append(eventAt(1));
+    const stuck = Object.assign(Object.create(fs) as MemoryFs, {
+      remove: (): void => {
+        throw new Error('EACCES');
+      },
+    });
+    expect(new EventQueue(new DataStore(stuck), () => T0).purge()).toBe(false);
+  });
+
+  it('matches the model exactly when the process is killed at any write boundary', () => {
+    // Cap 4 and compaction after 2 dropped records, so cap drops, clears and compactions all happen and are killed.
+    const cap = 4;
+    const script: Op[] = [
+      { kind: 'append', n: 1 },
+      { kind: 'append', n: 2 },
+      { kind: 'append', n: 3 },
+      { kind: 'invalid' },
+      { kind: 'append', n: 4 },
+      { kind: 'append', n: 5 },
+      { kind: 'clear', k: 2 },
+      { kind: 'append', n: 6 },
+      { kind: 'append', n: 7 },
+      { kind: 'append', n: 8 },
+      { kind: 'append', n: 9 },
+      { kind: 'invalid' },
+      { kind: 'clear', k: 1 },
+      { kind: 'append', n: 10 },
+      { kind: 'append', n: 11 },
+    ];
     const dry = new MemoryFs();
-    script(open(dry, T0, 4), []);
+    const dryQueue = open(dry, T0, cap, 2);
+    for (const op of script) runOp(dryQueue, op);
     const total = dry.boundaries;
-    expect(total).toBeGreaterThan(10);
+    expect(total).toBeGreaterThan(40);
     for (const tornBytes of [0, 5]) {
       for (let killAt = 0; killAt < total; killAt += 1) {
         const fs = new MemoryFs({ killAt, tornBytes });
-        const committed: number[] = [];
-        try {
-          script(open(fs, T0, 4), committed);
-        } catch (error) {
-          // The queue reports a failed write as `false`; anything that escapes must be the simulated kill.
-          expect(error).toBeInstanceOf(ProcessKilled);
+        const queue = open(fs, T0, cap, 2);
+        let model: Model = { kept: [], counts: NONE };
+        let inFlight: Op | null = null;
+        for (const op of script) {
+          try {
+            runOp(queue, op);
+          } catch (error) {
+            expect(error).toBeInstanceOf(ProcessKilled);
+          }
+          if (fs.killed) {
+            inFlight = op;
+            break;
+          }
+          model = applyModel(model, op, cap);
         }
-        expect(fs.killed).toBe(true);
+        expect(inFlight).not.toBeNull();
         const disk = fs.reboot();
-        const after = open(disk, T0, 4);
-        const kept = ids(after.events());
-        // Every event that is kept was appended, in order, and the queue never exceeds its cap.
-        expect(kept).toEqual([...kept].sort((a, b) => a - b));
-        expect(kept.length).toBeLessThanOrEqual(4);
-        // The newest committed event is never lost (only the cap or a confirmed "Sent" removes events).
-        const last = committed.at(-1);
-        if (last !== undefined) expect(kept).toContain(last);
-        // The file stays appendable.
+        const after = open(disk, T0, cap, 2);
+        const actual: Model = { kept: ids(after.events()), counts: after.dropped() };
+        // Exactly the state before the interrupted operation, or after it: committed events are all there, cleared
+        // and capped events never come back, and the counts agree with the events.
+        const candidates = [model, inFlight === null ? model : applyModel(model, inFlight, cap)];
+        expect(candidates).toContainEqual(actual);
         after.append(eventAt(99));
-        expect(ids(open(disk.reboot(), T0, 4).events()).at(-1)).toBe(99);
+        expect(ids(open(disk.reboot(), T0, cap, 2).events()).at(-1)).toBe(99);
       }
+    }
+  });
+
+  it('reaches the same queue when the start-up recovery itself is killed at any boundary', () => {
+    // A disk that needs every load-time repair: expiry, cap, compaction and a torn tail.
+    const base = new MemoryFs();
+    const writer = open(base, T0, 100, 2);
+    writer.append(eventAt(1, T0 - 40 * DAY));
+    writer.append(eventAt(2, T0 - 31 * DAY));
+    for (let n = 3; n <= 8; n += 1) writer.append(eventAt(n));
+    base.append(QUEUE_FILES[0], encodeRecord('{"s":9,"e":{"partial":').subarray(0, 14));
+    const settle = (fs: MemoryFs): Model => {
+      const queue = open(fs, T0, 3, 2);
+      return { kept: ids(queue.events()), counts: queue.dropped() };
+    };
+    const reference = base.reboot();
+    open(reference, T0, 3, 2).size();
+    const expected = settle(reference.reboot());
+    expect(expected).toEqual({ kept: [6, 7, 8], counts: { queueCap: 3, expired: 2, invalid: 0 } });
+    const dry = base.reboot();
+    open(dry, T0, 3, 2).size();
+    expect(dry.boundaries).toBeGreaterThan(5);
+    for (let killAt = 0; killAt < dry.boundaries; killAt += 1) {
+      const fs = base.reboot({ killAt });
+      try {
+        open(fs, T0, 3, 2).size();
+      } catch (error) {
+        expect(error).toBeInstanceOf(ProcessKilled);
+      }
+      expect(settle(fs.reboot())).toEqual(expected);
     }
   });
 
