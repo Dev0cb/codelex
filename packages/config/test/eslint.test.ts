@@ -159,6 +159,9 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
       'packages/golden-runner/src/clean-tooling-in-test.test.ts',
       'packages/golden-runner/src/clean-corpus.ts',
       'packages/golden-runner/src/host/clean-node-host.ts',
+      'packages/golden-runner/src/core/clean-core-corpus.ts',
+      'packages/golden-runner/src/core/suites/clean-core-relative.ts',
+      'packages/golden-runner/src/schema.ts',
       'services/svc-a/src/clean.ts',
       'services/svc-a/src/helper.ts',
       'services/svc-a/src/clean-game-engine.ts',
@@ -550,6 +553,26 @@ describe.each(MODES)('%s', { timeout: 30_000 }, (mode) => {
         'Math.random in a host',
         'packages/golden-runner/src/host/bad-host-math-random.ts',
         'no-restricted-properties',
+      ],
+      [
+        'a clock in a host test',
+        'packages/golden-runner/src/host/bad-host-test-clock.test.ts',
+        'no-restricted-properties',
+      ],
+      [
+        'the core importing a host',
+        'packages/golden-runner/src/core/bad-core-imports-host.ts',
+        'no-restricted-imports',
+      ],
+      [
+        'the core importing zod',
+        'packages/golden-runner/src/core/bad-core-imports-zod.ts',
+        'codelex/pure-imports',
+      ],
+      [
+        'the core importing a schema module outside src/core',
+        'packages/golden-runner/src/core/suites/bad-core-imports-schema.ts',
+        'no-restricted-imports',
       ],
     ])('%s FAILS', async (_name, file, rule) => {
       expect(await ruleIds(file)).toContain(rule);

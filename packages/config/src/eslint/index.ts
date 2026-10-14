@@ -52,15 +52,27 @@ const PURE_FILES = ['packages/game-engine/**'];
 const GOLDEN_RUNNER_FILES = ['packages/golden-runner/**'];
 /**
  * ADR-0016 §D3 item 2 hosts (sprint 4 P3): the Node CLIs (report to stdout, compare two files), their `bin/`
- * wrappers, the Hermes CLI entry and the `scripts/` that bundle it. They read files, `process`, clocks for timings and the runtime's own globals, so they are exempt from the
- * determinism and purity blocks; `JSON.stringify` and `Math.random` stay banned (a host prints the engine's
- * canonical bytes and never adds entropy). Nothing in `src/host/**` may be imported by the core (the core entry's
- * own allow-list has no path to it), and the app bundle (DG1) imports only the core entry.
+ * wrappers, the Hermes CLI entry and the `scripts/` that bundle it. They read files, `process`, clocks for
+ * timings and the runtime's own globals, so they are exempt from the determinism and purity blocks;
+ * `JSON.stringify` and `Math.random` stay banned (a host prints the engine's canonical bytes and never adds
+ * entropy). Their tests keep the determinism bans (GOLDEN_RUNNER_HOST_TEST_FILES).
  */
 const GOLDEN_RUNNER_HOST_FILES = [
   'packages/golden-runner/src/host/**',
   'packages/golden-runner/bin/**',
   'packages/golden-runner/scripts/**',
+];
+const GOLDEN_RUNNER_HOST_TEST_FILES = ['packages/golden-runner/src/host/**/*.test.{ts,tsx}'];
+/**
+ * The zod-free core entry (`@codelex/golden-runner/core`, ADR-0016 §D3 item 2, DG1): it may import neither zod
+ * nor anything outside `src/core/` (the hosts, the report schemas, the comparison). Relative escapes are banned
+ * per nesting depth (core nests at most three directories deep; deeper files are banned from `../../../`).
+ */
+const GOLDEN_RUNNER_CORE_DIR = 'packages/golden-runner/src/core';
+const GOLDEN_RUNNER_CORE_DEPTHS: readonly (readonly [string, string])[] = [
+  [`${GOLDEN_RUNNER_CORE_DIR}/*.{ts,tsx}`, '../'],
+  [`${GOLDEN_RUNNER_CORE_DIR}/*/*.{ts,tsx}`, '../../'],
+  [`${GOLDEN_RUNNER_CORE_DIR}/*/*/**/*.{ts,tsx}`, '../../../'],
 ];
 /** ADR-0014 §D1: the one file allowed to tell rules versions apart. */
 const RULES_REGISTRY_FILE = 'packages/game-engine/src/rules/registry.ts';
@@ -252,22 +264,24 @@ const GAME_ENGINE_ALLOWED_IMPORTS = ['^@codelex/lexicon(/.*)?$', '^@codelex/conf
 const CODELEX_PLUGIN: ESLint.Plugin = { rules: { 'pure-imports': pureImportsRule } };
 
 /**
- * Allow-list for the golden runner (ADR-0016 §D3.2): the public engine entries it compares and runs (never
- * `./draft`), bots, the Result type and zod. No `node:*`: a Node-only host module, when added, gets its own
- * documented exemption here.
+ * Allow-list of the golden runner core (ADR-0016 §D3.2): the public engine entries it compares and runs (never
+ * `./draft`), the published golden data (never `test/golden/drafts/`), bots, the pure lexicon index (fixture
+ * lexicons: reference index, `.clxi` build and decode) and the Result type. No `node:*`: hosts have their own
+ * exemption (GOLDEN_RUNNER_HOST_FILES).
  */
-const GOLDEN_RUNNER_ALLOWED_IMPORTS = [
+const GOLDEN_RUNNER_CORE_ALLOWED_IMPORTS = [
   '^@codelex/game-engine(/(rng|canonical))?$',
-  // Published, immutable golden data (sprint 4 P3), never `test/golden/drafts/`.
   '^@codelex/game-engine/golden/(rng|sha256|jcs)\\.json$',
   '^@codelex/game-engine/golden/(scoring|replays)/v[0-9]+/[a-z0-9.-]+\\.json$',
   '^@codelex/bots$',
   '^@codelex/bots/golden/decisions-b[0-9]+-r[0-9]+\\.json$',
-  // The pure lexicon index (reference index, `.clxi` build and decode) for the golden fixture lexicons.
   '^@codelex/lexicon/index$',
   '^@codelex/config/result$',
-  '^zod$',
 ];
+/** The rest of the package (report schemas, comparison) may also use zod. */
+const GOLDEN_RUNNER_ALLOWED_IMPORTS = [...GOLDEN_RUNNER_CORE_ALLOWED_IMPORTS, '^zod$'];
+const GOLDEN_RUNNER_CORE_ALLOWED_TEXT =
+  'relative imports inside src/core, @codelex/game-engine (., ./rng, ./canonical, published goldens), @codelex/bots (and its published goldens), @codelex/lexicon/index, @codelex/config/result';
 
 /**
  * ADR-0013 §D4.2/§D4.6: banned globals in every deterministic file (shipped code and tests). Date, crypto and
@@ -696,7 +710,7 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
             allow: GOLDEN_RUNNER_ALLOWED_IMPORTS,
             label: 'golden-runner',
             allowed:
-              'relative imports, @codelex/game-engine (., ./rng, ./canonical, published goldens), @codelex/bots (and its published goldens), @codelex/lexicon/index, @codelex/config/result, zod',
+              'relative imports, @codelex/game-engine (., ./rng, ./canonical, published goldens), @codelex/bots (and its published goldens), @codelex/lexicon/index, @codelex/config/result, zod (outside src/core)',
           },
         ],
         'no-restricted-globals': [
@@ -723,6 +737,54 @@ export function gameEnginePreset(options: CodelexEslintOptions): Linter.Config[]
         ],
       },
     },
+    {
+      // Host tests: seeded and clock-free like every other deterministic test (JSON.stringify allowed in tests).
+      basePath,
+      files: GOLDEN_RUNNER_HOST_TEST_FILES,
+      rules: {
+        'no-restricted-properties': ['error', ...DETERMINISM_PROPERTIES],
+        'no-restricted-globals': ['error', ...DETERMINISM_GLOBALS],
+      },
+    },
+    {
+      // The core entry stays zod-free (DG1 bundle): its own allow-list replaces the package one.
+      basePath,
+      files: [`${GOLDEN_RUNNER_CORE_DIR}/**`],
+      ignores: PURE_EXEMPT_FILES,
+      plugins: { codelex: CODELEX_PLUGIN },
+      rules: {
+        'codelex/pure-imports': [
+          'error',
+          {
+            allow: GOLDEN_RUNNER_CORE_ALLOWED_IMPORTS,
+            label: 'golden-runner core',
+            allowed: GOLDEN_RUNNER_CORE_ALLOWED_TEXT,
+          },
+        ],
+      },
+    },
+    // ...and imports nothing outside src/core (hosts, schemas, comparison). Restates the shipped
+    // `no-restricted-imports` paths, because these entries replace that option for these files.
+    ...GOLDEN_RUNNER_CORE_DEPTHS.map(([files, up]): Linter.Config => ({
+      basePath,
+      files: [files],
+      ignores: TEST_FILES,
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: SHIPPED_RESTRICTED_IMPORTS.paths,
+            patterns: [
+              {
+                group: [`${up}*`, `!${up}core`, `!${up}core/**`, '**/host/**'],
+                message:
+                  'The golden-runner core imports only modules inside src/core (ADR-0016 §D3 item 2: the hosts, report schemas and comparison stay out of the zod-free core entry).',
+              },
+            ],
+          },
+        ],
+      },
+    })),
   );
 }
 
