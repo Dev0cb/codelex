@@ -1,6 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useState, type JSX, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  I18nManager,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAnalyticsSnapshot, usePlaytestAnalytics } from '../../analytics/analytics-provider';
@@ -15,6 +24,7 @@ import { ConfirmSheet } from '../match/match-sheets';
 
 /** System mono (D-28): the tester ID. */
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
+/** Drawn left-pointing; mirrored when the layout is right-to-left. */
 const BACK_GLYPH = '←';
 
 const MOTION_LABEL = {
@@ -48,7 +58,11 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
   const analytics = usePlaytestAnalytics();
   const snapshot = useAnalyticsSnapshot();
   const motion = useMotionPreference();
-  const [confirmOff, setConfirmOff] = useState<number | null>(null);
+  /** The turn-off sheet: the unsent count and the tester ID to note before it is deleted (review M2). */
+  const [confirmOff, setConfirmOff] = useState<{
+    readonly count: number;
+    readonly installId: string | null;
+  } | null>(null);
   const [saveError, setSaveError] = useState(false);
 
   const save = (ok: boolean): void => {
@@ -57,13 +71,16 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
   const onToggle = (on: boolean): void => {
     if (analytics === null) return;
     if (on) save(analytics.setConsent(true));
-    else setConfirmOff(analytics.queuedCount());
+    else setConfirmOff({ count: analytics.queuedCount(), installId: snapshot.installId });
   };
 
   const section = (title: string, testID: string, children: ReactNode): JSX.Element => (
     <View testID={testID} style={{ gap: space[3] }}>
-      <Text accessibilityRole="header" style={[type.caption, { color: color.textMuted }]}>
-        {title.toUpperCase()}
+      <Text
+        accessibilityRole="header"
+        style={[type.caption, styles.caps, { color: color.textMuted }]}
+      >
+        {title}
       </Text>
       {children}
     </View>
@@ -82,7 +99,14 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
           }}
           style={[styles.centre, { minWidth: layout.touchMin, minHeight: layout.touchMin }]}
         >
-          <Text style={[type.title, { color: color.textPrimary }]}>{BACK_GLYPH}</Text>
+          <Text
+            style={[
+              type.title,
+              { color: color.textPrimary, transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] },
+            ]}
+          >
+            {BACK_GLYPH}
+          </Text>
         </Pressable>
         <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
           {t('settings.title')}
@@ -115,7 +139,6 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
                 <Switch
                   testID="settings.analytics.toggle"
                   accessibilityLabel={t('settings.analytics.toggle')}
-                  accessibilityHint={t('settings.analytics.desc')}
                   value={snapshot.consent}
                   onValueChange={onToggle}
                   trackColor={{ false: color.borderSubtle, true: color.accentPrimary }}
@@ -206,7 +229,7 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
         testID="settings.analytics.off"
         destructive
         title={t('settings.analytics.off.title')}
-        body={t('settings.analytics.off.body', { count: confirmOff ?? 0 })}
+        body={t('settings.analytics.off.body', { count: confirmOff?.count ?? 0 })}
         cancelLabel={t('common.cancel')}
         confirmLabel={t('settings.analytics.off.confirm')}
         onCancel={() => {
@@ -216,7 +239,22 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
           setConfirmOff(null);
           if (analytics !== null) save(analytics.setConsent(false));
         }}
-      />
+      >
+        {confirmOff?.installId != null && (
+          <View style={{ gap: space[2] }}>
+            <Text style={[type.body, { color: color.textPrimary }]}>
+              {t('settings.analytics.off.id_note')}
+            </Text>
+            <Text
+              testID="settings.analytics.off.installId"
+              selectable
+              style={[type.body, styles.mono, { color: color.textPrimary }]}
+            >
+              {confirmOff.installId}
+            </Text>
+          </View>
+        )}
+      </ConfirmSheet>
     </SafeAreaView>
   );
 }
@@ -228,5 +266,6 @@ const styles = StyleSheet.create({
   toggleRow: { flexDirection: 'row', alignItems: 'center' },
   grow: { flex: 1 },
   mono: { fontFamily: MONO },
+  caps: { textTransform: 'uppercase' },
   segments: { flexDirection: 'row', flexWrap: 'wrap' },
 });

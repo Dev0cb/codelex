@@ -25,6 +25,7 @@
   "settings.analytics.off.title": "Turn off recording?",
   "settings.analytics.off.body": "{count, plural, one {# unsent event will be deleted.} other {# unsent events will be deleted.}} Nothing new will be recorded.",
   "settings.analytics.off.confirm": "Turn off and delete",
+  "settings.analytics.off.id_note": "Note this ID first if you want data you already sent deleted.",
   "settings.install_id.label": "Your tester ID",
   "settings.install_id.help": "Share this ID if you ask us to delete data you already sent.",
   "settings.section.play": "Play",

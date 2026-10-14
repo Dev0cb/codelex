@@ -5,7 +5,7 @@
  */
 import type { Layout, LetterTable, SquareKind } from '@codelex/game-engine';
 import type { MessageKey } from '@codelex/i18n';
-import { useState, type JSX } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useI18n } from '../../i18n/i18n-provider';
@@ -27,7 +27,7 @@ function Actions({ children }: { readonly children: readonly JSX.Element[] }): J
   return <View style={[styles.actions, { gap: space[3] }]}>{children}</View>;
 }
 
-/** Pass or Resign: one confirmation (AC-7, AC-10). */
+/** Pass, Resign, New match, Turn off recording: one confirmation (AC-7, AC-10, design §5.8). */
 export function ConfirmSheet({
   visible,
   title,
@@ -38,6 +38,7 @@ export function ConfirmSheet({
   testID,
   onConfirm,
   onCancel,
+  children,
 }: {
   readonly visible: boolean;
   readonly title: string;
@@ -48,11 +49,14 @@ export function ConfirmSheet({
   readonly testID: string;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
+  /** Extra content under the body (e.g. the tester ID in Settings' turn-off sheet). */
+  readonly children?: ReactNode;
 }): JSX.Element {
   const { color, type } = useTokens();
   return (
     <Sheet visible={visible} title={title} onClose={onCancel}>
       <Text style={[type.body, { color: color.textMuted }]}>{body}</Text>
+      {children}
       <Actions>
         <Button testID={`${testID}.cancel`} label={cancelLabel} onPress={onCancel} />
         <View style={styles.spacer} />

@@ -6,7 +6,7 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import type { JSX } from 'react';
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import type { Locale } from '@codelex/i18n';
 import { useMotionMode } from '../../a11y/accessibility';
@@ -59,11 +59,16 @@ describe('SettingsScreen (E-1.5 §5.8)', () => {
       'App 0.1.0 · Rules 1 · Lexicon 2f2cc6fca8fac92b',
     );
     expect(screen.getByText('Language follows your phone.')).toBeTruthy();
-    expect(screen.getAllByRole('header').map((h) => h.props.children as string)).toEqual([
+    const headers = screen.getAllByRole('header');
+    expect(headers.map((h) => h.props.children as string)).toEqual([
       'Settings',
-      'PLAY',
-      'ABOUT THIS BUILD',
+      'Play',
+      'About this build',
     ]);
+    // Section labels are drawn in capitals by style, so screen readers read the words, not letters.
+    expect(StyleSheet.flatten(headers[1]?.props.style)).toMatchObject({
+      textTransform: 'uppercase',
+    });
   });
 
   it('shows the consent toggle on and the tester ID as selectable text', async () => {
@@ -89,6 +94,13 @@ describe('SettingsScreen (E-1.5 §5.8)', () => {
     expect(
       screen.getByText('2 unsent events will be deleted. Nothing new will be recorded.'),
     ).toBeTruthy();
+    // The only handle for erasing data already sent is shown before it is deleted (review M2).
+    expect(
+      screen.getByText('Note this ID first if you want data you already sent deleted.'),
+    ).toBeTruthy();
+    const noted = screen.getByTestId('settings.analytics.off.installId');
+    expect(noted.props.children).toBe(analytics.getSnapshot().installId);
+    expect(noted.props.selectable).toBe(true);
     await fireEvent.press(screen.getByTestId('settings.analytics.off.cancel'));
     expect(analytics.getSnapshot().consent).toBe(true);
     await fireEvent(screen.getByTestId('settings.analytics.toggle'), 'valueChange', false);
