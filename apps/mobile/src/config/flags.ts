@@ -22,6 +22,11 @@ export const FLAG_DEFAULTS = {
    * only expose tech squares the pinned `engineRulesVersion` defines, never add them at runtime (R-CORE-005).
    */
   'board.tech_squares.enabled': false,
+  /**
+   * E-1.5 AC-13/AC-14 kill switch (slice S5): off = term chips are shown but inert, no card entry point, and the card
+   * text is never decoded. Off on main until the slice passes review (SP2); on in the playtest build.
+   */
+  'knowledge_card.post_match.enabled': false,
 } as const satisfies Readonly<Record<string, boolean>>;
 
 export type FlagKey = keyof typeof FLAG_DEFAULTS;

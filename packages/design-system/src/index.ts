@@ -47,6 +47,16 @@ export {
   type TokenType,
 } from './tokens-json.js';
 export {
+  CATEGORY_CONTRAST_BACKGROUNDS,
+  CATEGORY_ICONS,
+  CATEGORY_IDS,
+  CATEGORY_PALETTES,
+  categoryContrastFailures,
+  type CategoryContrastFailure,
+  type CategoryPalette,
+  type CategoryTokenId,
+} from './category-tokens.js';
+export {
   CONTRAST_PAIRS,
   MIN_TEXT_CONTRAST,
   MIN_UI_CONTRAST,

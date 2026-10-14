@@ -69,16 +69,21 @@ export function prepareLexiconAsset({
     );
   }
   const descriptor = { lexiconVersion, profileId, flags, sha256: entry.sha256, bytes: entry.bytes };
-  mkdirSync(outDir, { recursive: true });
-  // Write then rename: a crash mid-copy never leaves a truncated asset under the final name.
-  const write = (name, data) => {
-    const tmp = join(outDir, `.${name}.tmp`);
-    writeFileSync(tmp, data);
-    renameSync(tmp, join(outDir, name));
-  };
-  write(ASSET_FILE, bytes);
-  write(DESCRIPTOR_FILE, `${JSON.stringify(descriptor, null, 2)}\n`);
+  writeAssetFile(outDir, ASSET_FILE, bytes);
+  writeAssetFile(outDir, DESCRIPTOR_FILE, `${JSON.stringify(descriptor, null, 2)}\n`);
   return descriptor;
+}
+
+/**
+ * Writes `outDir/name`, creating the directory. Write then rename: a crash mid-copy never leaves a truncated asset
+ * under the final name.
+ * @param {string} outDir @param {string} name @param {string | Uint8Array} data
+ */
+export function writeAssetFile(outDir, name, data) {
+  mkdirSync(outDir, { recursive: true });
+  const tmp = join(outDir, `.${name}.tmp`);
+  writeFileSync(tmp, data);
+  renameSync(tmp, join(outDir, name));
 }
 
 /**
