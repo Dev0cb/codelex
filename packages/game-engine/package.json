@@ -25,7 +25,12 @@
     "./draft": {
       "types": "./dist/draft.d.ts",
       "default": "./dist/draft.js"
-    }
+    },
+    "./golden/rng.json": "./test/golden/rng.json",
+    "./golden/sha256.json": "./test/golden/sha256.json",
+    "./golden/jcs.json": "./test/golden/jcs.json",
+    "./golden/scoring/*": "./test/golden/scoring/*",
+    "./golden/replays/*": "./test/golden/replays/*"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

@@ -64,7 +64,13 @@ seeded RNG (`./rng`).
     ".":           { "types": "./dist/index.d.ts",     "default": "./dist/index.js" },
     "./rng":       { "types": "./dist/rng/index.d.ts", "default": "./dist/rng/index.js" },
     "./canonical": { "types": "./dist/canonical.d.ts", "default": "./dist/canonical.js" },
-    "./draft":     { "types": "./dist/draft.d.ts",     "default": "./dist/draft.js" }
+    "./draft":     { "types": "./dist/draft.d.ts",     "default": "./dist/draft.js" },
+    // Published golden data (sprint 4 P3, ADR-0016 §D3 item 2), JSON only, drafts not exported:
+    "./golden/rng.json":    "./test/golden/rng.json",
+    "./golden/sha256.json": "./test/golden/sha256.json",
+    "./golden/jcs.json":    "./test/golden/jcs.json",
+    "./golden/scoring/*":   "./test/golden/scoring/*",
+    "./golden/replays/*":   "./test/golden/replays/*"
   },
   "dependencies": {
     "@codelex/config":  "workspace:*",   // runtime: ./result only
@@ -78,15 +84,19 @@ seeded RNG (`./rng`).
   - `./rng` = §14 (bots and tests import it without the rules code);
   - `./canonical` *(ADR-0016 §D3.2, sprint 4 A2)* = the JCS subset serialiser (`canonicalJson`, `isJcsInteger`,
     `JCS_MAX_DEPTH`), so the golden runner compares reports with the engine's own canonical bytes instead of a
-    second implementation;
+    second implementation; since sprint 4 P3 also the engine's SHA-256 (`sha256Hex`, `asciiBytes`), which the
+    golden runner needs for the `sha256`/`jcs` suites, for `observed` values above 1 KB and for `corpus.digest`
+    (ADR-0016 §D3.1). Same functions the state hash uses, not re-implementations, not a security primitive;
   - `./draft` *(ADR-0014, from E6)* = the draft opt-in token only (§4.1.1); lint bans it under `apps/**` and
     `services/**`.
 
   No `./internal`, no `./testing`: fixture states for golden cases are built inside the engine's own tests; bots and
-  mobile build fixture **observations** directly (plain objects).
+  mobile build fixture **observations** directly (plain objects). The `./golden/*` subpaths *(sprint 4 P3)* are data,
+  not code: the published, immutable golden files (`tools/golden/protected-paths.json`), exported so the golden
+  runner (`@codelex/golden-runner`, ADR-0016 §D3) imports them as JSON and every bundler embeds the same bytes.
+  `test/golden/drafts/` is deliberately not exported.
 - Source layout (internal, may change): `src/{board,bag,placement,validation,scoring,modes/classic,replay,rng,hash}/`.
-  Hashing is not exported from `.`; SHA-256 is internal everywhere, the JCS serialiser is public only through
-  `./canonical`.
+  Hashing is not exported from `.`; the JCS serialiser and SHA-256 are public only through `./canonical`.
 - Imports allowed by lint (`codelex/pure-imports`): relative, `@codelex/lexicon` (types), `@codelex/config/result`.
   No zod: input shape checks are hand-written (§8.2, §13.7).
 

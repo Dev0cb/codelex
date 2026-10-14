@@ -1,7 +1,8 @@
 /**
- * Public API of `@codelex/golden-runner` (ADR-0016 §D3). This release holds the contracts only: the runner report
- * (`runnerFormat` 1), the preview Diagnostics report (`diagnosticsFormat` 1) and the §D3.2 comparison. The runner
- * core (`runGoldens`) and its Node and Hermes hosts follow in the next task.
+ * Public API of `@codelex/golden-runner` (ADR-0016 §D3), Node side: the runner report (`runnerFormat` 1), the
+ * preview Diagnostics report (`diagnosticsFormat` 1) and the §D3.2 comparison, all zod-based. The pure runner core
+ * and corpus are the separate, zod-free entry `@codelex/golden-runner/core` (the only one an app bundle may import);
+ * the Node and Hermes CLI hosts live in `src/host/` behind `bin/` and `scripts/`.
  */
 export {
   checkRunnerReportSize,

@@ -6,7 +6,8 @@
     "packages/game-engine/test/golden/jcs.json",
     "packages/game-engine/test/golden/replays/v*/**",
     "packages/game-engine/test/golden/scoring/v*/**",
-    "packages/golden-runner/test/schemas/*.v*.schema.json"
+    "packages/golden-runner/test/schemas/*.v*.schema.json",
+    "packages/bots/test/golden/decisions-b*-r*.json"
   ],
   "appendOnlyJson": ["packages/game-engine/test/golden/rules-digests.json"]
 }
