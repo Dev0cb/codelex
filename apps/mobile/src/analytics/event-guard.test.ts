@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from '@jest/globals';
 import fc from 'fast-check';
+import * as z from 'zod/mini';
 
 import {
   BOT_PERSONALITIES,
@@ -24,6 +25,10 @@ import {
 } from './events';
 import {
   eventVersion,
+  GUARD_ENVELOPE_KEYS,
+  GUARD_ISO_DATETIME,
+  GUARD_UUID_V4,
+  guardPropertyKeys,
   GUARD_APP_VERSION,
   GUARD_BOT_PERSONALITIES,
   GUARD_CANONICAL_ID,
@@ -69,6 +74,14 @@ const POOL: readonly unknown[] = [
   '2026-10-07T09:30:00.000Z',
   '2026-10-07T09:30:00+01:00',
   '2026-02-30T09:30:00Z',
+  '2000-02-29T00:00:00Z',
+  '1900-02-29T00:00:00Z',
+  '2026-10-07T24:00:00Z',
+  '2026-10-07T09:30:00z',
+  '2026-10-07T09:30Z',
+  '2026-10-07T09:30:00.Z',
+  '+012026-10-07T09:30:00Z',
+  '2026-10-07T09:30:00.123456789Z',
   '3F0C8A4E-9B1D-4C2A-8E6F-1A2B3C4D5E6F',
   '3f0c8a4e-9b1d-1c2a-8e6f-1a2b3c4d5e6f',
   '0123456789abcdef',
@@ -152,6 +165,13 @@ function mutate(
   return out;
 }
 
+/** A copy of `value` without `key`. */
+function omit(value: Record<string, unknown>, key: string): Record<string, unknown> {
+  const copy = { ...value };
+  Reflect.deleteProperty(copy, key);
+  return copy;
+}
+
 describe('guardEvent ≡ D1 zod schemas', () => {
   it('mirrors the shared constants and patterns of events.ts', () => {
     expect(GUARD_PLATFORMS).toEqual(PLATFORMS);
@@ -168,6 +188,13 @@ describe('guardEvent ≡ D1 zod schemas', () => {
     for (const name of EVENT_NAMES) expect(eventVersion(name)).toBe(EVENT_SCHEMAS[name].version);
   });
 
+  it('uses the very uuid-v4 and datetime patterns of zod', () => {
+    expect(GUARD_UUID_V4.source).toBe(z.core.regexes.uuid4.source);
+    expect(GUARD_ISO_DATETIME.source).toBe(
+      z.core.regexes.datetime({ precision: null, offset: false, local: false }).source,
+    );
+  });
+
   it('accepts every catalogue sample', () => {
     for (const name of EVENT_NAMES) expect(guardEvent(sampleEvent(name)).ok).toBe(true);
   });
@@ -177,6 +204,32 @@ describe('guardEvent ≡ D1 zod schemas', () => {
       expect(guardEvent(input).ok).toBe(false);
       expect(parseAnalyticsEvent(input).ok).toBe(false);
     }
+  });
+
+  it('agrees with zod on every single-key mutation of every event (exhaustive)', () => {
+    let compared = 0;
+    for (const name of EVENT_NAMES) {
+      const base = sampleEvent(name);
+      const variants: Record<string, unknown>[] = [];
+      for (const key of GUARD_ENVELOPE_KEYS) {
+        const without = omit(base, key);
+        variants.push(without);
+        for (const value of POOL) variants.push({ ...base, [key]: value });
+      }
+      const props = base['properties'] as Record<string, unknown>;
+      for (const key of guardPropertyKeys(name)) {
+        const without = omit(props, key);
+        variants.push({ ...base, properties: without });
+        for (const value of POOL)
+          variants.push({ ...base, properties: { ...props, [key]: value } });
+      }
+      variants.push({ ...base, extra: 1 }, { ...base, properties: { ...props, extra: 1 } });
+      for (const input of variants) {
+        expect(guardEvent(input).ok).toBe(parseAnalyticsEvent(input).ok);
+        compared += 1;
+      }
+    }
+    expect(compared).toBeGreaterThan(20_000);
   });
 
   it('agrees with zod on generated mutations of every event (property)', () => {

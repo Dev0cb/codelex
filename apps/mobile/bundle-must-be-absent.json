@@ -1,0 +1,9 @@
+{
+  "$comment": "Packages kept out of the shipped Hermes bundles for size, not security (that list is bundle-forbidden-packages.json). `bundle:check` fails when one is a module in an `expo export` source map. Owner: mobile-engineer. zod: Metro bundles its CommonJS build whole (+555 KB of bytecode per platform measured in S6a); the app validates analytics events with src/analytics/event-guard.ts and keeps zod for Node-side contracts and tests.",
+  "packages": [
+    {
+      "name": "zod",
+      "reason": "bundle budget: +555 KB per platform (S6a); on-device validation uses event-guard.ts"
+    }
+  ]
+}

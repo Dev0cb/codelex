@@ -24,11 +24,11 @@ export const GUARD_CANONICAL_ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export const GUARD_STRING_ID = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 export const GUARD_APP_VERSION = /^\d{1,3}\.\d{1,3}\.\d{1,5}$/;
 export const GUARD_LOCALE = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|\d{3}))?$/;
-/** zod 4 `z.uuidv4()`. */
-const UUID_V4 =
+/** zod 4 `z.uuidv4()` (source pinned to `z.core.regexes.uuid4` by the test). */
+export const GUARD_UUID_V4 =
   /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$/;
-/** zod 4 `z.iso.datetime()` (UTC `Z` only, seconds required, any fraction). */
-const ISO_DATETIME =
+/** zod 4 `z.iso.datetime()`: UTC `Z` only, seconds required, any fraction (pinned to `z.core.regexes` by the test). */
+export const GUARD_ISO_DATETIME =
   /^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z))$/;
 const HEX16 = /^[0-9a-f]{16}$/;
 
@@ -103,7 +103,7 @@ const setOf =
     new Set(v).size === v.length;
 const optional = (check: Check): Optional => ({ optional: check });
 
-const uuid = matches(UUID_V4);
+const uuid = matches(GUARD_UUID_V4);
 const count = int(0);
 const version = int(1);
 const canonicalId = matches(GUARD_CANONICAL_ID, 64);
@@ -304,6 +304,25 @@ const SPECS: { readonly [N in EventName]: EventSpec } = {
   },
 };
 
+/** Every property key of an event, optional ones included (tests sweep them). */
+export function guardPropertyKeys(name: EventName): readonly string[] {
+  return Object.keys(SPECS[name].properties);
+}
+
+/** Envelope keys, in wire order (tests sweep them). */
+export const GUARD_ENVELOPE_KEYS: readonly string[] = [
+  'event',
+  'schema_version',
+  'event_id',
+  'occurred_at',
+  'user_id',
+  'session_id',
+  'app_version',
+  'platform',
+  'locale',
+  'properties',
+];
+
 /** The `schema_version` of each event (the catalogue `v` column). */
 export function eventVersion(name: EventName): number {
   return SPECS[name].version;
@@ -311,7 +330,7 @@ export function eventVersion(name: EventName): number {
 
 const ENVELOPE: Readonly<Record<string, Check>> = {
   event_id: uuid,
-  occurred_at: matches(ISO_DATETIME),
+  occurred_at: matches(GUARD_ISO_DATETIME),
   user_id: uuid,
   session_id: uuid,
   app_version: matches(GUARD_APP_VERSION),
