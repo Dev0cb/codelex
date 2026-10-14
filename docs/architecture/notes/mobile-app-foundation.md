@@ -119,6 +119,32 @@ import yields its path and expo-asset, expo-file-system and expo-crypto run on N
 the tests verify the very bytes `prepare:lexicon` generated. H1 measures read + digest + decode time on Hermes and on
 a low-end Android device, and `has()` p99.
 
+### 3.3 Knowledge Card text (`cards.json`, E-1.5 slice S5)
+
+The `.clxi` carries ids, canonical forms, difficulty, categories and typed relations, but not the display-only content
+of a card (display form, EN/FR definitions, category names): lexicon-index note §3.6, `cardsVersion`. `prepare:lexicon`
+therefore also writes `assets/lexicon/cards.json` (`scripts/cards-asset.mjs`, git-ignored, reproducible) from
+`loadLexicon()` of `@codelex/lexicon`, and refuses to when the data's `lexiconVersion` differs from the index it bundles.
+
+- **Format:** an envelope `{ format: 1, lexiconVersion, cardsVersion, encoding: "deflate-raw-base64", jsonLength,
+data }`. `data` is the payload `{ categories, ids, display, en, fr }` (columns in term-id order, playable terms only,
+  `null` for a missing locale definition) as ASCII JSON (`\uXXXX` for non-ASCII, so Hermes stores one byte per
+  character), raw DEFLATE level 9, base64.
+- **Runtime** (`src/knowledge/`): a small RFC 1951 inflater and base64 decoder (no dependency; Hermes has no
+  `DecompressionStream`), hand-written shape checks (no zod in the bundle), a version check against the loaded
+  descriptor (a mismatch shows no card, never another lexicon's text). Decoded once per process, only with
+  `knowledge_card.post_match.enabled` on: during the 600 ms end-of-match hold, else synchronously when the Summary
+  mounts. Card building is then synchronous lookups (AC-13 ≤ 300 ms); H1 measures the decode on Hermes.
+- **Size and budget** (sprint 4, 1,432 terms): 286,131 B of JSON → 127,836 B base64, inlined in the JS bundle and
+  counted on `bundleBytes`; no asset or lexicon line moves. The whole slice measured +164,996 B android
+  (3,818,540 → 3,983,536 B, 92.0 %) and +164,988 B iOS (3,635,756 → 3,800,744 B, 92.3 %).
+- **Rejected:** the plain JSON module (+388,948 B android, 97.2 % of the budget, French text stored as UTF-16 by
+  Hermes); a separate binary asset (about 90 KB deflated: over the iOS `assetBytes` headroom of 3.9 KB, and on the
+  lexicon line it would consume the index growth headroom of the P7 2,550-form ceiling); `zod/mini` for the shape
+  checks (about +0.5 MB: zod is not otherwise in the app bundle).
+- At 2,550 terms the card text grows to about 230 KB base64; past that, or for org lexicons, cards come from
+  `services/knowledge` (lexicon-index note §3.6).
+
 ## 4. i18n contract (`@codelex/i18n`)
 
 - **Catalogs:** `packages/i18n/src/catalogs/{en,fr}.json`, flat `key → ICU MessageFormat message`. EN is the

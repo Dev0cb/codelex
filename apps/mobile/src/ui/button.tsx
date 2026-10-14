@@ -1,5 +1,5 @@
-import type { JSX } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import type { JSX, Ref } from 'react';
+import { Pressable, StyleSheet, Text, type View } from 'react-native';
 
 import { useTokens } from '../theme/use-tokens';
 
@@ -18,6 +18,8 @@ export interface ButtonProps {
   readonly accessibilityLabel?: string;
   readonly accessibilityHint?: string | undefined;
   readonly testID?: string;
+  /** The pressable host view (e.g. to return accessibility focus to it). */
+  readonly ref?: Ref<View>;
 }
 
 /**
@@ -35,6 +37,7 @@ export function Button({
   accessibilityLabel,
   accessibilityHint,
   testID,
+  ref,
 }: ButtonProps): JSX.Element {
   const { color, layout, radius, space, type } = useTokens();
   const primary = variant === 'primary';
@@ -48,6 +51,7 @@ export function Button({
       : color.textPrimary;
   return (
     <Pressable
+      ref={ref}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}

@@ -1058,6 +1058,12 @@ file" (the file holds none; an email does reveal the sender), and the new `match
 It differs from `export.email_notice` because the match log carries no tester ID. The confirm sheet that renders
 both ships with "Send match log" in S6d (spec amendment SP2, 2026-10-07: S6 is split into S6a–S6d).
 
+Keys added by `mobile-engineer` in slice S5, pending translation review: the §10.4 `card.*` keys not yet in the
+catalogues, `summary.discover` and the §10.6 `a11y.chip.*` keys, with the copy above. Category names come from the
+card text (`categories.json` names), as stated in §10.4. Until the E-1.4 `Icon` set exists, category icons are
+decorative text glyphs next to the category name (`apps/mobile/src/features/knowledge/category-glyph.ts`), and the
+difficulty shows four pips (one per level) where §5.7 draws three: `ux-ui-designer` to confirm.
+
 All user-facing strings live in `packages/i18n` catalogues, ICU MessageFormat. `{…}` = argument. French uses *tu*.
 Typography rule D-19 applies to FR. Board letters are always A–Z. `{bot}` resolves to `bot.<id>.name`.
 

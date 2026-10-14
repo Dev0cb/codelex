@@ -7,6 +7,7 @@
       "inputs": [
         "scripts/prepare-lexicon.mjs",
         "scripts/lexicon-asset.mjs",
+        "scripts/cards-asset.mjs",
         "bundle-budget.json",
         "package.json"
       ],
