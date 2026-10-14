@@ -56,6 +56,11 @@ the report schemas: DG1 imports **only** this entry; parsing and comparison stay
   non-ASCII notes, which the JCS subset rejects, so values are first mapped injectively into the subset (strings
   `s:` + `~XXXX` escapes, `b:1`/`b:0`/`n:`; see `src/core/digest.ts`). Open question to solution-architect: confirm
   this encoding or define another before device reports are collected.
+- **Corpus completeness.** `src/core/corpus.test.ts` (Node) lists every `*.json` under
+  `packages/game-engine/test/golden/` and `packages/bots/test/golden/` (minus `drafts/`) and requires it to be in
+  `GOLDEN_CORPUS` unless it is in a commented exclusion list (`rules-digests.json`, `decisions-v1.json`), so a newly
+  added golden cannot skip the Hermes check. The bots decisions goldens are protected like the engine's
+  (`tools/golden/protected-paths.json`).
 - **Corpus imports.** The goldens are imported as JSON through package subpaths
   (`@codelex/game-engine/golden/*`, `@codelex/bots/golden/*`), so tsc/Node, Metro and the app embed the same files.
 
@@ -79,6 +84,10 @@ zod or report schema module is bundled, and compiles with the `hermesc` of the `
 `-w -emit-binary -max-diagnostic-width=80 -out runner.hbc runner.js -O -output-source-map`. Standalone Metro was
 practical, so no other bundler is used. Requires `pnpm turbo run build --filter=@codelex/golden-runner` first.
 The `hermes` VM itself is built from the pinned tag (`tools/hermes/hermes-pin.json`) by the CI job (devops-sre).
+`tools/hermes/hermes-pin.test.mjs` checks the tag offline against `apps/mobile`'s react-native
+`sdks/.hermesv1version` and `hermes-compiler` version (failing under `CI` if they are not installed). The **commit**
+pin is verified by the P3 job (`git ls-remote` of the tag, then the clone's HEAD SHA), not offline: an installed
+`hermes-compiler` has no `gitHead`.
 
 ## Commands
 
@@ -101,7 +110,9 @@ pnpm turbo run build lint typecheck format:check test --filter=@codelex/golden-r
 5. **Pure core.** Lint applies the engine determinism bans and a purity allow-list (`@codelex/game-engine` `.`,
    `./rng`, `./canonical` and the published goldens; `@codelex/bots` and its published goldens;
    `@codelex/lexicon/index`; `@codelex/config/result`; `zod`): no `Date`, `Math.random`, `Intl`, `node:*` or IO in
-   shipped code. Hosts (`src/host/**`, `bin/`, `scripts/`) have the documented exemption above.
+   shipped code. `src/core/**` has a stricter list without zod and may import nothing outside `src/core/` (no
+   host, schema or comparison module), so the core entry stays zod-free. Hosts (`src/host/**`, `bin/`,
+   `scripts/`) have the documented exemption above; their tests keep the determinism bans.
 6. **Deterministic order.** Suites in `SUITES` order, cases in golden-file order; two runtimes that compute the same
    values print byte-identical reports (apart from `runtime` and `timings`).
 7. Lint, format and coverage rules come from `@codelex/config`; never lower a threshold or disable a rule here.

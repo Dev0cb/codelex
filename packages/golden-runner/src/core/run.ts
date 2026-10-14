@@ -65,7 +65,12 @@ function suiteCases(corpus: GoldenCorpus, build: (corpus: GoldenCorpus) => CaseS
     : specs.map(runCase);
 }
 
-/** Runs the golden corpus (ADR-0016 §D3). Never throws for a bad case: it becomes `fail` or `error`. */
+/**
+ * Runs the golden corpus (ADR-0016 §D3). A bad case never throws: it becomes `fail` or `error`, and a suite whose
+ * file cannot be read becomes one `error` case. The corpus identity is computed outside any case, so a corpus that
+ * is not JSON of safe integers (a fraction, `-0`) or lacks a rules version field throws (`RangeError` /
+ * `TypeError`); hosts catch it (the Node host exits 2).
+ */
 export function runGoldens(corpus: GoldenCorpus, host: RunnerHost): CoreReport {
   const timings: Record<string, { totalMs: number }> = {};
   const suites: CoreSuite[] = SUITES.map(({ id, cases: build }) => {

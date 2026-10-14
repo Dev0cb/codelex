@@ -3,8 +3,9 @@
  * in `@codelex/config` eslint, GOLDEN_RUNNER_HOST_FILES).
  *
  * - `runNodeHost`: runs the core on Node, validates the report with the `runnerFormat` 1 schema and prints its
- *   canonical JSON to stdout. Exit 0 = verdict pass, 1 = verdict fail (the report is still printed), 2 = the report
- *   does not parse (a runner bug; issues on stderr, nothing on stdout).
+ *   canonical JSON to stdout. Exit 0 = verdict pass, 1 = verdict fail (the report is still printed), 2 = the runner
+ *   threw (a corpus outside JSON integers) or the report does not parse (a runner bug): one line on stderr with a
+ *   typed error name, nothing on stdout.
  * - `runCompareCli`: `<reference.json> <candidate.json>` → `describeComparison` on stdout. Exit 0 = equal and
  *   passing, 1 = any comparison failure, 2 = usage or unreadable file.
  */
@@ -28,10 +29,16 @@ export interface NodeHostOptions {
 }
 
 export function runNodeHost(io: HostIo, options: NodeHostOptions): number {
-  const report = runGoldens(options.corpus ?? GOLDEN_CORPUS, {
-    runtime: { kind: 'node', version: options.version },
-    ...(options.clock === undefined ? {} : { clock: options.clock }),
-  });
+  let report: unknown;
+  try {
+    report = runGoldens(options.corpus ?? GOLDEN_CORPUS, {
+      runtime: { kind: 'node', version: options.version },
+      ...(options.clock === undefined ? {} : { clock: options.clock }),
+    });
+  } catch (error) {
+    io.stderr(`golden runner crashed: ${error instanceof Error ? error.name : 'unknown error'}\n`);
+    return 2;
+  }
   const parsed = parseRunnerReport(report);
   if (!parsed.ok) {
     io.stderr(

@@ -3,8 +3,9 @@
  * public APIs only and no Node API (ADR-0016 §D3 item 3): the seeded 2,000-form synthetic lexicon as a built and
  * decoded `.clxi` with its GADDAG (f1, what the app ships) and the Beginner mirror-game positions. Same
  * construction as `packages/bots/test/support/lexicons.ts` (`syntheticIndex`) and `match.ts` (`positionAfter`,
- * `botRng`, `contextFor`). Fixture code, not rules: a drift changes the lexicon version or the decisions, so the
- * `bots/*` cases fail on every runtime, never pass wrongly.
+ * `botRng`, `contextFor`). Fixture code, not rules. The lexicon version depends on the size only, so it does not
+ * catch a drift in the generated forms; the 80 pinned decisions (keys and node/candidate counts over a 2,000-form
+ * automaton) do: a drift fails the `bots/*` cases on every runtime and cannot make one pass.
  */
 import {
   apply,

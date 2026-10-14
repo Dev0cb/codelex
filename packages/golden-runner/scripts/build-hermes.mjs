@@ -82,8 +82,9 @@ function main() {
   );
 
   const sources = JSON.parse(readFileSync(`${js}.map`, 'utf8')).sources ?? [];
-  const leaked = sources.filter((s) =>
-    /\/zod\/|runner-report|diagnostics-report|compare\.js/.test(s),
+  // Core only: from this package, dist/core/** and the Hermes host; nothing from zod.
+  const leaked = sources.filter(
+    (s) => /packages\/golden-runner\/dist\/(?!core\/|host\/hermes)/.test(s) || /\/zod\//.test(s),
   );
   if (leaked.length > 0)
     throw new Error(`Hermes bundle must hold the core only, found: ${leaked.join(', ')}`);

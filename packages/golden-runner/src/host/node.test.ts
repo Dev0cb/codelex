@@ -1,7 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { execPath } from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -47,6 +48,17 @@ describe('Node host (ADR-0016 §D3 item 2)', { timeout: 120_000 }, () => {
     expect(io.out.join('')).toContain('"verdict":"fail"');
   });
 
+  it('exits 2 with one typed line when the runner throws (corpus outside JSON integers)', () => {
+    const corpus = JSON.parse(JSON.stringify(GOLDEN_CORPUS)) as Record<string, unknown>;
+    corpus[SHA256_PATH] = { format: 1.5, cases: [] };
+    const io = capture();
+    expect(runNodeHost(io, { version: 'v22.0.0', corpus: corpus as unknown as GoldenCorpus })).toBe(
+      2,
+    );
+    expect(io.out).toEqual([]);
+    expect(io.err).toEqual(['golden runner crashed: RangeError\n']);
+  });
+
   it('exits 2 without stdout when the report does not parse (a runner bug)', () => {
     const io = capture();
     expect(runNodeHost(io, { version: 'bad\nversion' })).toBe(2);
@@ -89,7 +101,7 @@ describe(
     });
 
     const cli = (...args: string[]): { status: number | null; stdout: string; stderr: string } => {
-      const run = spawnSync(process.execPath, [join(pkg, 'bin', 'golden-compare.mjs'), ...args], {
+      const run = spawnSync(execPath, [join(pkg, 'bin', 'golden-compare.mjs'), ...args], {
         encoding: 'utf8',
       });
       return { status: run.status, stdout: run.stdout, stderr: run.stderr };
@@ -121,6 +133,26 @@ describe(
       expect(cli(join(dir, 'missing.json'), join(dir, 'missing.json')).status).toBe(2);
     });
 
+    it('runCompareCli in process on real files: equal, then a named difference', () => {
+      const reference = write('ref.json', nodeText);
+      const io = capture();
+      expect(
+        runCompareCli([reference, write('cand.json', hermesFrom())], io, (path) =>
+          readFileSync(path, 'utf8'),
+        ),
+      ).toBe(0);
+      const changed = hermesFrom((r) => {
+        (r['corpus'] as { digest: string }).digest = '0'.repeat(64);
+      });
+      expect(
+        runCompareCli([reference, write('cand2.json', changed)], io, (path) =>
+          readFileSync(path, 'utf8'),
+        ),
+      ).toBe(1);
+      expect(io.out[0]).toMatch(/^golden reports equal/);
+      expect(io.out[1]).toMatch(/^reports differ at \$\.corpus\.digest/);
+    });
+
     it('runCompareCli rejects extra arguments and reports read errors', () => {
       const io = capture();
       expect(runCompareCli(['a', 'b', 'c'], io, () => '')).toBe(2);
@@ -136,7 +168,7 @@ describe(
 
 describe('bin/golden-run.mjs', { timeout: 120_000 }, () => {
   it('prints a passing node report with timings', () => {
-    const run = spawnSync(process.execPath, [join(pkg, 'bin', 'golden-run.mjs')], {
+    const run = spawnSync(execPath, [join(pkg, 'bin', 'golden-run.mjs')], {
       encoding: 'utf8',
     });
     expect(run.status).toBe(0);

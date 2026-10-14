@@ -14,7 +14,7 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./golden/*": "./test/golden/*"
+    "./golden/decisions-b*.json": "./test/golden/decisions-b*.json"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

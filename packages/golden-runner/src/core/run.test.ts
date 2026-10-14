@@ -5,9 +5,12 @@ import { parseRunnerReport } from '../runner-report.js';
 import {
   BOT_DECISIONS_PATH,
   GOLDEN_CORPUS,
+  JCS_PATH,
   REPLAY_GC_DET_01_LOG_PATH,
+  REPLAY_GC_DET_01_PATH,
   RNG_PATH,
   SCORING_CLASSIC_PATH,
+  SCORING_INFLECTIONS_PATH,
   SHA256_PATH,
   type GoldenCorpus,
 } from './corpus.js';
@@ -34,6 +37,13 @@ function setAt(doc: unknown, keys: readonly (string | number)[], value: unknown)
   let target = doc as Record<string | number, unknown>;
   for (const key of keys.slice(0, -1)) target = target[key] as Record<string | number, unknown>;
   target[keys[keys.length - 1] ?? ''] = value;
+}
+
+/** `[suite, case, status]` of every case that did not pass, in report order. */
+function notPassing(report: CoreReport): (readonly string[])[] {
+  return report.suites.flatMap((s) =>
+    s.cases.filter((c) => c.status !== 'pass').map((c) => [s.id, c.id, c.status]),
+  );
 }
 
 function caseOf(
@@ -146,6 +156,15 @@ describe('a corrupted golden value fails and names the case', { timeout: 120_000
 
   it.each([
     ['rng', RNG_PATH, ['cases', 0, 'next', 0], 1, 'rng', '0000000000000000/bag'],
+    ['jcs canonical text', JCS_PATH, ['cases', 0, 'jcs'], '{}', 'jcs', 'cases/adr-0013-a3'],
+    [
+      'jcs rejection kind',
+      JCS_PATH,
+      ['rejections', 0, 'error'],
+      'SyntaxError',
+      'jcs',
+      `rejections/${GOLDEN_CORPUS[JCS_PATH].rejections[0]?.name ?? ''}`,
+    ],
     [
       'scoring total',
       SCORING_CLASSIC_PATH,
@@ -171,6 +190,14 @@ describe('a corrupted golden value fails and names the case', { timeout: 120_000
       'GC-DET-01/state-hashes/030-059',
     ],
     [
+      'final state hash',
+      REPLAY_GC_DET_01_PATH,
+      ['finalStateHash'],
+      '0000000000000000',
+      'replays/v1',
+      'GC-DET-01/final',
+    ],
+    [
       'bot decision key',
       BOT_DECISIONS_PATH,
       ['decisions', 0, 'key'],
@@ -178,7 +205,7 @@ describe('a corrupted golden value fails and names the case', { timeout: 120_000
       'bots/decisions-b2-r1',
       '00000000a2918652/0/random-legal',
     ],
-  ] as const)('%s', (_name, path, keys, value, suite, id) => {
+  ] as const)('%s fails exactly its case', (_name, path, keys, value, suite, id) => {
     const report = runGoldens(
       corrupted((c) => {
         setAt(c[path], keys, value);
@@ -186,7 +213,77 @@ describe('a corrupted golden value fails and names the case', { timeout: 120_000
       NODE,
     );
     expect(report.verdict).toBe('fail');
-    expect(caseOf(report, suite, id).status).toBe('fail');
+    expect(notPassing(report)).toEqual([[suite, id, 'fail']]);
+  });
+
+  it.each([
+    [
+      'a malformed bot seed',
+      BOT_DECISIONS_PATH,
+      ['decisions', 0, 'seed'],
+      'zz',
+      [['bots/decisions-b2-r1', 'zz/0/random-legal', 'error']],
+    ],
+    [
+      'an unknown personality',
+      BOT_DECISIONS_PATH,
+      ['decisions', 0, 'personality'],
+      'nobody',
+      [['bots/decisions-b2-r1', '00000000a2918652/0/nobody', 'error']],
+    ],
+    [
+      'a position after the match ended',
+      BOT_DECISIONS_PATH,
+      ['decisions', 0, 'actions'],
+      400,
+      [['bots/decisions-b2-r1', '00000000a2918652/400/random-legal', 'error']],
+    ],
+    [
+      'a malformed log header',
+      REPLAY_GC_DET_01_LOG_PATH,
+      ['header', 'seed'],
+      'nothex',
+      [
+        ['replays/v1', 'GC-DET-01/log', 'error'],
+        ['replays/v1', 'GC-DET-01/state-hashes/000-029', 'error'],
+        ['replays/v1', 'GC-DET-01/state-hashes/030-059', 'error'],
+        ['replays/v1', 'GC-DET-01/state-hashes/060-089', 'error'],
+        ['replays/v1', 'GC-DET-01/final', 'error'],
+      ],
+    ],
+    [
+      'a jcs rejection whose input is accepted',
+      JCS_PATH,
+      ['rejections', 0, 'input'],
+      '"ok"',
+      [['jcs', `rejections/${GOLDEN_CORPUS[JCS_PATH].rejections[0]?.name ?? ''}`, 'fail']],
+    ],
+    [
+      'an unknown end reason',
+      SCORING_CLASSIC_PATH,
+      ['endCases', 0, 'endReason'],
+      'timeout',
+      [['scoring/v1', 'GC-CL-E1', 'error']],
+    ],
+    [
+      'a scoring file on another layout',
+      SCORING_INFLECTIONS_PATH,
+      ['layout'],
+      'classic-v2',
+      GOLDEN_CORPUS[SCORING_INFLECTIONS_PATH].scoringCases.map((c) => [
+        'scoring/v1',
+        c.id,
+        'error',
+      ]),
+    ],
+  ] as const)('%s is reported, never a crash', (_name, path, keys, value, expected) => {
+    const report = runGoldens(
+      corrupted((c) => {
+        setAt(c[path], keys, value);
+      }),
+      NODE,
+    );
+    expect(notPassing(report)).toEqual(expected);
   });
 
   it('a malformed golden case is an error case with a typed code, never a crash', () => {

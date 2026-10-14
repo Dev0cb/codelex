@@ -4,7 +4,8 @@
  *
  * The log is replayed **without** its stored `stateHashes` (`recordHashes` instead), so a divergence shows as the
  * exact hashes that differ rather than as one `HASH_MISMATCH` error; the stored hashes are the expected values.
- * Cases: `GC-DET-01/log` (header and canonical bytes), `GC-DET-01/state-hashes/<from>-<to>` (30 actions each,
+ * Cases: `GC-DET-01/log` (header, term count, and a round trip: the SHA-256 of the parsed log re-serialised by
+ * the engine equals that of the stored log), `GC-DET-01/state-hashes/<from>-<to>` (30 actions each,
  * ADR-0016 §D3.1 "replays report their stateHashes", each under 1 KB) and `GC-DET-01/final` (final hash, first
  * seat, result).
  */
