@@ -1,5 +1,5 @@
-import type { JSX } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, type JSX } from 'react';
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 
 import { useI18n } from '../../i18n/i18n-provider';
 import { useTokens } from '../../theme/use-tokens';
@@ -17,14 +17,20 @@ export interface ExportPromptCardProps {
 /**
  * End-of-session export prompt (E-1.5 AC-17, design D-17; slice S6c): a dismissible card on Home, never a dialog,
  * never on Match or Summary, and below PLAY NOW so it never blocks it. When it is due is `export-prompt.ts`. No
- * animation: it appears with the screen (nothing to reduce).
+ * animation: it appears with the screen (nothing to reduce). Focus does not move to it, so screen readers hear its
+ * title once when it is shown (an announcement, and a polite live region for Android TalkBack).
  */
 export function ExportPromptCard({ matches, onSend, onLater }: ExportPromptCardProps): JSX.Element {
   const { t } = useI18n();
   const { color, radius, space, type } = useTokens();
+  const title = t('export.prompt.title');
+  useEffect(() => {
+    AccessibilityInfo.announceForAccessibility(title);
+  }, [title]);
   return (
     <View
       testID="home.exportPrompt"
+      accessibilityLiveRegion="polite"
       style={[
         styles.card,
         {
@@ -37,7 +43,7 @@ export function ExportPromptCard({ matches, onSend, onLater }: ExportPromptCardP
       ]}
     >
       <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
-        {t('export.prompt.title')}
+        {title}
       </Text>
       <Text style={[type.body, { color: color.textPrimary }]}>
         {t('export.prompt.body', { matches })}

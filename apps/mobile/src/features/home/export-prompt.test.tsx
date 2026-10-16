@@ -135,12 +135,19 @@ describe('Home end-of-session export prompt (D-17)', () => {
   it('appears on Home after a completed match and 8 min of play, once per session', async () => {
     const clock = { wall: T0, mono: 0 };
     const analytics = seasoned(clock);
+    const announce = jest
+      .spyOn(AccessibilityInfo, 'announceForAccessibility')
+      .mockImplementation(() => undefined);
     await renderApp(analytics);
     expect(screen.queryByTestId('home.exportPrompt')).toBeNull();
+    expect(announce).not.toHaveBeenCalledWith('Send your playtest data?');
     clock.mono = 9 * MIN;
     await playAndResign();
-    expect(await screen.findByTestId('home.exportPrompt')).toBeTruthy();
+    const card = await screen.findByTestId('home.exportPrompt');
     expect(screen.getByText('Send your playtest data?')).toBeTruthy();
+    // It appears without focus moving to it: screen readers hear the title once, and changes are polite.
+    expect(card.props.accessibilityLiveRegion).toBe('polite');
+    expect(announce.mock.calls.filter(([m]) => m === 'Send your playtest data?')).toHaveLength(1);
     expect(
       screen.getByText(
         "You've played 1 match. Sending the file helps us improve CODELEX. It takes a minute.",
@@ -157,6 +164,7 @@ describe('Home end-of-session export prompt (D-17)', () => {
     await playAndResign();
     expect(screen.queryByTestId('home.exportPrompt')).toBeNull();
     expect(analytics.sessionMatches()).toBe(2);
+    expect(announce.mock.calls.filter(([m]) => m === 'Send your playtest data?')).toHaveLength(1);
   });
 
   it('"Review and send" opens Send playtest data', async () => {
