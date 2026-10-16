@@ -1,0 +1,68 @@
+# E-1.5 slice S6b (AC-18): "Would you play CODELEX again?" on the Summary of the 1st and 3rd completed match only.
+# Match 1: the card shows, "Yes" says thanks; match 2: no card; match 3: the card shows, ✕ dismisses it; match 4: no
+# card. Play again is pressed with the card on screen in between (it never blocks). Events, consent-off and flag-off
+# behaviour are covered by the Jest tests (src/analytics/survey*.test.ts, recorder.test.ts,
+# src/features/match/survey-card.test.tsx).
+# Needs a preview build with
+# EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1,analytics.upload.enabled=1,playtest.survey.enabled=1 and APP_ID set
+# to its bundle id / package.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'home.playNow'
+# Match 1: asked.
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.resign'
+- tapOn:
+    id: 'match.resign.confirm'
+- assertVisible:
+    id: 'summary.survey'
+- tapOn:
+    id: 'summary.survey.yes'
+- assertVisible:
+    id: 'summary.survey.thanks'
+- tapOn:
+    id: 'summary.playAgain'
+# Match 2: not asked.
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.resign'
+- tapOn:
+    id: 'match.resign.confirm'
+- assertVisible:
+    id: 'summary.result'
+- assertNotVisible:
+    id: 'summary.survey'
+- tapOn:
+    id: 'summary.playAgain'
+# Match 3: asked again; dismissed.
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.resign'
+- tapOn:
+    id: 'match.resign.confirm'
+- assertVisible:
+    id: 'summary.survey'
+- tapOn:
+    id: 'summary.survey.dismiss'
+- assertNotVisible:
+    id: 'summary.survey'
+- tapOn:
+    id: 'summary.playAgain'
+# Match 4: never again on this install.
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.resign'
+- tapOn:
+    id: 'match.resign.confirm'
+- assertVisible:
+    id: 'summary.result'
+- assertNotVisible:
+    id: 'summary.survey'

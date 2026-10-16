@@ -20,6 +20,11 @@
  * `confirmSent()`, which clears exactly the events of that file and records `analytics_buffer_flushed`. The
  * end-of-session prompt (D-17) is `exportPromptDue()` / `markExportPromptShown()` (`export-prompt.ts`).
  *
+ * "Would you play CODELEX again?" (slice S6b, AC-18): `noteSurveyMatchCompleted()`, `surveyDue()`,
+ * `markSurveyShown()` and `answerSurvey()` (schedule in `survey.ts`). Shown and answered only while recording, so an
+ * answer is never asked for when it could not be kept; the counters file is kept when consent is withdrawn (a UI
+ * preference, like notice-seen), so the question is asked at most twice per install.
+ *
  * Every file lives in the shared backup-excluded data directory (`DATA_DIR`; threat model TM-03, R1-4) under the
  * names of {@link ANALYTICS_FILE_NAMES}. Nothing here throws: storage failures are absorbed (and visible as drop
  * counts or a later new install id), so analytics can never break play.
@@ -63,6 +68,22 @@ import {
   type AppStateValue,
   type MarkerState,
 } from './session-marker';
+import {
+  decodeSurveyState,
+  encodeSurveyState,
+  INITIAL_SURVEY,
+  isSurveyDue,
+  noteSurveyMatchCompleted,
+  noteSurveyShown,
+  SURVEY_FILE,
+  SURVEY_ID,
+  SURVEY_QUESTION_ID,
+  SURVEY_UNREADABLE,
+  type SurveyState,
+} from './survey';
+
+/** One tap on the survey card, or ✕ (`dismissed`). */
+export type SurveyAnswer = EventProperties<'playtest_survey_answered'>['answer'];
 
 /** Device-clock time the export prompt was last shown (D-17 24 h cool-down); purged with consent off. */
 export const PROMPT_FILE = 'export.prompt';
@@ -74,6 +95,7 @@ export const ANALYTICS_FILE_NAMES: ReadonlySet<string> = new Set([
   CONSENT_FILE,
   SESSION_MARKER_FILE,
   PROMPT_FILE,
+  SURVEY_FILE,
 ]);
 
 const APP_STATES: ReadonlySet<string> = new Set<AppStateValue>([
@@ -190,6 +212,8 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
   private snapshot: AnalyticsSnapshot = DISABLED;
   /** D-17 session state of the end-of-session export prompt (memory only). */
   private prompt: PromptSession = INITIAL_PROMPT_SESSION;
+  /** S6b survey counters (`survey.ts`), read from disk on first use; memory wins if a write fails. */
+  private survey: SurveyState | null = null;
   /** Confirmed exports this process (snapshot `exports`). */
   private exports = 0;
   private readonly listeners = new Set<() => void>();
@@ -485,6 +509,75 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     this.prompt = stepPromptSession(this.prompt, { type: 'shown' });
     this.attempt(() => {
       this.store.replace(PROMPT_FILE, [asciiJson({ v: 1, shownAt: this.platform.wallMs() })]);
+    });
+  }
+
+  // --- "Would you play CODELEX again?" (slice S6b, AC-18, design §5.6) -------------------------------------------
+
+  /**
+   * A match reached its end with `playtest.survey.enabled` on (the match session checks the flag). Counts only while
+   * recording: the survey is never shown when its answer could not be recorded.
+   */
+  noteSurveyMatchCompleted(): void {
+    if (!this.recording()) return;
+    const before = this.surveyState();
+    const next = noteSurveyMatchCompleted(before);
+    if (next !== before) this.saveSurvey(next);
+  }
+
+  /** The Summary asks on mount: `matches_completed` when the card is due now, else null. */
+  surveyDue(): number | null {
+    if (!this.recording()) return null;
+    const state = this.surveyState();
+    return isSurveyDue(state) ? state.completed : null;
+  }
+
+  /**
+   * The card is on screen: counts the showing (on disk) and records `playtest_survey_shown`. False, and nothing
+   * recorded, when it was not due (a second call for the same Summary, recording off).
+   */
+  markSurveyShown(): boolean {
+    if (!this.recording()) return false;
+    const state = this.surveyState();
+    if (!isSurveyDue(state)) return false;
+    this.saveSurvey(noteSurveyShown(state));
+    this.record('playtest_survey_shown', {
+      survey_id: SURVEY_ID,
+      question_id: SURVEY_QUESTION_ID,
+      matches_completed: state.completed,
+    });
+    return true;
+  }
+
+  /** One tap on Yes / Maybe / No, or ✕ (`dismissed`). Validated by the event guard like every event. */
+  answerSurvey(answer: SurveyAnswer, matchesCompleted: number): void {
+    this.record('playtest_survey_answered', {
+      survey_id: SURVEY_ID,
+      question_id: SURVEY_QUESTION_ID,
+      answer,
+      matches_completed: matchesCompleted,
+    });
+  }
+
+  private surveyState(): SurveyState {
+    if (this.survey !== null) return this.survey;
+    let state: SurveyState;
+    try {
+      const read = this.store.read(SURVEY_FILE, 256);
+      if (read.kind === 'missing') state = INITIAL_SURVEY;
+      else if (read.kind !== 'ok' || read.records.length !== 1) state = SURVEY_UNREADABLE;
+      else state = decodeSurveyState(read.records[0] ?? '');
+    } catch {
+      state = SURVEY_UNREADABLE;
+    }
+    this.survey = state;
+    return state;
+  }
+
+  private saveSurvey(state: SurveyState): void {
+    this.survey = state;
+    this.attempt(() => {
+      this.store.replace(SURVEY_FILE, [encodeSurveyState(state)]);
     });
   }
 

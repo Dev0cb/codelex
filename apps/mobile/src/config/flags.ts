@@ -15,6 +15,12 @@ export const FLAG_DEFAULTS = {
    * hidden. Non-analytics Settings rows are not behind it. Consent still applies on top when it is on.
    */
   'analytics.upload.enabled': false,
+  /**
+   * E-1.5 AC-18, dark-launch flag of slice S6b: the "Would you play CODELEX again?" card on the 1st and 3rd Summary.
+   * It only shows while recording is on (`analytics.upload.enabled` and consent): an answer is never asked for when
+   * it could not be kept. Off on main; on in the playtest build.
+   */
+  'playtest.survey.enabled': false,
   /** E-1.5 AC-5: the lexicon-free "Base N" preview of pending tiles (R-SCORE-009). Off = no preview at all. */
   'match.live_score_preview': true,
   /**
