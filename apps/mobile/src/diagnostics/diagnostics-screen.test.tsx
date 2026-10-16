@@ -56,15 +56,18 @@ function heldYield(): { yieldToUi: () => Promise<void>; release: () => void } {
   };
 }
 
-function deps(release = true): DiagnosticsDeps {
+function deps(release = true, version = true): DiagnosticsDeps {
   let t = 0;
   return {
     lexicon: lexicon.index,
-    clock: () => (t += 0.5),
+    clock: () => (t += 0.01),
     store: createScratchStore(),
     runtime: runtimeCheck(
       release
-        ? { getRuntimeProperties: () => ({ 'OSS Release Version': '250829098.0.17' }) }
+        ? {
+            getRuntimeProperties: () =>
+              version ? { 'OSS Release Version': '250829098.0.17' } : {},
+          }
         : undefined,
       false,
     ),
@@ -90,6 +93,7 @@ async function renderScreen(
     share?: TestShare;
     gitSha?: string | null;
     release?: boolean;
+    hermesVersion?: boolean;
     yieldToUi?: () => Promise<void>;
   } = {},
 ): Promise<{ share: TestShare; onClose: jest.Mock }> {
@@ -99,7 +103,7 @@ async function renderScreen(
     <I18nProvider locale={options.locale ?? 'en'}>
       <DiagnosticsScreen
         deps={{
-          ...deps(options.release ?? true),
+          ...deps(options.release ?? true, options.hermesVersion ?? true),
           ...(options.yieldToUi === undefined ? {} : { yieldToUi: options.yieldToUi }),
         }}
         corpus={GOLDEN_CORPUS}
@@ -222,7 +226,8 @@ describe('DiagnosticsScreen', () => {
     await fireEvent.press(screen.getByTestId('diagnostics.runAll'));
     const progress = screen.getByTestId('diagnostics.progress');
     expect(progress.props.accessibilityLiveRegion).toBe('polite');
-    expect(progress.props.children).toMatch(/^Engine and bot reference results · 1 of \d+$/);
+    // "Run all" starts with drift, right after the settle delay (review C-5).
+    expect(progress.props.children).toMatch(/^10 matches in a row · 0 of 10$/);
     await fireEvent.press(screen.getByTestId('diagnostics.cancel'));
     await act(async () => {
       held.release();
@@ -256,6 +261,44 @@ describe('DiagnosticsScreen', () => {
       );
     });
   });
+
+  it('names an unknown Hermes version from the catalog, in EN and FR', async () => {
+    await renderScreen({ hermesVersion: false });
+    expect(screen.getByTestId('diagnostics.build').props.children).toBe(
+      'Release build · Hermes unknown version',
+    );
+    await renderScreen({ hermesVersion: false, locale: 'fr' });
+    expect(screen.getByTestId('diagnostics.build').props.children).toBe(
+      'Version release · Hermes version inconnue',
+    );
+  });
+
+  it('shows what the report cannot carry: has() as a batch mean, both restore paths, the two-blank fit', async () => {
+    await renderScreen();
+    const run = async (suite: string): Promise<void> => {
+      await fireEvent.press(screen.getByTestId(`diagnostics.run.${suite}`));
+      await waitFor(
+        () => {
+          expect(screen.getByTestId(`diagnostics.status.${suite}`).props.children).toBe('✓ Pass');
+        },
+        { timeout: 120_000 },
+      );
+    };
+    expect(screen.queryByTestId('diagnostics.detail.micro')).toBeNull();
+    await run('micro');
+    expect(screen.getByTestId('diagnostics.detail.micro').props.children).toMatch(
+      /^has\(\) p99 \d+ ns per call \(batch mean\) · apply p95 \d+ µs$/,
+    );
+    await run('resume');
+    expect(screen.getByTestId('diagnostics.detail.resume').props.children).toMatch(
+      /^Full replay p95 \d+ µs · From a snapshot p95 \d+ µs \(warm cache\)$/,
+    );
+    await run('bots');
+    // Two positions per group are too few for a fit.
+    expect(screen.getByTestId('diagnostics.detail.bots').props.children).toBe(
+      'Two-blank fit not supported by the data',
+    );
+  }, 240_000);
 
   it('Close cancels and leaves', async () => {
     const { onClose } = await renderScreen();

@@ -445,11 +445,21 @@ Deviations, each forced by a source or the toolchain and open to review:
    `not-measured` (`not-release-hermes-build`); Hermes version and bytecode version are in `runner.runtime`.
 5. **Bench shapes** (A2 has one entry per `botId`, no rack-type field, no per-decision samples): `botThink` lists
    `beginner`, `strategist`, `beginner-two-blanks`, `strategist-two-blanks`; `constants` is fitted on the device
-   (least squares over Strategist's decisions, `fitConstants` in the runner core) instead of offline, because the
-   report cannot carry the samples; `has()` is in ns (integer µs would round to 0–2); `resume` is one distribution
-   over both restore paths; `decisionEquality` is read off the runner's `bots/decisions-b2-r1` cases.
-6. **Resume cuts** are 30/60/90 clamped to the last in-progress action: Beginner matches on the shipped lexicon end
-   after 44–52 actions, so the fixtures are cut at 30 and the last action.
+   (least squares, `fitConstants` in the runner core) instead of offline, because the report cannot carry the
+   samples. **One fit per rack type** (review C-6): ordinary racks fill the A2 `constants` field, the two-blank fit
+   is shown on the screen only (a two-blank rack explores far more nodes per candidate, so a mixed fit describes
+   neither). This on-device fit deviates from §5 ("fitted offline by the Node comparison tooling") and from the
+   bots-api §6 method; **ai-engineer confirms or replaces it at the H1 readout.** `has()` is in ns and is a **batch
+   mean** (1,000 calls per sample over forms and non-words in strict alternation, review C-3): its p50/p99 are
+   percentiles of batch means, not per-call percentiles, as `game-engine-api.md` §18 footnote 1 reads the `apply`
+   average. `decisionEquality` is read off the runner's `bots/decisions-b2-r1` cases.
+6. **Resume** (review C-M2): the full-replay and snapshot + tail paths are two distributions. Full-replay journals
+   are cut at 30/60/90 clamped to the last in-progress action (Beginner matches on the shipped lexicon end after
+   44–52 actions, so 30 and the last action); snapshot journals at k × 10 − 1 under the same clamp (29 and 39 or
+   49), so each restore replays the longest tail, 9 actions. The A2 `resume` field carries the worst path, full
+   replay; the screen shows both p95. Samples go to the path the restore actually took. Iterations re-read the same
+   files, so **both numbers are warm-cache** (OS page cache); a cold restore after a kill can be slower, which H1
+   notes next to the number.
 7. **Not built:** suite 6 (responsiveness, DG1-f; A2 has no field for it) and the index load timing of suite 2
    (no A2 field). Follow-ups if H1 needs them.
 8. **BN1 partly done here:** the position source, two-blank variant and fit live in `@codelex/golden-runner/core`
@@ -481,3 +491,12 @@ Review fixes on the DG1 PR (2026-10-16):
     a `.diagnostics` identifier. The positive control now exports android **and** ios in one `expo export` call and
     requires every module group and marker on both: the extra cost is one platform's bundling inside a CI step that
     already bundles both for production, which is accepted.
+12. **Clock and warm-up** (review C-4). Each timed suite first probes `performance.now()`: the smallest non-zero
+    difference of 20 consecutive readings. Above 50 µs (or a clock that does not advance) every bench of that suite
+    is `not-measured` with reason `clock-resolution` and the suite does no work. One discarded, untimed warm-up
+    precedes the timed samples: a `has()` batch, an `apply` pass, and one decision per bot and rack type.
+13. **Drift** (review C-5): all 10 matches are played from one seed, so the bots make the same decisions and a
+    change of p95 between matches is the device (heat, throttling, GC). "Run all" runs drift first, right after the
+    settle delay, so its first match starts on a cool phone (§5.1's order stays the display order). The first bot
+    error now stops the bot compute suite. Typed reasons: a resume path without a fixture is `no-fixture`, not
+    `clock`. An unknown Hermes version is a catalog string (§8), not a literal.

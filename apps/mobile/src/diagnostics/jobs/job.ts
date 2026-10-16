@@ -8,11 +8,52 @@
 
 export type SuiteId = 'goldens' | 'micro' | 'bots' | 'resume' | 'drift';
 
-/** "Run all" order (note §5 table, suites 1–5). Suite 6 (responsiveness) is never part of a run. */
+/** Display order (note §5 table, suites 1–5). Suite 6 (responsiveness) is never part of a run. */
 export const SUITE_ORDER: readonly SuiteId[] = ['goldens', 'micro', 'bots', 'resume', 'drift'];
+
+/**
+ * "Run all" order (review C-5): drift first, right after the settle delay, so its first match starts on a cool
+ * phone and "last vs first" shows the thermal drift of 10 matches, not of 10 matches after 8 minutes of other
+ * suites. The rest keeps the note order.
+ */
+export const RUN_ALL_ORDER: readonly SuiteId[] = ['drift', 'goldens', 'micro', 'bots', 'resume'];
 
 /** Monotonic clock in milliseconds (fractions allowed): `performance.now()` on the device. */
 export type Clock = () => number;
+
+/** Non-zero deltas the resolution probe collects. */
+export const CLOCK_PROBE_DELTAS = 20;
+/** Readings after which the probe gives up on a clock that does not advance. */
+export const CLOCK_PROBE_MAX_READS = 1_000_000;
+/** Coarsest clock a timed bench accepts (review C-4); above it the bench is `not-measured`. */
+export const MAX_CLOCK_RESOLUTION_US = 50;
+/** The `not-measured` reason of a bench whose clock is too coarse (or does not advance). */
+export const CLOCK_RESOLUTION = 'clock-resolution';
+
+/**
+ * The clock's resolution in µs: the smallest non-zero difference between two consecutive readings, over
+ * {@link CLOCK_PROBE_DELTAS} of them. Null when the clock does not advance within {@link CLOCK_PROBE_MAX_READS}.
+ */
+export function clockResolutionUs(clock: Clock): number | null {
+  let previous = clock();
+  let smallest = Number.POSITIVE_INFINITY;
+  let found = 0;
+  for (let i = 0; i < CLOCK_PROBE_MAX_READS && found < CLOCK_PROBE_DELTAS; i += 1) {
+    const now = clock();
+    if (now > previous) {
+      smallest = Math.min(smallest, now - previous);
+      found += 1;
+    }
+    previous = now;
+  }
+  return found === 0 ? null : smallest * 1000;
+}
+
+/** True when `clock` can time a bench (resolution ≤ {@link MAX_CLOCK_RESOLUTION_US}). */
+export function clockUsable(clock: Clock): boolean {
+  const resolution = clockResolutionUs(clock);
+  return resolution !== null && resolution <= MAX_CLOCK_RESOLUTION_US;
+}
 
 export interface JobProgress {
   readonly done: number;

@@ -4,8 +4,12 @@
  * and shipped automaton, each decided by Beginner and Strategist with the frozen `BOT_VERSION` budgets, then again
  * with two blanks forced into the rack. One decision per step; each decision is timed on its own.
  *
+ * Before the timed decisions: the clock probe (review C-4: `not-measured` above 50 µs) and one discarded, untimed
+ * decision per bot and rack type on the first position. The first bot error stops the suite.
+ *
  * Output per bot and rack type: compute µs, nodes, candidates (p50/p95/p99/max) and the cap-bound count; and the
- * bots-api §6 constants fitted over Strategist's decisions (both rack types).
+ * bots-api §6 constants fitted over Strategist's decisions, **one fit per rack type** (review C-6): a two-blank
+ * rack explores far more nodes per candidate, so a mixed fit describes neither rack.
  */
 import { BOT_VERSION, type BotPersonalityId } from '@codelex/bots';
 import {
@@ -21,7 +25,7 @@ import {
 } from '@codelex/golden-runner/core';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 
-import type { Clock, Job } from './job';
+import { CLOCK_RESOLUTION, clockUsable, type Clock, type Job } from './job';
 
 /** Report bot ids: one entry per personality and rack type (the A2 `botThink` list has no rack-type field). */
 export const BOT_GROUPS = [
@@ -44,16 +48,26 @@ export interface BotGroupResult {
   readonly capBound: number;
 }
 
+/** Strategist's bots-api §6 constants per rack type; each null when its data does not support a fit. */
+export interface ConstantsByRack {
+  /** Ordinary racks: the A2 `constants` field (comparable with the Node table of the same positions). */
+  readonly ordinary: FittedConstants | null;
+  /** Two-blank racks: no A2 field, shown on the screen for the H1 record. */
+  readonly twoBlanks: FittedConstants | null;
+}
+
 export type BotsResult =
   | {
       readonly kind: 'measured';
       readonly automaton: 'gaddag' | 'dawg';
       readonly groups: readonly BotGroupResult[];
-      /** Fitted over Strategist's decisions; null when the data does not support a fit. */
-      readonly constants: FittedConstants | null;
+      readonly constants: ConstantsByRack;
     }
-  /** No position could be generated, a bot failed, or the clock is broken. */
-  | { readonly kind: 'failed'; readonly reason: 'no-positions' | 'bot-error' | 'clock' };
+  /** No position could be generated, a bot failed, or the clock is broken or too coarse. */
+  | {
+      readonly kind: 'failed';
+      readonly reason: 'no-positions' | 'bot-error' | 'clock' | typeof CLOCK_RESOLUTION;
+    };
 
 export function botsJob(
   lexicon: LexiconIndex,
@@ -63,11 +77,27 @@ export function botsJob(
   const source = createPositionSource(lexicon, positionCount);
   const samples = BOT_GROUPS.map(() => [] as DecisionSample[]);
   const capBound = BOT_GROUPS.map(() => 0);
+  let probed = false;
+  let coarse = false;
   let generating = true;
+  let warmed = 0;
   let decision = 0;
   let botError = false;
 
   const decisions = (): number => source.positions.length * BOT_GROUPS.length;
+
+  const warmUp = (): void => {
+    const group = BOT_GROUPS[warmed];
+    const base = source.positions[0];
+    warmed += 1;
+    if (group === undefined || base === undefined) return;
+    const decided = benchDecision(
+      lexicon,
+      group.twoBlanks ? withTwoBlanks(base) : base,
+      group.personality,
+    );
+    if (!decided.ok) botError = true;
+  };
 
   const decide = (): void => {
     const group = BOT_GROUPS[decision % BOT_GROUPS.length];
@@ -91,7 +121,15 @@ export function botsJob(
     if (decided.value.budgetExhausted) capBound[index] = (capBound[index] ?? 0) + 1;
   };
 
+  const fit = (twoBlanks: boolean): FittedConstants | null =>
+    fitConstants(
+      BOT_GROUPS.flatMap((g, i) =>
+        g.personality === 'strategist' && g.twoBlanks === twoBlanks ? (samples[i] ?? []) : [],
+      ),
+    );
+
   const result = (): BotsResult => {
+    if (coarse) return { kind: 'failed', reason: CLOCK_RESOLUTION };
     if (source.positions.length === 0) return { kind: 'failed', reason: 'no-positions' };
     if (botError) return { kind: 'failed', reason: 'bot-error' };
     const groups: BotGroupResult[] = [];
@@ -112,32 +150,39 @@ export function botsJob(
         capBound: capBound[i] ?? 0,
       });
     }
-    const strategist = BOT_GROUPS.flatMap((g, i) =>
-      g.personality === 'strategist' ? (samples[i] ?? []) : [],
-    );
     return {
       kind: 'measured',
       automaton: lexicon.gaddag === undefined ? 'dawg' : 'gaddag',
       groups,
-      constants: fitConstants(strategist),
+      constants: { ordinary: fit(false), twoBlanks: fit(true) },
     };
   };
+
+  const finished = (): boolean =>
+    coarse || botError || (!generating && warmed >= BOT_GROUPS.length && decision >= decisions());
 
   return {
     suite: 'bots',
     timed: true,
     step() {
+      if (finished()) return false;
+      if (!probed) {
+        probed = true;
+        coarse = !clockUsable(clock);
+        if (coarse) return false;
+      }
       if (generating) {
         generating = source.step();
-        return generating || decisions() > 0;
+      } else if (warmed < BOT_GROUPS.length) {
+        warmUp();
+      } else {
+        decide();
       }
-      if (decision >= decisions()) return false;
-      decide();
-      return decision < decisions();
+      return !finished();
     },
     progress: () => ({
-      done: generating ? source.positions.length : positionCount + decision,
-      total: positionCount * (1 + BOT_GROUPS.length),
+      done: generating ? source.positions.length : positionCount + warmed + decision,
+      total: positionCount * (1 + BOT_GROUPS.length) + BOT_GROUPS.length,
     }),
     result,
     dispose() {

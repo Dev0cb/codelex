@@ -98,24 +98,30 @@ function timedBenches(input: ReportInput): Omit<Benches, 'decisionEquality'> {
     };
   }
   return {
+    // A batch mean per call in ns (micro.ts): its percentiles are over batch means, not over single calls.
     lexiconHas:
       micro === undefined
         ? notMeasured(NOT_RUN)
-        : micro.has === null
-          ? notMeasured('clock')
-          : { status: 'measured', timing: timing('ns', micro.has) },
+        : micro.kind === 'failed'
+          ? notMeasured(micro.reason)
+          : micro.has === null
+            ? notMeasured('clock')
+            : { status: 'measured', timing: timing('ns', micro.has) },
     engineApply:
       micro === undefined
         ? notMeasured(NOT_RUN)
-        : micro.apply === null
-          ? notMeasured('replay-rejected')
-          : { status: 'measured', timing: timing('us', micro.apply) },
+        : micro.kind === 'failed'
+          ? notMeasured(micro.reason)
+          : micro.apply === null
+            ? notMeasured('replay-rejected')
+            : { status: 'measured', timing: timing('us', micro.apply) },
+    // The worst restore path (review C-M2): full replay. Snapshot + tail has no A2 field (shown on the screen).
     resume:
       resume === undefined
         ? notMeasured(NOT_RUN)
         : resume.kind === 'failed'
           ? notMeasured(resume.reason)
-          : { status: 'measured', timing: timing('us', resume.timingUs) },
+          : { status: 'measured', timing: timing('us', resume.fullReplay) },
     botThink:
       bots === undefined
         ? notMeasured(NOT_RUN)
@@ -133,20 +139,21 @@ function timedBenches(input: ReportInput): Omit<Benches, 'decisionEquality'> {
                 capBound: g.capBound,
               })),
             },
+    // Ordinary racks only (review C-6): the two-blank fit has no A2 field (shown on the screen).
     constants:
       bots === undefined
         ? notMeasured(NOT_RUN)
         : bots.kind === 'failed'
           ? notMeasured(bots.reason)
-          : bots.constants === null
+          : bots.constants.ordinary === null
             ? notMeasured('fit-not-supported')
             : {
                 status: 'measured',
                 automaton: bots.automaton,
-                positions: bots.constants.positions,
-                cNode: { unit: 'ns', value: bots.constants.cNodeNs },
-                cCand: { unit: 'ns', value: bots.constants.cCandNs },
-                tFixed: { unit: 'us', value: bots.constants.tFixedUs },
+                positions: bots.constants.ordinary.positions,
+                cNode: { unit: 'ns', value: bots.constants.ordinary.cNodeNs },
+                cCand: { unit: 'ns', value: bots.constants.ordinary.cCandNs },
+                tFixed: { unit: 'us', value: bots.constants.ordinary.tFixedUs },
               },
     drift:
       drift === undefined

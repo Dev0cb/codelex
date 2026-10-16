@@ -2,6 +2,10 @@
  * Suite 5, drift (DG1 note §5; P5 §7 item 6, thermal throttling): 10 consecutive Strategist vs Beginner matches on
  * the app's lexicon, back to back with no think delay. One decision per step; only Strategist's decisions are
  * timed. Output per match: decisions, compute p50 and p95 in µs (drift = last match vs first).
+ *
+ * Every match is played from the same seed (review C-5): the bots are deterministic, so the 10 matches make the same
+ * decisions and any change of p95 between them is the device (heat, throttling, GC), not the positions. "Run all"
+ * runs this suite first, right after the settle delay (`RUN_ALL_ORDER`). The clock is probed first (review C-4).
  */
 import { apply, observe, type MatchState } from '@codelex/game-engine';
 import {
@@ -13,12 +17,12 @@ import {
 } from '@codelex/golden-runner/core';
 import type { LexiconIndex } from '@codelex/lexicon/index';
 
-import type { Clock, Job } from './job';
+import { CLOCK_RESOLUTION, clockUsable, type Clock, type Job } from './job';
 
 /** A2 `DRIFT_MATCHES`. */
 export const DRIFT_MATCH_COUNT = 10;
-/** Seeds `seedOf(9500 + match)`, away from the P5 §2 positions (9000+) and the resume fixtures (9400+). */
-export const DRIFT_SEED_BASE = 9500;
+/** Seed `seedOf(9500)` for every match, away from the P5 §2 positions (9000+) and the resume fixtures (9400+). */
+export const DRIFT_SEED = 9500;
 /** Strategist's seat; Beginner plays seat 0. */
 export const DRIFT_STRATEGIST_SEAT = 1;
 
@@ -30,7 +34,10 @@ export interface DriftMatch {
 
 export type DriftResult =
   | { readonly kind: 'measured'; readonly matches: readonly DriftMatch[] }
-  | { readonly kind: 'failed'; readonly reason: 'no-decision' | 'clock' };
+  | {
+      readonly kind: 'failed';
+      readonly reason: 'no-decision' | 'clock' | typeof CLOCK_RESOLUTION;
+    };
 
 export function driftJob(
   lexicon: LexiconIndex,
@@ -41,9 +48,11 @@ export function driftJob(
   let match = 0;
   let state: MatchState | null = null;
   let current: number[] = [];
+  let probed = false;
+  let coarse = false;
 
   const step = (): void => {
-    state ??= startBenchMatch(lexicon, benchSeed(DRIFT_SEED_BASE + match));
+    state ??= startBenchMatch(lexicon, benchSeed(DRIFT_SEED));
     if (state.seatOnTurn === DRIFT_STRATEGIST_SEAT) {
       const position = {
         id: `${state.seed}/${String(state.actionCount)}`,
@@ -73,12 +82,18 @@ export function driftJob(
     suite: 'drift',
     timed: true,
     step() {
-      if (match >= matchCount) return false;
+      if (match >= matchCount || coarse) return false;
+      if (!probed) {
+        probed = true;
+        coarse = !clockUsable(clock);
+        if (coarse) return false;
+      }
       step();
       return match < matchCount;
     },
     progress: () => ({ done: match, total: matchCount }),
     result() {
+      if (coarse) return { kind: 'failed', reason: CLOCK_RESOLUTION };
       const matches: DriftMatch[] = [];
       for (const times of perMatch) {
         const d = distribution(times);

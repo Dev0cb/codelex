@@ -2,16 +2,21 @@
  * Suite 4, resume probe (DG1 note §5.2; sprint H1 row: resume p95; `game-engine-api.md` Q7 budget p95 ≤ 300 ms):
  *
  * 1. Fixtures built on the device: 3 seeded Beginner vs Beginner matches on the app's lexicon (one decision per
- *    step), journals cut at 30, 60 and 90 actions — clamped to the last in-progress action, because matches on the
- *    shipped lexicon end after about 45–52 actions — each with the production snapshot cadence
- *    (`SNAPSHOT_EVERY`) and without any snapshot (full replay).
+ *    step). Two restore paths, each with its own worst-case cuts (review C-M2):
+ *    - **full replay** (no snapshot): journals cut at 30, 60 and 90 actions, clamped to the last in-progress action
+ *      (matches on the shipped lexicon end after about 45–52 actions), so the longest journal is replayed;
+ *    - **snapshot + tail** (the production cadence, `SNAPSHOT_EVERY` = 10): journals cut at k × 10 − 1 (29, 59, 89,
+ *      clamped the same way and rounded down to that form), so every restore replays the longest tail, 9 actions.
  * 2. Written with the production `createPersistence`/`MatchJournal` code to the scratch store in the cache, never to
  *    `codelex-data` (DS-6), one fixture per step.
  * 3. 20 timed iterations per fixture, one per step: a fresh persistence object, then `openSavedMatch` from the call
  *    to the restored model (read, parse, snapshot plus tail, or full replay). The first render is not included, so
- *    the number is a lower bound of the Q7 budget.
+ *    the number is a lower bound of the Q7 budget. Each sample goes to the path the restore actually took.
+ *    Iterations re-read the same files, so the numbers are **warm-cache** (OS page cache): a cold start after a
+ *    kill can be slower.
  *
- * The scratch directory is deleted after the suite and on every other exit (`dispose`).
+ * The two paths are reported separately; the A2 `resume` field carries the worst one, full replay. The clock is
+ * probed first (review C-4). The scratch directory is deleted after the suite and on every other exit (`dispose`).
  */
 import { apply, observe, stateHash, type Action, type MatchState } from '@codelex/game-engine';
 import {
@@ -27,7 +32,7 @@ import type { LexiconIndex } from '@codelex/lexicon/index';
 import { SNAPSHOT_EVERY } from '../../persistence/match-journal';
 import { createPersistence, openSavedMatch } from '../../persistence/saved-match';
 import type { ScratchStore } from '../scratch-fs';
-import type { Clock, Job } from './job';
+import { CLOCK_RESOLUTION, clockUsable, type Clock, type Job } from './job';
 
 export const RESUME_MATCHES = 3;
 export const RESUME_CUTS: readonly number[] = [30, 60, 90];
@@ -36,9 +41,21 @@ export const RESUME_ITERATIONS = 20;
 export const RESUME_SEED_BASE = 9400;
 
 export type ResumeResult =
-  | { readonly kind: 'measured'; readonly timingUs: Distribution }
-  /** A fixture did not restore as a resumable match (a persistence or engine regression), or a broken clock. */
-  | { readonly kind: 'failed'; readonly reason: 'not-resumable' | 'clock' };
+  | {
+      readonly kind: 'measured';
+      /** Restores without a snapshot: the whole journal replayed (the A2 `resume` field, the worst path). */
+      readonly fullReplay: Distribution;
+      /** Restores from the last snapshot plus a 9-action tail. */
+      readonly snapshotTail: Distribution;
+    }
+  /**
+   * A fixture did not restore as a resumable match (a persistence or engine regression), no fixture of a path was
+   * written, the clock is broken, or it is too coarse.
+   */
+  | {
+      readonly kind: 'failed';
+      readonly reason: 'not-resumable' | 'no-fixture' | 'clock' | typeof CLOCK_RESOLUTION;
+    };
 
 interface Fixture {
   readonly name: string;
@@ -52,10 +69,22 @@ interface Played {
   readonly actions: Action[];
 }
 
-/** The cuts of a match that ended after `length` actions (or did not end within the longest cut). */
-export function cutsFor(length: number | null): number[] {
-  const cuts = RESUME_CUTS.map((c) => (length === null ? c : Math.min(c, length - 1)));
-  return [...new Set(cuts.filter((c) => c > 0))];
+const clamp = (length: number | null) => (cut: number) =>
+  length === null ? cut : Math.min(cut, length - 1);
+const distinctPositive = (cuts: number[]): number[] => [...new Set(cuts.filter((c) => c > 0))];
+
+/** Full-replay cuts of a match that ended after `length` actions (or did not end within the longest cut). */
+export function fullReplayCuts(length: number | null): number[] {
+  return distinctPositive(RESUME_CUTS.map(clamp(length)));
+}
+
+/** Snapshot cuts: the full-replay cuts minus one, clamped, rounded down to k × SNAPSHOT_EVERY − 1. */
+export function snapshotCuts(length: number | null): number[] {
+  return distinctPositive(
+    RESUME_CUTS.map((c) => clamp(length)(c - 1)).map(
+      (c) => Math.floor((c + 1) / SNAPSHOT_EVERY) * SNAPSHOT_EVERY - 1,
+    ),
+  );
 }
 
 export interface ResumeOptions {
@@ -78,16 +107,17 @@ export function resumeJob(
   let written = 0;
   let measured = 0;
   let notResumable = false;
-  const samples: number[] = [];
-  // Phase totals for progress: the play phase counts matches, then fixtures and iterations.
-  let phase: 'play' | 'write' | 'measure' | 'done' = 'play';
+  let coarse = false;
+  const fullSamples: number[] = [];
+  const snapshotSamples: number[] = [];
+  let phase: 'probe' | 'play' | 'write' | 'measure' | 'done' = 'probe';
 
   const endMatch = (finishedAt: number | null): void => {
     if (current === null) return;
     const match = played.length;
     played.push(current);
-    for (const cut of cutsFor(finishedAt)) {
-      for (const snapshots of [true, false]) {
+    const add = (cuts: number[], snapshots: boolean): void => {
+      for (const cut of cuts) {
         fixtures.push({
           name: `m${String(match)}-a${String(cut)}-${snapshots ? 's' : 'n'}`,
           match,
@@ -95,7 +125,9 @@ export function resumeJob(
           snapshots,
         });
       }
-    }
+    };
+    add(snapshotCuts(finishedAt), true);
+    add(fullReplayCuts(finishedAt), false);
     current = null;
   };
 
@@ -144,17 +176,29 @@ export function resumeJob(
     const start = clock();
     const saved = openSavedMatch(persistence, { lexicon });
     const end = clock();
-    if (saved.kind !== 'resumable') notResumable = true;
-    samples.push((end - start) * 1000);
+    if (saved.kind !== 'resumable') {
+      notResumable = true;
+      return;
+    }
+    (saved.path === 'snapshot' ? snapshotSamples : fullSamples).push((end - start) * 1000);
   };
 
   const totalSteps = (): number => fixtures.length * (1 + iterations);
+  const plannedFixtures = matchCount * (fullReplayCuts(null).length + snapshotCuts(null).length);
 
   return {
     suite: 'resume',
     timed: true,
     step() {
       switch (phase) {
+        case 'probe':
+          if (!clockUsable(clock)) {
+            coarse = true;
+            phase = 'done';
+            return false;
+          }
+          phase = 'play';
+          return true;
         case 'play':
           playStep();
           if (played.length >= matchCount) phase = 'write';
@@ -182,16 +226,21 @@ export function resumeJob(
       }
     },
     progress: () => ({
-      done: phase === 'play' ? 0 : written + measured,
+      done: phase === 'probe' || phase === 'play' ? 0 : written + measured,
       total:
-        phase === 'play' ? matchCount * cutsFor(null).length * 2 * (1 + iterations) : totalSteps(),
+        phase === 'probe' || phase === 'play' ? plannedFixtures * (1 + iterations) : totalSteps(),
     }),
     result() {
+      if (coarse) return { kind: 'failed', reason: CLOCK_RESOLUTION };
       if (notResumable) return { kind: 'failed', reason: 'not-resumable' };
-      const timingUs = distribution(samples);
-      return timingUs === null
+      if (fullSamples.length === 0 || snapshotSamples.length === 0) {
+        return { kind: 'failed', reason: 'no-fixture' };
+      }
+      const fullReplay = distribution(fullSamples);
+      const snapshotTail = distribution(snapshotSamples);
+      return fullReplay === null || snapshotTail === null
         ? { kind: 'failed', reason: 'clock' }
-        : { kind: 'measured', timingUs };
+        : { kind: 'measured', fullReplay, snapshotTail };
     },
     dispose() {
       store.clear();

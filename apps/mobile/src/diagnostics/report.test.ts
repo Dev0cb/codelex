@@ -29,7 +29,7 @@ import { MemoryFs } from '../persistence/memory-fs';
 import { createPersistence } from '../persistence/saved-match';
 import { runtimeCheck } from './device-info';
 import { BOT_GROUPS } from './jobs/bots';
-import { cutsFor, RESUME_CUTS } from './jobs/resume';
+import { fullReplayCuts, RESUME_CUTS } from './jobs/resume';
 import { runJobs, SUITE_ORDER } from './jobs/job';
 import {
   buildDiagnosticsReport,
@@ -65,10 +65,10 @@ let lexicon: LoadedLexicon;
 let results: SuiteResults;
 let nodeReport: CoreReport;
 
-/** A clock advancing 0.25 ms per reading: deterministic, non-zero timings. */
+/** A clock advancing 10 µs per reading: deterministic, non-zero timings, fine enough for the C-4 probe. */
 function steppingClock(): () => number {
   let t = 0;
-  return () => (t += 0.25);
+  return () => (t += 0.01);
 }
 
 function input(overrides: Partial<ReportInput> = {}): ReportInput {
@@ -101,7 +101,7 @@ beforeAll(async () => {
       yieldToUi: () => Promise.resolve(),
       settle: () => Promise.resolve(),
       sizes: {
-        positions: 12,
+        positions: 20,
         hasBatches: 4,
         applyPasses: 1,
         resumeMatches: 1,
@@ -186,7 +186,7 @@ describe('Diagnostics report (A2 diagnosticsFormat 1)', () => {
       input({
         results: {
           runner: goldens,
-          micro: { has: null, apply: null },
+          micro: { kind: 'measured', has: null, apply: null },
           bots: { kind: 'failed', reason: 'bot-error' },
           resume: { kind: 'failed', reason: 'not-resumable' },
           drift: { kind: 'failed', reason: 'clock' },
@@ -202,12 +202,58 @@ describe('Diagnostics report (A2 diagnosticsFormat 1)', () => {
     const noFit = results.bots;
     if (noFit?.kind !== 'measured') throw new Error('bots did not measure');
     const unfitted = buildDiagnosticsReport(
-      input({ results: { runner: goldens, bots: { ...noFit, constants: null } } }),
+      input({
+        results: {
+          runner: goldens,
+          bots: { ...noFit, constants: { ordinary: null, twoBlanks: null } },
+        },
+      }),
     );
     expect(unfitted.benches.constants).toEqual({
       status: 'not-measured',
       reason: 'fit-not-supported',
     });
+  });
+
+  it('reports the worst restore path (full replay) and the ordinary-rack fit in the A2 fields (C-M2, C-6)', () => {
+    const { resume, bots } = results;
+    if (resume?.kind !== 'measured') throw new Error('resume did not measure');
+    if (bots?.kind !== 'measured') throw new Error('bots did not measure');
+    const { benches } = buildDiagnosticsReport(input());
+    expect(benches.resume).toEqual({
+      status: 'measured',
+      timing: { unit: 'us', ...resume.fullReplay },
+    });
+    const ordinary = bots.constants.ordinary;
+    if (ordinary === null) throw new Error('no ordinary fit');
+    expect(ordinary.positions).toBe(20);
+    expect(benches.constants).toEqual({
+      status: 'measured',
+      automaton: bots.automaton,
+      positions: ordinary.positions,
+      cNode: { unit: 'ns', value: ordinary.cNodeNs },
+      cCand: { unit: 'ns', value: ordinary.cCandNs },
+      tFixed: { unit: 'us', value: ordinary.tFixedUs },
+    });
+    // The two-blank fit is kept apart, never mixed into the A2 field.
+    expect(bots.constants.twoBlanks?.positions).toBe(20);
+  });
+
+  it('records a too-coarse clock as clock-resolution on every timed bench (C-4)', () => {
+    const { goldens } = results;
+    if (goldens === undefined) throw new Error('goldens did not run');
+    const coarse = { kind: 'failed', reason: 'clock-resolution' } as const;
+    const report = buildDiagnosticsReport(
+      input({
+        results: { runner: goldens, micro: coarse, bots: coarse, resume: coarse, drift: coarse },
+      }),
+    );
+    expect(parseDiagnosticsReport(JSON.parse(canonicalJson(report)) as unknown).ok).toBe(true);
+    const { decisionEquality, ...timed } = report.benches;
+    expect(decisionEquality.status).toBe('measured');
+    expect(Object.values(timed)).toEqual(
+      Object.values(timed).map(() => ({ status: 'not-measured', reason: 'clock-resolution' })),
+    );
   });
 
   it('keeps the A2 size cap and refuses a document outside the JCS subset', () => {
@@ -282,9 +328,9 @@ describe('resume probe data isolation (DS-6, DG1-d)', () => {
 
   it('cuts journals at 30, 60, 90, clamped to the last in-progress action', () => {
     expect(RESUME_CUTS).toEqual([30, 60, 90]);
-    expect(cutsFor(null)).toEqual([30, 60, 90]);
-    expect(cutsFor(46)).toEqual([30, 45]);
-    expect(cutsFor(20)).toEqual([19]);
+    expect(fullReplayCuts(null)).toEqual([30, 60, 90]);
+    expect(fullReplayCuts(46)).toEqual([30, 45]);
+    expect(fullReplayCuts(20)).toEqual([19]);
     // The production persistence code reads what the probe wrote.
     expect(typeof createPersistence).toBe('function');
   });

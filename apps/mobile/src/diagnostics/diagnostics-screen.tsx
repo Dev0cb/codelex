@@ -24,7 +24,7 @@ import type { ShareOutcome, ShareServices } from '../sharing/share-file';
 import { useTokens } from '../theme/use-tokens';
 import { Button } from '../ui/button';
 import type { DeviceFields } from './device-info';
-import { SUITE_ORDER, type SuiteId } from './jobs/job';
+import { RUN_ALL_ORDER, SUITE_ORDER, type SuiteId } from './jobs/job';
 import { diagnosticsTranslator, type DiagnosticsKey } from './messages/catalog';
 import {
   buildDiagnosticsReport,
@@ -75,7 +75,9 @@ export function suiteStatus(suite: SuiteId, results: SuiteResults): SuiteStatus 
     case 'micro':
       return results.micro === undefined
         ? 'none'
-        : results.micro.has !== null && results.micro.apply !== null
+        : results.micro.kind === 'measured' &&
+            results.micro.has !== null &&
+            results.micro.apply !== null
           ? 'pass'
           : 'fail';
     case 'bots':
@@ -84,6 +86,45 @@ export function suiteStatus(suite: SuiteId, results: SuiteResults): SuiteStatus 
       const result = results[suite];
       return result === undefined ? 'none' : result.kind === 'measured' ? 'pass' : 'fail';
     }
+  }
+}
+
+type Translate = ReturnType<typeof diagnosticsTranslator>;
+
+/**
+ * What the A2 report cannot carry, for the H1 record: the `has()` reading is a batch mean (review C-3), the
+ * snapshot + tail restore path next to the full replay in the report (C-M2), and the two-blank constants fit (C-6).
+ */
+export function suiteDetail(suite: SuiteId, results: SuiteResults, t: Translate): string | null {
+  switch (suite) {
+    case 'micro': {
+      const micro = results.micro;
+      if (micro?.kind !== 'measured' || micro.has === null || micro.apply === null) return null;
+      return t('diagnostics.detail.micro', { has: micro.has.p99, apply: micro.apply.p95 });
+    }
+    case 'resume': {
+      const resume = results.resume;
+      if (resume?.kind !== 'measured') return null;
+      return t('diagnostics.detail.resume', {
+        full: resume.fullReplay.p95,
+        tail: resume.snapshotTail.p95,
+      });
+    }
+    case 'bots': {
+      const bots = results.bots;
+      if (bots?.kind !== 'measured') return null;
+      const fit = bots.constants.twoBlanks;
+      return fit === null
+        ? t('diagnostics.detail.fit_two_blanks_none')
+        : t('diagnostics.detail.fit_two_blanks', {
+            tFixed: fit.tFixedUs,
+            cNode: fit.cNodeNs,
+            cCand: fit.cCandNs,
+          });
+    }
+    case 'goldens':
+    case 'drift':
+      return null;
   }
 }
 
@@ -254,7 +295,9 @@ export function DiagnosticsScreen({
           ]}
         >
           {runtime.releaseHermes
-            ? t('diagnostics.build.ok', { version: runtime.hermesVersion ?? 'unknown' })
+            ? t('diagnostics.build.ok', {
+                version: runtime.hermesVersion ?? t('diagnostics.build.hermes_unknown'),
+              })
             : t('diagnostics.build.invalid')}
         </Text>
         {notice(
@@ -265,6 +308,7 @@ export function DiagnosticsScreen({
         <View style={{ gap: space[3] }}>
           {SUITE_ORDER.map((suite) => {
             const status = suiteStatus(suite, state.results);
+            const detail = suiteDetail(suite, state.results, t);
             const label =
               status === 'pass'
                 ? t('diagnostics.status.pass')
@@ -290,6 +334,14 @@ export function DiagnosticsScreen({
                   >
                     {`${GLYPH[status]} ${label}`}
                   </Text>
+                  {detail === null ? null : (
+                    <Text
+                      testID={`diagnostics.detail.${suite}`}
+                      style={[type.caption, { color: color.textMuted }]}
+                    >
+                      {detail}
+                    </Text>
+                  )}
                 </View>
                 <Button
                   testID={`diagnostics.run.${suite}`}
@@ -334,7 +386,7 @@ export function DiagnosticsScreen({
             label={t('diagnostics.run_all')}
             onPress={() => {
               setShareStatus('idle');
-              start(SUITE_ORDER);
+              start(RUN_ALL_ORDER);
             }}
           />
         )}
