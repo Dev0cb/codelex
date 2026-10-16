@@ -167,6 +167,42 @@ without the other).
 
 ## Changelog
 
+- 2026-10-16 (sprint 4 EV, `mobile-engineer`; first build that emits the gameplay events; no schema or version
+  change):
+  - Emission points (`apps/mobile/src/match/match-telemetry.ts`, driven by `match/match-session.tsx`, run after the
+    move is committed and rendered, never before it): `bot_match_started` when a match is created (PLAY NOW, Play
+    again, New match, Start a new match); `bot_word_played` per applied word, both seats; `bot_decision_made` per
+    applied bot decision; `word_rejected` per rejected PLAY; `bot_match_finished` when the engine ends the match;
+    `bot_match_abandoned` `replaced_by_new` when a new match replaces an open one, `version_mismatch` /
+    `state_corrupt` when the cold-start restore fails (once per `local_match_id`, after `bot_match_resumed` with
+    `restore_path` = `failed`); `bot_match_resumed` on a return from the background with a match open (`in_memory`)
+    and when the saved match is restored at a cold start (`snapshot` / `full_replay`); `match_summary_action` on Play
+    again, Home and "Discover" (Change opponent does not exist before S4); `onboarding_step_completed` from the
+    recorder and Home (below).
+  - Definitions chosen (ASSUMPTIONS, reversible, for `data-analyst` sign-off): `turns` = the engine's `turnNumber`
+    (PLACE_WORD, EXCHANGE and PASS of both seats; RESIGN is not a turn); `words_played`, `exchanges`, `passes` count
+    both seats (per seat: `bot_word_played.actor`); `rejected_attempts` counts every rejected PLAY while
+    `word_rejected` is capped at 10 per turn (PLAY stays enabled on a rejected placement, D-5);
+    `word_rejected.word_length` = length of the attempted main word from the engine's lexicon-free preview, else the
+    number of tiles placed; `turn` on `bot_word_played` / `word_rejected` = `turnNumber` before the move;
+    `think_ms` = foreground time from the start of the player's turn (previous move rendered) to PLAY, and the bot's
+    compute time for its words; `active_duration_ms` = foreground time while the match is open and in progress on
+    this process (a crash loses the interval since the last background: a lower bound); `compute_ms_bucket` = bot
+    request to decision on the JS thread (includes the single-frame yield of P5 option A); `automaton` = what
+    `@codelex/bots` selects for the bundled index (BOT-8); `fallback` = the bot chose no word (exact for Beginner,
+    the only playtest bot; `BotDecision` must expose BOT-6 before Strategist ships in S4); `is_first_match` = first
+    match recorded under this install id and no finished match on the device.
+  - No sampling: the per-match volume budget above (about 80 events per match) stands.
+  - `onboarding_step_completed`: `first_launch` (the recorder's start on an install with neither a consent choice nor
+    an install id; its `occurred_at` is that start, and it is written just before the next step, so a boot that never
+    reaches Home leaves nothing), `home_seen` (Home mounted), `play_now_tapped` (PLAY NOW), `first_move` (first applied action),
+    `first_match_completed` (first match end); each once per install, only on an install whose first launch was
+    recorded. `coach_mark_1` to `coach_mark_3` are **not applicable in Phase 1**: the coach marks do not exist
+    (D-26, no copy may ship before drag-to-place), so they are never emitted.
+  - New on-device files (backup-excluded data directory, purged with consent off, never exported):
+    `analytics.play` (the open match's random `local_match_id`, its counters and a CRC-32 of its seed to bind it to
+    the saved match) and `analytics.onboarding` (steps done). No new data category leaves the device.
+
 - 2026-10-07 (sprint 4 D1, `mobile-engineer` with `data-analyst`; no build has emitted these events yet, so no
   version bump):
   - "Schema contract" paragraph: type grammar, wire form, zod schemas frozen against this section by a test.

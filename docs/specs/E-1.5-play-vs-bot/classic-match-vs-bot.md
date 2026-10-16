@@ -439,6 +439,15 @@ SP1:
 Rules for these events: client-local, explicitly **non-competitive**; never consumed by rating, progression or
 integrity pipelines; schema owned by `data-analyst`.
 
+EV note (2026-10-16, sprint 4 EV): the gameplay events are emitted from this build on (emission points and
+definitions in the catalogue changelog, `docs/standards/ANALYTICS_EVENTS.md`). ASSUMPTIONS, all reversible:
+(a) no sampling of `bot_decision_made` / `bot_word_played`: the catalogue's volume budget (about 80 events per
+match, about 60 matches per 5,000-event queue) stands; (b) `word_rejected` is capped at 10 per turn
+(`rejected_attempts` counts all); (c) `onboarding_step_completed` covers `first_launch`, `home_seen`,
+`play_now_tapped`, `first_move` and `first_match_completed`; the coach-mark steps are not applicable in Phase 1 (no
+coach marks, D-26) and are never emitted; (d) `bot_decision_made.fallback` is derived as "no word chosen", exact for
+Beginner only; `BotDecision` must expose the BOT-6 flag before Strategist (S4) is playable.
+
 ## Flags & rollout
 
 Flags are evaluated through the OpenFeature client (ARCHITECTURE §6) with **bundled defaults** and a cached remote
