@@ -24,6 +24,7 @@ import { categoryGlyph } from '../knowledge/category-glyph';
 import { termChipLabel } from '../knowledge/chip-label';
 import { KnowledgeCardSheet } from '../knowledge/knowledge-card-sheet';
 import { useCardSheet } from '../knowledge/use-card-sheet';
+import { SurveyCard } from './survey-card';
 
 type Outcome = MatchSummary['outcome'];
 
@@ -181,6 +182,8 @@ const isCategoryToken = (id: string | undefined): id is CategoryTokenId =>
  * Knowledge Cards (slice S5, AC-13/AC-14): with `cards` (flag on), chips whose term has a definition, the best word
  * and "Discover the terms you played" open the card sheet on tap; nothing opens on its own. Without `cards` the chips
  * stay inert and no entry point is shown.
+ *
+ * Survey (slice S6b, AC-18): `SurveyCard` below the result when due; it reads its flag and the recorder itself.
  */
 export function SummaryScreen({
   summary,
@@ -328,6 +331,9 @@ export function SummaryScreen({
             {t('summary.margin', { margin: summary.margin })}
           </Text>
         </View>
+
+        {/* D-15 order: result → scores → survey (AC-18, when due) → best word. */}
+        <SurveyCard />
 
         <View style={{ gap: space[2] }}>
           <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
