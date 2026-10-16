@@ -2,7 +2,8 @@
 // profile scoping (§2, §10 check 2, SC-5), the app.config commit step (OQ-DG-2) and the lint restatement (SC-2).
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +13,9 @@ import { ESLint } from 'eslint';
 import {
   checkPreviewOnlyAbsent,
   checkPreviewOnlyPresent,
+  checkProductionConfig,
   markersIn,
+  readExportBundles,
   sourcesMatching,
 } from './bundle-contents.mjs';
 
@@ -31,10 +34,11 @@ const clean = () => ({
   bytes: bytes('\u0000hbc settings.about.versions'),
 });
 
-test('the preview-only list names the diagnostics module, the runner, the goldens and both markers', () => {
+test('the preview-only list names the diagnostics module, the runner, the goldens and the markers', () => {
   assert.deepEqual(previewOnly.markers, [
     'CODELEX_DIAGNOSTICS_SCREEN_V1',
     'CODELEX_GOLDEN_RUNNER_V1',
+    'codelex-diagnostics.json',
   ]);
   for (const p of [
     'apps/mobile/src/diagnostics/',
@@ -135,6 +139,123 @@ test('positive control requires a diagnostics module, a runner module and both m
     false,
   );
   assert.equal(checkPreviewOnlyPresent(undefined, previewOnly, 'android').ok, false);
+});
+
+/** An `expo export` directory: metadata.json naming the main bundle, plus `extra` files beside it. */
+function exportDir(platformFiles) {
+  const dir = mkdtempSync(join(tmpdir(), 'codelex-dg-export-'));
+  const fileMetadata = {};
+  for (const [platform, files] of Object.entries(platformFiles)) {
+    const jsDir = join(dir, '_expo', 'static', 'js', platform);
+    mkdirSync(jsDir, { recursive: true });
+    fileMetadata[platform] = { bundle: `_expo/static/js/${platform}/index-1.hbc`, assets: [] };
+    for (const [name, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(jsDir, name)), { recursive: true });
+      writeFileSync(join(jsDir, name), text);
+    }
+  }
+  writeFileSync(join(dir, 'metadata.json'), JSON.stringify({ version: 0, fileMetadata }));
+  return dir;
+}
+const map = (...sources) => JSON.stringify({ version: 3, sources, mappings: '' });
+
+test('readExportBundles scans every file of the platform directory, maps included (S-m1)', () => {
+  const dir = exportDir({
+    android: {
+      'index-1.hbc': 'main bytes',
+      'index-1.hbc.map': map('/apps/mobile/src/app.tsx'),
+      'chunk-2.hbc': 'xxCODELEX_DIAGNOSTICS_SCREEN_V1',
+      'chunk-2.hbc.map': map('/apps/mobile/src/diagnostics/entry.tsx'),
+      'nested/extra.js': 'codelex-diagnostics.json',
+    },
+    ios: {
+      'index-1.hbc': 'ios bytes',
+      'index-1.hbc.map': JSON.stringify({
+        version: 3,
+        sources: ['/apps/mobile/src/app.tsx'],
+        sourcesContent: ['const marker = "CODELEX_GOLDEN_RUNNER_V1";'],
+        mappings: '',
+      }),
+    },
+  });
+  try {
+    const bundles = readExportBundles(dir);
+    assert.equal(bundles.android.bundleSize, 'main bytes'.length);
+    assert.equal(bundles.android.files, 5);
+    assert.deepEqual([...(bundles.android.sources ?? [])].sort(), [
+      '/apps/mobile/src/app.tsx',
+      '/apps/mobile/src/diagnostics/entry.tsx',
+    ]);
+    const result = checkPreviewOnlyAbsent(bundles, previewOnly, ['android', 'ios']);
+    assert.equal(result.ok, false);
+    const text = result.lines.join('\n');
+    assert.match(
+      text,
+      /FAIL android: preview-only module \/apps\/mobile\/src\/diagnostics\/entry\.tsx/,
+    );
+    assert.match(text, /FAIL android: preview-only marker CODELEX_DIAGNOSTICS_SCREEN_V1/);
+    assert.match(text, /FAIL android: preview-only marker codelex-diagnostics\.json/);
+    // A marker only in a source map's sourcesContent is found too.
+    assert.match(text, /FAIL ios: preview-only marker CODELEX_GOLDEN_RUNNER_V1/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('readExportBundles fails closed: missing main bundle or map, unreadable map, missing directory', () => {
+  const cases = [
+    { android: { 'index-1.hbc.map': map('/a.ts') } },
+    { android: { 'index-1.hbc': 'x' } },
+    { android: { 'index-1.hbc': 'x', 'index-1.hbc.map': map('/a.ts'), 'c.hbc.map': '{not json' } },
+  ];
+  for (const files of cases) {
+    const dir = exportDir(files);
+    try {
+      const result = checkPreviewOnlyAbsent(readExportBundles(dir), previewOnly, ['android']);
+      assert.equal(result.ok, false, JSON.stringify(Object.keys(files.android)));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+  const clean = exportDir({ android: { 'index-1.hbc': 'x', 'index-1.hbc.map': map('/a.ts') } });
+  try {
+    assert.equal(
+      checkPreviewOnlyAbsent(readExportBundles(clean), previewOnly, ['android']).ok,
+      true,
+    );
+    rmSync(join(clean, '_expo'), { recursive: true, force: true });
+    assert.equal(
+      checkPreviewOnlyAbsent(readExportBundles(clean), previewOnly, ['android']).ok,
+      false,
+    );
+  } finally {
+    rmSync(clean, { recursive: true, force: true });
+  }
+});
+
+test('checkProductionConfig: the production expo config has no diagnostics extra or id (S-m1)', () => {
+  const { expo } = JSON.parse(readFileSync(join(appDir, 'app.json'), 'utf8'));
+  assert.equal(checkProductionConfig(JSON.stringify(expo)).ok, true);
+  const appConfig = require('../app.config.cjs');
+  const diagnostics = appConfig(
+    { config: expo },
+    { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' },
+    () => 'abcdef0123456789abcdef0123456789abcdef01',
+    () => '',
+  );
+  const result = checkProductionConfig(JSON.stringify(diagnostics));
+  assert.equal(result.ok, false);
+  assert.match(result.lines.join('\n'), /extra\.codelexDiagnostics/);
+  assert.match(result.lines.join('\n'), /com\.codelex\.app\.diagnostics/);
+  assert.equal(
+    checkProductionConfig(
+      JSON.stringify({ ...expo, extra: { ...expo.extra, codelexDiagnostics: {} } }),
+    ).ok,
+    false,
+  );
+  for (const broken of ['', 'not json', '[]', 'null']) {
+    assert.equal(checkProductionConfig(broken).ok, false, broken);
+  }
 });
 
 test('only preview-diagnostics sets the constant; it differs from preview by that variable only (§10.2, SC-5)', () => {

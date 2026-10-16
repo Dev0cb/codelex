@@ -1,5 +1,5 @@
 {
-  "$comment": "Code that exists only in the preview-diagnostics build (DG1, docs/architecture/notes/diagnostics-screen.md §3.3). `bundle:check` fails when a source-map module path contains a pattern or a marker occurs in the bundle bytes of the production export (android and ios); `bundle:check:diagnostics` exports with EXPO_PUBLIC_CODELEX_DIAGNOSTICS=1 and requires a diagnostics source, a golden-runner source and both markers (positive control, so the absence check cannot pass by being blind). Owner: mobile-engineer; reviewed by security-engineer.",
+  "$comment": "Code that exists only in the preview-diagnostics build (DG1, docs/architecture/notes/diagnostics-screen.md §3.3). `bundle:check` fails when a source-map module path contains a pattern or a marker occurs in any file under `_expo/static/js/<platform>/` of the production export (bundles and maps, android and ios); `bundle:check:diagnostics` exports with EXPO_PUBLIC_CODELEX_DIAGNOSTICS=1 and requires a diagnostics source, a golden-runner source and every marker (the report file name included) (positive control, so the absence check cannot pass by being blind). Owner: mobile-engineer; reviewed by security-engineer.",
   "modulePathPatterns": [
     "apps/mobile/src/diagnostics/",
     "packages/golden-runner/",
@@ -7,5 +7,9 @@
     "packages/game-engine/test/golden/",
     "packages/bots/test/golden/"
   ],
-  "markers": ["CODELEX_DIAGNOSTICS_SCREEN_V1", "CODELEX_GOLDEN_RUNNER_V1"]
+  "markers": [
+    "CODELEX_DIAGNOSTICS_SCREEN_V1",
+    "CODELEX_GOLDEN_RUNNER_V1",
+    "codelex-diagnostics.json"
+  ]
 }

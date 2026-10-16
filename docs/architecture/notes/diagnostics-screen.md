@@ -472,3 +472,11 @@ Review fixes on the DG1 PR (2026-10-16):
     `-dirty` is not a 40-hex commit, so the screen treats the build as having no comparable commit
     (`diagnostics.build.no_commit`) and "Share report…" stays disabled: a report can only come from a clean commit.
     EAS builds use `EAS_BUILD_GIT_COMMIT_HASH` and are not checked.
+11. **The bundle proof reads the whole export** (S-m1, S-m2). `readExportBundles` scans every file under
+    `_expo/static/js/<platform>/` (main bundle, any split bundle, every source map, so a marker in `sourcesContent`
+    counts too), unions the `sources` of every map and fails closed on a missing directory, main bundle or map, or an
+    unparsable map. `codelex-diagnostics.json` (the report file name) is a third marker. `bundle:check` also runs
+    `expo config --json` without the variable and fails if the production config has `extra.codelexDiagnostics` or
+    a `.diagnostics` identifier. The positive control now exports android **and** ios in one `expo export` call and
+    requires every module group and marker on both: the extra cost is one platform's bundling inside a CI step that
+    already bundles both for production, which is accepted.

@@ -1,7 +1,7 @@
 // Proof that excepted toolchain packages stay out of the shipped bundles (docs/security/audit-exceptions.md, class
 // "toolchain package in the prod dependency graph, proven absent from shipped artefacts"). Reads the source maps
 // that `expo export --source-maps` writes next to each Hermes bundle. `packagesInSources` and `checkContents` are pure.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
@@ -131,23 +131,90 @@ export function markersIn(bytes, markers) {
   return markers.filter((marker) => buffer.includes(Buffer.from(marker, 'latin1')));
 }
 
+/** Every file under `dir`, recursively, as paths relative to it (sorted). */
+function filesUnder(dir) {
+  return readdirSync(dir, { recursive: true, encoding: 'utf8' })
+    .filter((name) => statSync(join(dir, name)).isFile())
+    .sort();
+}
+
 /**
- * Per platform: the map's `sources` and the bundle bytes (each null when missing, so the checks fail closed).
- * @returns {Record<string, { sources: string[] | null, bytes: Uint8Array | null }>}
+ * Per platform, everything `expo export` wrote under `_expo/static/js/<platform>/` (the main bundle named in
+ * metadata.json, any split or extra bundle, every source map): `sources` is the union of every map's `sources`,
+ * `bytes` every file's bytes (maps included, so a marker in `sourcesContent` is found), `bundleSize` the main
+ * bundle's size. Fails closed (`sources` or `bytes` null) when the directory, the main bundle or its map is
+ * missing, or when any map cannot be parsed.
+ * @returns {Record<string, { sources: string[] | null, bytes: Uint8Array | null, bundleSize: number | null, files: number }>}
  */
 export function readExportBundles(dir) {
   const metadata = JSON.parse(readFileSync(join(dir, 'metadata.json'), 'utf8'));
-  /** @type {Record<string, { sources: string[] | null, bytes: Uint8Array | null }>} */
+  /** @type {Record<string, { sources: string[] | null, bytes: Uint8Array | null, bundleSize: number | null, files: number }>} */
   const result = {};
   for (const [platform, files] of Object.entries(metadata.fileMetadata ?? {})) {
     const bundle = join(dir, files.bundle);
-    const map = `${bundle}.map`;
+    const jsDir = join(dir, '_expo', 'static', 'js', platform);
+    const missing = { sources: null, bytes: null, bundleSize: null, files: 0 };
+    if (!existsSync(bundle) || !existsSync(`${bundle}.map`) || !existsSync(jsDir)) {
+      result[platform] = missing;
+      continue;
+    }
+    const names = filesUnder(jsDir);
+    const paths = names.map((name) => join(jsDir, name));
+    // The main bundle must be one of the scanned files, so nothing it contains escapes the scan.
+    if (!paths.includes(bundle)) paths.push(bundle, `${bundle}.map`);
+    /** @type {string[] | null} */
+    let sources = [];
+    const chunks = [];
+    for (const path of paths) {
+      const content = readFileSync(path);
+      chunks.push(content, Buffer.from([0]));
+      if (!path.endsWith('.map') || sources === null) continue;
+      try {
+        const parsed = JSON.parse(content.toString('utf8'));
+        sources = Array.isArray(parsed?.sources) ? [...sources, ...parsed.sources] : null;
+      } catch {
+        sources = null;
+      }
+    }
     result[platform] = {
-      sources: existsSync(map) ? JSON.parse(readFileSync(map, 'utf8')).sources : null,
-      bytes: existsSync(bundle) ? new Uint8Array(readFileSync(bundle)) : null,
+      sources,
+      bytes: new Uint8Array(Buffer.concat(chunks)),
+      bundleSize: readFileSync(bundle).length,
+      files: paths.length,
     };
   }
   return result;
+}
+
+/**
+ * The production `expo config --json` (no diagnostics variable) must be app.json's app: no
+ * `extra.codelexDiagnostics`, not the diagnostics identifier (DG1, S-m1). Fails closed on unparsable output.
+ * @param {string} text @returns {{ ok: boolean, lines: string[] }}
+ */
+export function checkProductionConfig(text) {
+  let config;
+  try {
+    config = JSON.parse(text);
+  } catch {
+    return { ok: false, lines: ['FAIL expo config: output is not JSON'] };
+  }
+  if (config === null || typeof config !== 'object' || Array.isArray(config)) {
+    return { ok: false, lines: ['FAIL expo config: output is not an object'] };
+  }
+  const lines = [];
+  if (Object.hasOwn(config.extra ?? {}, 'codelexDiagnostics')) {
+    lines.push('FAIL expo config: production config has extra.codelexDiagnostics');
+  }
+  for (const [name, id] of [
+    ['ios.bundleIdentifier', config.ios?.bundleIdentifier],
+    ['android.package', config.android?.package],
+  ]) {
+    if (typeof id === 'string' && id.endsWith('.diagnostics')) {
+      lines.push(`FAIL expo config: production ${name} is ${id}`);
+    }
+  }
+  if (lines.length > 0) return { ok: false, lines };
+  return { ok: true, lines: ['ok   expo config: no diagnostics extra or identifier'] };
 }
 
 const usable = (entry) => Boolean(entry) && Array.isArray(entry.sources) && entry.bytes != null;
