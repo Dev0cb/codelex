@@ -13,6 +13,8 @@ import type { AnalyticsEvent, EventProperties } from './events';
 import { INSTALL_ID_FILE, isUuidV4 } from './install-id';
 import {
   ANALYTICS_FILE_NAMES,
+  ONBOARDING_FILE,
+  PLAY_FILE,
   PlaytestAnalytics,
   PROMPT_FILE,
   type AnalyticsPlatform,
@@ -331,6 +333,62 @@ describe('PlaytestAnalytics: recording', () => {
 });
 
 describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
+  it('purges the gameplay files (open match, onboarding) with consent off, and has no first-time flow after', () => {
+    const fs = new MemoryFs();
+    const h = launch(boot(fs));
+    h.analytics.onboardingStep('home_seen');
+    h.analytics.writePlayRecord('{"v":1,"started":1,"open":null}');
+    expect(h.analytics.readPlayRecord()).toBe('{"v":1,"started":1,"open":null}');
+    expect(fs.files.has(ONBOARDING_FILE)).toBe(true);
+    expect(h.analytics.setConsent(false)).toBe(true);
+    expect(fs.files.has(PLAY_FILE)).toBe(false);
+    expect(fs.files.has(ONBOARDING_FILE)).toBe(false);
+    h.analytics.writePlayRecord('{"v":1,"started":2,"open":null}');
+    expect(h.analytics.readPlayRecord()).toBeNull();
+    expect(fs.files.has(PLAY_FILE)).toBe(false);
+    expect(h.analytics.setConsent(true)).toBe(true);
+    h.analytics.onboardingStep('play_now_tapped');
+    expect(
+      new EventQueue(new DataStore(fs), () => T0)
+        .events()
+        .filter((e) => e.event === 'onboarding_step_completed'),
+    ).toEqual([]);
+    expect(fs.files.has(ONBOARDING_FILE)).toBe(false);
+  });
+
+  it('records first_launch with the launch time, just before the first step, once', () => {
+    const fs = new MemoryFs();
+    const h = boot(fs);
+    h.clock.mono = 100;
+    launch(h);
+    // A boot that never reaches Home: nothing recorded, no file.
+    expect(fs.files.has(ONBOARDING_FILE)).toBe(false);
+    h.clock.mono = 2600;
+    h.clock.wall = T0 + 2500;
+    h.analytics.onboardingStep('home_seen');
+    h.analytics.onboardingStep('home_seen');
+    const steps = new EventQueue(new DataStore(fs), () => T0)
+      .events()
+      .filter((e) => e.event === 'onboarding_step_completed');
+    expect(steps.map((e) => [e.properties, e.occurred_at])).toEqual([
+      [{ step: 'first_launch', duration_ms: 0 }, new Date(T0).toISOString()],
+      [{ step: 'home_seen', duration_ms: 2500 }, new Date(T0 + 2500).toISOString()],
+    ]);
+    // The next process of the same install: no first launch again.
+    const fs2 = fs.reboot();
+    const next = launch(boot(fs2));
+    next.analytics.onboardingStep('play_now_tapped');
+    next.analytics.onboardingStep('home_seen');
+    const later = new EventQueue(new DataStore(fs2), () => T0)
+      .events()
+      .filter((e) => e.event === 'onboarding_step_completed');
+    expect(later.map((e) => e.properties)).toEqual([
+      { step: 'first_launch', duration_ms: 0 },
+      { step: 'home_seen', duration_ms: 2500 },
+      { step: 'play_now_tapped', duration_ms: 0 },
+    ]);
+  });
+
   it('purges the queue, the install id and the marker when consent is withdrawn', () => {
     const fs = new MemoryFs();
     const h = launch(boot(fs));
@@ -484,6 +542,8 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     h.analytics.record('app_backgrounded', { foreground_ms: -1 }); // invalid: writes the meta file
     h.analytics.markExportPromptShown();
     h.analytics.noteSurveyMatchCompleted();
+    h.analytics.onboardingStep('home_seen');
+    h.analytics.writePlayRecord('{"v":1,"started":0,"open":null}');
     const owned = [
       CONSENT_FILE,
       INSTALL_ID_FILE,
@@ -492,6 +552,8 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
       SESSION_MARKER_FILE,
       PROMPT_FILE,
       SURVEY_FILE,
+      PLAY_FILE,
+      ONBOARDING_FILE,
     ];
     expect([...fs.files.keys()].sort()).toEqual([...owned].sort());
     expect([...ANALYTICS_FILE_NAMES].sort()).toEqual([...owned].sort());
