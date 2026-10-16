@@ -229,6 +229,34 @@ describe('SurveyCard (AC-18)', () => {
     expect(screen.getByTestId('summary.survey.thanks')).toBeTruthy();
   });
 
+  it('unmounting during "Thanks!" clears its timer: no late update, no act warning', async () => {
+    jest.useFakeTimers();
+    const consoleError = jest.spyOn(console, 'error');
+    const fs = new MemoryFs();
+    const view = await render(
+      <Providers analytics={install(fs, 1)} flags={ON}>
+        <SurveyCard />
+      </Providers>,
+    );
+    const setTimer = jest.spyOn(globalThis, 'setTimeout');
+    const clearTimer = jest.spyOn(globalThis, 'clearTimeout');
+    await fireEvent.press(screen.getByTestId('summary.survey.yes'));
+    expect(screen.getByTestId('summary.survey.thanks')).toBeTruthy();
+    const thanksTimers = setTimer.mock.results.filter(
+      (_, i) => setTimer.mock.calls[i]?.[1] === SURVEY_THANKS_MS,
+    );
+    expect(thanksTimers).toHaveLength(1);
+    await view.unmount();
+    expect(clearTimer).toHaveBeenCalledWith(thanksTimers[0]?.value);
+    // Nothing left to fire: had the timer survived, its setPhase would land outside act() after the unmount.
+    jest.advanceTimersByTime(SURVEY_THANKS_MS * 2);
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(surveyEvents(fs).map((e) => e.event)).toEqual([
+      'playtest_survey_shown',
+      'playtest_survey_answered',
+    ]);
+  });
+
   it('records each answer value of the catalogue', async () => {
     for (const answer of ['maybe', 'no'] as const) {
       const fs = new MemoryFs();
