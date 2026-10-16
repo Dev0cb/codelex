@@ -11,13 +11,13 @@ Owner decision (2026-10-16, product owner Malick BA): "I am the only tester and 
 # CODELEX privacy policy (Phase 1 Android playtest)
 
 - Document: `docs/legal/privacy-policy.md` · Owner: `privacy-compliance` · Approver: product owner + counsel
-- Version: **playtest-privacy-v1.2** · Date: **2026-10-16** (previous: playtest-privacy-v1.1, 2026-10-07)
+- Version: **playtest-privacy-v1.3** · Date: **2026-10-16** (previous: playtest-privacy-v1.2, 2026-10-16)
 - Published copies: `site/privacy/index.html` (EN, <https://dev0cb.github.io/codelex/privacy/>) and
   `site/privacy/fr/index.html` (FR, <https://dev0cb.github.io/codelex/privacy/fr/>).
 - **Sync rule.** This file is the source of truth. The two HTML pages are kept in sync by hand with it: any change
   here changes both pages in the same PR, with the same version and date. The HTML pages carry the version string
-  `playtest-privacy-v1.2` so a reviewer can check them with
-  `grep -c "playtest-privacy-v1.2" docs/legal/privacy-policy.md site/privacy/index.html site/privacy/fr/index.html`.
+  `playtest-privacy-v1.3` so a reviewer can check them with
+  `grep -c "playtest-privacy-v1.3" docs/legal/privacy-policy.md site/privacy/index.html site/privacy/fr/index.html`.
 - Consent form shown with this policy: `playtest-consent-v1.1` (`docs/specs/E-1.5-play-vs-bot/playtest-plan.md` §2).
 - Facts used: `docs/compliance/DATA_MAP.md`, `docs/standards/ANALYTICS_EVENTS.md` (client-local playtest events),
   `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.md` (AC-10, AC-11, AC-17 to AC-20, Flags & rollout, privacy
@@ -179,7 +179,7 @@ The events, in plain words:
   unexpectedly while the app was open (a crash, a forced stop or a power loss). When the app goes to the background,
   how long it was in front.
 - **First-launch steps:** which first steps you reached (first launch, home screen seen, "PLAY NOW" tapped, first
-  move, the three tips, first match finished) and the time between them.
+  move, first match finished) and the time between them.
 - **Matches:** a random match id (new for each match); when a match starts: which bot you play against,
   who plays first, the rules, word-list and bot versions, and whether it is your first match; when it ends: the
   result, both scores and the difference, how it ended (out of tiles, too many turns without points, or resign),
@@ -193,8 +193,8 @@ The events, in plain words:
   your thinking time and the turn number, **never the letters you tried**.
 - **The bot's turns:** its thinking time and search effort in coarse ranges, the kind of move (word, exchange or
   pass), and whether it used a fallback or recomputed after a resume.
-- **After a match:** which button you tapped on the summary (play again, change opponent, home, discover) and how long
-  you stayed on it.
+- **After a match:** which button you tapped on the summary (play again, home, discover) and how long you stayed on
+  it.
 - **Knowledge Cards and graph:** which card you opened and from where, how long you read it and how many related
   terms you tapped; in the graph, which term you moved from and to, and the link between them.
 - **Survey (section 3.7):** that the "Would you play CODELEX again?" question was shown, your answer (yes, maybe, no)
@@ -210,9 +210,10 @@ It never includes your name, email address, contacts, location, advertising ID, 
 number, or any text you type.
 
 To make this work, the app also keeps on your phone: your on/off choice and whether you saw the first-launch notice
-(kept after you switch off, so the app remembers "off"); a tiny "app is open" marker used to detect a crash; and the
-time the "Send your playtest data?" reminder was last shown. The marker and the reminder time are deleted when you
-switch recording off.
+(kept after you switch off, so the app remembers "off"); a tiny "app is open" marker used to detect a crash; the time
+the "Send your playtest data?" reminder was last shown; for the match in progress, its random match id, its counts and
+the time it last went to the background; and which first-launch steps you reached. These are never put in a file you
+send. The marker, the reminder time, the match record and the steps are deleted when you switch recording off.
 
 These events **leave your phone only when you tap "Send playtest data"** in Settings (or "Review and send" on the
 reminder), then "Share file…". Your phone's share menu opens, and you choose to email the file to
@@ -220,8 +221,8 @@ titanfst00@gmail.com. Because the email shows your address, the file can then be
 "Did you send the file?": if you tap "Yes, I sent it", those events are cleared from your phone.
 
 If you switch recording off ("Turn off and delete"), nothing more is recorded, and the unsent events, your tester ID,
-the marker and the reminder time are deleted from your phone. Note your tester ID first if you want us to delete
-data you already sent.
+the marker, the reminder time, the match record and the steps are deleted from your phone. Note your tester ID first
+if you want us to delete data you already sent.
 
 #### 3.7 Survey reminder (when enabled; stays on your phone)
 
@@ -298,6 +299,8 @@ automated decisions about you.
 | Tester ID on your phone (when enabled)               | Until you switch recording off or uninstall the app                                                                                             |
 | Recording choice on your phone (when enabled)        | Until you uninstall the app or clear its data                                                                                                   |
 | Survey reminder counts on your phone (when enabled)  | Kept when you switch recording off; deleted when you uninstall the app or clear its data. Never sent                                            |
+| Match record on your phone (when enabled)            | Deleted when the match ends or you switch recording off. Never sent                                                                             |
+| First-launch steps on your phone (when enabled)      | Kept until you switch recording off or uninstall. Never sent                                                                                    |
 | Emails to our mailbox (when enabled)                 | Attachments are moved to restricted storage (Google Drive) within 7 days, then the emails are deleted                                           |
 | The copy in your own "Sent" folder                   | Outside our control: your email provider keeps it until you delete it                                                                           |
 | Received playtest files and match logs               | Deleted 6 months after the playtest ends. Only anonymous totals are kept                                                                        |
@@ -358,6 +361,11 @@ side, access is limited to named people, and received files are checked as untru
 We will tell testers by email before any change that affects what we collect, and we will update the version and date
 below. A public release of CODELEX will come with a new policy.
 
+**What changed in v1.3 (2026-10-16), compared with v1.2 (2026-10-16):**
+
+- On-device match record and first-launch steps disclosed (section 3.6 and section 5). The three tips and "change
+  opponent" are removed until they ship; they will be listed again then.
+
 **What changed in v1.2 (2026-10-16), compared with v1.1 (2026-10-07):**
 
 - Section 7 and "In short" now say plainly that we do not store your data in the EU: it is in Malick BA's personal
@@ -376,7 +384,7 @@ below. A public release of CODELEX will come with a new policy.
 When v1.2 was published, the only tester was Malick BA himself, so no one else had to be told again. Anyone who joins
 later reads this version and consent form v1.1 before signing up.
 
-Version playtest-privacy-v1.2 · 2026-10-16 · Contact: titanfst00@gmail.com
+Version playtest-privacy-v1.3 · 2026-10-16 · Contact: titanfst00@gmail.com
 
 ## Français
 
@@ -484,7 +492,7 @@ Les événements, en clair :
   terminée de façon inattendue pendant que l'app était ouverte (plantage, arrêt forcé ou coupure de courant). Quand
   l'app passe en arrière-plan, combien de temps elle est restée au premier plan.
 - **Premières étapes :** les premières étapes atteintes (premier lancement, écran d'accueil vu, « JOUER » touché,
-  premier coup, les trois astuces, première partie terminée) et le temps entre elles.
+  premier coup, première partie terminée) et le temps entre elles.
 - **Parties :** un identifiant de partie aléatoire (nouveau à chaque partie) ; au début : le bot que tu affrontes,
   qui commence, les versions des règles, de la liste de mots et du bot, et s'il s'agit de ta première
   partie ; à la fin : le résultat, les deux scores et l'écart, la façon dont elle s'est terminée (plus de lettres,
@@ -499,8 +507,8 @@ Les événements, en clair :
   du mot, ton temps de réflexion et le numéro du tour, **jamais les lettres essayées**.
 - **Tours du bot :** son temps et son effort de réflexion par tranches larges, le type de coup (mot, échange ou passe),
   et s'il a utilisé une solution de repli ou recalculé après une reprise.
-- **Après une partie :** le bouton touché sur le résumé (rejouer, changer d'adversaire, accueil, découvrir) et le temps
-  passé sur le résumé.
+- **Après une partie :** le bouton touché sur le résumé (rejouer, accueil, découvrir) et le temps passé sur le
+  résumé.
 - **Fiches et graphe :** la fiche ouverte et d'où, le temps de lecture et le nombre de termes liés touchés ; dans le
   graphe, le terme de départ, le terme d'arrivée et le lien entre eux.
 - **Sondage (section 3.7) :** que la question « Rejouerais-tu à CODELEX ? » a été affichée, ta réponse (oui, peut-être,
@@ -518,8 +526,10 @@ ou le numéro de série de ton téléphone, ton numéro, ni aucun texte que tu s
 
 Pour que cela fonctionne, l'app garde aussi sur ton téléphone : ton choix activé/désactivé et si tu as vu le message
 du premier lancement (gardés après la désactivation, pour que l'app se souvienne de « désactivé ») ; un petit
-marqueur « app ouverte » qui sert à détecter un plantage ; et l'heure du dernier rappel « Envoyer tes données de
-test ? ». Le marqueur et l'heure du rappel sont supprimés quand tu désactives l'enregistrement.
+marqueur « app ouverte » qui sert à détecter un plantage ; l'heure du dernier rappel « Envoyer tes données de
+test ? » ; pour la partie en cours, son identifiant aléatoire, ses compteurs et l'heure de son dernier passage en
+arrière-plan ; et les premières étapes atteintes. Ils ne sont jamais mis dans un fichier que tu envoies. Le marqueur,
+l'heure du rappel, la fiche de partie et les étapes sont supprimés quand tu désactives l'enregistrement.
 
 Ces événements **ne quittent ton téléphone que lorsque tu touches « Envoyer les données de test »** dans les Réglages
 (ou « Voir et envoyer » sur le rappel), puis « Partager le fichier… ». Le menu de partage de ton téléphone s'ouvre et
@@ -528,8 +538,8 @@ alors être relié à toi. L'app te demande ensuite « As-tu envoyé le fichier 
 envoyé », ces événements sont effacés de ton téléphone.
 
 Si tu désactives l'enregistrement (« Désactiver et supprimer »), plus rien n'est enregistré, et les événements non
-envoyés, ton identifiant testeur, le marqueur et l'heure du rappel sont supprimés de ton téléphone. Note d'abord ton
-identifiant testeur si tu veux que nous supprimions les données déjà envoyées.
+envoyés, ton identifiant testeur, le marqueur, l'heure du rappel, la fiche de partie et les étapes sont supprimés de
+ton téléphone. Note d'abord ton identifiant testeur si tu veux que nous supprimions les données déjà envoyées.
 
 #### 3.7 Rappel du sondage (une fois activé ; reste sur ton téléphone)
 
@@ -610,6 +620,8 @@ Nous n'utilisons rien de tout cela pour de la publicité, nous ne le vendons jam
 | Identifiant testeur sur ton téléphone (une fois activé)             | Jusqu'à ce que tu désactives l'enregistrement ou désinstalles l'app                                                                                                               |
 | Choix d'enregistrement sur ton téléphone (une fois activé)          | Jusqu'à ce que tu désinstalles l'app ou effaces ses données                                                                                                                       |
 | Compteurs du sondage sur ton téléphone (une fois activé)            | Gardés quand tu désactives l'enregistrement ; supprimés quand tu désinstalles l'app ou effaces ses données. Jamais envoyés                                                        |
+| Fiche de partie sur ton téléphone (une fois activé)                 | Supprimée à la fin de la partie ou quand tu désactives l'enregistrement. Jamais envoyée                                                                                           |
+| Premières étapes sur ton téléphone (une fois activé)                | Conservées jusqu'à ce que tu désactives l'enregistrement ou désinstalles l'app. Jamais envoyées                                                                                   |
 | E-mails envoyés à notre boîte (une fois activé)                     | Les pièces jointes sont déplacées vers un stockage restreint (Google Drive) sous 7 jours, puis les e-mails sont supprimés                                                         |
 | La copie dans tes propres « messages envoyés »                      | Hors de notre contrôle : ton fournisseur de messagerie la garde jusqu'à ce que tu la supprimes                                                                                    |
 | Fichiers de test et journaux de partie reçus                        | Supprimés 6 mois après la fin du playtest. Seuls des totaux anonymes sont conservés                                                                                               |
@@ -677,6 +689,12 @@ les fichiers reçus sont contrôlés comme des données non fiables avant d'êtr
 Nous préviendrons les testeurs par e-mail avant tout changement qui touche à ce que nous collectons, et nous mettrons
 à jour la version et la date ci-dessous. Une version publique de CODELEX aura une nouvelle politique.
 
+**Ce qui change dans la v1.3 (2026-10-16) par rapport à la v1.2 (2026-10-16) :**
+
+- La fiche de partie et les premières étapes gardées sur ton téléphone sont décrites (section 3.6 et section 5). Les
+  trois astuces et « changer d'adversaire » sont retirés jusqu'à leur arrivée dans l'app ; ils seront de nouveau listés
+  à ce moment-là.
+
 **Ce qui change dans la v1.2 (2026-10-16) par rapport à la v1.1 (2026-10-07) :**
 
 - La section 7 et « En bref » disent clairement que nous ne stockons pas tes données dans l'UE : elles sont dans le
@@ -700,4 +718,4 @@ Quand la v1.2 a été publiée, le seul testeur était Malick BA lui-même : per
 nouveau. Toute personne qui rejoint le playtest plus tard lit cette version et le formulaire de consentement v1.1
 avant de s'inscrire.
 
-Version playtest-privacy-v1.2 · 2026-10-16 · Contact : titanfst00@gmail.com
+Version playtest-privacy-v1.3 · 2026-10-16 · Contact : titanfst00@gmail.com
