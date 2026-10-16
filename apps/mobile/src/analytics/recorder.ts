@@ -15,17 +15,41 @@
  * it; the provider subscribes to `AppState` and, in the same tick, feeds `AppState.currentState` to `onAppState`;
  * the decision is held in memory and put on the first `app_opened` of the process, whenever that comes.
  *
+ * "Send playtest data" (slice S6c): the export screen reads `exportSummary()` on open, builds the file on tap with
+ * `prepareExport()` (zod-free `playtest-file.ts`, equal to the D1 contract), and after "Yes, I sent it" calls
+ * `confirmSent()`, which clears exactly the events of that file and records `analytics_buffer_flushed`. The
+ * end-of-session prompt (D-17) is `exportPromptDue()` / `markExportPromptShown()` (`export-prompt.ts`).
+ *
  * Every file lives in the shared backup-excluded data directory (`DATA_DIR`; threat model TM-03, R1-4) under the
  * names of {@link ANALYTICS_FILE_NAMES}. Nothing here throws: storage failures are absorbed (and visible as drop
  * counts or a later new install id), so analytics can never break play.
  */
 import { DataStore, TMP_SUFFIX, type FsPrimitives } from '../persistence/data-store';
+import { asciiJson } from '../persistence/match-journal';
 import { CONSENT_FILE, readChoices, writeChoices, type AnalyticsChoices } from './consent';
-import { EventQueue, QUEUE_FILE, QUEUE_FILES, type DroppedCounts } from './event-queue';
+import {
+  EventQueue,
+  QUEUE_FILE,
+  QUEUE_FILES,
+  type DroppedCounts,
+  type QueueSummary,
+} from './event-queue';
 import { eventVersion, guardEvent, type GuardedEvent } from './event-guard';
 import type { AnalyticsCall, AnalyticsEmitter } from './emitter';
 import type { AnalyticsEvent, EventName, EventProperties, Platform } from './events';
+import {
+  INITIAL_PROMPT_SESSION,
+  isPromptDue,
+  stepPromptSession,
+  type PromptSession,
+} from './export-prompt';
 import { ensureInstallId, INSTALL_ID_FILE } from './install-id';
+import {
+  buildPlaytestFile,
+  PLAYTEST_FILE_FORMAT,
+  PLAYTEST_FILE_KIND,
+  type PlaytestFile,
+} from './playtest-file';
 import {
   INITIAL_LIFECYCLE,
   stepLifecycle,
@@ -40,12 +64,16 @@ import {
   type MarkerState,
 } from './session-marker';
 
+/** Device-clock time the export prompt was last shown (D-17 24 h cool-down); purged with consent off. */
+export const PROMPT_FILE = 'export.prompt';
+
 /** Every file the recorder owns in the data directory. */
 export const ANALYTICS_FILE_NAMES: ReadonlySet<string> = new Set([
   ...QUEUE_FILES,
   INSTALL_ID_FILE,
   CONSENT_FILE,
   SESSION_MARKER_FILE,
+  PROMPT_FILE,
 ]);
 
 const APP_STATES: ReadonlySet<string> = new Set<AppStateValue>([
@@ -79,6 +107,11 @@ export interface AnalyticsPlatform {
   /** Ms since the process started: `cold_start_ms`. */
   readonly sinceProcessStartMs: () => number;
   readonly context: () => EnvelopeContext;
+  /**
+   * Deletes the share directory (`sharing/share-file.ts`, TM-04): consent withdrawal also removes a playtest file a
+   * kill left there while the share sheet was open. May throw; the start-up sweep retries.
+   */
+  readonly sweepShareDirectory: () => void;
 }
 
 /** What the UI shows (Home notice, Settings "Playtest data"). */
@@ -90,6 +123,8 @@ export interface AnalyticsSnapshot {
   readonly noticeVisible: boolean;
   /** Shown in Settings; null when recording is off. */
   readonly installId: string | null;
+  /** Bumped when a confirmed export cleared events, so the "N waiting" counts are read again. */
+  readonly exports: number;
 }
 
 const DISABLED: AnalyticsSnapshot = {
@@ -97,7 +132,38 @@ const DISABLED: AnalyticsSnapshot = {
   consent: false,
   noticeVisible: false,
   installId: null,
+  exports: 0,
 };
+
+/** The export screen's summary (design §5.9), read on open: counts only, no event parsed. */
+export interface ExportSummary extends QueueSummary {
+  readonly dropped: DroppedCounts;
+}
+
+/** What "Yes, I sent it" needs about the file that was shared (held by the screen, never written). */
+export interface ExportTicket {
+  readonly installId: string;
+  /** Sequence number of the oldest event in the file. */
+  readonly firstSeq: number;
+  /** Sequence number of the newest event in the file. */
+  readonly lastSeq: number;
+  /** The file's `dropped` block. */
+  readonly dropped: DroppedCounts;
+  readonly eventsSent: number;
+  /**
+   * Queued events the file left out (the 1 MB cap: its `remaining`). What the screen says still waits after "Sent":
+   * never the live queue count, which also holds what was recorded since (the flush event, the share sheet's
+   * background/foreground on Android), and which a later export carries.
+   */
+  readonly remaining: number;
+  readonly oldestMs: number;
+  readonly exportedAtMs: number;
+}
+
+export type PreparedExport =
+  | { readonly ok: true; readonly file: PlaytestFile; readonly ticket: ExportTicket }
+  /** `off`: recording is off; `empty`: nothing queued; `invalid`: the file failed its contract (a bug). */
+  | { readonly ok: false; readonly reason: 'off' | 'empty' | 'invalid' };
 
 /** Also the app's {@link AnalyticsEmitter} (`emitter.ts`): features emit through `useAnalytics().emit(…)`. */
 export class PlaytestAnalytics implements AnalyticsEmitter {
@@ -122,6 +188,10 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     readonly at: number;
   }[] = [];
   private snapshot: AnalyticsSnapshot = DISABLED;
+  /** D-17 session state of the end-of-session export prompt (memory only). */
+  private prompt: PromptSession = INITIAL_PROMPT_SESSION;
+  /** Confirmed exports this process (snapshot `exports`). */
+  private exports = 0;
   private readonly listeners = new Set<() => void>();
 
   constructor(
@@ -163,7 +233,9 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     const next: AppStateValue = APP_STATES.has(reported) ? reported : 'unknown';
     this.appState = next;
     if (this.marker !== null) this.setMarker(onAppStateChange(this.marker, next));
-    this.step({ type: 'app_state', next, at: this.platform.monoMs() });
+    const at = this.platform.monoMs();
+    this.prompt = stepPromptSession(this.prompt, { type: 'app_state', next, at });
+    this.step({ type: 'app_state', next, at });
   };
 
   /** The first route rendered: the cold `app_opened` may fire. */
@@ -290,6 +362,145 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     return this.recording() ? this.queue.dropped() : { queueCap: 0, expired: 0, invalid: 0 };
   }
 
+  // --- "Send playtest data" (slice S6c, design §5.9) -------------------------------------------------------------
+
+  /** The export screen's summary; null when recording is off. Loads the queue if the idle load has not run yet. */
+  exportSummary(): ExportSummary | null {
+    if (!this.recording()) return null;
+    this.load();
+    return { ...this.queue.summary(), dropped: this.queue.dropped() };
+  }
+
+  /** "See an example event": the oldest queued event; null when there is none or recording is off. */
+  exportSample(): AnalyticsEvent | null {
+    if (!this.recording()) return null;
+    this.load();
+    return this.queue.sample();
+  }
+
+  /**
+   * Builds the next file on tap (design §5.9: never on screen open): the oldest queued events that fit in 1 MB,
+   * `remaining` for the rest, the drop counts since the last confirmed export, and the ticket "Yes, I sent it" needs.
+   * Writes nothing and records nothing.
+   *
+   * @param build The store build number (`APP_BUILD`).
+   */
+  prepareExport(build: string): PreparedExport {
+    const installId = this.installId;
+    if (!this.recording() || installId === null) return { ok: false, reason: 'off' };
+    this.load();
+    const { events, seqs } = this.queue.exportable();
+    const dropped = this.queue.dropped();
+    const context = this.platform.context();
+    const exportedAtMs = this.platform.wallMs();
+    let exportedAt: string;
+    try {
+      exportedAt = new Date(exportedAtMs).toISOString();
+    } catch {
+      return { ok: false, reason: 'invalid' };
+    }
+    const built = buildPlaytestFile(
+      {
+        exportFormat: PLAYTEST_FILE_FORMAT,
+        kind: PLAYTEST_FILE_KIND,
+        app: { version: context.app_version, build, platform: context.platform },
+        installId,
+        exportedAt,
+        dropped,
+      },
+      events,
+    );
+    if (!built.ok) return { ok: false, reason: built.error.code === 'EMPTY' ? 'empty' : 'invalid' };
+    const { included } = built.value;
+    return {
+      ok: true,
+      file: built.value,
+      ticket: {
+        installId,
+        firstSeq: seqs[0] ?? -1,
+        lastSeq: seqs[included - 1] ?? -1,
+        dropped,
+        eventsSent: included,
+        remaining: built.value.remaining,
+        oldestMs: Date.parse(events[0]?.occurred_at ?? ''),
+        exportedAtMs,
+      },
+    };
+  }
+
+  /**
+   * "Yes, I sent it" (design §5.9): clears the events of the file and records `analytics_buffer_flushed` (catalogue;
+   * it travels in the next file). True once the clear is on disk; false = "couldn't clear" (full disk), retried by
+   * {@link retryClear}. If recording was turned off meanwhile, the purge already removed everything: true.
+   */
+  confirmSent(ticket: ExportTicket): boolean {
+    if (!this.recording() || this.installId !== ticket.installId) return true;
+    const cleared = this.queue.clearThrough(
+      { firstSeq: ticket.firstSeq, lastSeq: ticket.lastSeq, events: ticket.eventsSent },
+      ticket.dropped,
+    );
+    const { queueCap, expired, invalid } = ticket.dropped;
+    const age = ticket.exportedAtMs - ticket.oldestMs;
+    this.record('analytics_buffer_flushed', {
+      events_sent: ticket.eventsSent,
+      events_dropped_since_last: queueCap + expired + invalid,
+      oldest_event_age_ms: Number.isFinite(age) ? Math.max(0, Math.round(age)) : 0,
+    });
+    this.exports += 1;
+    this.publish();
+    return cleared;
+  }
+
+  /** "Try again" after a clear that could not be saved. True once it is on disk. */
+  retryClear(): boolean {
+    if (!this.recording()) return true;
+    return this.queue.flush();
+  }
+
+  /** A match reached its end this session (D-17 count); the match session calls it. */
+  noteMatchCompleted(): void {
+    if (!this.recording()) return;
+    this.prompt = stepPromptSession(this.prompt, { type: 'match_completed' });
+  }
+
+  /** Matches completed this session (`export.prompt.body`). */
+  sessionMatches(): number {
+    return this.prompt.matches;
+  }
+
+  /** Home asks when it gains focus: the D-17 conditions hold now. */
+  exportPromptDue(): boolean {
+    if (!this.recording()) return false;
+    return isPromptDue(this.prompt, {
+      nowMono: this.platform.monoMs(),
+      nowWall: this.platform.wallMs(),
+      unsent: this.queuedCount(),
+      lastShownWall: this.readPromptShown(),
+    });
+  }
+
+  /** Home displayed the card: once per session, and the 24 h cool-down starts (kept on disk). */
+  markExportPromptShown(): void {
+    if (!this.recording()) return;
+    this.prompt = stepPromptSession(this.prompt, { type: 'shown' });
+    this.attempt(() => {
+      this.store.replace(PROMPT_FILE, [asciiJson({ v: 1, shownAt: this.platform.wallMs() })]);
+    });
+  }
+
+  private readPromptShown(): number | null {
+    try {
+      const read = this.store.read(PROMPT_FILE, 128);
+      if (read.kind !== 'ok' || read.records.length !== 1) return null;
+      const parsed = JSON.parse(read.records[0] ?? '') as unknown;
+      if (typeof parsed !== 'object' || parsed === null) return null;
+      const { v, shownAt } = parsed as Record<string, unknown>;
+      return v === 1 && typeof shownAt === 'number' && Number.isFinite(shownAt) ? shownAt : null;
+    } catch {
+      return null;
+    }
+  }
+
   getSnapshot = (): AnalyticsSnapshot => this.snapshot;
 
   subscribe = (listener: () => void): (() => void) => {
@@ -340,21 +551,25 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     });
   }
 
-  /** Consent off: queue, install id and marker deleted; the choice file stays. */
   /**
    * Consent off: the queue, the install id and the marker are deleted, with any half-written temp file of every
-   * analytics file (the choice file itself stays). True when none of them is left on disk.
+   * analytics file (the choice file itself stays), and the share directory is swept (a playtest file left there by a
+   * kill while the sheet was open). True when none of the analytics files is left on disk; a sweep that fails is
+   * retried by the start-up sweep (`ShareSweep`).
    */
   private purgeFiles(): boolean {
     const queueGone = this.queue.purge();
-    const names = [INSTALL_ID_FILE, SESSION_MARKER_FILE, CONSENT_FILE].flatMap((name) =>
-      name === CONSENT_FILE ? [name + TMP_SUFFIX] : [name, name + TMP_SUFFIX],
+    const names = [INSTALL_ID_FILE, SESSION_MARKER_FILE, PROMPT_FILE, CONSENT_FILE].flatMap(
+      (name) => (name === CONSENT_FILE ? [name + TMP_SUFFIX] : [name, name + TMP_SUFFIX]),
     );
     for (const name of names) {
       this.attempt(() => {
         this.platform.fs.remove(name);
       });
     }
+    this.attempt(() => {
+      this.platform.sweepShareDirectory();
+    });
     this.installId = null;
     this.marker = null;
     this.pending = [];
@@ -377,6 +592,7 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
       consent: this.choices.consent,
       noticeVisible: !this.choices.noticeSeen,
       installId: this.installId,
+      exports: this.exports,
     };
     for (const listener of this.listeners) listener();
   }

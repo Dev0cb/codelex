@@ -14,9 +14,17 @@ import { I18nProvider } from '../../i18n/i18n-provider';
 import { MemoryFs } from '../../persistence/memory-fs';
 import { HomeScreen } from './home-screen';
 
+interface ReactEffects {
+  useEffect: (effect: () => void, deps: readonly unknown[]) => void;
+}
+
 jest.mock('expo-router', () => ({
   router: { push: jest.fn() },
   useRouter: () => jest.requireMock<{ router: unknown }>('expo-router').router,
+  // Home is always focused here: the effect runs on mount and when the callback changes.
+  useFocusEffect: (effect: () => void) => {
+    jest.requireActual<ReactEffects>('react').useEffect(effect, [effect]);
+  },
 }));
 
 const renderHome = (fs: MemoryFs, enabled: boolean, locale: Locale = 'en') =>

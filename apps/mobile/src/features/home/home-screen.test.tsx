@@ -7,9 +7,16 @@ import { FlagsProvider } from '../../config/flags-provider';
 import { I18nProvider } from '../../i18n/i18n-provider';
 import { HomeScreen } from './home-screen';
 
+interface ReactEffects {
+  useEffect: (effect: () => void, deps: readonly unknown[]) => void;
+}
+
 jest.mock('expo-router', () => ({
   router: { push: jest.fn() },
   useRouter: () => jest.requireMock<{ router: unknown }>('expo-router').router,
+  useFocusEffect: (effect: () => void) => {
+    jest.requireActual<ReactEffects>('react').useEffect(effect, [effect]);
+  },
 }));
 
 const renderHome = (locale: Locale, playEnabled: boolean) =>

@@ -714,23 +714,24 @@ Rules:
  ┌────────────────────────────────────────┐
  │ ←  Send playtest data                  │
  │ This sends one file to the CODELEX     │ export.intro
- │ playtest team through the share sheet… │
+ │ playtest team through your phone's sha…│
  │ Send it to: playtest@example.eu   [Copy]│ only if `playtest.export_address` is configured
  │                                        │
  │ WHAT IS IN THE FILE                    │ export.summary.title
  │ 412 events · 9 matches · 3 Oct–14 Oct  │ real counts from the queue
- │ ✓ App starts and session length        │ one row per event family (icon + text)
+ │ ✓ App starts (…) and session length    │ one row per event family (icon + text)
  │ ✓ Match start, end and result …        │
  │ ✓ Words played: term, category, points │
  │ ✓ Rejected attempts: reason, length    │
  │ ✓ Knowledge Cards opened, time spent   │
  │ ✓ Your answers to “play again”         │
- │ ✓ Technical counters                   │
+ │ ✓ Screens and buttons used …           │
+ │ ✓ Technical details …                  │
  │ ✕ NEVER INCLUDED: name, email, contacts,│ export.excluded.*
- │   location, advertising ID, device IDs │
+ │   location, advertising ID, phone model│
  │ Your tester ID: 8f3a1c2e-…             │
- │ ⓘ If you send it by email, the team can│ export.email_notice (Q-1 decision, honest)
- │   see your email address …             │
+ │ ⓘ If you send it by email, the team    │ export.email_notice (Q-1 decision, honest; privacy review B1)
+ │   sees your email address …            │
  │ ⚠ 37 older events were dropped (limit  │ only when drop count > 0
  │   5,000).                              │
  │ ▸ See an example event                 │ collapsed; shows the oldest event, monospace, read-only
@@ -1288,6 +1289,28 @@ Keys added by `mobile-engineer` in slice S6a, pending translation review: `commo
 `common.copy`/`common.copied` (the tester ID is selectable text; a Copy button needs a clipboard module, not a
 dependency today), sound/haptics/auto-zoom/handedness rows (features not built), and the S6c/S6d export keys.
 
+Keys added by `mobile-engineer` in slice S6c (2026-10-16), pending translation review: `settings.send_data`,
+`settings.send_data.pending` and every `export.*` key of the table below, as written, plus three not in the table,
+for the multi-file and failure states the slice needs: `export.confirm.more` (in the "Did you send the file?" sheet
+when events are left for the next file), `export.remaining` (after "Sent" when events still wait) and
+`export.clear_error` ("Sent" confirmed but the clear could not be saved; Try again). Deviations: the "Sent"
+confirmation is an inline polite live-region line, not a toast (no toast component; nothing to animate), and
+`analytics_buffer_flushed` carries only its catalogue properties (`docs/standards/ANALYTICS_EVENTS.md`): the
+`transport` = `share` property of §5.9 and §11 is not in the catalogue, so it is not emitted. The suggested address
+line follows TM-07 (build constant; hidden while `BUNDLED_EXPORT_ADDRESS` is unset, O-4); its Copy button waits for
+the same clipboard decision as the tester ID (selectable text meanwhile). The privacy review of PR #100 (B1, M1,
+M2, m2) rewrote `export.intro`, `export.summary.item.sessions`, `export.summary.item.technical`,
+`export.excluded.body`, `export.email_notice` and `matchlog.email_notice` (Google storage, possibly outside the
+tester's country, not "EU storage"; what a mail app adds; the Sent-folder copy) and added
+`export.summary.item.screens` (onboarding, post-match, graph and bot-timing events), listed before the technical row.
+`export.remaining` counts what the confirmed file left out (its `remaining`), not the live queue.
+
+| Key | EN | FR |
+|---|---|---|
+| export.confirm.more | {count, plural, one {# more event will go in the next file.} other {# more events will go in the next file.}} | {count, plural, one {# autre événement partira dans le fichier suivant.} other {# autres événements partiront dans le fichier suivant.}} |
+| export.remaining | {count, plural, one {# event is still waiting. Share the next file.} other {# events are still waiting. Share the next file.}} | {count, plural, one {# événement attend encore. Partage le fichier suivant.} other {# événements attendent encore. Partage le fichier suivant.}} |
+| export.clear_error | Couldn't clear the sent events from your phone. They stay until you try again. | Impossible d'effacer les événements envoyés de ton téléphone. Ils restent jusqu'à ce que tu réessaies. |
+
 | Key | EN | FR |
 |---|---|---|
 | settings.title | Settings | Réglages |
@@ -1319,21 +1342,22 @@ dependency today), sound/haptics/auto-zoom/handedness rows (features not built),
 | settings.language.note | Language follows your phone. | La langue suit celle de ton téléphone. |
 | settings.save_error | Couldn't save. Try again. | Enregistrement impossible. Réessaie. |
 | export.title | Send playtest data | Envoyer les données de test |
-| export.intro | This sends one file to the CODELEX playtest team through the share sheet. You choose the app and the recipient. | Ceci envoie un fichier à l'équipe de test CODELEX via le menu de partage. Tu choisis l'application et le destinataire. |
+| export.intro | This sends one file to the CODELEX playtest team through your phone's share menu. Send it by email to the address below. | Ceci envoie un fichier à l'équipe de test CODELEX via le menu de partage. Envoie-le par e-mail à l'adresse ci-dessous. |
 | export.recipient | Send it to: {address} | Envoie-le à : {address} |
 | export.summary.title | What is in the file | Contenu du fichier |
 | export.summary.counts | {events, plural, one {# event} other {# events}} · {matches, plural, one {# match} other {# matches}} · {from} to {to} | {events, plural, one {# événement} other {# événements}} · {matches, plural, one {# partie} other {# parties}} · du {from} au {to} |
-| export.summary.item.sessions | App starts and session length | Lancements et durée des sessions |
+| export.summary.item.sessions | App starts (connection type, whether the last session crashed) and session length | Lancements (type de connexion, plantage de la session précédente) et durée des sessions |
 | export.summary.item.matches | Match start, end and result: scores, length, opponent | Début, fin et résultat des parties : scores, durée, adversaire |
 | export.summary.item.words | Words you and the bot played: term, category, points — not what you typed | Mots joués par toi et par le bot : terme, catégorie, points — pas ce que tu as saisi |
 | export.summary.item.rejections | Rejected attempts: reason and word length only, never the word | Essais refusés : motif et longueur du mot seulement, jamais le mot |
 | export.summary.item.cards | Knowledge Cards you opened and for how long | Fiches ouvertes et temps passé |
 | export.summary.item.survey | Your answers to the “play again” question | Tes réponses à la question « rejouer ? » |
-| export.summary.item.technical | Technical counters: dropped events, file version | Compteurs techniques : événements supprimés, version du fichier |
+| export.summary.item.screens | Screens and buttons used: first-launch steps, after-match choices, knowledge graph browsing, bot thinking time | Écrans et boutons utilisés : premières étapes, choix après la partie, navigation dans le graphe, temps de réflexion du bot |
+| export.summary.item.technical | Technical details: app version and build, Android, app language, phone-clock times, session IDs, dropped-event counts | Détails techniques : version et build de l'app, Android, langue de l'app, heures de l'horloge du téléphone, identifiants de session, nombre d'événements perdus |
 | export.excluded.title | Never included | Jamais inclus |
-| export.excluded.body | Your name, email address, contacts, location, advertising ID, device identifiers. | Ton nom, ton adresse e-mail, tes contacts, ta position, ton identifiant publicitaire, les identifiants de ton appareil. |
+| export.excluded.body | Your name, email address, contacts, location, advertising ID, phone model or serial number. Your tester ID is a random number made by this app, not your phone's ID. | Ton nom, ton adresse e-mail, tes contacts, ta position, ton identifiant publicitaire, le modèle ou le numéro de série de ton téléphone. Ton identifiant testeur est un numéro aléatoire créé par l'app, pas l'identifiant de ton téléphone. |
 | export.id_line | Your tester ID: {id} | Ton identifiant testeur : {id} |
-| export.email_notice | If you send it by email, the team can see your email address and link it to your tester ID. Files are kept in restricted EU storage and the emails are deleted within 7 days. | Si tu l'envoies par e-mail, l'équipe voit ton adresse et peut la relier à ton identifiant testeur. Les fichiers sont conservés dans un stockage UE restreint et les e-mails sont supprimés sous 7 jours. |
+| export.email_notice | If you send it by email, the team sees your email address (and anything your mail app adds, such as your name) and can link it to your tester ID. Files are kept in restricted Google storage, which may be outside your country, and the emails are deleted within 7 days. A copy stays in your own Sent folder. | Si tu l'envoies par e-mail, l'équipe voit ton adresse (et ce que ton app de messagerie ajoute, comme ton nom) et peut la relier à ton identifiant testeur. Les fichiers sont conservés dans un stockage Google restreint, parfois hors de ton pays, et les e-mails sont supprimés sous 7 jours. Une copie reste dans tes messages envoyés. |
 | export.dropped | {count, plural, one {# older event was dropped because the buffer is full (limit {max}).} other {# older events were dropped because the buffer is full (limit {max}).}} | {count, plural, one {# ancien événement a été supprimé car la mémoire est pleine (limite {max}).} other {# anciens événements ont été supprimés car la mémoire est pleine (limite {max}).}} |
 | export.sample.toggle | See an example event | Voir un exemple d'événement |
 | export.share | Share file… | Partager le fichier… |
@@ -1354,7 +1378,7 @@ dependency today), sound/haptics/auto-zoom/handedness rows (features not built),
 | export.prompt.later | Not now | Plus tard |
 | matchlog.confirm.title | Send match log? | Envoyer le journal de partie ? |
 | matchlog.confirm.body | The file holds the moves, seed and versions of {scope}. No personal data in the file. | Le fichier contient les coups, la graine et les versions de {scope}. Aucune donnée personnelle dans le fichier. |
-| matchlog.email_notice | If you send it by email, the team can see your email address. Files are kept in restricted EU storage and the emails are deleted within 7 days. | Si tu l'envoies par e-mail, l'équipe voit ton adresse. Les fichiers sont conservés dans un stockage UE restreint et les e-mails sont supprimés sous 7 jours. |
+| matchlog.email_notice | If you send the match log by email, the team sees your email address (and anything your mail app adds, such as your name). Match logs are kept in restricted Google storage, which may be outside your country, and the emails are deleted within 7 days. A copy stays in your own Sent folder. | Si tu envoies le journal de partie par e-mail, l'équipe voit ton adresse (et ce que ton app de messagerie ajoute, comme ton nom). Les journaux de partie sont conservés dans un stockage Google restreint, parfois hors de ton pays, et les e-mails sont supprimés sous 7 jours. Une copie reste dans tes messages envoyés. |
 | matchlog.scope.current | your current match | ta partie en cours |
 | matchlog.scope.last | your last finished match | ta dernière partie terminée |
 | matchlog.empty | No match to export yet. | Aucune partie à exporter pour l'instant. |

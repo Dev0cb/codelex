@@ -91,6 +91,7 @@ const OFF: AnalyticsSnapshot = {
   consent: false,
   noticeVisible: false,
   installId: null,
+  exports: 0,
 };
 const noSubscription = (): (() => void) => () => undefined;
 const offSnapshot = (): AnalyticsSnapshot => OFF;

@@ -50,13 +50,17 @@ src/knowledge/      card text decoder (raw DEFLATE + base64), card model and car
 src/features/knowledge/  Knowledge Card sheet, card hooks, category glyphs
 src/lexicon/        .clxi loader (pure, injected platform source), LexiconGate / useLexicon, E-1.5 §5.10.1 error state
 src/linking/        deep-link guard used by src/app/+native-intent.ts (GHSA-vcc3-ghjq-m6fr)
+src/sharing/        the one share-and-cleanup path (TM-04): `<cache>/codelex-share/`, OS share sheet via
+                    expo-sharing (added in S6c: RN `Share` cannot share a file on Android), whole-directory sweep
+src/features/send-data/  "Send playtest data" screen (S6c, design §5.9)
 src/theme/          useTokens() over @codelex/design-system (OS appearance, dark default)
 scripts/            prepare:lexicon, bundle-size budget and bundle-contents check (node:test)
 assets/lexicon/     lexicon.clxi + lexicon.json + cards.json (card text), written by prepare:lexicon (git-ignored,
                     never edit)
 jest/               Jest-only stand-ins: .clxi transformer, Node versions of expo-asset/-file-system/-crypto, Skia
                     stand-in, worklets resolver, Gesture Handler setup
-e2e/                Maestro flows (S1: full match vs Beginner; S2: HUD, Resign, Summary; S5: Knowledge Card)
+e2e/                Maestro flows (S1: full match vs Beginner; S2: HUD, Resign, Summary; S5: Knowledge Card;
+                    S6c: Send playtest data)
 metro.config.cjs    Expo defaults + `clxi` asset extension (lexicon index)
 bundle-budget.json  bytes per platform for the Hermes bundle, the bundled code assets and the lexicon index
 bundle-forbidden-packages.json  toolchain packages that must never be bundled (audit exceptions)

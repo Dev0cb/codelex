@@ -20,6 +20,7 @@ export function createTestAnalytics(fs: FsPrimitives, enabled: boolean): Playtes
       monoMs: () => 0,
       sinceProcessStartMs: () => 1200,
       context: () => ({ app_version: '0.1.0', platform: 'android', locale: 'en-US' }),
+      sweepShareDirectory: () => undefined,
     },
     enabled,
   );

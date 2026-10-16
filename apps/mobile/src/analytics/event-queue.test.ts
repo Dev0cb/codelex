@@ -14,6 +14,7 @@ import {
   EventQueue,
   type DroppedCounts,
   QUEUE_CAP,
+  type SentBatch,
   QUEUE_COMPACT_AFTER,
   QUEUE_FILES,
   QUEUE_MAX_AGE_MS,
@@ -456,5 +457,122 @@ describe('EventQueue', () => {
         },
       ),
     );
+  });
+});
+
+describe('EventQueue export (slice S6c)', () => {
+  const finished = (n: number): AnalyticsEvent => {
+    const parsed = parseAnalyticsEvent(sampleEvent('bot_match_finished', n));
+    if (!parsed.ok) throw new Error(parsed.issues.join());
+    return parsed.event;
+  };
+
+  it('summarises counts, matches and the time range without parsing events', () => {
+    const queue = open(new MemoryFs());
+    expect(queue.summary()).toEqual({ events: 0, matches: 0, oldestMs: null, newestMs: null });
+    queue.append(eventAt(1, T0 - 2 * DAY));
+    queue.append(finished(2));
+    queue.append(eventAt(3, T0 - DAY));
+    queue.append(finished(4));
+    expect(queue.summary()).toEqual({
+      events: 4,
+      matches: 2,
+      oldestMs: T0 - 2 * DAY,
+      newestMs: T0,
+    });
+  });
+
+  it('returns the guarded events with their sequence numbers, and the oldest as a sample', () => {
+    const queue = open(new MemoryFs());
+    expect(queue.sample()).toBeNull();
+    for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
+    const batch = queue.exportable();
+    expect(ids(batch.events)).toEqual([1, 2, 3]);
+    expect(batch.seqs).toEqual([0, 1, 2]);
+    expect(queue.sample()?.event_id).toBe(batch.events[0]?.event_id);
+  });
+
+  it('skips an unreadable oldest record for the sample', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs);
+    queue.append(eventAt(1));
+    queue.append(eventAt(2));
+    const store = new DataStore(fs);
+    const read = store.read(QUEUE_FILES[0], 1 << 20);
+    if (read.kind !== 'ok') throw new Error(read.kind);
+    const [bad = '', good = ''] = read.records;
+    store.replace(QUEUE_FILES[0], [bad.replace('"locale":"fr-SN"', '"locale":"??"'), good]);
+    const sample = open(fs.reboot()).sample();
+    expect(sample === null ? [] : ids([sample])).toEqual([2]);
+  });
+
+  /** The file's batch as the export ticket holds it: the first and last sequence numbers and the event count. */
+  const sentBatch = (seqs: readonly number[], count = seqs.length): SentBatch => ({
+    firstSeq: seqs[0] ?? -1,
+    lastSeq: seqs[count - 1] ?? -1,
+    events: count,
+  });
+
+  it('clearThrough clears only the exported events, even after new ones and cap drops', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs, T0, 4);
+    for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
+    const batch = queue.exportable();
+    const reported = queue.dropped();
+    // While the share sheet is open: two more events, one of which pushes event 1 out at the cap.
+    queue.append(eventAt(4));
+    queue.append(eventAt(5));
+    expect(queue.dropped().queueCap).toBe(1);
+    expect(queue.clearThrough(sentBatch(batch.seqs), reported)).toBe(true);
+    expect(ids(queue.events())).toEqual([4, 5]);
+    // Event 1 was in the file that was sent: its cap drop is not reported again in the next file.
+    expect(queue.dropped()).toEqual(NONE);
+    const reopened = open(fs.reboot(), T0, 4);
+    expect(ids(reopened.events())).toEqual([4, 5]);
+    expect(reopened.dropped()).toEqual(NONE);
+  });
+
+  it('clearThrough still reports a cap drop of an event the file did not hold', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs, T0, 4);
+    for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
+    // The file held events 1 and 2 only (the 1 MB cap left event 3 for the next file).
+    const batch = sentBatch(queue.exportable().seqs, 2);
+    const reported = queue.dropped();
+    // While the sheet is open: four more events push 1, 2 (sent) and 3 (never sent) out at the cap.
+    for (let n = 4; n <= 7; n += 1) queue.append(eventAt(n));
+    expect(queue.dropped().queueCap).toBe(3);
+    expect(queue.clearThrough(batch, reported)).toBe(true);
+    expect(ids(queue.events())).toEqual([4, 5, 6, 7]);
+    expect(queue.dropped()).toEqual({ ...NONE, queueCap: 1 });
+    expect(open(fs.reboot(), T0, 4).dropped()).toEqual({ ...NONE, queueCap: 1 });
+  });
+
+  it('subtracts exactly the counts the file reported, never below zero', () => {
+    const queue = open(new MemoryFs());
+    queue.append(eventAt(1));
+    queue.countInvalid();
+    queue.countInvalid();
+    const reported = queue.dropped();
+    const batch = sentBatch(queue.exportable().seqs);
+    queue.countInvalid();
+    expect(queue.clearThrough(batch, reported)).toBe(true);
+    expect(queue.dropped()).toEqual({ ...NONE, invalid: 1 });
+    expect(queue.clearThrough(batch, { queueCap: 9, expired: 9, invalid: 9 })).toBe(true);
+    expect(queue.dropped()).toEqual(NONE);
+  });
+
+  it('reports a clear that hit a full disk; flush() retries it and the events never come back', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs);
+    for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
+    const batch = queue.exportable();
+    fs.fullAfter = 0;
+    expect(queue.clearThrough(sentBatch(batch.seqs), NONE)).toBe(false);
+    expect(queue.flush()).toBe(false);
+    fs.fullAfter = null;
+    expect(queue.flush()).toBe(true);
+    expect(queue.flush()).toBe(true);
+    expect(ids(open(fs.reboot()).events())).toEqual([]);
   });
 });

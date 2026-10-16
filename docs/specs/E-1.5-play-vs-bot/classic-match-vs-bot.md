@@ -457,9 +457,21 @@ SP2 (2026-10-07): each S6 slice merges with its flag **off** as the bundled defa
 the value in the Stage 0 / Stage 1 playtest build, flipped once the slice has passed its review. ASSUMPTION: while
 `analytics.upload.enabled` is off, the consented queue records nothing, and the first-run notice, the Settings
 "Playtest data" section and the export entry points are hidden; the non-analytics Settings rows (sound, vibration,
-motion, handedness, versions) are not behind it. Consent (AC-17) still applies on top when the flag is on.
+motion, handedness, versions) are not behind it. Consent (AC-17) still applies on top when the flag is on. One file
+check still runs with the flag off: the start-up sweep of the share directory (`ShareSweep`, threat model TM-04)
+checks once for `<cache>/codelex-share/` and deletes it if a killed share left it behind. It is kept on purpose (the
+TM-04 cleanup, needed by every feature that shares a file, whatever its flag) and touches neither analytics files
+nor the data directory.
 ASSUMPTION: `playtest.match_log.enabled` is a new flag so S6d can merge and be killed independently of the
 analytics export; it changes no AC.
+
+S6c note (2026-10-16, PR #95 review minor 5): the first-run notice copy (`notice.analytics.body`) tells testers their
+stats leave the phone "only if you tap Send playtest data". Until S6c that control did not exist, so the flag had to
+stay off everywhere. With S6c merged it exists (Settings row, export screen, end-of-session prompt), so
+`analytics.upload.enabled` **may be turned on for the enrolled playtest cohort only** (Stage 0/1 builds via
+`EXPO_PUBLIC_CODELEX_FLAGS`), never in a build distributed outside the enrollment roster. Before the first such
+build, privacy-compliance confirms the notice text and the export screen copy (`export.*`) against consent form v1
+(`playtest-plan.md` §2).
 
 `PLAY_RULES_VERSION` is **not** a flag. It is a build constant (AC-3, ADR-0014): the rules version that new matches
 pin cannot be changed by remote config. Switching v1 ↔ v2 means shipping a new build.
