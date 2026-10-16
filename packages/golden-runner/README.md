@@ -30,6 +30,20 @@ runtime block has to come from the host, so it is an argument). Exports: `runGol
 `corpusDigest`, `engineRulesVersionsOf`, `canonicalJson` (re-export) and the core types. It never imports zod or
 the report schemas: DG1 imports **only** this entry; parsing and comparison stay on Node.
 
+- **Stepwise run (DG1).** `runGoldensStepwise(corpus, host)` is a generator that yields `{ suite, done, total }`
+  after every case and returns the report; `runGoldens` drains it, so both give the same document. A suite's
+  `timings.totalMs` is the sum of its case intervals, so the time an app host spends between two cases (rendering
+  progress, handling Cancel) is not counted (DG1 note §5.1).
+- **Bench helpers (`src/core/bench/`, DG1 note §5, P5 §7).** Pure; the host owns the clock. `createPositionSource`
+  (the P5 §2 positions: Beginner mirror games from `seedOf(9000)`, action ≥ 2, one decision per `step()`),
+  `withTwoBlanks`, `benchDecision` (frozen `BOT_VERSION` budgets), `playBenchStep`/`startBenchMatch` (drift
+  matches), `decisionEquality` (P5 §7 item 4, read off the `bots/decisions-b2-r1` cases), `gcDet01Fixture` (the
+  `apply` bench), `formsOf`/`seededNonWords` (the `has()` bench), `distribution` (integer p50/p95/p99/max, the
+  `qa2.bench.ts` percentile) and `fitConstants` (bots-api §6 `T_fixed`, `c_node`, `c_cand` by least squares).
+  BN1 (ai-engineer) moves the Node harness onto the same position source.
+- **Marker.** `GOLDEN_RUNNER_MARKER` (`CODELEX_GOLDEN_RUNNER_V1`): the app's production bundle check fails if it is
+  in a shipped bundle; the preview-diagnostics positive control requires it (DG1 note §3.3).
+
 | Suite (order)          | Corpus file(s)                                | Cases (ids)                                                              | Public APIs used                                                             |
 | ---------------------- | --------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
 | `rng`                  | `game-engine/test/golden/rng.json`            | `<seed>/<stream>`: derived state, `next`, `int` series, shuffle          | `./rng`                                                                      |
