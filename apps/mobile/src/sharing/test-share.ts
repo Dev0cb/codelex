@@ -1,6 +1,7 @@
 /**
  * Test support (not shipped: nothing in the app imports it). An in-memory share directory and a scripted share
- * sheet that records what it was given and what was on "disk" while it was open.
+ * sheet that records what it was given and what was on "disk" while it was open. Files are keyed by their visible
+ * name; the URI carries a new subdirectory per write, as on the device.
  */
 import type { ShareServices, ShareSheetOptions } from './share-file';
 
@@ -18,6 +19,8 @@ export interface TestShare extends ShareServices {
   holdSheet: boolean;
   closeSheet: () => void;
   clears: number;
+  /** Files written so far (each in its own subdirectory). */
+  writes: number;
 }
 
 export function createTestShare(): TestShare {
@@ -31,6 +34,7 @@ export function createTestShare(): TestShare {
     failOpen: false,
     holdSheet: false,
     clears: 0,
+    writes: 0,
     closeSheet: () => {
       const pending = close;
       close = null;
@@ -43,7 +47,10 @@ export function createTestShare(): TestShare {
           throw new Error('ENOSPC');
         }
         files.set(name, text);
-        return `file:///cache/codelex-share/${name}`;
+        share.writes += 1;
+        // A fresh subdirectory per share, as on the device (a deterministic UUID v4 here).
+        const id = `00000000-0000-4000-8000-${share.writes.toString(16).padStart(12, '0')}`;
+        return `file:///cache/codelex-share/${id}/${name}`;
       },
       clear() {
         share.clears += 1;

@@ -8,18 +8,29 @@
  * provider's paths also cover the app's files and external storage, so `open` refuses any URI outside the share
  * directory (`isInShareDirectory`).
  */
+import { randomUUID } from 'expo-crypto';
 import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import { isInShareDirectory, SHARE_DIR, type ShareServices } from './share-file';
 
-export function createDeviceShare(): ShareServices {
+/** A random UUID v4: the per-share subdirectory. */
+const SHARE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+/**
+ * @param newShareId A random UUID v4 per share (expo-crypto's CSPRNG on the device; tests inject one). It names the
+ *   subdirectory the file is written to, so the `content://` URI differs at every share: a grant expo-sharing never
+ *   revokes cannot read a later file (TM-04). The file keeps its visible name.
+ */
+export function createDeviceShare(newShareId: () => string = randomUUID): ShareServices {
   const directory = (): Directory => new Directory(Paths.cache, SHARE_DIR);
   return {
     directory: {
       write(name, text) {
-        const dir = directory();
-        dir.create({ intermediates: true, idempotent: true });
+        const id = newShareId();
+        if (!SHARE_ID.test(id)) throw new Error('share id is not a UUID v4');
+        const dir = new Directory(directory(), id);
+        dir.create({ intermediates: true, idempotent: false });
         const file = new File(dir, name);
         file.write(text);
         return file.uri;

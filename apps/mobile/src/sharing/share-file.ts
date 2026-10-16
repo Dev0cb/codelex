@@ -2,15 +2,17 @@
  * The one share-and-cleanup path for files that leave the device on a tap (threat model TM-04, I-3; slice S6c):
  * "Send playtest data" now, "Send match log" (S6d) and the preview-only Diagnostics report (DG1) next.
  *
- * - The file is written to its own directory in the app **cache** (`<cache>/codelex-share/`), never to shared or
- *   external storage, and never to the backup-excluded data directory (`codelex-data`, TM-03).
+ * - The file is written to its own directory in the app **cache** (`<cache>/codelex-share/<random UUID>/`), never to
+ *   shared or external storage, and never to the backup-excluded data directory (`codelex-data`, TM-03). The random
+ *   subdirectory is new at every share, so the shared URI is never the same twice (expo-sharing never revokes the
+ *   read grant it gives; an old grant cannot read a later file).
  * - It is shared through the OS share sheet, which hands other apps a scoped, per-share URI (Android: the
  *   non-exported `FileProvider` of expo-sharing with a temporary read grant; iOS: the activity view controller).
  * - The whole directory is deleted when the sheet closes, whatever the tester did, and swept again at every app start
  *   (`sweepShareDirectory`), so a file left by a kill while the sheet was open does not survive the next launch. The
  *   sweep deletes the **directory**, not a list of names, so production code needs no other feature's file name
  *   (Diagnostics note DS-7, §6).
- * - Fixed file names without date or id (TM-04); the name is checked to be a plain file name.
+ * - Fixed visible file names without date or id (TM-04); the name is checked to be a plain file name.
  *
  * Effects are injected (`ShareServices`): `device-share.ts` on the device, an in-memory double in tests.
  */
@@ -21,7 +23,10 @@ export const SHARE_DIR = 'codelex-share';
 const PLAIN_FILE_NAME = /^[a-z0-9][a-z0-9.-]{0,63}\.json$/;
 
 export interface ShareDirectory {
-  /** Writes `text` (UTF-8) as `name` in the share directory, creating it; returns the file URI. Throws on failure. */
+  /**
+   * Writes `text` (UTF-8) as `name` in a new random subdirectory of the share directory, creating both; returns the
+   * file URI. Throws on failure.
+   */
   write(name: string, text: string): string;
   /** Deletes the share directory and everything in it; nothing when it does not exist. Throws on failure. */
   clear(): void;

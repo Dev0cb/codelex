@@ -22,7 +22,9 @@ describe('shareTextFile (TM-04)', () => {
     expect(await shareTextFile(share, FILE)).toBe('closed');
     expect(share.opened).toHaveLength(1);
     const [opened] = share.opened;
-    expect(opened?.uri).toBe('file:///cache/codelex-share/codelex-playtest-data.json');
+    expect(opened?.uri).toBe(
+      'file:///cache/codelex-share/00000000-0000-4000-8000-000000000001/codelex-playtest-data.json',
+    );
     expect(opened?.options).toEqual({
       mimeType: 'application/json',
       uti: 'public.json',
@@ -89,5 +91,15 @@ describe('shareTextFile (TM-04)', () => {
       throw new Error('EBUSY');
     };
     expect(sweepShareDirectory(share.directory)).toBe(false);
+  });
+
+  it('shares each file under a new URI, with the same visible name', async () => {
+    const share = createTestShare();
+    expect(await shareTextFile(share, FILE)).toBe('closed');
+    expect(await shareTextFile(share, FILE)).toBe('closed');
+    const [first, second] = share.opened.map((o) => o.uri);
+    expect(first).not.toBe(second);
+    expect(first?.endsWith('/codelex-playtest-data.json')).toBe(true);
+    expect(second?.endsWith('/codelex-playtest-data.json')).toBe(true);
   });
 });
