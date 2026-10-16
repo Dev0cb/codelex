@@ -24,8 +24,8 @@ Population
   roster: 6 installs mapped, 0 not in roster (counted as their own tester), 0 roster testers without data
 
 Median session length (target >= 8 min; sessions of active testers)
-  median 10.0 min, IQR 8.8 min to 12.0 min, n = 16 sessions from 4 testers
-  median of per-tester medians 10.0 min
+  median 11.0 min, IQR 9.5 min to 13.0 min, n = 15 sessions from 4 testers
+  median of per-tester medians 11.3 min
   sessions under 10 s (kept in the figures): 1
   excluded: 0 incomplete sessions (still open at export), 2 sessions of non-active testers
 
@@ -34,10 +34,10 @@ Would play again (target Yes >= 70 %; last non-dismissed answer per tester)
   dismissed only 1, no answer 1; dismissed answer events 1 of 4 survey cards shown
 
 Crash-free (target >= 99.5 % per platform; crash = previous_exit_unclean, an OS background kill is not a crash)
-  overall 84.6 % (11 of 13 sessions, 95 % CI 57.8-95.7 %)
-  android: sessions 100.0 % (0 crashed of 7, 95 % CI 64.6-100.0 %); users 100.0 % (3 of 3)
-  ios: sessions 66.7 % (2 crashed of 6, 95 % CI 30.0-90.3 %); users 0.0 % (0 of 2)
-  sessions with unknown outcome (no later cold start), left out: 6
+  overall 88.9 % (16 of 18 sessions, 95 % CI 67.2-96.9 %)
+  android: sessions 100.0 % (0 crashed of 11, 95 % CI 74.1-100.0 %); users 100.0 % (3 of 3)
+  ios: sessions 71.4 % (2 crashed of 7, 95 % CI 35.9-91.8 %); users 0.0 % (0 of 2)
+  sessions with unknown outcome (still open at export), left out: 0
   of the crashes, zero-length (unclean flag with no open session, e.g. a boot crash): 1
 
 Data quality

@@ -49,7 +49,7 @@ export function renderText(r) {
       `  ${platform}: sessions ${pct(row.crashFreeSessions)} (${row.crashed} crashed of ${row.sessions}${ci(row.crashFreeSessions)}); users ${pct(u)} (${u.k} of ${u.n})`,
     );
   }
-  L.push(`  sessions with unknown outcome (no later cold start), left out: ${c.sessionsWithUnknownOutcome}`);
+  L.push(`  sessions with unknown outcome (still open at export), left out: ${c.sessionsWithUnknownOutcome}`);
   L.push(`  of the crashes, zero-length (unclean flag with no open session, e.g. a boot crash): ${c.zeroLengthCrashedSessions}`);
   L.push("");
   L.push("Data quality");

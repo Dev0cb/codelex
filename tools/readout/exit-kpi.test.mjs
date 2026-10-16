@@ -33,6 +33,15 @@ test("statistics: quantile, summarise, wilson", () => {
   assert.equal(wilson(0, 0), null);
   const w = wilson(7, 10);
   assert.ok(Math.abs(w.low - 0.3968) < 1e-3 && Math.abs(w.high - 0.8922) < 1e-3);
+  // Edges: the interval is clamped to [0, 1] and the point estimate stays inside it.
+  const none = wilson(0, 10);
+  assert.equal(none.low, 0);
+  assert.ok(Math.abs(none.high - 0.2775) < 1e-3);
+  const all = wilson(10, 10);
+  assert.ok(all.high <= 1 && all.high > 1 - 1e-9);
+  assert.ok(Math.abs(all.low - 0.7225) < 1e-3);
+  assert.equal(wilson(1, 1).high, 1);
+  assert.equal(wilson(0, 1).low, 0);
 });
 
 test("median session: hand-computed median, IQR and n", () => {
@@ -198,9 +207,10 @@ test("crash-free: crash with an open interval, boot crash, and an OS background 
   const crash = new Device({ rng: makeRng(1), platform: "ios" });
   crash.open(false).match(3 * MIN).wait(2 * MIN); // killed here
   crash.wait(MIN).open(true).match(4 * MIN).background();
-  crash.wait(20 * 3_600_000).open(false).match(MIN).background(); // a later cold start decides session 2 as clean
+  // The relaunch is 3 min after the last event: the same session (Q-12), 3 + 4 min, counted as crashed.
+  crash.wait(20 * 3_600_000).open(false).match(MIN).background(); // a separate, clean session
   const s = reconstructSessions(crash.events).sessions;
-  assert.deepEqual(s.map((x) => [x.outcome, x.foregroundMs]), [["crashed", 3 * MIN], ["clean", 4 * MIN], ["unknown", MIN]]);
+  assert.deepEqual(s.map((x) => [x.outcome, x.foregroundMs]), [["crashed", 7 * MIN], ["clean", MIN]]);
 
   // Boot crash: the previous session closed cleanly, nothing was open; a separate zero-length crashed session.
   const boot = new Device({ rng: makeRng(2), platform: "ios" });
@@ -208,14 +218,14 @@ test("crash-free: crash with an open interval, boot crash, and an OS background 
   boot.wait(MIN).open(true).wait(MIN).background();
   const b = reconstructSessions(boot.events).sessions;
   assert.equal(b.filter((x) => x.zeroLength && x.outcome === "crashed").length, 1);
-  assert.deepEqual(b.filter((x) => !x.zeroLength).map((x) => [x.foregroundMs, x.outcome]), [[3 * MIN, "unknown"]]); // 2 + 1 min joined (1 min gap)
+  assert.deepEqual(b.filter((x) => !x.zeroLength).map((x) => [x.foregroundMs, x.outcome]), [[3 * MIN, "clean"]]); // 2 + 1 min joined (1 min gap), closed by app_backgrounded
 
   // OS kill in the background: the marker was removed at background, so the next cold start says false.
   const killed = new Device({ rng: makeRng(3), platform: "android" });
   killed.open(false).match(5 * MIN).background();
   killed.wait(6 * 3_600_000).open(false).match(MIN).background();
   const k = reconstructSessions(killed.events).sessions;
-  assert.deepEqual(k.map((x) => x.outcome), ["clean", "unknown"]);
+  assert.deepEqual(k.map((x) => x.outcome), ["clean", "clean"]);
 
   const r = readout([
     exportFile(crash, { exportedAt: day(3) }),
@@ -223,28 +233,75 @@ test("crash-free: crash with an open interval, boot crash, and an OS background 
     exportFile(killed, { exportedAt: day(3) }),
   ]);
   const ios = r.crashFree.byPlatform.ios;
-  // crash device: crashed + clean decided, last unknown; boot device: zero-length crashed decided, joined one unknown
-  assert.deepEqual([ios.sessions, ios.crashed, ios.unknownOutcomeExcluded], [3, 2, 2]);
+  // crash device: crashed + clean; boot device: zero-length crashed + the joined session (clean)
+  assert.deepEqual([ios.sessions, ios.crashed, ios.unknownOutcomeExcluded], [4, 2, 0]);
   assert.equal(r.crashFree.byPlatform.android.crashed, 0);
-  assert.equal(r.crashFree.byPlatform.android.sessions, 1);
+  assert.equal(r.crashFree.byPlatform.android.sessions, 2);
   assert.equal(r.crashFree.byPlatform.android.crashFreeSessions.value, 1);
   assert.equal(r.crashFree.usersByPlatform.android.value, 1);
   assert.equal(r.crashFree.usersByPlatform.ios.value, 0);
 });
 
+test("crash-free: warm sessions after the last cold start are clean (they closed with app_backgrounded)", () => {
+  // 1 cold session + 5 warm sessions 3 h apart (each its own session), then the export is made in the foreground.
+  const d = new Device({ rng: makeRng(11), platform: "android" });
+  d.open(false).match(MIN).background();
+  for (let i = 0; i < 5; i += 1) d.wait(3 * 3_600_000).open().wait(2 * MIN).background();
+  d.wait(3 * 3_600_000).open().wait(MIN); // the export: foreground, open tail
+  const s = reconstructSessions(d.events).sessions;
+  assert.deepEqual(s.map((x) => x.outcome), ["clean", "clean", "clean", "clean", "clean", "clean", "unknown"]);
+  const cf = readout([exportFile(d, { exportedAt: day(2) })]).crashFree;
+  assert.deepEqual([cf.byPlatform.android.sessions, cf.byPlatform.android.crashed], [6, 0]);
+  assert.equal(cf.byPlatform.android.crashFreeSessions.value, 1);
+  assert.equal(cf.overall.value, 1);
+  assert.equal(cf.sessionsWithUnknownOutcome, 1);
+  // A trailing session that closed with app_backgrounded is clean too: nothing can make it unclean afterwards.
+  const e = new Device({ rng: makeRng(12), platform: "android" });
+  e.open(false).match(MIN).background();
+  assert.equal(readout([exportFile(e, { exportedAt: day(1) })]).crashFree.overall.n, 1);
+});
+
+test("crash-free: a crash does not end the session; a relaunch within 30 min continues it as a crashed session (Q-12)", () => {
+  const within = new Device({ rng: makeRng(13), platform: "ios" });
+  within.open(false).match(3 * MIN).wait(MIN); // killed in the foreground
+  within.wait(10 * MIN).open(true).wait(2 * MIN).background();
+  const a = reconstructSessions(within.events).sessions;
+  assert.equal(a.length, 1);
+  assert.deepEqual([a[0].outcome, a[0].foregroundMs], ["crashed", 5 * MIN]);
+
+  const after = new Device({ rng: makeRng(14), platform: "ios" });
+  after.open(false).match(3 * MIN).wait(MIN);
+  after.wait(40 * MIN).open(true).wait(2 * MIN).background(); // gap from the last event: 40 min
+  const b = reconstructSessions(after.events).sessions;
+  assert.deepEqual(b.map((x) => [x.outcome, x.foregroundMs]), [["crashed", 3 * MIN], ["clean", 2 * MIN]]);
+});
+
+test("de-duplication keys on install and event_id: the same event_id in two installs is two events", () => {
+  const a = new Device({ rng: makeRng(21) });
+  a.interval(MIN, false);
+  const b = new Device({ rng: makeRng(22) });
+  b.interval(MIN, false);
+  const shared = a.events[0].event_id;
+  b.events[0] = { ...b.events[0], event_id: shared };
+  const r = readout([exportFile(a, { exportedAt: day(1) }), exportFile(b, { exportedAt: day(1) })]);
+  assert.equal(r.dataQuality.duplicateEvents, 0);
+  assert.equal(r.dataQuality.events, 4);
+  assert.equal(r.crashFree.overall.n, 2);
+});
+
 test("crash-free: hand-computed rate per platform", () => {
-  // android: 4 decided sessions, 1 crashed -> 75 %
+  // android: 4 sessions, 1 crashed -> 75 %
   const d = new Device({ rng: makeRng(5), platform: "android" });
   d.open(false).wait(MIN).background(); // 1 clean
   d.wait(2 * 3_600_000).open(false).wait(MIN); // killed in the foreground
-  d.wait(MIN).open(true).wait(MIN).background(); // 2 crashed; 3 clean
-  d.wait(2 * 3_600_000).open(false).wait(MIN).background(); // 4 clean (decided by the next cold start)
-  d.wait(2 * 3_600_000).open(false).wait(MIN).background(); // 5 unknown
+  d.wait(MIN).open(true).wait(MIN).background(); // 2 crashed (the relaunch 2 min later continues it)
+  d.wait(2 * 3_600_000).open(false).wait(MIN).background(); // 3 clean
+  d.wait(2 * 3_600_000).open(false).wait(MIN).background(); // 4 clean
   const r = readout([exportFile(d, { exportedAt: day(2) })]);
   const a = r.crashFree.byPlatform.android;
-  assert.deepEqual([a.sessions, a.crashed, a.unknownOutcomeExcluded], [4, 1, 1]);
+  assert.deepEqual([a.sessions, a.crashed, a.unknownOutcomeExcluded], [4, 1, 0]);
   assert.equal(a.crashFreeSessions.value, 0.75);
-  assert.equal(r.crashFree.sessionsWithUnknownOutcome, 1);
+  assert.equal(r.crashFree.sessionsWithUnknownOutcome, 0);
 });
 
 test("a background-then-return of a recording that started mid-foreground (orphan app_backgrounded) is one session", () => {
@@ -351,14 +408,23 @@ test("dry run on the synthetic Stage 0 export: numbers hand-computed from the fi
     rosterTestersWithoutData: 0,
     exportDates: { first: "2026-10-14", last: "2026-10-18" },
   });
-  // 16 sessions of active testers: 0.1,5,5,8,9,9,10,10,10,11,11,12,12,14,14,17 min
-  assert.deepEqual(r.medianSession.sessions, { n: 16, median: 10 * MIN, q1: 8.75 * MIN, q3: 12 * MIN });
+  // Sessions of active testers, in minutes (a crash does not split a session; a warm return within 30 min joins):
+  // t01 10,11,14,9,12; t02 17 (13 + 4 after 5 min away), 8, 14 (5 lower bound + 9 after the crash), 10;
+  // t03 11,12 and 14,10; t04 5 and 0.1. That is 15 sessions: 0.1,5,8,9,10,10,10,11,11,12,12,14,14,14,17.
+  assert.deepEqual(r.medianSession.sessions, { n: 15, median: 11 * MIN, q1: 9.5 * MIN, q3: 13 * MIN });
   assert.equal(r.medianSession.sessionsUnder10s, 1);
-  assert.equal(r.medianSession.sessionsOfNonActiveTestersExcluded, 2);
+  assert.equal(r.medianSession.sessionsOfNonActiveTestersExcluded, 2); // t05: 3 and 2 min
   const w = r.wouldPlayAgain;
   assert.deepEqual([w.n, w.yes, w.maybe, w.no, w.dismissedOnly, w.withoutAnswer], [3, 2, 1, 0, 1, 1]);
-  assert.deepEqual([r.crashFree.byPlatform.ios.crashed, r.crashFree.byPlatform.android.crashed], [2, 0]);
-  assert.equal(r.crashFree.sessionsWithUnknownOutcome, 6);
+  // Decided sessions: android t01 5 + t03 2 + 2 + t05 2 = 11; ios t02 4 + t04 (5 min, boot crash, 6 s) 3 = 7.
+  // Crashed: t02's crash and t04's boot crash. Overall 16 of 18.
+  const cf = r.crashFree;
+  assert.deepEqual([cf.byPlatform.ios.sessions, cf.byPlatform.ios.crashed], [7, 2]);
+  assert.deepEqual([cf.byPlatform.android.sessions, cf.byPlatform.android.crashed], [11, 0]);
+  assert.deepEqual([cf.overall.k, cf.overall.n], [16, 18]);
+  assert.ok(Math.abs(cf.overall.value - 16 / 18) < 1e-12);
+  assert.equal(cf.sessionsWithUnknownOutcome, 0);
+  assert.equal(cf.zeroLengthCrashedSessions, 1);
   assert.equal(r.dataQuality.duplicateEvents, 6);
   assert.equal(r.dataQuality.dropped.expired, 2);
   assert.equal(r.dataQuality.unterminatedIntervals, 1);

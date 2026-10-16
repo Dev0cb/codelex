@@ -10,9 +10,10 @@
  * Definitions (fixed before data arrives; see README.md):
  * - Events of one install are ordered by file order (files sorted by `exportedAt`, ties by argument order), then by
  *   position in the file. `occurred_at` only places intervals in time and measures background gaps.
- * - Events are de-duplicated by `event_id` across all files (first occurrence wins).
+ * - Events are de-duplicated by install and `event_id` across all files (first occurrence wins).
  * - Session (Q-12): foreground intervals separated by at most 30 min of background; length = sum of `foreground_ms`.
- * - Crash: `app_opened.previous_exit_unclean = true` on a cold start (S6a session marker). Nothing else.
+ * - Crash: `app_opened.previous_exit_unclean = true` on a cold start (S6a session marker). Nothing else. A session
+ *   containing a crash is crashed, and a relaunch within 30 min continues it.
  */
 import { decodePlaytestExport } from "../../apps/mobile/src/export/playtest-data.ts";
 
@@ -105,12 +106,15 @@ export function parseRoster(text) {
  * `{ foregroundMs, outcome: "clean" | "crashed" | "unknown", complete, zeroLength }`.
  *
  * - `app_opened` starts a foreground interval, `app_backgrounded` closes it (`foreground_ms` is added to the session).
- *   A gap of more than 30 min between the last background and the next interval starts a new session.
+ *   A gap of more than 30 min between the last background and the next interval starts a new session (Q-12). A crash
+ *   does not end a session: a relaunch within 30 min continues it.
  * - A cold start (`previous_exit_unclean` present) with `true` crashes the session holding the open interval, closed at
  *   the last event before the cold start (a lower bound); with no open interval it is a separate zero-length crashed
- *   session. Any cold start decides every earlier session as clean (it survived to a later launch).
- * - A session whose last interval is still open at the end of the data has an unknown length (`complete: false`)
- *   and an unknown outcome.
+ *   session (a boot crash: the crashed process recorded nothing). A session containing an unclean exit is crashed.
+ * - Every other session is clean: its last interval was closed by `app_backgrounded`, which deletes the S6a marker
+ *   (`session-marker.ts`), so it cannot become unclean later, and a later `app_opened` (warm or cold) proves the
+ *   process stayed alive. The only unknown session is one whose last interval is still open at the end of the data
+ *   (the export is made in the foreground): `complete: false`, outcome unknown unless it already contains a crash.
  */
 export function reconstructSessions(events) {
   const sessions = [];
@@ -122,7 +126,7 @@ export function reconstructSessions(events) {
   const beginInterval = (startAt) => {
     if (current !== null && current.lastBgAt !== null && startAt - current.lastBgAt > SESSION_GAP_MS) current = null;
     if (current === null) {
-      current = { foregroundMs: 0, lastBgAt: null, outcome: "unknown", complete: true, zeroLength: false };
+      current = { foregroundMs: 0, lastBgAt: null, outcome: "clean", complete: true, zeroLength: false };
       sessions.push(current);
     }
     open = { startAt };
@@ -141,7 +145,6 @@ export function reconstructSessions(events) {
     if (e.event === "app_opened") {
       const unclean = e.properties.previous_exit_unclean;
       let crashed = false;
-      const decidedHere = [];
       if (open !== null) {
         anomalies.unterminatedIntervals += 1;
         const closed = closeUnterminated();
@@ -150,23 +153,11 @@ export function reconstructSessions(events) {
           crashed = true;
         }
       }
-      if (unclean !== undefined) {
-        // A cold start proves every earlier session survived to a later launch: decided, unless it crashed.
-        for (const s of sessions) {
-          if (s.outcome === "unknown") {
-            s.outcome = "clean";
-            decidedHere.push(s);
-          }
-        }
-        if (unclean === true && !crashed) {
-          // Nothing open (e.g. a boot crash): a separate zero-length crashed session.
-          sessions.push({ foregroundMs: 0, lastBgAt: null, outcome: "crashed", complete: true, zeroLength: true });
-        }
+      if (unclean === true && !crashed) {
+        // Nothing open (e.g. a boot crash): a separate zero-length crashed session.
+        sessions.push({ foregroundMs: 0, lastBgAt: null, outcome: "crashed", complete: true, zeroLength: true });
       }
-      if (crashed) current = null; // the crashed session is over; the new process starts a new one
       beginInterval(at);
-      // A session this cold start joins (within 30 min) is not decided by its own cold start.
-      if (decidedHere.includes(current)) current.outcome = "unknown";
     } else if (e.event === "app_backgrounded") {
       const ms = e.properties.foreground_ms;
       if (open === null) {
@@ -180,8 +171,12 @@ export function reconstructSessions(events) {
     }
     lastAt = at;
   }
-  // An interval still open at the end of the data (the export is made in the foreground): its length is unknown.
-  if (open !== null) current.complete = false;
+  // An interval still open at the end of the data (the export is made in the foreground): its length is unknown, and
+  // so is the outcome, unless the session already holds a crash.
+  if (open !== null) {
+    current.complete = false;
+    if (current.outcome !== "crashed") current.outcome = "unknown";
+  }
   return { sessions, anomalies };
 }
 
@@ -224,8 +219,8 @@ export function computeReadout({ files, rosterText }) {
     a.file.exportedAt === b.file.exportedAt ? a.index - b.index : a.file.exportedAt < b.file.exportedAt ? -1 : 1,
   );
 
-  // 2. Per install streams, de-duplicated by event_id (global).
-  const seen = new Set();
+  // 2. Per install streams, de-duplicated by install and event_id.
+  const seen = new Set(); // `${installId}|${event_id}`
   const installs = new Map(); // installId -> { events, platforms, remaining }
   for (const { file } of decoded) {
     let inst = installs.get(file.installId);
@@ -240,11 +235,12 @@ export function computeReadout({ files, rosterText }) {
     quality.dropped.invalid += file.dropped.invalid;
     for (const e of file.events) {
       quality.events += 1;
-      if (seen.has(e.event_id)) {
+      const key = `${file.installId}|${e.event_id}`;
+      if (seen.has(key)) {
         quality.duplicateEvents += 1;
         continue;
       }
-      seen.add(e.event_id);
+      seen.add(key);
       inst.events.push(e);
     }
   }
