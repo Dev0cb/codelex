@@ -18,6 +18,13 @@ describe('flags', () => {
     });
   });
 
+  it('ship playtest.survey.enabled off (S6b dark launch, sprint 4)', () => {
+    expect(FLAG_DEFAULTS['playtest.survey.enabled']).toBe(false);
+    expect(parseFlagOverrides('playtest.survey.enabled=1')).toEqual({
+      'playtest.survey.enabled': true,
+    });
+  });
+
   it('parse build-time overrides, ignoring unknown keys and malformed values', () => {
     expect(parseFlagOverrides(undefined)).toEqual({});
     expect(parseFlagOverrides('')).toEqual({});

@@ -24,6 +24,7 @@ import { AppState } from 'react-native';
 
 import { usePlaytestAnalytics } from '../analytics/analytics-provider';
 import { exportApp } from '../config/build-info';
+import { useFlag } from '../config/flags-provider';
 import { useLexicon } from '../lexicon/lexicon-gate';
 import { createMatchLogAccess, MatchLogContext } from '../match-log/match-log-access';
 import {
@@ -74,6 +75,7 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   const { index } = useLexicon();
   const services = useContext(MatchServicesContext);
   const analytics = usePlaytestAnalytics();
+  const surveyEnabled = useFlag('playtest.survey.enabled');
   const ctx = useMemo<EngineContext>(() => ({ lexicon: index }), [index]);
   const persistence = useMemo(() => services.persistence?.() ?? null, [services]);
   const [saved, setSaved] = useState<SavedStatus>(persistence === null ? NONE : CHECKING);
@@ -172,13 +174,15 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
           setNewToYou(finishMatch(persistence, next));
         }
       }
-      // D-17: the export prompt counts matches completed this session (slice S6c).
+      // D-17: the export prompt counts matches completed this session (slice S6c); AC-18: the survey counts them
+      // per install while it is active (slice S6b), before the Summary mounts and asks.
       if (current.state.status !== 'finished' && next.state.status === 'finished') {
         analytics?.noteMatchCompleted();
+        if (surveyEnabled) analytics?.noteSurveyMatchCompleted();
       }
       show(next);
     },
-    [analytics, ctx, persistence, show],
+    [analytics, ctx, persistence, show, surveyEnabled],
   );
 
   const dismissLowStorage = useCallback(() => {
