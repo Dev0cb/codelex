@@ -176,9 +176,11 @@ describe('Send match log in Settings (S6d)', () => {
     );
     expect(screen.getByTestId('matchlog.emailNotice').props.children).toBe(EMAIL_EN);
     expect(screen.getByTestId('matchlog.share')).toBeTruthy();
-    // TM-07: the address comes from the bundled allowlist only, with no remote value; none is configured (O-4).
+    // TM-07: the address comes from the bundled allowlist only, with no remote value (O-4: the playtest mailbox).
     expect(resolveExportAddress).toHaveBeenCalledWith(undefined);
-    expect(screen.queryByTestId('matchlog.recipient')).toBeNull();
+    expect(screen.getByTestId('matchlog.recipient').props.children).toBe(
+      'Send it to: titanfst00@gmail.com',
+    );
   });
 
   it('confirms the last finished match in French, with the French email notice (TM-05, FR)', async () => {

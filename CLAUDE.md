@@ -56,6 +56,7 @@ packages/
   lexicon/           Lexicon schema, seed data, validators           owner: lexicon-curator
   protocol/          Typed client↔server messages (zod) + versioning owner: realtime-engineer
   bots/              Deterministic AI opponents (Beginner→Grandmaster) owner: ai-engineer
+  golden-runner/     Cross-runtime golden runner (Node, Hermes CI, on-device Diagnostics) owner: game-engine-engineer
   design-system/     Tokens, components (mobile + web)               owner: ux-ui-designer
   i18n/              Message catalogs, ICU formatting                owner: frontend-web-engineer
   observability/     OTel setup, logger, metrics helpers             owner: devops-sre
@@ -110,7 +111,7 @@ Routing table — **who owns what**:
 | Product scope, priorities, KPIs | `product-strategist` | `data-analyst` |
 | Rules, modes, powers, balance, economy feel | `game-designer` | `game-engine-engineer`, `monetization-liveops` |
 | Cross-service design, ADRs, contracts | `solution-architect` | owner agents |
-| `packages/game-engine`, `services/game` | `game-engine-engineer` | `game-designer` |
+| `packages/game-engine`, `packages/golden-runner`, `services/game` | `game-engine-engineer` | `game-designer` |
 | Lexicon content (terms, definitions, relations) | `lexicon-curator` | `lexicon-engineer` |
 | `services/knowledge`, graph, search | `lexicon-engineer` | `lexicon-curator` |
 | Gateway, identity, social, clans, progression, commerce | `backend-engineer` | `security-engineer` |

@@ -486,10 +486,20 @@ build, privacy-compliance confirms the notice text and the export screen copy (`
 
 Privacy policy v1.2 to-do (S6b, 2026-10-16; owner `privacy-compliance`; the policy is not edited in the S6b PR because
 v1.2 is pending with privacy-compliance). Before a playtest build turns `playtest.survey.enabled` on, v1.2 adds:
-- §3.x "Survey reminder (stays on your phone)": the survey counters file `survey.state` (three counts, no id, no
+- [x] §3.x "Survey reminder (stays on your phone)": the survey counters file `survey.state` (three counts, no id, no
   time, no answer; see `docs/compliance/DATA_MAP.md`), and §5 a retention row for it (kept after consent is
-  withdrawn, until uninstall; never exported);
-- optionally, in the exported-events list, the survey events as "your answer (or that you closed it)".
+  withdrawn, until uninstall; never exported). **Done in v1.2 (2026-10-16): policy §3.7 and §5.**
+- [x] optionally, in the exported-events list, the survey events as "your answer (or that you closed it)". **Done in
+  v1.2: policy §3.6 "Survey".**
+- [x] (added by privacy-compliance) "EU storage" statements removed everywhere; full export field list (header and
+  every event, incl. the locale code); match-log contents (S6d); app labels aligned with `settings.*` / `export.*`;
+  consent form v1.1 (`playtest-plan.md` §2). **Done in v1.2.**
+
+Privacy policy v1.2 published 2026-10-16 (`docs/legal/privacy-policy.md`, `site/privacy/`), with consent form v1.1.
+Owner decision (2026-10-16, Malick BA): the owner is the only tester and the only reader of the policy for now, so no
+re-information or re-consent campaign is needed; every future tester reads v1.2 and consent v1.1 before enrolling.
+The S6c note above ("confirms the notice text and the export screen copy against consent form v1") now reads
+"against consent form v1.1".
 
 `PLAY_RULES_VERSION` is **not** a flag. It is a build constant (AC-3, ADR-0014): the rules version that new matches
 pin cannot be changed by remote config. Switching v1 ↔ v2 means shipping a new build.
@@ -560,15 +570,18 @@ TestFlight/Play and notify testers.
   when available.
 - **Consent (Q-7, decided).** Written enrollment consent first (only enrolled testers receive the build), then a
   one-time non-blocking in-app notice and a Settings toggle, default on; off = nothing recorded or exported, queue
-  purged (AC-17). The consent form covers on-device storage (ePrivacy Art. 5(3)), the export, and the
-  Senegal → EU transfer. Employees may decline with no consequence.
-- **Playtest data handling (Q-1, decided).** Exports go to a dedicated EU-hosted mailbox alias (MFA, named access
-  list of ≤ 3 analysts, no auto-forwarding). The sender's email links to the install id, so exports are personal
-  data: attachments move to restricted EU storage within 7 days and the emails are deleted; raw pseudonymous files
+  purged (AC-17). The consent form (v1.1) covers on-device storage (ePrivacy Art. 5(3)), the export, and the
+  transfer to Google's multi-region storage including the United States. Employees may decline with no consequence.
+- **Playtest data handling (Q-1, decided; storage corrected 2026-10-16).** Exports go to the playtest mailbox
+  (Gmail `titanfst00@gmail.com` on the owner's consumer Google account, multi-region including the US; not
+  EU-hosted; MFA, named access list of ≤ 3 analysts, no auto-forwarding). The sender's email links to the install id,
+  so exports are personal data: attachments move to restricted Google Drive storage (same account) within 7 days and
+  the emails are deleted; the copy in the tester's own Sent folder is outside our control; raw pseudonymous files
   are deleted 6 months after the playtest ends (aggregates kept). The enrollment roster (name, email, 18+
   confirmation, country, consent) is stored separately from event data, kept until playtest end + 12 months.
   Privacy notice: controller and contact, purpose, data list, email visible to the controller, retention,
-  processors, withdrawal, access/erasure via install id, EU transfer, right to complain to CNIL or Senegal's CDP.
+  processors, withdrawal, access/erasure via install id, transfer outside the tester's country (Google multi-region
+  incl. US; Expo US), right to complain to CNIL or Senegal's CDP. Published as privacy policy v1.2 (2026-10-16).
   See `docs/compliance/DATA_MAP.md` (`LEGAL_REVIEW_REQUIRED`).
 - **Minors.** Playtest cohort restricted to adults (18+, confirmed at enrollment — Q-2, decided); no age gate in
   this build. Distribution: TestFlight (external testers need Beta App Review and a privacy policy URL) and the Play
@@ -662,8 +675,10 @@ the playtest starts.
 - **Q-17 (SP2, 2026-10-07) H1 device class.** An H1 result on the owner's phone is labelled "owner device" unless
   the phone meets the low-end reference class; reference measurements remain an owner ask. Timings come from the
   preview-only Diagnostics screen (DG1) on a release Hermes build, never a dev client (see "Device timings (H1)").
-- `LEGAL_REVIEW_REQUIRED`: Senegal Law 2008-12 (prior declaration to the CDP? legal ground for the Senegal → EU
-  transfer), validity of employee consent, retention periods above.
+- `LEGAL_REVIEW_REQUIRED`: Senegal Law 2008-12 (prior declaration to the CDP? legal ground for the transfer from
+  Senegal and France to Google's multi-region storage including the US; Google's role under consumer terms),
+  validity of employee consent, retention periods above. Status 2026-10-16: still open, dormant while the owner is the
+  only tester (owner decision), blocking for any other tester; list in `docs/legal/privacy-policy.md` reviewer notes.
 
 ## Amendment SP2 (2026-10-07, sprint 4 task SP2)
 

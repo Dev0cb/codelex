@@ -51,7 +51,7 @@
   "export.summary.item.cards": "Knowledge Cards you opened and for how long",
   "export.summary.item.survey": "Your answers to the “play again” question",
   "export.summary.item.screens": "Screens and buttons used: first-launch steps, after-match choices, knowledge graph browsing, bot thinking time",
-  "export.summary.item.technical": "Technical details: app version and build, Android, app language, phone-clock times, session IDs, dropped-event counts",
+  "export.summary.item.technical": "Technical details: app version and build, Android, phone language and region, phone-clock times, session IDs, dropped-event counts",
   "export.excluded.title": "Never included",
   "export.excluded.body": "Your name, email address, contacts, location, advertising ID, phone model or serial number. Your tester ID is a random number made by this app, not your phone's ID.",
   "export.id_line": "Your tester ID: {id}",
