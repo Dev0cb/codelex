@@ -427,9 +427,10 @@ Deviations, each forced by a source or the toolchain and open to review:
 1. **Gate in `settings-screen.tsx`, inline in JSX, with `require`** (§3.2). A separate gate file or a module-level
    constant left 8–68 B in production; the literal test inside the JSX branch folds to the original code. `require`
    is the §3.2 fallback: `import()` folds too, but Jest cannot evaluate it without VM modules.
-2. **Metro `cacheVersion` keyed on the constant** (`metro.config.cjs`): Metro's transform cache ignores
-   `EXPO_PUBLIC_*`, so a production export could reuse a diagnostics transform (seen once locally). Fails closed
-   anyway (absence check), but the key avoids it.
+2. **Metro `cacheVersion` keyed on every `EXPO_PUBLIC_*` variable, sorted by name** (`metro.config.cjs`, review
+   S-n1): Metro's transform cache ignores `EXPO_PUBLIC_*`, so a production export could reuse a diagnostics
+   transform (seen once locally), and the same holds for `EXPO_PUBLIC_CODELEX_FLAGS`. Fails closed anyway (absence
+   check), but the key avoids it.
 3. **No on-device zod parse** (§5, §6 "zod parse"). The app never imports zod at runtime (S6a, +555 KB) and the
    golden-runner README keeps parsing on Node. The report is built by a function typed with the A2 schema's type,
    serialised with the engine's canonical JSON (throws outside the JCS subset) and size-capped; tests parse it with

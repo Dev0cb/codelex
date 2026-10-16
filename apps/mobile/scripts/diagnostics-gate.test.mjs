@@ -450,3 +450,33 @@ test('lint restates the draft-rules and UI bans in every new block (SC-2) and ga
     2,
   );
 });
+
+test('metro keys its transform cache on every EXPO_PUBLIC_* variable, sorted (S-n1)', () => {
+  const path = require.resolve('../metro.config.cjs');
+  const saved = { ...process.env };
+  const load = () => {
+    delete require.cache[path];
+    return require(path).cacheVersion;
+  };
+  try {
+    for (const key of Object.keys(process.env)) {
+      if (key.startsWith('EXPO_PUBLIC_')) delete process.env[key];
+    }
+    const none = load();
+    process.env.EXPO_PUBLIC_CODELEX_FLAGS = 'play_vs_bot.enabled=1';
+    process.env.EXPO_PUBLIC_CODELEX_DIAGNOSTICS = '1';
+    const both = load();
+    assert.notEqual(both, none);
+    const expected = JSON.stringify([
+      ['EXPO_PUBLIC_CODELEX_DIAGNOSTICS', '1'],
+      ['EXPO_PUBLIC_CODELEX_FLAGS', 'play_vs_bot.enabled=1'],
+    ]);
+    assert.ok(both.endsWith(`|env=${expected}`), both);
+    process.env.EXPO_PUBLIC_CODELEX_FLAGS = '';
+    assert.notEqual(load(), both);
+  } finally {
+    for (const key of Object.keys(process.env)) delete process.env[key];
+    Object.assign(process.env, saved);
+    delete require.cache[path];
+  }
+});
