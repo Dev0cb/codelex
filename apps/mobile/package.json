@@ -14,13 +14,15 @@
     "format:check": "prettier --check .",
     "test": "jest --coverage && node --test \"scripts/*.test.mjs\"",
     "prepare:lexicon": "node scripts/prepare-lexicon.mjs",
-    "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist",
+    "bundle:check": "node scripts/check-bundle-size.mjs dist && node scripts/check-bundle-contents.mjs dist && node scripts/check-bundle-diagnostics.mjs dist",
+    "bundle:check:diagnostics": "node scripts/check-bundle-diagnostics.mjs",
     "eas-build-post-install": "pnpm -w exec turbo run build --filter=@codelex/mobile^... && pnpm -w exec turbo run prepare:lexicon --filter=@codelex/mobile"
   },
   "dependencies": {
     "@codelex/bots": "workspace:*",
     "@codelex/design-system": "workspace:*",
     "@codelex/game-engine": "workspace:*",
+    "@codelex/golden-runner": "workspace:*",
     "@codelex/i18n": "workspace:*",
     "@codelex/lexicon": "workspace:*",
     "@shopify/react-native-skia": "2.6.2",

@@ -14,6 +14,13 @@
       "env": {
         "EXPO_PUBLIC_CODELEX_FLAGS": "play_vs_bot.enabled=1"
       }
+    },
+    "preview-diagnostics": {
+      "extends": "preview",
+      "env": {
+        "EXPO_PUBLIC_CODELEX_FLAGS": "play_vs_bot.enabled=1",
+        "EXPO_PUBLIC_CODELEX_DIAGNOSTICS": "1"
+      }
     }
   }
 }

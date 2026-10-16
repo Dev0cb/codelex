@@ -53,35 +53,55 @@ function summaryOf(cases: readonly CoreCase[]): CoreSuite['summary'] {
 }
 
 /** A suite whose case list cannot even be built (malformed file) reports one `error` case. */
-function suiteCases(corpus: GoldenCorpus, build: (corpus: GoldenCorpus) => CaseSpec[]): CoreCase[] {
+function suitePlan(
+  corpus: GoldenCorpus,
+  build: (corpus: GoldenCorpus) => CaseSpec[],
+): CaseSpec[] | CoreCase {
   let specs: CaseSpec[];
   try {
     specs = build(corpus);
   } catch {
-    return [{ id: 'corpus', status: 'error', errorCode: 'CORPUS_MALFORMED' }];
+    return { id: 'corpus', status: 'error', errorCode: 'CORPUS_MALFORMED' };
   }
-  return specs.length === 0
-    ? [{ id: 'corpus', status: 'error', errorCode: 'CORPUS_EMPTY' }]
-    : specs.map(runCase);
+  return specs.length === 0 ? { id: 'corpus', status: 'error', errorCode: 'CORPUS_EMPTY' } : specs;
+}
+
+/** Where a stepwise run is: after `done` of `total` cases, the last one in suite `suite`. */
+export interface GoldenProgress {
+  readonly suite: string;
+  readonly done: number;
+  readonly total: number;
 }
 
 /**
- * Runs the golden corpus (ADR-0016 §D3). A bad case never throws: it becomes `fail` or `error`, and a suite whose
- * file cannot be read becomes one `error` case. The corpus identity is computed outside any case, so a corpus that
- * is not JSON of safe integers (a fraction, `-0`) or lacks a rules version field throws (`RangeError` /
- * `TypeError`); hosts catch it (the Node host exits 2).
+ * {@link runGoldens} one case at a time (ADR-0016 §D4, DG1 note §5.1): yields after every case, so an app host can
+ * render progress and stop between cases (a case is never split). The generator's return value is the report;
+ * {@link runGoldens} drains it, so both produce the same document. With a clock, a suite's `totalMs` is the sum
+ * of its case intervals, so whatever the host does between two steps (rendering, yielding) is not counted.
  */
-export function runGoldens(corpus: GoldenCorpus, host: RunnerHost): CoreReport {
+export function* runGoldensStepwise(
+  corpus: GoldenCorpus,
+  host: RunnerHost,
+): Generator<GoldenProgress, CoreReport, void> {
+  const plans = SUITES.map(({ id, cases: build }) => ({ id, plan: suitePlan(corpus, build) }));
+  const total = plans.reduce((n, { plan }) => n + (Array.isArray(plan) ? plan.length : 1), 0);
   const timings: Record<string, { totalMs: number }> = {};
-  const suites: CoreSuite[] = SUITES.map(({ id, cases: build }) => {
-    const start = host.clock?.();
-    const cases = suiteCases(corpus, build);
-    const end = host.clock?.();
-    if (start !== undefined && end !== undefined) {
-      timings[id] = { totalMs: Math.max(0, Math.floor(end - start)) };
+  const suites: CoreSuite[] = [];
+  let done = 0;
+  for (const { id, plan } of plans) {
+    const cases: CoreCase[] = [];
+    let elapsed = 0;
+    for (const spec of Array.isArray(plan) ? plan : [null]) {
+      const start = host.clock?.();
+      cases.push(spec === null ? (plan as CoreCase) : runCase(spec));
+      const end = host.clock?.();
+      if (start !== undefined && end !== undefined) elapsed += end - start;
+      done += 1;
+      yield { suite: id, done, total };
     }
-    return { id, cases, summary: summaryOf(cases) };
-  });
+    if (host.clock !== undefined) timings[id] = { totalMs: Math.max(0, Math.floor(elapsed)) };
+    suites.push({ id, cases, summary: summaryOf(cases) });
+  }
   const verdict = suites.every((s) => s.summary.fail === 0 && s.summary.error === 0)
     ? 'pass'
     : 'fail';
@@ -97,4 +117,18 @@ export function runGoldens(corpus: GoldenCorpus, host: RunnerHost): CoreReport {
     verdict,
     ...(host.clock === undefined ? {} : { timings }),
   };
+}
+
+/**
+ * Runs the golden corpus (ADR-0016 §D3). A bad case never throws: it becomes `fail` or `error`, and a suite whose
+ * file cannot be read becomes one `error` case. The corpus identity is computed outside any case, so a corpus that
+ * is not JSON of safe integers (a fraction, `-0`) or lacks a rules version field throws (`RangeError` /
+ * `TypeError`); hosts catch it (the Node host exits 2).
+ */
+export function runGoldens(corpus: GoldenCorpus, host: RunnerHost): CoreReport {
+  const steps = runGoldensStepwise(corpus, host);
+  for (;;) {
+    const step = steps.next();
+    if (step.done === true) return step.value;
+  }
 }

@@ -15,7 +15,7 @@ import {
   type GoldenCorpus,
 } from './corpus.js';
 import { corpusDigest } from './digest.js';
-import { runGoldens, SUITES } from './run.js';
+import { runGoldens, runGoldensStepwise, SUITES, type GoldenProgress } from './run.js';
 import type { CoreReport, RunnerHost } from './types.js';
 
 const NODE: RunnerHost = { runtime: { kind: 'node', version: 'v22.0.0' } };
@@ -129,7 +129,38 @@ describe(
         { ...NODE, clock: () => (t += 5) },
       );
       expect(Object.keys(timed.timings ?? {})).toEqual(SUITES.map((s) => s.id));
-      expect(Object.values(timed.timings ?? {}).every((v) => v.totalMs === 5)).toBe(true);
+      // A suite's time is the sum of its case intervals (5 per case with this clock).
+      expect(
+        timed.suites.map((s) => timed.timings?.[s.id]?.totalMs === 5 * s.cases.length),
+      ).toEqual(SUITES.map(() => true));
+    });
+
+    it('runs one case per step and returns the same report as runGoldens', () => {
+      const steps = runGoldensStepwise(GOLDEN_CORPUS, NODE);
+      const progress: GoldenProgress[] = [];
+      let step = steps.next();
+      while (step.done !== true) {
+        progress.push(step.value);
+        step = steps.next();
+      }
+      const total = realReport().suites.reduce((n, s) => n + s.cases.length, 0);
+      expect(progress).toHaveLength(total);
+      expect(progress.map((p) => p.done)).toEqual(progress.map((_, i) => i + 1));
+      expect(progress.every((p) => p.total === total)).toBe(true);
+      expect(progress[0]?.suite).toBe('rng');
+      expect(progress.at(-1)?.suite).toBe('bots/decisions-b2-r1');
+      expect(canonicalJson(step.value)).toBe(canonicalJson(realReport()));
+    });
+
+    it('does not count the time a host spends between two steps', () => {
+      let t = 0;
+      const steps = runGoldensStepwise(GOLDEN_CORPUS, { ...NODE, clock: () => t });
+      let step = steps.next();
+      while (step.done !== true) {
+        t += 1_000; // the host's pause between two cases
+        step = steps.next();
+      }
+      expect(Object.values(step.value.timings ?? {}).every((v) => v.totalMs === 0)).toBe(true);
     });
   },
 );

@@ -1,6 +1,7 @@
 # Design note — preview-only Diagnostics screen (DG1)
 
-- Status: Proposed · Date: 2026-10-07 · Owner/author: solution-architect (with mobile-engineer)
+- Status: Implemented by DG1 (in review, 2026-10-16; record and deviations in §13) · Date: 2026-10-07 ·
+  Owner/author: solution-architect (with mobile-engineer)
 - Reviewed-by: security-engineer 2026-10-07 (§10: approved with conditions SC-1..SC-6); pending mobile-engineer,
   ux-ui-designer (copy and accessibility, §8)
 - Sprint: `docs/sprints/2026-10-07-phase1-dogfood-readiness.md`, task A3. Unblocks DG1, then H1.
@@ -412,3 +413,102 @@ OQ-DG-1 is answered in §12.
 5. ASSUMPTION: S6c's share helper writes to a cache subdirectory that can be swept as a whole (§6).
 6. ASSUMPTION: Hermes V1 exposes `HermesInternal.getRuntimeProperties()` in release builds; if not, the build check
    uses `HermesInternal` presence and `__DEV__` only.
+
+## 13. DG1 implementation record (2026-10-16, mobile-engineer)
+
+Measured: the production export (`pnpm build`) has the same bytecode as `main` before DG1 (android 4,086,560 B,
+ios 3,904,004 B; only Hermes' 20-byte source hash in the header and footer differs). `bundle:check:diagnostics`
+(run inside `bundle:check`, same CI step, SC-3) finds 15 diagnostics and 17 golden-runner modules and both markers;
+preview-diagnostics android delta +183 KB (estimate was 250–450 KB). A deliberately unguarded import was exported
+once and failed the absence check on both platforms. After the review fixes (items 9–13): the production export is
+again byte-identical to `main` apart from the Hermes source hash (android 4,086,552 B, ios 3,904,072 B, both
+compared with an `origin/main` export at `a6160d2`); the positive control finds 15 diagnostics and 17 golden-runner
+modules and all three markers on android and ios; preview-diagnostics delta +190,204 B android, +187,276 B ios;
+`bundle:check` took about 65 s with both diagnostics platforms.
+
+Deviations, each forced by a source or the toolchain and open to review:
+
+1. **Gate in `settings-screen.tsx`, inline in JSX, with `require`** (§3.2). A separate gate file or a module-level
+   constant left 8–68 B in production; the literal test inside the JSX branch folds to the original code. `require`
+   is the §3.2 fallback: `import()` folds too, but Jest cannot evaluate it without VM modules.
+2. **Metro `cacheVersion` keyed on every `EXPO_PUBLIC_*` variable, sorted by name** (`metro.config.cjs`, review
+   S-n1): Metro's transform cache ignores `EXPO_PUBLIC_*`, so a production export could reuse a diagnostics
+   transform (seen once locally), and the same holds for `EXPO_PUBLIC_CODELEX_FLAGS`. Fails closed anyway (absence
+   check), but the key avoids it.
+3. **No on-device zod parse** (§5, §6 "zod parse"). The app never imports zod at runtime (S6a, +555 KB) and the
+   golden-runner README keeps parsing on Node. The report is built by a function typed with the A2 schema's type,
+   serialised with the engine's canonical JSON (throws outside the JCS subset) and size-capped; tests parse it with
+   `parseDiagnosticsReport` and compare it with the Node report (`compareReportTexts`).
+4. **A2 fields the note did not provide** (A2 is strict). `build.gitSha`: `app.config.cjs` writes
+   `extra.codelexDiagnostics.gitSha` only when the constant is set (EAS `EAS_BUILD_GIT_COMMIT_HASH`, else
+   `git rev-parse HEAD`; fails closed), resolving OQ-DG-2. `device.ramClass` and `device.deviceClass`: the owner
+   picks them on the screen (OQ-DG-3 stays: no `expo-device`); new local keys `diagnostics.ram*`,
+   `diagnostics.device_class*`, `diagnostics.share.needs`, `diagnostics.build.no_commit`, `diagnostics.failed`,
+   `diagnostics.status.not_run` (ux-ui-designer light review). iOS `model` is `unknown`. Build-check fields (§7:
+   `__DEV__`, `PLAY_RULES_VERSION`, lexicon version) have no A2 slot: a non-release build reports every timed bench
+   `not-measured` (`not-release-hermes-build`); Hermes version and bytecode version are in `runner.runtime`.
+5. **Bench shapes** (A2 has one entry per `botId`, no rack-type field, no per-decision samples): `botThink` lists
+   `beginner`, `strategist`, `beginner-two-blanks`, `strategist-two-blanks`; `constants` is fitted on the device
+   (least squares, `fitConstants` in the runner core) instead of offline, because the report cannot carry the
+   samples. **One fit per rack type** (review C-6): ordinary racks fill the A2 `constants` field, the two-blank fit
+   is shown on the screen only (a two-blank rack explores far more nodes per candidate, so a mixed fit describes
+   neither). This on-device fit deviates from §5 ("fitted offline by the Node comparison tooling") and from the
+   bots-api §6 method; **ai-engineer confirms or replaces it at the H1 readout.** `has()` is in ns and is a **batch
+   mean** (1,000 calls per sample over forms and non-words in strict alternation, review C-3): its p50/p99 are
+   percentiles of batch means, not per-call percentiles, as `game-engine-api.md` §18 footnote 1 reads the `apply`
+   average. `decisionEquality` is read off the runner's `bots/decisions-b2-r1` cases.
+6. **Resume** (review C-M2): the full-replay and snapshot + tail paths are two distributions. Full-replay journals
+   are cut at 30/60/90 clamped to the last in-progress action (Beginner matches on the shipped lexicon end after
+   44–52 actions, so 30 and the last action); snapshot journals at k × 10 − 1 under the same clamp (29 and 39 or
+   49), so each restore replays the longest tail, 9 actions. The A2 `resume` field carries the worst path, full
+   replay; the screen shows both p95. Samples go to the path the restore actually took. Iterations re-read the same
+   files, so **both numbers are warm-cache** (OS page cache); a cold restore after a kill can be slower, which H1
+   notes next to the number.
+7. **Not built, and S4 waits for a manual check** (review C-M1). Suite 6 (responsiveness, DG1-f) is not built and
+   the A2 schema is not changed for it. Decision: the `bots.strategist.enabled` flag (S4) stays off until a
+   **manual responsiveness check on the owner's phone is recorded in the H1 record**: during back-to-back
+   Strategist decisions (a match against Strategist, or "Run" on Bot compute) while dragging tiles and zooming,
+   UI frame rate ≥ 30 fps with < 5 % of frames missed, and tap-to-commit ≤ 300 ms. Method, also written in the H1
+   record: Android Developer options "Profile HWUI rendering" (on-screen bars) or the React Native perf monitor
+   for the frame rate, and a screen recording at 60 fps counted frame by frame for tap-to-commit. This is the P5 §6
+   switch rule's responsiveness half until DG1-f exists. **Tracked follow-up:** index load timing (read + digest +
+   decode, `mobile-app-foundation.md` §3.2) is not measured by DG1 (no A2 field); it is recorded in the H1 record
+   from a manual cold start until a follow-up adds it. Both are rows H1 and S4 of the sprint plan.
+8. **BN1 partly done here:** the position source, two-blank variant and fit live in `@codelex/golden-runner/core`
+   (`src/core/bench/`); moving the Node harness onto it stays with ai-engineer. `runGoldensStepwise` (one case per
+   step) was added to the core for §5.1; `runGoldens` drains it (game-engine-engineer review).
+
+Review fixes on the DG1 PR (2026-10-16):
+
+9. **SC-6 is enforced in `app.config.cjs`** (security review S-M1; node tests in `scripts/diagnostics-gate.test.mjs`).
+   With `EXPO_PUBLIC_CODELEX_DIAGNOSTICS=1` the config throws unless `EAS_BUILD_PROFILE` is unset (a local export:
+   CI's positive control, a developer) or `preview-diagnostics`; the `preview-diagnostics` profile throws when the
+   variable is not exactly `1`. A diagnostics build is a separate app: `ios.bundleIdentifier` and `android.package`
+   are `com.codelex.app.diagnostics` and the name is "CODELEX Diagnostics". No store listing exists for that
+   identifier, so the build cannot be submitted (and `eas.json` has no `submit` entry for the profile, asserted by
+   the same test file); it installs beside the playtest build instead of over it, and the OS isolates its data.
+   This replaces the "same application id" caveat of SC-6 and the distinct-id remark of §10. SC-6's distribution
+   rules (owner's phone only, EAS build id in the H1 record) still apply.
+10. **Dirty checkouts are marked, not refused** (S-n2). A local diagnostics export from a checkout whose
+    `git status --porcelain` is not empty (or cannot be read) writes `<sha>-dirty`. Failing instead would break
+    `bundle:check` (its positive control is a local diagnostics export) for every developer with uncommitted work.
+    `-dirty` is not a 40-hex commit, so the screen treats the build as having no comparable commit
+    (`diagnostics.build.no_commit`) and "Share report…" stays disabled: a report can only come from a clean commit.
+    EAS builds use `EAS_BUILD_GIT_COMMIT_HASH` and are not checked.
+11. **The bundle proof reads the whole export** (S-m1, S-m2). `readExportBundles` scans every file under
+    `_expo/static/js/<platform>/` (main bundle, any split bundle, every source map, so a marker in `sourcesContent`
+    counts too), unions the `sources` of every map and fails closed on a missing directory, main bundle or map, or an
+    unparsable map. `codelex-diagnostics.json` (the report file name) is a third marker. `bundle:check` also runs
+    `expo config --json` without the variable and fails if the production config has `extra.codelexDiagnostics` or
+    a `.diagnostics` identifier. The positive control now exports android **and** ios in one `expo export` call and
+    requires every module group and marker on both: the extra cost is one platform's bundling inside a CI step that
+    already bundles both for production, which is accepted.
+12. **Clock and warm-up** (review C-4). Each timed suite first probes `performance.now()`: the smallest non-zero
+    difference of 20 consecutive readings. Above 50 µs (or a clock that does not advance) every bench of that suite
+    is `not-measured` with reason `clock-resolution` and the suite does no work. One discarded, untimed warm-up
+    precedes the timed samples: a `has()` batch, an `apply` pass, and one decision per bot and rack type.
+13. **Drift** (review C-5): all 10 matches are played from one seed, so the bots make the same decisions and a
+    change of p95 between matches is the device (heat, throttling, GC). "Run all" runs drift first, right after the
+    settle delay, so its first match starts on a cool phone (§5.1's order stays the display order). The first bot
+    error now stops the bot compute suite. Typed reasons: a resume path without a fixture is `no-fixture`, not
+    `clock`. An unknown Hermes version is a catalog string (§8), not a literal.

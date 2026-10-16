@@ -71,6 +71,15 @@ describe('SettingsScreen (E-1.5 §5.8)', () => {
     });
   });
 
+  it('keeps the versions row plain text without the Diagnostics build constant (DG1 note §4)', async () => {
+    expect(process.env.EXPO_PUBLIC_CODELEX_DIAGNOSTICS).toBeUndefined();
+    await renderSettings(new MemoryFs(), false);
+    expect(screen.queryByTestId('settings.about.versions.entry')).toBeNull();
+    const row = screen.getByTestId('settings.about.versions');
+    expect(row.props.onPress).toBeUndefined();
+    expect(row.props.accessibilityRole).toBeUndefined();
+  });
+
   it('shows the consent toggle on and the tester ID as selectable text', async () => {
     const { analytics } = await renderSettings(new MemoryFs(), true);
     const toggle = screen.getByTestId('settings.analytics.toggle');

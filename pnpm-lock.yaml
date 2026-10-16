@@ -68,6 +68,9 @@ importers:
       '@codelex/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
+      '@codelex/golden-runner':
+        specifier: workspace:*
+        version: link:../../packages/golden-runner
       '@codelex/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
