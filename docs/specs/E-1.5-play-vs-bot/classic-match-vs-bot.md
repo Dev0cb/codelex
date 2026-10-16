@@ -481,6 +481,13 @@ stay off everywhere. With S6c merged it exists (Settings row, export screen, end
 build, privacy-compliance confirms the notice text and the export screen copy (`export.*`) against consent form v1
 (`playtest-plan.md` §2).
 
+Privacy policy v1.2 to-do (S6b, 2026-10-16; owner `privacy-compliance`; the policy is not edited in the S6b PR because
+v1.2 is pending with privacy-compliance). Before a playtest build turns `playtest.survey.enabled` on, v1.2 adds:
+- §3.x "Survey reminder (stays on your phone)": the survey counters file `survey.state` (three counts, no id, no
+  time, no answer; see `docs/compliance/DATA_MAP.md`), and §5 a retention row for it (kept after consent is
+  withdrawn, until uninstall; never exported);
+- optionally, in the exported-events list, the survey events as "your answer (or that you closed it)".
+
 `PLAY_RULES_VERSION` is **not** a flag. It is a build constant (AC-3, ADR-0014): the rules version that new matches
 pin cannot be changed by remote config. Switching v1 ↔ v2 means shipping a new build.
 
