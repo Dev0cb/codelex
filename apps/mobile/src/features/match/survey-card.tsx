@@ -32,14 +32,16 @@ type Phase = 'asking' | 'thanks' | 'gone';
  * recorder's (`survey.ts`); it is asked once, when the Summary mounts, and only while recording is on, so an answer is
  * never asked for when it could not be kept. Inline in the scroll, never a modal: Play again in the sticky bar stays
  * one tap away and ignoring the card is fine. Screen readers get a labelled group whose answers are ordinary
- * buttons; the thanks line is polite. No animation: it collapses at once (nothing to reduce for reduced motion).
+ * buttons; the thanks line is announced once. No animation: it collapses at once (nothing to reduce for reduced
+ * motion).
  */
 export function SurveyCard(): JSX.Element | null {
   const enabled = useFlag('playtest.survey.enabled');
   const analytics = usePlaytestAnalytics();
   const { t } = useI18n();
   const { color, layout, radius, space, type } = useTokens();
-  // Read once per Summary: the same match never shows the card twice.
+  // Read once per Summary: the same match never shows the card twice. A synchronous read on the first render is fine:
+  // `surveyDue()` only reads the tiny counters file (cached in memory after the first read), never the event queue.
   const [matches] = useState(() => (enabled && analytics !== null ? analytics.surveyDue() : null));
   const [phase, setPhase] = useState<Phase>('asking');
   // One answer per showing: a double tap, or two answers in the same frame, lands before the re-render hides them.
@@ -88,11 +90,9 @@ export function SurveyCard(): JSX.Element | null {
       ]}
     >
       {phase === 'thanks' ? (
-        <Text
-          testID="summary.survey.thanks"
-          accessibilityLiveRegion="polite"
-          style={[type.body, { color: color.textPrimary }]}
-        >
+        // Announced once by the effect above (iOS and Android alike); a live region on top would make TalkBack
+        // say it twice.
+        <Text testID="summary.survey.thanks" style={[type.body, { color: color.textPrimary }]}>
           {thanks}
         </Text>
       ) : (

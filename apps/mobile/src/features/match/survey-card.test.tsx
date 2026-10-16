@@ -143,8 +143,10 @@ describe('SurveyCard (AC-18)', () => {
     );
     await fireEvent.press(screen.getByTestId('summary.survey.yes'));
     const thanks = screen.getByTestId('summary.survey.thanks');
-    expect(thanks.props.accessibilityLiveRegion).toBe('polite');
+    // Announced exactly once: no live region on top of the announcement (TalkBack would read it twice).
+    expect(thanks.props.accessibilityLiveRegion).toBeUndefined();
     expect(screen.getByText('Thanks!')).toBeTruthy();
+    expect(announce).toHaveBeenCalledTimes(1);
     expect(announce).toHaveBeenCalledWith('Thanks!');
     expect(screen.queryByTestId('summary.survey.no')).toBeNull();
     await act(() => {
