@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react';
+import { useRef, useState, type JSX } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useFlag } from '../../config/flags-provider';
@@ -64,7 +64,8 @@ type Status = 'idle' | 'sharing' | 'file_error' | 'share_error';
  * The confirm sheet (TM-05): `matchlog.confirm.body` with the scope ("No personal data in the file"), then
  * `matchlog.email_notice` (email reveals the sender) and, only if a TM-07 address is configured, "Send it to". Share
  * builds the file from the allowlist (`match-log-file.ts`) and hands it to the one share path (`share-file.ts`: cache
- * directory, scoped URI, deleted when the OS sheet closes). With nothing saved: `matchlog.empty` and Close.
+ * directory, scoped URI, deleted when the OS sheet closes). With nothing saved: `matchlog.empty` and Close. Cancel
+ * and system back always close the sheet, also while the OS sheet is open (its late result is then ignored).
  */
 function MatchLogSheet({
   access,
@@ -83,34 +84,46 @@ function MatchLogSheet({
   // TM-07: a build constant from the bundled allowlist; no remote config in Phase 1 (hidden while none is set).
   const address = resolveExportAddress(undefined);
   const busy = status === 'sharing';
+  // A share in flight, set before the first await: a second tap that lands before the re-render starts nothing. It
+  // is released only when that share settles (even after a close), so two shares never overlap in the share folder.
+  const inFlight = useRef(false);
+  // Bumped on every close: a share that settles after its sheet was closed (back, Cancel) is ignored. Its file is
+  // still deleted by `shareTextFile` (finally, and the sweep before the next share and at launch).
+  const session = useRef(0);
 
   const close = (): void => {
-    if (busy) return;
+    session.current += 1;
     setStatus('idle');
     onClose();
   };
 
   const onShare = async (): Promise<void> => {
-    if (scope === null || busy) return;
-    const built = access.build(scope);
-    if (!built.ok) {
-      setStatus('file_error');
-      return;
+    if (scope === null || inFlight.current) return;
+    inFlight.current = true;
+    const mine = session.current;
+    try {
+      const built = access.build(scope);
+      if (!built.ok) {
+        setStatus('file_error');
+        return;
+      }
+      setStatus('sharing');
+      const outcome = await shareTextFile(share, {
+        name: MATCH_LOG_FILE_NAME,
+        text: built.value,
+        mimeType: 'application/json',
+        uti: 'public.json',
+        title: t('settings.send_match_log'),
+      });
+      if (mine !== session.current) return;
+      if (outcome === 'closed') {
+        close();
+        return;
+      }
+      setStatus(outcome === 'file_error' ? 'file_error' : 'share_error');
+    } finally {
+      inFlight.current = false;
     }
-    setStatus('sharing');
-    const outcome = await shareTextFile(share, {
-      name: MATCH_LOG_FILE_NAME,
-      text: built.value,
-      mimeType: 'application/json',
-      uti: 'public.json',
-      title: t('settings.send_match_log'),
-    });
-    if (outcome === 'closed') {
-      setStatus('idle');
-      onClose();
-      return;
-    }
-    setStatus(outcome === 'file_error' ? 'file_error' : 'share_error');
   };
 
   const text = (value: string, testID: string, muted = false): JSX.Element => (
@@ -161,18 +174,14 @@ function MatchLogSheet({
             )}
           </View>
           <View style={[styles.actions, { gap: space[3] }]}>
-            <Button
-              testID="matchlog.cancel"
-              label={t('common.cancel')}
-              disabled={busy}
-              onPress={close}
-            />
+            <Button testID="matchlog.cancel" label={t('common.cancel')} onPress={close} />
             <View style={styles.spacer} />
             <Button
               testID="matchlog.share"
               variant="primary"
               label={status === 'idle' || busy ? t('matchlog.share') : t('common.retry')}
               disabled={busy}
+              busy={busy}
               onPress={() => {
                 void onShare();
               }}

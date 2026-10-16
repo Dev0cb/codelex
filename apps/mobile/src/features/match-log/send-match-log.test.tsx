@@ -25,6 +25,8 @@ import { FILES } from '../../persistence/match-journal';
 import { MemoryFs } from '../../persistence/memory-fs';
 import { createPersistence, finishMatch, persistTransition } from '../../persistence/saved-match';
 import { MotionPreferenceProvider } from '../../settings/motion-preference';
+import type * as ShareFile from '../../sharing/share-file';
+import { shareTextFile } from '../../sharing/share-file';
 import { ShareContext } from '../../sharing/share-provider';
 import { createTestShare, type TestShare } from '../../sharing/test-share';
 import { SettingsScreen } from '../settings/settings-screen';
@@ -36,6 +38,11 @@ jest.mock('expo-router', () => ({
 jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
 jest.mock('expo-crypto', () => jest.requireActual('../../../jest/expo-crypto.cjs'));
 jest.mock('expo-file-system', () => jest.requireActual('../../../jest/expo-file-system.cjs'));
+// The one share path (spied, real by default): a double tap must start one share.
+jest.mock('../../sharing/share-file', () => {
+  const actual = jest.requireActual<typeof ShareFile>('../../sharing/share-file');
+  return { ...actual, shareTextFile: jest.fn(actual.shareTextFile) };
+});
 // TM-07: the sheet's address comes from the bundled-allowlist resolver only (spied, real by default).
 jest.mock('../../config/export-address', () => {
   const actual = jest.requireActual<typeof ExportAddress>('../../config/export-address');
@@ -257,6 +264,84 @@ describe('Send match log in Settings (S6d)', () => {
     expect(share.files.size).toBe(0);
     await tap('matchlog.share');
     expect(share.opened).toHaveLength(1);
+    expect(screen.queryByTestId('matchlog.sheet')).toBeNull();
+  });
+
+  it('starts one share for a double tap on Share (in-flight latch), and marks the button busy', async () => {
+    const share = await renderSettings(diskWithMatch(5111, 3));
+    share.holdSheet = true;
+    await tap('settings.sendMatchLog');
+    jest.mocked(shareTextFile).mockClear();
+    expect(screen.getByTestId('matchlog.share').props.accessibilityState).toMatchObject({
+      busy: false,
+    });
+    await act(async () => {
+      // Both taps land before React re-renders the disabled button.
+      const button = screen.getByTestId('matchlog.share');
+      await fireEvent.press(button);
+      await fireEvent.press(button);
+      await Promise.resolve();
+    });
+    expect(shareTextFile).toHaveBeenCalledTimes(1);
+    expect(share.opened).toHaveLength(1);
+    expect(screen.getByTestId('matchlog.share').props.accessibilityState).toMatchObject({
+      disabled: true,
+      busy: true,
+    });
+    await act(async () => {
+      share.closeSheet();
+      await Promise.resolve();
+    });
+    expect(share.files.size).toBe(0);
+  });
+
+  it('can be closed while the share sheet is open; the late result is ignored and the file still deleted', async () => {
+    const share = await renderSettings(diskWithMatch(5112, 3));
+    share.holdSheet = true;
+    await tap('settings.sendMatchLog');
+    await tap('matchlog.share');
+    expect(share.opened).toHaveLength(1);
+    expect(screen.getByTestId('matchlog.cancel').props.accessibilityState).toMatchObject({
+      disabled: false,
+    });
+    await tap('matchlog.cancel');
+    expect(screen.queryByTestId('matchlog.sheet')).toBeNull();
+    // Reopened before the OS sheet reports back: the old result must not close or change it.
+    await tap('settings.sendMatchLog');
+    expect(screen.getByTestId('matchlog.sheet')).toBeTruthy();
+    await act(async () => {
+      share.closeSheet();
+      await Promise.resolve();
+    });
+    expect(share.files.size).toBe(0);
+    expect(screen.getByTestId('matchlog.sheet')).toBeTruthy();
+    expect(screen.queryByTestId('matchlog.error')).toBeNull();
+    expect(screen.getByTestId('matchlog.share').props.accessibilityState).toMatchObject({
+      disabled: false,
+      busy: false,
+    });
+    // And a new share works.
+    share.holdSheet = false;
+    await tap('matchlog.share');
+    expect(share.opened).toHaveLength(2);
+    expect(screen.queryByTestId('matchlog.sheet')).toBeNull();
+  });
+
+  it('closes with system back while the share sheet is open', async () => {
+    const share = await renderSettings(diskWithMatch(5113, 2));
+    share.holdSheet = true;
+    await tap('settings.sendMatchLog');
+    await tap('matchlog.share');
+    await act(async () => {
+      // Android back: the Modal's onRequestClose.
+      await fireEvent(screen.getByTestId('matchlog.sheet'), 'requestClose');
+    });
+    expect(screen.queryByTestId('matchlog.sheet')).toBeNull();
+    await act(async () => {
+      share.closeSheet();
+      await Promise.resolve();
+    });
+    expect(share.files.size).toBe(0);
     expect(screen.queryByTestId('matchlog.sheet')).toBeNull();
   });
 

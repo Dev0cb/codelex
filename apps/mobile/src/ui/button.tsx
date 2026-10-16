@@ -15,6 +15,8 @@ export interface ButtonProps {
    * "why" is never hidden). Screen readers hear the `accessibilityHint`.
    */
   readonly unavailable?: boolean;
+  /** Work started by this button is in progress (screen readers announce it busy), e.g. an open share sheet. */
+  readonly busy?: boolean;
   readonly accessibilityLabel?: string;
   readonly accessibilityHint?: string | undefined;
   readonly testID?: string;
@@ -34,6 +36,7 @@ export function Button({
   hero = false,
   disabled = false,
   unavailable = false,
+  busy,
   accessibilityLabel,
   accessibilityHint,
   testID,
@@ -56,7 +59,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled, busy }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
