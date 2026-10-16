@@ -130,11 +130,29 @@ describe('SendDataScreen (§5.9)', () => {
     await fireEvent.press(screen.getByTestId('export.confirm.confirm'));
     expect(screen.getByTestId('export.done').props.children).toBe('Thanks! 3 events cleared.');
     expect(queuedNames(fs)).toEqual(['analytics_buffer_flushed']);
-    // The summary is read again: only the flushed event waits now.
+    // The summary is read again: only the flushed event waits now. The whole queue fitted in this one file, so
+    // there is no "next file" to share: events recorded since (the flush itself, Android backgrounding for the
+    // share sheet) travel with a later export.
     expect(screen.getByTestId('export.summary.counts').props.children).toMatch(/^1 event · /);
-    expect(screen.getByTestId('export.remaining').props.children).toBe(
-      '1 event is still waiting. Share the next file.',
-    );
+    expect(screen.queryByTestId('export.remaining')).toBeNull();
+    expect(screen.queryByText(/Share the next file/)).toBeNull();
+  });
+
+  it('a single-file export never asks for a next file, even with events recorded while the sheet was open', async () => {
+    const { share, analytics } = await renderScreen(2);
+    share.holdSheet = true;
+    await tapShare();
+    // The share sheet backgrounds the app on Android: lifecycle events land in the queue meanwhile.
+    analytics.onAppState('background');
+    analytics.onAppState('active');
+    await act(async () => {
+      share.closeSheet();
+      await Promise.resolve();
+    });
+    await fireEvent.press(screen.getByTestId('export.confirm.confirm'));
+    expect(screen.getByTestId('export.done').props.children).toBe('Thanks! 2 events cleared.');
+    expect(analytics.queuedCount()).toBeGreaterThanOrEqual(2);
+    expect(screen.queryByTestId('export.remaining')).toBeNull();
   });
 
   it('"Not yet" keeps every event and the Share button', async () => {
@@ -164,8 +182,10 @@ describe('SendDataScreen (§5.9)', () => {
       `${first.value.remaining.toLocaleString('en')} more events will go in the next file.`,
     );
     await fireEvent.press(screen.getByTestId('export.confirm.confirm'));
+    // The count is the file's own `remaining` (left out by the 1 MB cap), not the live queue (which also holds the
+    // `analytics_buffer_flushed` just recorded).
     expect(screen.getByTestId('export.remaining').props.children).toBe(
-      `${(first.value.remaining + 1).toLocaleString('en')} events are still waiting. Share the next file.`,
+      `${first.value.remaining.toLocaleString('en')} events are still waiting. Share the next file.`,
     );
     // The drop was reported in the first file: the warning is gone.
     expect(screen.queryByTestId('export.dropped')).toBeNull();

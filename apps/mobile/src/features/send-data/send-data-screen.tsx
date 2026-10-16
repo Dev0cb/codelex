@@ -37,14 +37,15 @@ type Phase =
   | { readonly kind: 'idle' }
   | { readonly kind: 'sharing' }
   /** The sheet closed: "Did you send the file?" */
-  | { readonly kind: 'confirm'; readonly ticket: ExportTicket; readonly remaining: number }
+  | { readonly kind: 'confirm'; readonly ticket: ExportTicket }
   /** "Yes" was tapped but the clear could not be saved (full disk). */
-  | { readonly kind: 'clear_error'; readonly count: number };
+  | { readonly kind: 'clear_error'; readonly count: number; readonly remaining: number };
 
 type Status =
   | { readonly kind: 'none' }
   | { readonly kind: 'error'; readonly which: 'file' | 'share' }
-  | { readonly kind: 'done'; readonly count: number };
+  /** `remaining`: what the confirmed file left out (its `remaining`), not the live queue count. */
+  | { readonly kind: 'done'; readonly count: number; readonly remaining: number };
 
 /** A day in the tester's language ("3 Oct" / "3 oct."); ISO date where `Intl` is missing. */
 export function formatDay(ms: number, locale: string): string {
@@ -66,8 +67,8 @@ export function formatDay(ms: number, locale: string): string {
  *   opens the OS share sheet, and deletes the file when it closes (TM-04, `share-file.ts`).
  * - Then always "Did you send the file?": "Yes, I sent it" clears exactly that file's events and records
  *   `analytics_buffer_flushed`; "Not yet" changes nothing. With events left over (a full queue needs about three
- *   files), the screen says how many wait and Share sends the next file. A clear that cannot be saved says so, with
- *   Try again.
+ *   files), the screen says how many the file left out (its `remaining`, not the live queue) and Share sends the
+ *   next file. A clear that cannot be saved says so, with Try again.
  * No animation of its own; the sheet fades under reduced motion (`Sheet`). Text scales to 200 %: everything wraps
  * and the screen scrolls.
  */
@@ -116,7 +117,7 @@ export function SendDataScreen(): JSX.Element {
       title: t('export.title'),
     });
     if (outcome === 'closed') {
-      setPhase({ kind: 'confirm', ticket: prepared.ticket, remaining: prepared.file.remaining });
+      setPhase({ kind: 'confirm', ticket: prepared.ticket });
       return;
     }
     setPhase({ kind: 'idle' });
@@ -125,19 +126,19 @@ export function SendDataScreen(): JSX.Element {
 
   const onSent = (): void => {
     if (analytics === null || phase.kind !== 'confirm') return;
-    const count = phase.ticket.eventsSent;
+    const { eventsSent: count, remaining } = phase.ticket;
     if (analytics.confirmSent(phase.ticket)) {
       setPhase({ kind: 'idle' });
-      setStatus({ kind: 'done', count });
+      setStatus({ kind: 'done', count, remaining });
     } else {
-      setPhase({ kind: 'clear_error', count });
+      setPhase({ kind: 'clear_error', count, remaining });
     }
   };
 
   const onRetryClear = (): void => {
     if (analytics === null || phase.kind !== 'clear_error') return;
     if (analytics.retryClear()) {
-      setStatus({ kind: 'done', count: phase.count });
+      setStatus({ kind: 'done', count: phase.count, remaining: phase.remaining });
       setPhase({ kind: 'idle' });
     }
   };
@@ -309,9 +310,9 @@ export function SendDataScreen(): JSX.Element {
                   {t('export.done', { count: status.count })}
                 </Text>
               )}
-              {status.kind === 'done' && events > 0 && (
+              {status.kind === 'done' && status.remaining > 0 && (
                 <Text testID="export.remaining" style={[type.body, { color: color.textPrimary }]}>
-                  {t('export.remaining', { count: events })}
+                  {t('export.remaining', { count: status.remaining })}
                 </Text>
               )}
               {phase.kind === 'clear_error' && (
@@ -358,9 +359,9 @@ export function SendDataScreen(): JSX.Element {
         }}
         onConfirm={onSent}
       >
-        {phase.kind === 'confirm' && phase.remaining > 0 && (
+        {phase.kind === 'confirm' && phase.ticket.remaining > 0 && (
           <Text testID="export.confirm.more" style={[type.body, { color: color.textMuted }]}>
-            {t('export.confirm.more', { count: phase.remaining })}
+            {t('export.confirm.more', { count: phase.ticket.remaining })}
           </Text>
         )}
       </ConfirmSheet>

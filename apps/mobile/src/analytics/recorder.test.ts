@@ -521,7 +521,12 @@ describe('PlaytestAnalytics: Send playtest data (slice S6c, design §5.9)', () =
     });
     expect((parsed['events'] as unknown[]).length).toBe(3);
     expect(file).toMatchObject({ included: 3, remaining: 0 });
-    expect(ticket).toMatchObject({ eventsSent: 3, oldestMs: T0, exportedAtMs: T0 + 5000 });
+    expect(ticket).toMatchObject({
+      eventsSent: 3,
+      remaining: 0,
+      oldestMs: T0,
+      exportedAtMs: T0 + 5000,
+    });
   });
 
   it('refuses an empty queue and an invalid file (a bad build number)', () => {
@@ -581,6 +586,8 @@ describe('PlaytestAnalytics: Send playtest data (slice S6c, design §5.9)', () =
       expect(file.text.length).toBeLessThanOrEqual(1_000_000);
       sent += file.included;
       rounds += 1;
+      // The ticket carries what the file left out: the screen's "N still waiting" (never the live count).
+      expect(ticket.remaining).toBe(file.remaining);
       expect(h.analytics.confirmSent(ticket)).toBe(true);
       // Only the analytics_buffer_flushed events of the confirmed rounds are left at the end.
       if (file.remaining === 0) break;

@@ -143,6 +143,12 @@ export interface ExportTicket {
   /** The file's `dropped` block. */
   readonly dropped: DroppedCounts;
   readonly eventsSent: number;
+  /**
+   * Queued events the file left out (the 1 MB cap: its `remaining`). What the screen says still waits after "Sent":
+   * never the live queue count, which also holds what was recorded since (the flush event, the share sheet's
+   * background/foreground on Android), and which a later export carries.
+   */
+  readonly remaining: number;
   readonly oldestMs: number;
   readonly exportedAtMs: number;
 }
@@ -407,6 +413,7 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
         lastSeq: seqs[included - 1] ?? -1,
         dropped,
         eventsSent: included,
+        remaining: built.value.remaining,
         oldestMs: Date.parse(events[0]?.occurred_at ?? ''),
         exportedAtMs,
       },
