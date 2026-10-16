@@ -1,6 +1,7 @@
 # Design note — preview-only Diagnostics screen (DG1)
 
-- Status: Proposed · Date: 2026-10-07 · Owner/author: solution-architect (with mobile-engineer)
+- Status: Implemented by DG1 (in review, 2026-10-16; record and deviations in §13) · Date: 2026-10-07 ·
+  Owner/author: solution-architect (with mobile-engineer)
 - Reviewed-by: security-engineer 2026-10-07 (§10: approved with conditions SC-1..SC-6); pending mobile-engineer,
   ux-ui-designer (copy and accessibility, §8)
 - Sprint: `docs/sprints/2026-10-07-phase1-dogfood-readiness.md`, task A3. Unblocks DG1, then H1.
@@ -412,3 +413,44 @@ OQ-DG-1 is answered in §12.
 5. ASSUMPTION: S6c's share helper writes to a cache subdirectory that can be swept as a whole (§6).
 6. ASSUMPTION: Hermes V1 exposes `HermesInternal.getRuntimeProperties()` in release builds; if not, the build check
    uses `HermesInternal` presence and `__DEV__` only.
+
+## 13. DG1 implementation record (2026-10-16, mobile-engineer)
+
+Measured: the production export (`pnpm build`) has the same bytecode as `main` before DG1 (android 4,086,560 B,
+ios 3,904,004 B; only Hermes' 20-byte source hash in the header and footer differs). `bundle:check:diagnostics`
+(run inside `bundle:check`, same CI step, SC-3) finds 15 diagnostics and 17 golden-runner modules and both markers;
+preview-diagnostics android delta +183 KB (estimate was 250–450 KB). A deliberately unguarded import was exported
+once and failed the absence check on both platforms.
+
+Deviations, each forced by a source or the toolchain and open to review:
+
+1. **Gate in `settings-screen.tsx`, inline in JSX, with `require`** (§3.2). A separate gate file or a module-level
+   constant left 8–68 B in production; the literal test inside the JSX branch folds to the original code. `require`
+   is the §3.2 fallback: `import()` folds too, but Jest cannot evaluate it without VM modules.
+2. **Metro `cacheVersion` keyed on the constant** (`metro.config.cjs`): Metro's transform cache ignores
+   `EXPO_PUBLIC_*`, so a production export could reuse a diagnostics transform (seen once locally). Fails closed
+   anyway (absence check), but the key avoids it.
+3. **No on-device zod parse** (§5, §6 "zod parse"). The app never imports zod at runtime (S6a, +555 KB) and the
+   golden-runner README keeps parsing on Node. The report is built by a function typed with the A2 schema's type,
+   serialised with the engine's canonical JSON (throws outside the JCS subset) and size-capped; tests parse it with
+   `parseDiagnosticsReport` and compare it with the Node report (`compareReportTexts`).
+4. **A2 fields the note did not provide** (A2 is strict). `build.gitSha`: `app.config.cjs` writes
+   `extra.codelexDiagnostics.gitSha` only when the constant is set (EAS `EAS_BUILD_GIT_COMMIT_HASH`, else
+   `git rev-parse HEAD`; fails closed), resolving OQ-DG-2. `device.ramClass` and `device.deviceClass`: the owner
+   picks them on the screen (OQ-DG-3 stays: no `expo-device`); new local keys `diagnostics.ram*`,
+   `diagnostics.device_class*`, `diagnostics.share.needs`, `diagnostics.build.no_commit`, `diagnostics.failed`,
+   `diagnostics.status.not_run` (ux-ui-designer light review). iOS `model` is `unknown`. Build-check fields (§7:
+   `__DEV__`, `PLAY_RULES_VERSION`, lexicon version) have no A2 slot: a non-release build reports every timed bench
+   `not-measured` (`not-release-hermes-build`); Hermes version and bytecode version are in `runner.runtime`.
+5. **Bench shapes** (A2 has one entry per `botId`, no rack-type field, no per-decision samples): `botThink` lists
+   `beginner`, `strategist`, `beginner-two-blanks`, `strategist-two-blanks`; `constants` is fitted on the device
+   (least squares over Strategist's decisions, `fitConstants` in the runner core) instead of offline, because the
+   report cannot carry the samples; `has()` is in ns (integer µs would round to 0–2); `resume` is one distribution
+   over both restore paths; `decisionEquality` is read off the runner's `bots/decisions-b2-r1` cases.
+6. **Resume cuts** are 30/60/90 clamped to the last in-progress action: Beginner matches on the shipped lexicon end
+   after 44–52 actions, so the fixtures are cut at 30 and the last action.
+7. **Not built:** suite 6 (responsiveness, DG1-f; A2 has no field for it) and the index load timing of suite 2
+   (no A2 field). Follow-ups if H1 needs them.
+8. **BN1 partly done here:** the position source, two-blank variant and fit live in `@codelex/golden-runner/core`
+   (`src/core/bench/`); moving the Node harness onto it stays with ai-engineer. `runGoldensStepwise` (one case per
+   step) was added to the core for §5.1; `runGoldens` drains it (game-engine-engineer review).
