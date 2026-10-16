@@ -29,6 +29,9 @@ export function renderText(r) {
   L.push(
     `  median ${mins(m.sessions.median)}, IQR ${mins(m.sessions.q1)} to ${mins(m.sessions.q3)}, n = ${m.sessions.n} sessions from ${m.testers} testers`,
   );
+  L.push(
+    `  with lower-bound sessions added (${m.lowerBoundSessions}): median ${mins(m.withLowerBound.median)}, IQR ${mins(m.withLowerBound.q1)} to ${mins(m.withLowerBound.q3)}, n = ${m.withLowerBound.n} (lower bound: no app_backgrounded, closed at the last event by the next cold start; not in the figure above)`,
+  );
   L.push(`  median of per-tester medians ${mins(m.medianOfTesterMedians)}`);
   L.push(`  sessions under 10 s (kept in the figures): ${m.sessionsUnder10s}`);
   L.push(

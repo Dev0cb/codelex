@@ -99,6 +99,34 @@ test("sessions crossing files: complete once the second file arrives, incomplete
   assert.equal(both.dataQuality.duplicateEvents, 0);
 });
 
+test("median session: sessions closed by the next cold start (no app_backgrounded) are lower bounds, kept out of the median", () => {
+  // Clean case (iOS app-switcher swipe: no background event): 4 min of play, then a clean cold start a day later.
+  const swipe = new Device({ rng: makeRng(31), platform: "ios" });
+  swipe.open(false).match(4 * MIN).wait(3 * MIN); // swiped away here
+  swipe.wait(20 * 3_600_000).open(false).match(10 * MIN).background();
+  const sw = reconstructSessions(swipe.events).sessions;
+  assert.deepEqual(sw.map((x) => [x.outcome, x.foregroundMs, x.lowerBound]), [["clean", 4 * MIN, true], ["clean", 10 * MIN, false]]);
+
+  // Crashed case: the same, but the cold start reports the unclean exit.
+  const crash = new Device({ rng: makeRng(32), platform: "ios" });
+  crash.open(false).match(6 * MIN).wait(MIN);
+  crash.wait(20 * 3_600_000).open(true).match(12 * MIN).background();
+  const cr = reconstructSessions(crash.events).sessions;
+  assert.deepEqual(cr.map((x) => [x.outcome, x.foregroundMs, x.lowerBound]), [["crashed", 6 * MIN, true], ["clean", 12 * MIN, false]]);
+
+  const r = readout([exportFile(swipe, { exportedAt: day(2) }), exportFile(crash, { exportedAt: day(2) })]);
+  const m = r.medianSession;
+  // Without the lower bounds: 10 and 12 min. With them: 4, 6, 10, 12.
+  assert.deepEqual(m.sessions, { n: 2, median: 11 * MIN, q1: 10.5 * MIN, q3: 11.5 * MIN });
+  assert.deepEqual(m.withLowerBound, { n: 4, median: 8 * MIN, q1: 5.5 * MIN, q3: 10.5 * MIN });
+  assert.equal(m.lowerBoundSessions, 2);
+  assert.equal(m.testers, 2);
+  assert.match(renderText(r), /median 11\.0 min, IQR 10\.5 min to 11\.5 min, n = 2 sessions/);
+  assert.match(renderText(r), /with lower-bound sessions added \(2\): median 8\.0 min, IQR 5\.5 min to 10\.5 min, n = 4/);
+  // A well-formed session (closed by app_backgrounded) is never a lower bound.
+  assert.equal(reconstructSessions(coldSessions(new Device({ rng: rng() }), [5, 6]).events).sessions.some((x) => x.lowerBound), false);
+});
+
 test("duplicate events across overlapping files are counted once", () => {
   const d = coldSessions(new Device({ rng: rng() }), [5, 7]);
   const n = d.events.length;
@@ -411,7 +439,11 @@ test("dry run on the synthetic Stage 0 export: numbers hand-computed from the fi
   // Sessions of active testers, in minutes (a crash does not split a session; a warm return within 30 min joins):
   // t01 10,11,14,9,12; t02 17 (13 + 4 after 5 min away), 8, 14 (5 lower bound + 9 after the crash), 10;
   // t03 11,12 and 14,10; t04 5 and 0.1. That is 15 sessions: 0.1,5,8,9,10,10,10,11,11,12,12,14,14,14,17.
-  assert.deepEqual(r.medianSession.sessions, { n: 15, median: 11 * MIN, q1: 9.5 * MIN, q3: 13 * MIN });
+  // t02's 14 min session holds a lower bound (the crashed interval was open): out of the median, into "with".
+  // Exact (14): 0.1,5,8,9,10,10,10,11,11,12,12,14,14,17 -> median (10 + 11) / 2, q1 9 + 0.25, q3 12.
+  assert.deepEqual(r.medianSession.sessions, { n: 14, median: 10.5 * MIN, q1: 9.25 * MIN, q3: 12 * MIN });
+  assert.deepEqual(r.medianSession.withLowerBound, { n: 15, median: 11 * MIN, q1: 9.5 * MIN, q3: 13 * MIN });
+  assert.equal(r.medianSession.lowerBoundSessions, 1);
   assert.equal(r.medianSession.sessionsUnder10s, 1);
   assert.equal(r.medianSession.sessionsOfNonActiveTestersExcluded, 2); // t05: 3 and 2 min
   const w = r.wouldPlayAgain;

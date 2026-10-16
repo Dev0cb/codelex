@@ -24,8 +24,9 @@ Population
   roster: 6 installs mapped, 0 not in roster (counted as their own tester), 0 roster testers without data
 
 Median session length (target >= 8 min; sessions of active testers)
-  median 11.0 min, IQR 9.5 min to 13.0 min, n = 15 sessions from 4 testers
-  median of per-tester medians 11.3 min
+  median 10.5 min, IQR 9.3 min to 12.0 min, n = 14 sessions from 4 testers
+  with lower-bound sessions added (1): median 11.0 min, IQR 9.5 min to 13.0 min, n = 15 (lower bound: no app_backgrounded, closed at the last event by the next cold start; not in the figure above)
+  median of per-tester medians 10.5 min
   sessions under 10 s (kept in the figures): 1
   excluded: 0 incomplete sessions (still open at export), 2 sessions of non-active testers
 

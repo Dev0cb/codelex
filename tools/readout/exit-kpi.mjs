@@ -103,7 +103,7 @@ export function parseRoster(text) {
 /**
  * Sessions of one install from its ordered, de-duplicated events (ANALYTICS_EVENTS.md "Data-analyst notes D1").
  * Returns `{ sessions, anomalies }`; a session is
- * `{ foregroundMs, outcome: "clean" | "crashed" | "unknown", complete, zeroLength }`.
+ * `{ foregroundMs, outcome: "clean" | "crashed" | "unknown", complete, zeroLength, lowerBound }`.
  *
  * - `app_opened` starts a foreground interval, `app_backgrounded` closes it (`foreground_ms` is added to the session).
  *   A gap of more than 30 min between the last background and the next interval starts a new session (Q-12). A crash
@@ -111,6 +111,8 @@ export function parseRoster(text) {
  * - A cold start (`previous_exit_unclean` present) with `true` crashes the session holding the open interval, closed at
  *   the last event before the cold start (a lower bound); with no open interval it is a separate zero-length crashed
  *   session (a boot crash: the crashed process recorded nothing). A session containing an unclean exit is crashed.
+ * - An interval found open by a cold start (clean or crashed) was closed at the last event, so the session is
+ *   `lowerBound: true`: its length is at least that, not the real length (no median or IQR may use it as exact).
  * - Every other session is clean: its last interval was closed by `app_backgrounded`, which deletes the S6a marker
  *   (`session-marker.ts`), so it cannot become unclean later, and a later `app_opened` (warm or cold) proves the
  *   process stayed alive. The only unknown session is one whose last interval is still open at the end of the data
@@ -126,7 +128,7 @@ export function reconstructSessions(events) {
   const beginInterval = (startAt) => {
     if (current !== null && current.lastBgAt !== null && startAt - current.lastBgAt > SESSION_GAP_MS) current = null;
     if (current === null) {
-      current = { foregroundMs: 0, lastBgAt: null, outcome: "clean", complete: true, zeroLength: false };
+      current = { foregroundMs: 0, lastBgAt: null, outcome: "clean", complete: true, zeroLength: false, lowerBound: false };
       sessions.push(current);
     }
     open = { startAt };
@@ -136,6 +138,7 @@ export function reconstructSessions(events) {
     const end = Math.max(open.startAt, lastAt ?? open.startAt);
     current.foregroundMs += end - open.startAt;
     current.lastBgAt = end;
+    current.lowerBound = true; // the real end is unknown (the app was swiped away or killed after the last event)
     open = null;
     return current;
   };
@@ -155,7 +158,7 @@ export function reconstructSessions(events) {
       }
       if (unclean === true && !crashed) {
         // Nothing open (e.g. a boot crash): a separate zero-length crashed session.
-        sessions.push({ foregroundMs: 0, lastBgAt: null, outcome: "crashed", complete: true, zeroLength: true });
+        sessions.push({ foregroundMs: 0, lastBgAt: null, outcome: "crashed", complete: true, zeroLength: true, lowerBound: false });
       }
       beginInterval(at);
     } else if (e.event === "app_backgrounded") {
@@ -292,8 +295,10 @@ export function computeReadout({ files, rosterText }) {
     testerKeys.filter((key) => testers.get(key).some((id) => perInstall.get(id).finished > 0)),
   );
 
-  // 6. Median session: sessions of active testers with a known length (zero-length crashed sessions have none).
+  // 6. Median session: sessions of active testers with a known length (zero-length crashed sessions have none);
+  // lower-bound sessions are left out of the headline figures and reported separately.
   const allLengths = [];
+  const lowerBoundLengths = [];
   const perTesterMedians = [];
   let incompleteSessions = 0;
   let sessionsOfInactive = 0;
@@ -304,6 +309,7 @@ export function computeReadout({ files, rosterText }) {
         if (s.zeroLength) continue;
         if (!s.complete) incompleteSessions += 1;
         else if (!activeKeys.has(key)) sessionsOfInactive += 1;
+        else if (s.lowerBound) lowerBoundLengths.push(s.foregroundMs);
         else lengths.push(s.foregroundMs);
       }
     }
@@ -314,7 +320,10 @@ export function computeReadout({ files, rosterText }) {
   }
   const medianSession = {
     unit: "ms",
+    // Exact lengths only; sessions closed by the next cold start are lower bounds and reported next to it.
     sessions: summarise(allLengths),
+    withLowerBound: summarise([...allLengths, ...lowerBoundLengths]),
+    lowerBoundSessions: lowerBoundLengths.length,
     testers: perTesterMedians.length,
     medianOfTesterMedians: summarise(perTesterMedians).median,
     sessionsUnder10s: allLengths.filter((ms) => ms < SHORT_SESSION_MS).length,
