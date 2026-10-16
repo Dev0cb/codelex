@@ -4,12 +4,14 @@
  * `Share` API cannot share a file on Android). expo-sharing shares through its own non-exported `FileProvider`
  * (`${applicationId}.SharingFileProvider`, `grantUriPermissions`), so the receiving app gets a temporary read grant on
  * one `content://` URI, never a file path; on iOS it presents `UIActivityViewController`. Its promise resolves when
- * the sheet is dismissed. The share-into-app config plugin of expo-sharing is not used (not in `app.json`).
+ * the sheet is dismissed. The share-into-app config plugin of expo-sharing is not used (not in `app.json`). That
+ * provider's paths also cover the app's files and external storage, so `open` refuses any URI outside the share
+ * directory (`isInShareDirectory`).
  */
 import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
-import { SHARE_DIR, type ShareServices } from './share-file';
+import { isInShareDirectory, SHARE_DIR, type ShareServices } from './share-file';
 
 export function createDeviceShare(): ShareServices {
   const directory = (): Directory => new Directory(Paths.cache, SHARE_DIR);
@@ -29,12 +31,17 @@ export function createDeviceShare(): ShareServices {
     },
     sheet: {
       isAvailable: () => Sharing.isAvailableAsync(),
-      open: (uri, options) =>
-        Sharing.shareAsync(uri, {
+      open(uri, options) {
+        // The FileProvider also exposes files-path and external-path: only the share directory may leave (TM-04).
+        if (!isInShareDirectory(uri, directory().uri)) {
+          return Promise.reject(new Error('refused: outside the share directory'));
+        }
+        return Sharing.shareAsync(uri, {
           mimeType: options.mimeType,
           UTI: options.uti,
           dialogTitle: options.title,
-        }),
+        });
+      },
     },
   };
 }

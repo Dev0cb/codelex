@@ -57,6 +57,23 @@ export interface ShareFile {
   readonly title: string;
 }
 
+/** A path segment the share path itself writes: no `.`/`..`, no separator, no `%`-escape, query or fragment. */
+const PLAIN_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+
+/**
+ * True when `uri` names a file inside the share directory `directoryUri` (TM-04): it starts with that directory and
+ * every segment after it is a plain name. The sheet refuses anything else, because expo-sharing's `FileProvider` also
+ * exposes the app's files and external paths: a bug passing another URI must not hand it to another app.
+ */
+export function isInShareDirectory(uri: string, directoryUri: string): boolean {
+  const base = directoryUri.endsWith('/') ? directoryUri : `${directoryUri}/`;
+  if (!uri.startsWith(base)) return false;
+  return uri
+    .slice(base.length)
+    .split('/')
+    .every((segment) => PLAIN_SEGMENT.test(segment));
+}
+
 /** Deletes the share directory (app start, before and after every share). True when it is gone. */
 export function sweepShareDirectory(directory: ShareDirectory): boolean {
   try {

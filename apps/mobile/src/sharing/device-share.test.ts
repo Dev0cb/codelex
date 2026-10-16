@@ -7,7 +7,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { createDeviceShare } from './device-share';
-import { SHARE_DIR, shareTextFile } from './share-file';
+import { isInShareDirectory, SHARE_DIR, shareTextFile } from './share-file';
 
 jest.mock('expo-file-system', () => jest.requireActual('../../jest/expo-file-system.cjs'));
 jest.mock('expo-sharing', () => ({
@@ -64,5 +64,41 @@ describe('createDeviceShare', () => {
     );
     expect(during).toEqual(['codelex-playtest-data.json']);
     expect(existsSync(join(Paths.cache.uri, SHARE_DIR))).toBe(false);
+  });
+
+  it('opens the sheet only for a file in the share directory (the FileProvider also exposes other paths)', async () => {
+    const share = createDeviceShare();
+    const dir = join(Paths.cache.uri, SHARE_DIR);
+    sharing.shareAsync.mockClear();
+    const options = {
+      mimeType: 'application/json',
+      uti: 'public.json',
+      title: 'Send playtest data',
+    };
+    for (const uri of [
+      join(Paths.document.uri, 'codelex-data', 'install.id'),
+      join(Paths.cache.uri, 'codelex-playtest-data.json'),
+      `${dir}/../codelex-data/install.id`,
+      `${dir}/./x.json`,
+      `${dir}-other/codelex-playtest-data.json`,
+      `${dir}/`,
+      dir,
+      `${dir}/x.json?y=1`,
+      '/sdcard/Download/codelex-playtest-data.json',
+    ]) {
+      await expect(share.sheet.open(uri, options)).rejects.toThrow('outside the share directory');
+    }
+    expect(sharing.shareAsync).not.toHaveBeenCalled();
+    await share.sheet.open(`${dir}/codelex-playtest-data.json`, options);
+    expect(sharing.shareAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it('isInShareDirectory accepts plain names under the directory, with or without its trailing slash', () => {
+    const base = 'file:///data/user/0/app/cache/codelex-share/';
+    expect(isInShareDirectory(`${base}a.json`, base)).toBe(true);
+    expect(isInShareDirectory(`${base}0b1d/a.json`, base.slice(0, -1))).toBe(true);
+    expect(isInShareDirectory(`${base}..%2Fx.json`, base)).toBe(false);
+    expect(isInShareDirectory(`${base}a//b.json`, base)).toBe(false);
+    expect(isInShareDirectory('file:///data/user/0/app/files/a.json', base)).toBe(false);
   });
 });
