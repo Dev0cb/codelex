@@ -45,7 +45,11 @@ describe('bench positions (P5 §2 generator, one decision per step)', { timeout:
     if (position === undefined) throw new Error('no position');
     const a = benchDecision(lexicon, position, 'strategist');
     const b = benchDecision(lexicon, position, 'strategist');
-    expect(a.ok && b.ok && actionKey(a.value.action) === actionKey(b.value.action)).toBe(true);
+    if (!a.ok || !b.ok) throw new Error('bot decision failed');
+    expect(a.value.action.type).not.toBe('RESIGN');
+    expect(b.value.action.type).not.toBe('RESIGN');
+    if (a.value.action.type === 'RESIGN' || b.value.action.type === 'RESIGN') return;
+    expect(actionKey(a.value.action)).toBe(actionKey(b.value.action));
   });
 
   it('forces two blanks into the rack, keeping its length', () => {
