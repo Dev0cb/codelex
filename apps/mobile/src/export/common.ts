@@ -13,6 +13,7 @@ import type { Result } from '@codelex/config/result';
 import * as z from 'zod/mini';
 
 import { APP_VERSION_PATTERN, PLATFORMS } from '../analytics/events.ts';
+import { utf8Length } from '../analytics/utf8.ts';
 
 export const EXPORT_FORMAT = 1;
 
@@ -32,23 +33,8 @@ export type ExportError =
   | { readonly code: 'INVALID'; readonly issues: readonly string[] }
   | { readonly code: 'TOO_LARGE'; readonly bytes: number; readonly maxBytes: number };
 
-/** UTF-8 byte length of `text` (no TextEncoder needed). */
-export function utf8Length(text: string): number {
-  let bytes = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    const c = text.charCodeAt(i);
-    if (c < 0x80) bytes += 1;
-    else if (c < 0x800) bytes += 2;
-    else if (c >= 0xd800 && c <= 0xdbff && i + 1 < text.length) {
-      const next = text.charCodeAt(i + 1);
-      if (next >= 0xdc00 && next <= 0xdfff) {
-        bytes += 4;
-        i += 1;
-      } else bytes += 3;
-    } else bytes += 3;
-  }
-  return bytes;
-}
+/** UTF-8 byte length of `text` (no TextEncoder needed); the same function the on-device builder uses. */
+export { utf8Length };
 
 export const issuesOf = (error: z.core.$ZodError): string[] =>
   error.issues.map((i) => `${i.path.map(String).join('.') || '<root>'}: ${i.code}`);
