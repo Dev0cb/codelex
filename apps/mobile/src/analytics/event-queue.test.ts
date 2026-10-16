@@ -14,6 +14,7 @@ import {
   EventQueue,
   type DroppedCounts,
   QUEUE_CAP,
+  type SentBatch,
   QUEUE_COMPACT_AFTER,
   QUEUE_FILES,
   QUEUE_MAX_AGE_MS,
@@ -505,6 +506,13 @@ describe('EventQueue export (slice S6c)', () => {
     expect(sample === null ? [] : ids([sample])).toEqual([2]);
   });
 
+  /** The file's batch as the export ticket holds it: the first and last sequence numbers and the event count. */
+  const sentBatch = (seqs: readonly number[], count = seqs.length): SentBatch => ({
+    firstSeq: seqs[0] ?? -1,
+    lastSeq: seqs[count - 1] ?? -1,
+    events: count,
+  });
+
   it('clearThrough clears only the exported events, even after new ones and cap drops', () => {
     const fs = new MemoryFs();
     const queue = open(fs, T0, 4);
@@ -515,13 +523,29 @@ describe('EventQueue export (slice S6c)', () => {
     queue.append(eventAt(4));
     queue.append(eventAt(5));
     expect(queue.dropped().queueCap).toBe(1);
-    expect(queue.clearThrough(batch.seqs.at(-1) ?? -1, reported)).toBe(true);
+    expect(queue.clearThrough(sentBatch(batch.seqs), reported)).toBe(true);
     expect(ids(queue.events())).toEqual([4, 5]);
-    // The cap drop happened after the file was built: it is still reported in the next file.
-    expect(queue.dropped()).toEqual({ ...NONE, queueCap: 1 });
+    // Event 1 was in the file that was sent: its cap drop is not reported again in the next file.
+    expect(queue.dropped()).toEqual(NONE);
     const reopened = open(fs.reboot(), T0, 4);
     expect(ids(reopened.events())).toEqual([4, 5]);
-    expect(reopened.dropped()).toEqual({ ...NONE, queueCap: 1 });
+    expect(reopened.dropped()).toEqual(NONE);
+  });
+
+  it('clearThrough still reports a cap drop of an event the file did not hold', () => {
+    const fs = new MemoryFs();
+    const queue = open(fs, T0, 4);
+    for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
+    // The file held events 1 and 2 only (the 1 MB cap left event 3 for the next file).
+    const batch = sentBatch(queue.exportable().seqs, 2);
+    const reported = queue.dropped();
+    // While the sheet is open: four more events push 1, 2 (sent) and 3 (never sent) out at the cap.
+    for (let n = 4; n <= 7; n += 1) queue.append(eventAt(n));
+    expect(queue.dropped().queueCap).toBe(3);
+    expect(queue.clearThrough(batch, reported)).toBe(true);
+    expect(ids(queue.events())).toEqual([4, 5, 6, 7]);
+    expect(queue.dropped()).toEqual({ ...NONE, queueCap: 1 });
+    expect(open(fs.reboot(), T0, 4).dropped()).toEqual({ ...NONE, queueCap: 1 });
   });
 
   it('subtracts exactly the counts the file reported, never below zero', () => {
@@ -530,11 +554,11 @@ describe('EventQueue export (slice S6c)', () => {
     queue.countInvalid();
     queue.countInvalid();
     const reported = queue.dropped();
-    const last = queue.exportable().seqs.at(-1) ?? -1;
+    const batch = sentBatch(queue.exportable().seqs);
     queue.countInvalid();
-    expect(queue.clearThrough(last, reported)).toBe(true);
+    expect(queue.clearThrough(batch, reported)).toBe(true);
     expect(queue.dropped()).toEqual({ ...NONE, invalid: 1 });
-    expect(queue.clearThrough(last, { queueCap: 9, expired: 9, invalid: 9 })).toBe(true);
+    expect(queue.clearThrough(batch, { queueCap: 9, expired: 9, invalid: 9 })).toBe(true);
     expect(queue.dropped()).toEqual(NONE);
   });
 
@@ -544,7 +568,7 @@ describe('EventQueue export (slice S6c)', () => {
     for (let n = 1; n <= 3; n += 1) queue.append(eventAt(n));
     const batch = queue.exportable();
     fs.fullAfter = 0;
-    expect(queue.clearThrough(batch.seqs.at(-1) ?? -1, NONE)).toBe(false);
+    expect(queue.clearThrough(sentBatch(batch.seqs), NONE)).toBe(false);
     expect(queue.flush()).toBe(false);
     fs.fullAfter = null;
     expect(queue.flush()).toBe(true);

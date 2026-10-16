@@ -138,6 +138,8 @@ export interface ExportSummary extends QueueSummary {
 /** What "Yes, I sent it" needs about the file that was shared (held by the screen, never written). */
 export interface ExportTicket {
   readonly installId: string;
+  /** Sequence number of the oldest event in the file. */
+  readonly firstSeq: number;
   /** Sequence number of the newest event in the file. */
   readonly lastSeq: number;
   /** The file's `dropped` block. */
@@ -410,6 +412,7 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
       file: built.value,
       ticket: {
         installId,
+        firstSeq: seqs[0] ?? -1,
         lastSeq: seqs[included - 1] ?? -1,
         dropped,
         eventsSent: included,
@@ -427,7 +430,10 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
    */
   confirmSent(ticket: ExportTicket): boolean {
     if (!this.recording() || this.installId !== ticket.installId) return true;
-    const cleared = this.queue.clearThrough(ticket.lastSeq, ticket.dropped);
+    const cleared = this.queue.clearThrough(
+      { firstSeq: ticket.firstSeq, lastSeq: ticket.lastSeq, events: ticket.eventsSent },
+      ticket.dropped,
+    );
     const { queueCap, expired, invalid } = ticket.dropped;
     const age = ticket.exportedAtMs - ticket.oldestMs;
     this.record('analytics_buffer_flushed', {

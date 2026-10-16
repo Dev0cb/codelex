@@ -67,6 +67,16 @@ export interface DroppedCounts {
 
 const NO_DROPS: DroppedCounts = { queueCap: 0, expired: 0, invalid: 0 };
 
+/** The events of a shared file, as {@link EventQueue.exportable} numbered them (slice S6c). */
+export interface SentBatch {
+  /** Sequence number of the oldest event in the file. */
+  readonly firstSeq: number;
+  /** Sequence number of the newest event in the file. */
+  readonly lastSeq: number;
+  /** Events in the file. */
+  readonly events: number;
+}
+
 interface Entry {
   readonly seq: number;
   readonly occurredMs: number;
@@ -298,19 +308,33 @@ export class EventQueue {
   }
 
   /**
-   * "Yes, I sent it" for a file whose newest event has sequence number `lastSeq` (slice S6c): every live event up to
-   * it is cleared, and the drop counts lose exactly what the file reported (`reported`, its `dropped` block), so a
-   * drop counted while the share sheet was open is still reported in the next file. Same disk contract as
-   * {@link clearSent}: true once the meta is on disk; on false, {@link flush} retries.
+   * "Yes, I sent it" for the file whose events were `sent` (slice S6c): every live event up to `sent.lastSeq` is
+   * cleared, and the drop counts lose exactly what the file reported (`reported`, its `dropped` block), so a drop
+   * counted while the share sheet was open is still reported in the next file. A drop of an event the file itself
+   * held is not: the file delivered that event, so the batch entries already gone since the file was built
+   * (`firstSeq ≤ seq ≤ lastSeq`, cap drops while the sheet was open) are taken off the new counts too. Only the cap
+   * can drop a live event once the queue is loaded (the 30-day expiry runs at load, before any export); the
+   * expired count is still checked second for safety. Same disk contract as {@link clearSent}: true once the meta is
+   * on disk; on false, {@link flush} retries.
    */
-  clearThrough(lastSeq: number, reported: DroppedCounts): boolean {
+  clearThrough(sent: SentBatch, reported: DroppedCounts): boolean {
     this.load();
     let n = 0;
-    while (n < this.entries.length && (this.entries[n]?.seq ?? Infinity) <= lastSeq) n += 1;
+    let present = 0;
+    while (n < this.entries.length) {
+      const seq = this.entries[n]?.seq ?? Infinity;
+      if (seq > sent.lastSeq) break;
+      if (seq >= sent.firstSeq) present += 1;
+      n += 1;
+    }
     const less = (a: number, b: number): number => Math.max(0, a - b);
+    const gone = less(sent.events, present);
+    const queueCap = less(this.counts.queueCap, reported.queueCap);
+    const goneCap = Math.min(gone, queueCap);
+    const expired = less(this.counts.expired, reported.expired);
     return this.drop(n, {
-      queueCap: less(this.counts.queueCap, reported.queueCap),
-      expired: less(this.counts.expired, reported.expired),
+      queueCap: queueCap - goneCap,
+      expired: less(expired, gone - goneCap),
       invalid: less(this.counts.invalid, reported.invalid),
     });
   }
