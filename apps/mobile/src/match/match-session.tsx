@@ -5,7 +5,8 @@
  * render (TM-02: no parsing before the first render), so Home shows the resume card or a cannot-resume card.
  *
  * Without persistence (`MatchServices.persistence` absent, as in the S1/S2 screen tests) matches simply are not
- * saved and the Summary shows no "New to you" count.
+ * saved and the Summary shows no "New to you" count. It also provides the "Send match log" access (slice S6d,
+ * `match-log-access.ts`), null without persistence.
  */
 import { createMatch, type EngineContext } from '@codelex/game-engine';
 import {
@@ -22,7 +23,9 @@ import {
 import { AppState } from 'react-native';
 
 import { usePlaytestAnalytics } from '../analytics/analytics-provider';
+import { exportApp } from '../config/build-info';
 import { useLexicon } from '../lexicon/lexicon-gate';
+import { createMatchLogAccess, MatchLogContext } from '../match-log/match-log-access';
 import {
   finishMatch,
   openSavedMatch,
@@ -73,6 +76,11 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   const analytics = usePlaytestAnalytics();
   const ctx = useMemo<EngineContext>(() => ({ lexicon: index }), [index]);
   const persistence = useMemo(() => services.persistence?.() ?? null, [services]);
+  // "Send match log" (slice S6d) reads the saved matches through this allowlist only (TM-04).
+  const matchLog = useMemo(
+    () => (persistence === null ? null : createMatchLogAccess(persistence.store, ctx, exportApp())),
+    [persistence, ctx],
+  );
 
   const [saved, setSaved] = useState<SavedStatus>(persistence === null ? NONE : CHECKING);
   const [model, setModel] = useState<MatchModel | null>(null);
@@ -195,5 +203,9 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       dismissLowStorage,
     ],
   );
-  return <MatchSessionContext value={value}>{children}</MatchSessionContext>;
+  return (
+    <MatchSessionContext value={value}>
+      <MatchLogContext value={matchLog}>{children}</MatchLogContext>
+    </MatchSessionContext>
+  );
 }

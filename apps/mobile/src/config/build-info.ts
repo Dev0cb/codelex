@@ -24,3 +24,21 @@ export const APP_BUILD: string = buildNumber(
     ? Constants.expoConfig?.ios?.buildNumber
     : Constants.expoConfig?.android?.versionCode,
 );
+
+/** An export platform (D1 `ExportAppSchema`): `ios` or `android`; null elsewhere (web, tests of other targets). */
+export function exportPlatform(os: string): 'ios' | 'android' | null {
+  return os === 'ios' || os === 'android' ? os : null;
+}
+
+/**
+ * The exporting build of a "Send match log" file (`app`, TM-04: version, store build, platform, nothing finer); null
+ * on a platform that is neither iOS nor Android, where nothing is exported.
+ */
+export function exportApp(os: string = Platform.OS): {
+  readonly version: string;
+  readonly build: string;
+  readonly platform: 'ios' | 'android';
+} | null {
+  const platform = exportPlatform(os);
+  return platform === null ? null : { version: APP_VERSION, build: APP_BUILD, platform };
+}

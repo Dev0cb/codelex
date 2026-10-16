@@ -1,0 +1,137 @@
+/**
+ * "Send match log" on the corrupt-state card (E-1.5 design §5.10.2; slice S6d, behind `playtest.match_log.enabled`):
+ * the corrupt match is exported (as `raw` when the app cannot read it) before "Start a new match" deletes it; the
+ * version-mismatch card has no such button; with the flag off the card offers "Start a new match" only.
+ */
+import type { SeedHex } from '@codelex/game-engine';
+import { beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { act, fireEvent, screen } from '@testing-library/react-native';
+import { Stack } from 'expo-router';
+import { renderRouter } from 'expo-router/testing-library';
+import type { JSX } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+import { FlagsProvider } from '../../config/flags-provider';
+import { decodeMatchLog } from '../../export/match-log';
+import { I18nProvider } from '../../i18n/i18n-provider';
+import { createBundledLexiconSource } from '../../lexicon/bundled-lexicon-source';
+import { LexiconGate } from '../../lexicon/lexicon-gate';
+import type { LoadedLexicon } from '../../lexicon/load-lexicon';
+import { createJsThreadBotRunner } from '../../match/bot-runner';
+import { MatchSessionProvider } from '../../match/match-session';
+import { playMatchConfig } from '../../match/play-config';
+import { humanStarts, loadBundledLexicon } from '../../match/test-support';
+import { MatchServicesContext, type MatchServices } from '../../match/use-match';
+import { DataStore } from '../../persistence/data-store';
+import { FILES } from '../../persistence/match-journal';
+import { MemoryFs } from '../../persistence/memory-fs';
+import { createPersistence } from '../../persistence/saved-match';
+import { ShareContext } from '../../sharing/share-provider';
+import { createTestShare, type TestShare } from '../../sharing/test-share';
+import { HomeScreen } from './home-screen';
+
+jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
+jest.mock('expo-crypto', () => jest.requireActual('../../../jest/expo-crypto.cjs'));
+jest.mock('expo-file-system', () => jest.requireActual('../../../jest/expo-file-system.cjs'));
+
+const lexiconSource = createBundledLexiconSource();
+let lexicon: LoadedLexicon;
+
+beforeAll(async () => {
+  lexicon = await loadBundledLexicon();
+});
+
+async function renderHome(seed: SeedHex, disk: MemoryFs, flag: boolean): Promise<TestShare> {
+  const share = createTestShare();
+  const services: MatchServices = {
+    newSeed: () => seed,
+    createBotRunner: (index) =>
+      createJsThreadBotRunner(index, { nextFrame: () => Promise.resolve() }),
+    thinkDelayMs: () => 0,
+    shuffleRandom: () => 0,
+    persistence: () => createPersistence(disk),
+  };
+  function Layout(): JSX.Element {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <I18nProvider locale="en">
+          <FlagsProvider
+            flags={{ 'play_vs_bot.enabled': true, 'playtest.match_log.enabled': flag }}
+          >
+            <MatchServicesContext value={services}>
+              <ShareContext value={share}>
+                <LexiconGate source={lexiconSource}>
+                  <MatchSessionProvider>
+                    <Stack screenOptions={{ headerShown: false }} />
+                  </MatchSessionProvider>
+                </LexiconGate>
+              </ShareContext>
+            </MatchServicesContext>
+          </FlagsProvider>
+        </I18nProvider>
+      </GestureHandlerRootView>
+    );
+  }
+  await renderRouter({ _layout: Layout, index: HomeScreen }, { initialUrl: '/' });
+  return share;
+}
+
+/** A log whose first record no longer matches its checksum: the corrupt card. */
+function corruptDisk(): { readonly disk: MemoryFs; readonly bytes: Uint8Array } {
+  const disk = new MemoryFs();
+  new DataStore(disk).append(FILES.log, ['{"logVersion":1,"header":{}}', '{"a":1,"h":"x"}']);
+  const bytes = disk.files.get(FILES.log);
+  if (bytes === undefined) throw new Error('no log');
+  bytes[10] = 0x41;
+  return { disk, bytes: bytes.slice() };
+}
+
+describe('Send match log on the corrupt-state card (§5.10.2, S6d)', () => {
+  it('exports the corrupt match as raw bytes, before Start a new match deletes it', async () => {
+    const seed = humanStarts(lexicon, 5201);
+    const { disk, bytes } = corruptDisk();
+    const share = await renderHome(seed, disk, true);
+    expect(await screen.findByText("We couldn't restore this match.")).toBeTruthy();
+    const button = screen.getByTestId('home.sendMatchLog');
+    expect(button.props.accessibilityLabel).toBe('Send match log');
+    await act(async () => {
+      await fireEvent.press(button);
+    });
+    expect(screen.getByTestId('matchlog.confirm.body').props.children).toBe(
+      'The file holds the moves, seed and versions of your current match. No personal data in the file.',
+    );
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('matchlog.share'));
+      await Promise.resolve();
+    });
+    expect(share.opened).toHaveLength(1);
+    const text = share.opened[0]?.files.get('codelex-match-log.json') ?? '';
+    const decoded = decodeMatchLog(text);
+    if (!decoded.ok) throw new Error(JSON.stringify(decoded.error));
+    expect(decoded.value).toMatchObject({ raw: Buffer.from(bytes).toString('base64') });
+    expect(share.files.size).toBe(0);
+    // The card stays until the player acts; the match is still there.
+    expect(screen.getByTestId('home.cannotResume')).toBeTruthy();
+    expect(disk.files.has(FILES.log)).toBe(true);
+  }, 60_000);
+
+  it('offers Start a new match only while the flag is off', async () => {
+    const seed = humanStarts(lexicon, 5202);
+    await renderHome(seed, corruptDisk().disk, false);
+    expect(await screen.findByText("We couldn't restore this match.")).toBeTruthy();
+    expect(screen.getByTestId('home.startNew')).toBeTruthy();
+    expect(screen.queryByTestId('home.sendMatchLog')).toBeNull();
+  }, 60_000);
+
+  it('has no Send match log on the version-mismatch card', async () => {
+    const seed = humanStarts(lexicon, 5203);
+    const disk = new MemoryFs();
+    const config = { ...playMatchConfig(seed, lexicon.index), engineRulesVersion: 99 };
+    new DataStore(disk).append(FILES.log, [JSON.stringify({ logVersion: 1, header: config })]);
+    await renderHome(seed, disk, true);
+    expect(
+      await screen.findByText("This match was saved with an older version and can't be resumed."),
+    ).toBeTruthy();
+    expect(screen.queryByTestId('home.sendMatchLog')).toBeNull();
+  }, 60_000);
+});
