@@ -5,6 +5,7 @@ import fc from 'fast-check';
 import {
   BUNDLED_EXPORT_ADDRESS,
   EXPORT_ADDRESS_ALLOWLIST,
+  isExportAddress,
   resolveExportAddress,
 } from './export-address';
 
@@ -17,10 +18,41 @@ describe('resolveExportAddress (TM-07)', () => {
     expect(BUNDLED_EXPORT_ADDRESS).toBeNull();
     expect(resolveExportAddress(undefined)).toBeNull();
     expect(resolveExportAddress('attacker@evil.example')).toBeNull();
-    // The bundled constant is always in the allowlist.
-    if (BUNDLED_EXPORT_ADDRESS !== null) {
-      expect(EXPORT_ADDRESS_ALLOWLIST).toContain(BUNDLED_EXPORT_ADDRESS);
+  });
+
+  it('bundles an address only if it is in the allowlist (fails the build otherwise)', () => {
+    const bundled: string | null = BUNDLED_EXPORT_ADDRESS;
+    expect(bundled === null || EXPORT_ADDRESS_ALLOWLIST.includes(bundled)).toBe(true);
+  });
+
+  it('allowlists only plain email addresses', () => {
+    for (const address of EXPORT_ADDRESS_ALLOWLIST) expect(isExportAddress(address)).toBe(true);
+    for (const good of [TEAM, BACKUP, 'play.test+s6c@mail.codelex.example']) {
+      expect(isExportAddress(good)).toBe(true);
     }
+    for (const bad of [
+      '',
+      'playtest',
+      'playtest@',
+      '@codelex.example',
+      'playtest@codelex',
+      'Playtest Team <playtest@codelex.example>',
+      'playtest@codelex.example\nBcc: attacker@evil.example',
+      'play test@codelex.example',
+      'playtest@codelex.example,attacker@evil.example',
+      'mailto:playtest@codelex.example',
+      'PLAYTEST@CODELEX.EXAMPLE',
+      'playtest@-codelex.example',
+      'playtest@codelex..example',
+    ]) {
+      expect(isExportAddress(bad)).toBe(false);
+    }
+  });
+
+  it('never displays an allowlisted entry that is not a plain email address', () => {
+    const bad = 'Team <playtest@codelex.example>';
+    expect(resolveExportAddress(undefined, bad, [bad])).toBeNull();
+    expect(resolveExportAddress(bad, TEAM, [TEAM, bad])).toBe(TEAM);
   });
 
   it('shows the bundled address; remote config may hide it or pick an allowlisted one', () => {
