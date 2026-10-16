@@ -11,6 +11,7 @@ import {
   type StateHash,
 } from '@codelex/game-engine';
 
+import { MATCH_LOG_GUARD_FILE } from '../match-log/match-log-file';
 import type { MatchModel } from '../match/match-model';
 import { HUMAN_SEAT } from '../match/play-config';
 import { DataStore, TMP_SUFFIX, type FsPrimitives } from './data-store';
@@ -33,6 +34,7 @@ export const MATCH_FILE_NAMES: ReadonlySet<string> = new Set([
   FILES.last,
   TERMS_FILE,
   GUARD_FILE,
+  MATCH_LOG_GUARD_FILE,
 ]);
 const isMatchFile = (name: string): boolean =>
   MATCH_FILE_NAMES.has(name.endsWith(TMP_SUFFIX) ? name.slice(0, -TMP_SUFFIX.length) : name);

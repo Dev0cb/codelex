@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAnalyticsSnapshot, usePlaytestAnalytics } from '../../analytics/analytics-provider';
 import { useI18n } from '../../i18n/i18n-provider';
+import { useSendMatchLog } from '../match-log/send-match-log';
 import {
   MOTION_PREFERENCES,
   useMotionPreference,
@@ -45,8 +46,9 @@ export interface BuildVersions {
  * - **Playtest data**, only with `analytics.upload.enabled` on (spec "Flags & rollout" SP2): the consent toggle
  *   (AC-17, Q-7) and, while recording, the install-scoped tester ID as selectable text. Turning the toggle off asks
  *   first (`settings.analytics.off.*`, with the count of unsent events), then purges. While recording, "Send playtest data · N
- *   waiting ›" opens the export screen (§5.9, slice S6c). "Send match log" (S6d) is not rendered until its slice
- *   ships (no disabled placeholders).
+ *   waiting ›" opens the export screen (§5.9, slice S6c). "Send match log ›" (slice S6d, AC-20) is behind its own
+ *   flag `playtest.match_log.enabled`, not behind consent or `analytics.upload.enabled` (a user-initiated bug
+ *   report): it opens the TM-05 confirm sheet, then the OS share sheet. The section shows when either flag is on.
  * - **Play**: Animations (Follow system / Reduced / Full, D-22). The other §5.8 Play rows (sound, vibration,
  *   auto-zoom, handedness) control features not built yet and are not rendered.
  * - **About this build**: `settings.about.versions` as plain text (the 7-tap Diagnostics entry is DG1's), and the
@@ -60,6 +62,7 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
   const analytics = usePlaytestAnalytics();
   const snapshot = useAnalyticsSnapshot();
   const motion = useMotionPreference();
+  const matchLog = useSendMatchLog();
   /** The turn-off sheet: the unsent count and the tester ID to note before it is deleted (review M2). */
   const [confirmOff, setConfirmOff] = useState<{
     readonly count: number;
@@ -90,6 +93,18 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
     </View>
   );
   const row = { minHeight: 64, gap: space[2] };
+  const chevron = (
+    <Text
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={[
+        type.title,
+        { color: color.textMuted, transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] },
+      ]}
+    >
+      {CHEVRON_GLYPH}
+    </Text>
+  );
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: color.bgBase }]}>
@@ -110,30 +125,32 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
             {t('settings.save_error')}
           </Text>
         )}
-        {snapshot.enabled &&
+        {(snapshot.enabled || matchLog.available) &&
           section(
             t('settings.section.playtest'),
             'settings.playtest',
             <>
-              <View style={[styles.toggleRow, row]}>
-                <View style={styles.grow}>
-                  <Text style={[type.body, { color: color.textPrimary }]}>
-                    {t('settings.analytics.toggle')}
-                  </Text>
-                  <Text style={[type.caption, { color: color.textMuted }]}>
-                    {t('settings.analytics.desc')}
-                  </Text>
+              {snapshot.enabled && (
+                <View style={[styles.toggleRow, row]}>
+                  <View style={styles.grow}>
+                    <Text style={[type.body, { color: color.textPrimary }]}>
+                      {t('settings.analytics.toggle')}
+                    </Text>
+                    <Text style={[type.caption, { color: color.textMuted }]}>
+                      {t('settings.analytics.desc')}
+                    </Text>
+                  </View>
+                  <Switch
+                    testID="settings.analytics.toggle"
+                    accessibilityLabel={t('settings.analytics.toggle')}
+                    value={snapshot.consent}
+                    onValueChange={onToggle}
+                    trackColor={{ false: color.borderSubtle, true: color.accentPrimary }}
+                    thumbColor={color.bgRaised}
+                  />
                 </View>
-                <Switch
-                  testID="settings.analytics.toggle"
-                  accessibilityLabel={t('settings.analytics.toggle')}
-                  value={snapshot.consent}
-                  onValueChange={onToggle}
-                  trackColor={{ false: color.borderSubtle, true: color.accentPrimary }}
-                  thumbColor={color.bgRaised}
-                />
-              </View>
-              {snapshot.consent && snapshot.installId !== null && (
+              )}
+              {snapshot.enabled && snapshot.consent && snapshot.installId !== null && (
                 <View style={row}>
                   <Text style={[type.body, { color: color.textPrimary }]}>
                     {t('settings.install_id.label')}
@@ -150,7 +167,7 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
                   </Text>
                 </View>
               )}
-              {snapshot.consent && (
+              {snapshot.enabled && snapshot.consent && (
                 <Pressable
                   testID="settings.sendData"
                   accessibilityRole="button"
@@ -169,19 +186,26 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
                   >
                     {pending}
                   </Text>
-                  <Text
-                    accessibilityElementsHidden
-                    importantForAccessibility="no-hide-descendants"
-                    style={[
-                      type.title,
-                      {
-                        color: color.textMuted,
-                        transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],
-                      },
-                    ]}
-                  >
-                    {CHEVRON_GLYPH}
-                  </Text>
+                  {chevron}
+                </Pressable>
+              )}
+              {matchLog.available && (
+                <Pressable
+                  testID="settings.sendMatchLog"
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('settings.send_match_log')}, ${t('settings.send_match_log.desc')}`}
+                  onPress={matchLog.open}
+                  style={[styles.toggleRow, row]}
+                >
+                  <View style={styles.grow}>
+                    <Text style={[type.body, { color: color.textPrimary }]}>
+                      {t('settings.send_match_log')}
+                    </Text>
+                    <Text style={[type.caption, { color: color.textMuted }]}>
+                      {t('settings.send_match_log.desc')}
+                    </Text>
+                  </View>
+                  {chevron}
                 </Pressable>
               )}
             </>,
@@ -277,6 +301,7 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
           </View>
         )}
       </ConfirmSheet>
+      {matchLog.sheet}
     </SafeAreaView>
   );
 }

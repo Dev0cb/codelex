@@ -11,6 +11,7 @@ import { useMatchSession } from '../../match/match-session';
 import { BOT_SEAT, HUMAN_SEAT } from '../../match/play-config';
 import { useTokens } from '../../theme/use-tokens';
 import { Button } from '../../ui/button';
+import { useSendMatchLog } from '../match-log/send-match-log';
 import { ConfirmSheet } from '../match/match-sheets';
 import { AnalyticsNotice } from './analytics-notice';
 import { ExportPromptCard } from './export-prompt-card';
@@ -26,6 +27,8 @@ const GEAR_GLYPH = '\u2699\ufe0e';
  * - Match in progress (AC-12, slice S3): the resume card is the primary action and PLAY NOW resumes it; "New match…"
  *   asks before abandoning it. It still works while `play_vs_bot.enabled` is off (AC-19).
  * - Saved match unusable (§5.10.2): the cannot-resume card replaces the resume card; "Start a new match" deletes it.
+ *   On a corrupt state (not a version mismatch) it adds the secondary "Send match log" (slice S6d, behind
+ *   `playtest.match_log.enabled`), which exports that match before it is deleted.
  * - `play_vs_bot.enabled` off: an inert paused card instead of starting a match: no button, no spinner.
  * - Settings gear in the top bar (slice S6a). With `analytics.upload.enabled` on, the first-run analytics notice
  *   (§5.4, D-8) sits under PLAY NOW until it is dismissed or Home is left by any action here. Otherwise, when Home
@@ -39,6 +42,7 @@ export function HomeScreen(): JSX.Element {
   const enabled = useFlag('play_vs_bot.enabled');
   const session = useMatchSession();
   const [confirming, setConfirming] = useState(false);
+  const matchLog = useSendMatchLog();
   const analytics = usePlaytestAnalytics();
   const { noticeVisible } = useAnalyticsSnapshot();
   /** The end-of-session export prompt on display (matches this session), D-17; null when hidden. */
@@ -154,6 +158,13 @@ export function HomeScreen(): JSX.Element {
         ) : (
           paused
         )}
+        {unusable === 'state_corrupt' && matchLog.available && (
+          <Button
+            testID="home.sendMatchLog"
+            label={t('settings.send_match_log')}
+            onPress={matchLog.open}
+          />
+        )}
       </View>
     );
   } else if (enabled) {
@@ -234,6 +245,7 @@ export function HomeScreen(): JSX.Element {
         }}
         onConfirm={startNew}
       />
+      {matchLog.sheet}
     </SafeAreaView>
   );
 }

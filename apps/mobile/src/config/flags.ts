@@ -33,6 +33,12 @@ export const FLAG_DEFAULTS = {
    * text is never decoded. Off on main until the slice passes review (SP2); on in the playtest build.
    */
   'knowledge_card.post_match.enabled': false,
+  /**
+   * E-1.5 AC-20 export, dark-launch flag of slice S6d (spec "Flags & rollout", SP2): "Send match log" in Settings and
+   * on the corrupt-state card. Off = neither is rendered and no match file is read for export. Not tied to analytics
+   * consent (a user-initiated bug report). Off on main until the slice passes review; on in the playtest build.
+   */
+  'playtest.match_log.enabled': false,
 } as const satisfies Readonly<Record<string, boolean>>;
 
 export type FlagKey = keyof typeof FLAG_DEFAULTS;

@@ -521,6 +521,15 @@ SP2 slicing notes (2026-10-07):
 - **"Send match log" is in S6d, not S3** (Q5 exit-check finding S4). The S3 PR (#75) shipped persistence and
   resume and added the `matchlog.*` catalogue keys, but not the export action (moved per threat-model task P9).
   ASSUMPTION (to verify in the S6d PR): until S6d ships, the corrupt-state card offers "Start a new match" only.
+  S6d note (2026-10-16, verified): with `playtest.match_log.enabled` off (the bundled default on `main`) the card
+  still offers "Start a new match" only; with it on, the `state_corrupt` card adds "Send match log" (not the
+  version-mismatch card, design §5.10.2). ASSUMPTIONS of the S6d PR, all reversible: the Settings row sits in the
+  "Playtest data" section, shown when either `analytics.upload.enabled` or `playtest.match_log.enabled` is on, and
+  the row does not depend on analytics consent (design §5.8); the file holds one match (in progress, else the last
+  finished one), not the "last 5 finished" of design §13.3, because on-device retention is the current match plus
+  the last finished one (threat model TM-01, D-3); the divergence is computed when the file is built; no analytics
+  event is emitted for the export (none in the catalogue), so the S6d measure is counted on the receiving side. Field
+  list and control mapping: threat model §12.
 - S6a measure is completeness, not volume: an S6a build that drops events silently fails its slice even if the queue
   looks full.
 

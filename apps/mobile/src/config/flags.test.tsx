@@ -54,6 +54,13 @@ describe('flags', () => {
     });
   });
 
+  it('ship playtest.match_log.enabled off (S6d dark launch, SP2)', () => {
+    expect(FLAG_DEFAULTS['playtest.match_log.enabled']).toBe(false);
+    expect(parseFlagOverrides('playtest.match_log.enabled=1')).toEqual({
+      'playtest.match_log.enabled': true,
+    });
+  });
+
   it('ship the S2 defaults: live preview on (AC-5), tech squares off (AC-3)', () => {
     expect(FLAG_DEFAULTS['match.live_score_preview']).toBe(true);
     expect(FLAG_DEFAULTS['board.tech_squares.enabled']).toBe(false);

@@ -257,5 +257,7 @@
   "matchlog.scope.current": "your current match",
   "matchlog.scope.last": "your last finished match",
   "matchlog.empty": "No match to export yet.",
-  "matchlog.share": "Share log…"
+  "matchlog.share": "Share log…",
+  "settings.send_match_log": "Send match log",
+  "settings.send_match_log.desc": "For bug reports. Contains moves, no personal data."
 }
