@@ -152,8 +152,9 @@ describe('SendDataScreen (§5.9)', () => {
       ),
     ).toBeTruthy();
     expect(screen.getByText(/Works offline/)).toBeTruthy();
-    // TM-07: no address is configured (O-4), so the line is hidden. No drop warning without drops.
-    expect(screen.queryByTestId('export.recipient')).toBeNull();
+    // TM-07: the bundled playtest mailbox (O-4) is the only address shown. No drop warning without drops.
+    expect(screen.getByTestId('export.recipient')).toBeTruthy();
+    expect(screen.getByText(/titanfst00@gmail\.com/)).toBeTruthy();
     expect(screen.queryByTestId('export.dropped')).toBeNull();
     expect(share.opened).toHaveLength(0);
   });

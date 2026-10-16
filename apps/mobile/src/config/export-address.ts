@@ -5,9 +5,8 @@
  *   environment variable, a flag or remote config.
  * - Remote config (AC-19, a Stage 1 gate; none in Phase 1 builds) may only **hide** the line (`null`) or pick another
  *   entry of the bundled allowlist. Any other remote value is ignored: the bundled address stays.
- * - No address is configured yet (design O-4: the playtest operator sets it at enrollment), so the line is hidden.
- *   ASSUMPTION: the operator's address lands as a one-line change of both constants below before Stage 0, reviewed
- *   by privacy-compliance (it must be the restricted team mailbox named in the consent form).
+ * - The address is the playtest mailbox named in the privacy policy and the consent form (design O-4, set by the
+ *   product owner on 2026-10-16; privacy review of #100, condition m3). Changing it needs a privacy-compliance review.
  */
 
 /**
@@ -22,10 +21,10 @@ export function isExportAddress(value: string): boolean {
 }
 
 /** Every address an export screen may ever display (TM-07 allowlist); each must pass {@link isExportAddress}. */
-export const EXPORT_ADDRESS_ALLOWLIST: readonly string[] = [];
+export const EXPORT_ADDRESS_ALLOWLIST: readonly string[] = ['titanfst00@gmail.com'];
 
 /** The address shown by default; null = the line is hidden. Must be in the allowlist. */
-export const BUNDLED_EXPORT_ADDRESS: string | null = null;
+export const BUNDLED_EXPORT_ADDRESS: string | null = 'titanfst00@gmail.com';
 
 /**
  * The address to display, or null to hide the line. `remote` is the cached remote-config value, `undefined` when
