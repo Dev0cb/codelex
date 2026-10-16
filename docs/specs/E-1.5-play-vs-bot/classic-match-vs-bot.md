@@ -209,6 +209,14 @@ all rules are applied by the engine, never re-implemented in the app (CLAUDE.md 
   summary of their 1st and 3rd completed match, Then a one-tap question "Would you play CODELEX again?"
   (Yes / Maybe / No) appears inline below the result, is dismissible, is shown at most twice per install, and
   never blocks Play again.
+  S6b note (2026-10-16), ASSUMPTIONS (reversible): (a) the card shows only while recording is on
+  (`analytics.upload.enabled` and consent), so an answer is never asked for when it could not be kept; (b) a
+  "completed match" is any match that reached its end (resign included), counted per install only while the
+  survey is active, so an install that played before the flag was turned on is asked from its 1st match after;
+  `matches_completed` on the survey events is that count; (c) the counters (completed, shown, last shown) are a UI
+  preference (design §13.3), never exported, and kept when consent is withdrawn so "at most twice per install"
+  holds across a withdrawal; an unreadable counters file means "never ask again"; (d) `survey_id` = `e1_5_playtest`;
+  (e) no animation: "Thanks!" for 1.5 s, then the card collapses at once (nothing to reduce for reduced motion).
 - **AC-19 Remote config and kill switches offline.** Given the app starts, Then flags are read from the last
   cached remote config, or from bundled defaults if none was ever fetched, and a fetch is attempted in the
   background only if a network is available (never blocking play); Given `play_vs_bot.enabled` is off, Then PLAY
