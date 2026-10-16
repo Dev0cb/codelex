@@ -5,8 +5,8 @@
  * whole (+555 KB per platform, S6a), so the app cannot import it. This module is its hand-written mirror, as
  * `event-guard.ts` is for the event schemas: same constants, same header checks, same event checks (each event goes
  * through `guardEvent` again: the file is built from an allowlist, never by copying state, TM-04), the same size fit
- * and the same JSON text, key order included. `playtest-file.test.ts` proves it equal to the D1 builder and decoder,
- * which stay the Node-side reference (readout KR, TM-08 import).
+ * and the same JSON text, key order included (header and events rebuilt in schema order). `playtest-file.test.ts`
+ * proves it equal to the D1 builder and decoder, which stay the Node-side reference (readout KR, TM-08 import).
  *
  * Only `import type` from `events.ts` (no zod in the bundle; `no-runtime-zod.test.ts`).
  */
@@ -17,6 +17,7 @@ import {
   GUARD_ISO_DATETIME,
   GUARD_PLATFORMS,
   GUARD_UUID_V4,
+  canonicalEvent,
   guardEvent,
 } from './event-guard';
 import type { AnalyticsEvent, Platform } from './events';
@@ -146,13 +147,16 @@ export function buildPlaytestFile(
   if (!isValidHeader(header)) return { ok: false, error: { code: 'INVALID' } };
   const included = fitPlaytestEvents(header, queued, maxBytes);
   if (included === 0) return { ok: false, error: { code: 'TOO_LARGE' } };
-  const events = queued.slice(0, included);
+  const events: AnalyticsEvent[] = [];
   const ids = new Set<string>();
-  for (const event of events) {
+  for (const event of queued.slice(0, included)) {
     if (!guardEvent(event).ok || event.user_id !== header.installId || ids.has(event.event_id)) {
       return { ok: false, error: { code: 'INVALID' } };
     }
     ids.add(event.event_id);
+    // Schema key order, as D1's encoder writes it, whatever order the stored event has (the fit is unchanged:
+    // reordering keys does not change the length).
+    events.push(canonicalEvent(event));
   }
   const remaining = queued.length - included;
   // Never over `maxBytes`: the fit is exact for `JSON.stringify` output (property-tested against D1).

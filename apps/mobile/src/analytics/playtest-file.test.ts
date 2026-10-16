@@ -93,6 +93,40 @@ describe('on-device playtest file (S6c) ≡ D1 contract', () => {
     expectSameAsD1(shuffled, events(5));
   });
 
+  it('property: writes every event in D1 schema order, whatever key order the stored events have', () => {
+    /** `value` with its keys reordered by `weights` (a stable sort, so ties keep their order). */
+    const reorder = (
+      value: Readonly<Record<string, unknown>>,
+      weights: readonly number[],
+    ): Record<string, unknown> =>
+      Object.fromEntries(
+        Object.keys(value)
+          .map((key, i) => ({ key, w: weights[i % weights.length] ?? 0 }))
+          .sort((a, b) => a.w - b.w)
+          .map(({ key }) => [key, value[key]]),
+      );
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 6 }),
+        fc.integer({ min: 0, max: 16 }),
+        fc.array(fc.array(fc.integer({ min: 0, max: 9 }), { minLength: 12, maxLength: 12 }), {
+          minLength: 12,
+          maxLength: 12,
+        }),
+        (n, offset, weights) => {
+          const shuffled = events(n, offset).map((event, i) => {
+            const raw = event as unknown as Record<string, unknown>;
+            const envelope = reorder(raw, weights[i] ?? []);
+            const properties = raw['properties'] as Record<string, unknown>;
+            envelope['properties'] = reorder(properties, (weights[i] ?? []).slice().reverse());
+            return envelope as unknown as AnalyticsEvent;
+          });
+          expectSameAsD1(HEADER, shuffled);
+        },
+      ),
+    );
+  });
+
   it('splits a full queue into files under 1 MB exactly as D1 does (multi-round share)', () => {
     let queued = events(PLAYTEST_FILE_MAX_EVENTS);
     let files = 0;

@@ -378,3 +378,27 @@ export function guardEvent(input: unknown): GuardedEvent {
   if (spec.refine !== undefined && !spec.refine(properties)) return { ok: false };
   return { ok: true, event: input as unknown as AnalyticsEvent };
 }
+
+/**
+ * `event` rebuilt in its schema's key order: `event`, `schema_version`, the envelope, then `properties` in the order
+ * of the event's schema (the order zod's strict parse returns, so `JSON.stringify` of the result equals the D1
+ * encoder's text byte for byte; slice S6c). Key order only: values are not copied deeper (every property is a
+ * scalar or an array of enum values). Call it on an event {@link guardEvent} accepted.
+ */
+export function canonicalEvent(event: AnalyticsEvent): AnalyticsEvent {
+  const input = event as unknown as Readonly<Record<string, unknown>>;
+  const out: Record<string, unknown> = {
+    event: input['event'],
+    schema_version: input['schema_version'],
+  };
+  for (const key of Object.keys(ENVELOPE)) out[key] = input[key];
+  const properties = input['properties'];
+  const ordered: Record<string, unknown> = {};
+  if (isRecord(properties)) {
+    for (const key of Object.keys(SPECS[event.event].properties)) {
+      if (Object.hasOwn(properties, key)) ordered[key] = properties[key];
+    }
+  }
+  out['properties'] = ordered;
+  return out as unknown as AnalyticsEvent;
+}
