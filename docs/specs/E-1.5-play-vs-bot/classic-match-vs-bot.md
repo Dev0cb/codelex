@@ -457,7 +457,11 @@ SP2 (2026-10-07): each S6 slice merges with its flag **off** as the bundled defa
 the value in the Stage 0 / Stage 1 playtest build, flipped once the slice has passed its review. ASSUMPTION: while
 `analytics.upload.enabled` is off, the consented queue records nothing, and the first-run notice, the Settings
 "Playtest data" section and the export entry points are hidden; the non-analytics Settings rows (sound, vibration,
-motion, handedness, versions) are not behind it. Consent (AC-17) still applies on top when the flag is on.
+motion, handedness, versions) are not behind it. Consent (AC-17) still applies on top when the flag is on. One file
+check still runs with the flag off: the start-up sweep of the share directory (`ShareSweep`, threat model TM-04)
+checks once for `<cache>/codelex-share/` and deletes it if a killed share left it behind. It is kept on purpose (the
+TM-04 cleanup, needed by every feature that shares a file, whatever its flag) and touches neither analytics files
+nor the data directory.
 ASSUMPTION: `playtest.match_log.enabled` is a new flag so S6d can merge and be killed independently of the
 analytics export; it changes no AC.
 
