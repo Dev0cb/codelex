@@ -17,7 +17,9 @@ import {
   PROMPT_FILE,
   type AnalyticsPlatform,
 } from './recorder';
+import { decodePlaytestExport } from '../export/playtest-data';
 import { SESSION_MARKER_FILE } from './session-marker';
+import { SURVEY_FILE, SURVEY_ID } from './survey';
 import { eventId } from './test-support';
 
 const T0 = Date.parse('2026-10-07T09:30:00.000Z');
@@ -481,6 +483,7 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     for (let n = 0; n < 3; n += 1) h.analytics.record('app_backgrounded', { foreground_ms: n });
     h.analytics.record('app_backgrounded', { foreground_ms: -1 }); // invalid: writes the meta file
     h.analytics.markExportPromptShown();
+    h.analytics.noteSurveyMatchCompleted();
     const owned = [
       CONSENT_FILE,
       INSTALL_ID_FILE,
@@ -488,6 +491,7 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
       QUEUE_META_FILE,
       SESSION_MARKER_FILE,
       PROMPT_FILE,
+      SURVEY_FILE,
     ];
     expect([...fs.files.keys()].sort()).toEqual([...owned].sort());
     expect([...ANALYTICS_FILE_NAMES].sort()).toEqual([...owned].sort());
@@ -689,5 +693,143 @@ describe('PlaytestAnalytics: Send playtest data (slice S6c, design §5.9)', () =
     expect(h.fs.files.has(PROMPT_FILE)).toBe(true);
     h.analytics.setConsent(false);
     expect([...h.fs.files.keys()]).toEqual([CONSENT_FILE]);
+  });
+});
+
+describe('PlaytestAnalytics: "Would you play CODELEX again?" survey (slice S6b, AC-18)', () => {
+  /** A recording install whose queue holds only what the test records. */
+  const recording = (fs = new MemoryFs()): Harness => launch(boot(fs));
+
+  /** Completes `n` matches with the survey active, showing the card when due; returns where it was shown. */
+  function complete(h: Harness, n: number): number[] {
+    const at: number[] = [];
+    for (let i = 0; i < n; i += 1) {
+      h.analytics.noteSurveyMatchCompleted();
+      const due = h.analytics.surveyDue();
+      if (due !== null && h.analytics.markSurveyShown()) at.push(due);
+    }
+    return at;
+  }
+
+  const surveyEvents = (fs: MemoryFs): string[] =>
+    names(fs).filter((n) => n.startsWith('playtest_survey'));
+
+  it('is due on the 1st and 3rd completed match, and records playtest_survey_shown each time', () => {
+    const h = recording();
+    expect(h.analytics.surveyDue()).toBeNull();
+    expect(complete(h, 5)).toEqual([1, 3]);
+    const shown = queued(h.fs).filter((e) => e.event === 'playtest_survey_shown');
+    expect(shown.map(propsOf)).toEqual([
+      { survey_id: SURVEY_ID, question_id: 'would_play_again', matches_completed: 1 },
+      { survey_id: SURVEY_ID, question_id: 'would_play_again', matches_completed: 3 },
+    ]);
+  });
+
+  it('records each answer, a dismissal included, through the event guard', () => {
+    const h = recording();
+    complete(h, 1);
+    h.analytics.answerSurvey('maybe', 1);
+    h.analytics.answerSurvey('dismissed', 1);
+    // Not a catalogue value: dropped and counted, never queued.
+    h.analytics.answerSurvey('perhaps' as 'maybe', 1);
+    const answers = queued(h.fs).filter((e) => e.event === 'playtest_survey_answered');
+    expect(answers.map(propsOf)).toEqual([
+      {
+        survey_id: SURVEY_ID,
+        question_id: 'would_play_again',
+        answer: 'maybe',
+        matches_completed: 1,
+      },
+      {
+        survey_id: SURVEY_ID,
+        question_id: 'would_play_again',
+        answer: 'dismissed',
+        matches_completed: 1,
+      },
+    ]);
+    expect(h.analytics.dropped().invalid).toBe(1);
+  });
+
+  it('shows at most once per completion: a second markSurveyShown records nothing', () => {
+    const h = recording();
+    h.analytics.noteSurveyMatchCompleted();
+    expect(h.analytics.markSurveyShown()).toBe(true);
+    expect(h.analytics.surveyDue()).toBeNull();
+    expect(h.analytics.markSurveyShown()).toBe(false);
+    expect(surveyEvents(h.fs)).toEqual(['playtest_survey_shown']);
+  });
+
+  it('keeps its counters across process kills: at most twice per install', () => {
+    const h = recording();
+    expect(complete(h, 2)).toEqual([1]);
+    const next = recording(h.fs.reboot());
+    expect(complete(next, 1)).toEqual([3]);
+    const later = recording(next.fs.reboot());
+    expect(complete(later, 5)).toEqual([]);
+  });
+
+  it('keeps its counters through a consent withdrawal (UI preference, design §13.3), not its events', () => {
+    const h = recording();
+    complete(h, 1);
+    h.analytics.answerSurvey('yes', 1);
+    expect(h.analytics.setConsent(false)).toBe(true);
+    expect([...h.fs.files.keys()].sort()).toEqual([CONSENT_FILE, SURVEY_FILE].sort());
+    // Nothing counts, shows or records while recording is off.
+    h.analytics.noteSurveyMatchCompleted();
+    expect(h.analytics.surveyDue()).toBeNull();
+    expect(h.analytics.markSurveyShown()).toBe(false);
+    h.analytics.answerSurvey('no', 2);
+    expect(h.analytics.setConsent(true)).toBe(true);
+    expect(surveyEvents(h.fs)).toEqual([]);
+    // Back on: the count resumes at 1, so the second and last showing is the 3rd recorded match.
+    expect(complete(h, 4)).toEqual([3]);
+    expect(surveyEvents(h.fs)).toEqual(['playtest_survey_shown']);
+  });
+
+  it('never reads or writes its file with analytics.upload.enabled off', () => {
+    const h = launch(boot(new MemoryFs(), false));
+    h.analytics.noteSurveyMatchCompleted();
+    expect(h.analytics.surveyDue()).toBeNull();
+    expect(h.analytics.markSurveyShown()).toBe(false);
+    h.analytics.answerSurvey('yes', 1);
+    expect(h.fs.files.size).toBe(0);
+  });
+
+  it('reads an unreadable survey file as "already asked twice" (never nags)', () => {
+    const h = recording();
+    new DataStore(h.fs).replace(SURVEY_FILE, ['{"v":9}']);
+    expect(complete(h, 3)).toEqual([]);
+  });
+
+  it('survives a full disk: the card shows once in this process, nothing throws', () => {
+    const fs = new MemoryFs();
+    fs.fullAfter = 0;
+    const h = recording(fs);
+    expect(complete(h, 1)).toEqual([1]);
+    expect(h.analytics.surveyDue()).toBeNull();
+    expect(h.fs.files.has(SURVEY_FILE)).toBe(false);
+  });
+
+  it('exports in exportFormat 1, so the KR readout can compute "would play again" per install', () => {
+    const h = recording();
+    h.analytics.markInteractive();
+    complete(h, 1);
+    h.analytics.answerSurvey('no', 1);
+    complete(h, 2);
+    h.analytics.answerSurvey('yes', 3);
+    const result = h.analytics.prepareExport('42');
+    if (!result.ok) throw new Error(result.reason);
+    // The D1 decoder (zod) is the readout's import path.
+    const decoded = decodePlaytestExport(result.file.text);
+    if (!decoded.ok) throw new Error(decoded.error.code);
+    // playtest-plan §5: the last non-dismissed answer per install.
+    const answers = decoded.value.events.flatMap((e) =>
+      e.event === 'playtest_survey_answered' && e.properties.answer !== 'dismissed'
+        ? [{ install: e.user_id, answer: e.properties.answer }]
+        : [],
+    );
+    expect(answers).toHaveLength(2);
+    expect(answers.at(-1)).toEqual({ install: decoded.value.installId, answer: 'yes' });
+    expect(decoded.value.events.filter((e) => e.event === 'playtest_survey_shown')).toHaveLength(2);
   });
 });
