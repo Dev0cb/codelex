@@ -66,6 +66,9 @@ jobs:
         run: |
           pnpm traceability:check
           pnpm test:traceability
+      # Loads the D1 TypeScript decoders directly (Node type stripping) and needs zod, so it runs after the install.
+      - name: Exit-KPI readout script tests
+        run: pnpm test:readout
       - name: Affected tasks
         env:
           BASE_REF: ${{ github.base_ref }}
