@@ -48,12 +48,18 @@ export function useMatch(): UseMatch {
     const delay = new Promise<void>((resolve) => {
       timer = setTimeout(resolve, services.thinkDelayMs());
     });
-    const decision = runner.decide(botRequestFor(state, BOT_SEAT, PLAY_BOT)).then(
+    // The search starts after the runner's frame wait and the analytics of the previous move (an effect that runs
+    // after this one): compute time is measured from there.
+    let startedAt = requestedAt;
+    const started = (): void => {
+      startedAt = now();
+    };
+    const decision = runner.decide(botRequestFor(state, BOT_SEAT, PLAY_BOT), started).then(
       (result) => ({
         type: 'bot_decided' as const,
         tag,
         result,
-        timing: { requestedAt, resolvedAt: now() },
+        timing: { requestedAt, startedAt, resolvedAt: now() },
       }),
       () => ({ type: 'bot_failed' as const, tag }),
     );

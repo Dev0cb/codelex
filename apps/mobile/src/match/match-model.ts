@@ -119,11 +119,13 @@ export interface MatchModel {
 }
 
 /**
- * When the bot's request was made and when its decision arrived, on the analytics monotonic clock (ms). Presentation
- * metadata for `bot_decision_made`: it never reaches the engine or the log.
+ * When the bot's request was made, when its search started (after the frame wait) and when its decision arrived, on
+ * the analytics monotonic clock (ms). Presentation metadata for `bot_decision_made`: it never reaches the engine or
+ * the log.
  */
 export interface BotTiming {
   readonly requestedAt: number;
+  readonly startedAt: number;
   readonly resolvedAt: number;
 }
 
