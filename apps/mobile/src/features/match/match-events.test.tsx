@@ -1160,7 +1160,7 @@ describe('bot timing (bot_decision_made buckets)', () => {
   }, 120_000);
 
   it('includes the think delay in total_ms, not in compute_ms', async () => {
-    const THINK_DELAY_MS = 1600;
+    const THINK_DELAY_MS = 2200;
     // This test's clock follows real time (the think delay is a real timer); the search itself adds nothing.
     const origin = Date.now();
     const clock = {
@@ -1194,9 +1194,10 @@ describe('bot timing (bot_decision_made buckets)', () => {
       { timeout: 10_000 },
     );
     const [decision] = propsOf(analytics, 'bot_decision_made');
-    // The search is far shorter than the delay; the player waited for the delay (bucket 1500-2000 ms).
+    // The search is far shorter than the delay; the player waited for the delay (bucket 2000-3000 ms: the
+    // timer never fires before 2,200 ms, and 800 ms of headroom absorbs a slow runner).
     expect(['lt_250', '250_500', '500_1000']).toContain(decision?.compute_ms_bucket);
-    expect(decision?.total_ms_bucket).toBe('1500_2000');
+    expect(decision?.total_ms_bucket).toBe('2000_3000');
     expect(decisions).toHaveLength(1);
   }, 120_000);
 });
