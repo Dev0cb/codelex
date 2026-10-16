@@ -420,7 +420,11 @@ Measured: the production export (`pnpm build`) has the same bytecode as `main` b
 ios 3,904,004 B; only Hermes' 20-byte source hash in the header and footer differs). `bundle:check:diagnostics`
 (run inside `bundle:check`, same CI step, SC-3) finds 15 diagnostics and 17 golden-runner modules and both markers;
 preview-diagnostics android delta +183 KB (estimate was 250–450 KB). A deliberately unguarded import was exported
-once and failed the absence check on both platforms.
+once and failed the absence check on both platforms. After the review fixes (items 9–13): the production export is
+again byte-identical to `main` apart from the Hermes source hash (android 4,086,552 B, ios 3,904,072 B, both
+compared with an `origin/main` export at `a6160d2`); the positive control finds 15 diagnostics and 17 golden-runner
+modules and all three markers on android and ios; preview-diagnostics delta +190,204 B android, +187,276 B ios;
+`bundle:check` took about 65 s with both diagnostics platforms.
 
 Deviations, each forced by a source or the toolchain and open to review:
 
