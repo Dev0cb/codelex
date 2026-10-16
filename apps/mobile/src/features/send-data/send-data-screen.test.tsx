@@ -134,7 +134,7 @@ describe('SendDataScreen (§5.9)', () => {
             'Knowledge Cards you opened and for how long',
             'Your answers to the “play again” question',
             'Screens and buttons used: first-launch steps, after-match choices, knowledge graph browsing, bot thinking time',
-            'Technical details: app version and build, Android, app language, phone-clock times, session IDs, dropped-event counts',
+            'Technical details: app version and build, Android, phone language and region, phone-clock times, session IDs, dropped-event counts',
           ].includes(text),
         ),
     ).toHaveLength(8);
