@@ -42,3 +42,8 @@ apps/mobile/assets/lexicon/
 
 # agent worktrees (temporary, created by isolated subagents)
 .claude/worktrees/
+
+# Hermes goldens CI job (ADR-0016): cached VM binary and reports
+/.hermes-vm/
+/node.json
+/hermes.json

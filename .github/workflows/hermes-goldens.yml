@@ -1,0 +1,120 @@
+name: Hermes goldens
+
+# ADR-0016 §D2/§D5/§D7: the golden corpus runs on Node and on a Hermes VM built from the pinned source, and the two
+# reports must be byte-identical (apart from runtime/timings). No path filter: any change can break a runtime
+# difference. No continue-on-error, no retry (§D5.2). Never make a step here non-blocking (CLAUDE.md §7).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hermes-goldens-${{ github.ref }}
+  # A cancelled cold build on main would not save its cache; only PR runs are superseded.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hermes-goldens:
+    name: Hermes goldens
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # No dependency lifecycle script runs in this job: nothing from node_modules executes before the Hermes VM is
+      # built and saved to the cache, and the goldens need no native build (the Skia postinstall is for EAS only).
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # §D2.1: the pin tag equals react-native's sdks/.hermesv1version, and the tag still points at the pinned commit.
+      # Fails with a message naming the SDK upgrade checklist (mobile-app-foundation.md §2.1, ADR-0016 §D6).
+      - name: Check the Hermes pin
+        run: tools/hermes/build-hermes.sh --check-pin
+
+      - name: Read the pin and the runner image
+        id: pin
+        run: |
+          echo "tag=$(node -p 'require("./tools/hermes/hermes-pin.json").tag')" >> "$GITHUB_OUTPUT"
+          echo "commit=$(node -p 'require("./tools/hermes/hermes-pin.json").commit')" >> "$GITHUB_OUTPUT"
+          echo "image=$ImageOS" >> "$GITHUB_OUTPUT"
+
+      # §D2.3: only the binary is cached (not the build tree). The runner image, OS and arch are in the key because the
+      # binary links the image's libc/libicu; the hash of build-hermes.sh covers the toolchain list and build flags.
+      # GitHub scopes caches by branch: a PR can read main's entry but its own entries are not visible to main or to
+      # other PRs. Restore and save are split so the save happens right after the build (security review M1).
+      - name: Restore the Hermes VM
+        id: hermes-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .hermes-vm/hermes
+          key: hermes-vm-${{ steps.pin.outputs.image }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.pin.outputs.tag }}-${{ steps.pin.outputs.commit }}-${{ hashFiles('tools/hermes/build-hermes.sh') }}
+
+      - name: Install the Hermes build toolchain
+        if: steps.hermes-cache.outputs.cache-hit != 'true'
+        run: tools/hermes/build-hermes.sh --install-toolchain
+
+      - name: Build the Hermes VM (cold cache)
+        if: steps.hermes-cache.outputs.cache-hit != 'true'
+        run: tools/hermes/build-hermes.sh .hermes-vm
+
+      # The cached binary links the ICU runtime of the image; a cache hit does not install the toolchain.
+      - name: Install the ICU runtime
+        if: steps.hermes-cache.outputs.cache-hit == 'true'
+        run: dpkg -s libicu74 > /dev/null 2>&1 || (sudo apt-get update && sudo apt-get install --yes --no-install-recommends libicu74)
+
+      # §D2.5: the VM must read the bytecode the pinned hermesc writes.
+      - name: Version guard (bytecode version)
+        run: tools/hermes/build-hermes.sh --check-version .hermes-vm/hermes
+
+      - name: Record the Hermes VM digest
+        env:
+          SOURCE: ${{ steps.hermes-cache.outputs.cache-hit == 'true' && 'restored from cache' || 'built from source' }}
+        run: |
+          digest="$(sha256sum .hermes-vm/hermes | cut -d ' ' -f 1)"
+          echo "Hermes VM sha256 ($SOURCE): $digest"
+          echo "Hermes VM sha256 ($SOURCE): \`$digest\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # Saved before any pnpm script, Metro or golden-runner step, so no repo or dependency code has run since the build.
+      # A cold PR run whose goldens fail still saves its VM.
+      - name: Save the Hermes VM
+        if: steps.hermes-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .hermes-vm/hermes
+          key: ${{ steps.hermes-cache.outputs.cache-primary-key }}
+
+      - name: Build golden-runner
+        run: pnpm turbo run build --filter=@codelex/golden-runner
+
+      - name: Run the goldens on Node
+        run: pnpm --silent --filter @codelex/golden-runner golden:node > node.json
+
+      - name: Bundle the runner for Hermes
+        run: pnpm --filter @codelex/golden-runner golden:hermes:build
+
+      - name: Run the goldens on Hermes
+        run: .hermes-vm/hermes packages/golden-runner/.hermes-out/runner.hbc > hermes.json
+
+      - name: Compare Node and Hermes reports
+        run: pnpm --silent --filter @codelex/golden-runner golden:compare "$GITHUB_WORKSPACE/node.json" "$GITHUB_WORKSPACE/hermes.json"
+
+      # §D5.4: always, so a failure is diagnosable without a re-run.
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hermes-goldens-reports
+          path: |
+            node.json
+            hermes.json
+          if-no-files-found: warn
+          retention-days: 14
