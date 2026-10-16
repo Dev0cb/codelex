@@ -60,6 +60,9 @@ export interface SummaryScreenProps {
   readonly cards?: CardDeps | null;
   /** Clock of the card dwell time (tests). */
   readonly now?: () => number;
+  /** Analytics (`match_summary_action`, sprint 4 EV): mounted (`shown`) and each action tapped. */
+  readonly onSummaryEvent?:
+    ((event: 'shown' | 'play_again' | 'home' | 'discover') => void) | undefined;
 }
 
 /** Trailing chevron of a tappable chip or row (an icon glyph, not copy); mirrored in RTL. */
@@ -194,6 +197,7 @@ export function SummaryScreen({
   onHome,
   cards = null,
   now,
+  onSummaryEvent,
 }: SummaryScreenProps): JSX.Element {
   const { t, direction } = useI18n();
   const { board, color, layout, radius, space, type } = useTokens();
@@ -202,6 +206,10 @@ export function SummaryScreen({
   const noTerms = summary.terms.you.length === 0 && summary.terms.bot.length === 0;
 
   const sheet = useCardSheet(cards, now);
+  // The session's callback is stable for the Summary's life: one `shown` per Summary.
+  useEffect(() => {
+    onSummaryEvent?.('shown');
+  }, [onSummaryEvent]);
   const [invokers] = useState<InvokerRefs>(() => new Map());
   const invoker = useRef<string | null>(null);
   const [openFailed, setOpenFailed] = useState(false);
@@ -430,6 +438,7 @@ export function SummaryScreen({
                   }}
                   label={t('summary.discover')}
                   onPress={() => {
+                    onSummaryEvent?.('discover');
                     openChip(discover, DISCOVER_KEY);
                   }}
                 />
@@ -505,14 +514,24 @@ export function SummaryScreen({
             testID="summary.playAgain"
             variant="primary"
             label={t('summary.play_again')}
-            onPress={onPlayAgain}
+            onPress={() => {
+              onSummaryEvent?.('play_again');
+              onPlayAgain();
+            }}
           />
         ) : (
           <Text style={[type.body, styles.centre, { color: color.textMuted }]}>
             {t('home.paused')}
           </Text>
         )}
-        <Button testID="summary.home" label={t('summary.home')} onPress={onHome} />
+        <Button
+          testID="summary.home"
+          label={t('summary.home')}
+          onPress={() => {
+            onSummaryEvent?.('home');
+            onHome();
+          }}
+        />
       </View>
       {cards !== null && (
         <KnowledgeCardSheet

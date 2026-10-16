@@ -4,6 +4,9 @@
  * (Q7, TM-01), a snapshot is taken on `app_backgrounded`, and at start the saved match is checked after the first
  * render (TM-02: no parsing before the first render), so Home shows the resume card or a cannot-resume card.
  *
+ * Gameplay analytics (sprint 4 EV, `match-telemetry.ts`): each call is queued and run by an effect once React has
+ * committed the change, so analytics never delays a move; nothing happens unless the recorder is recording.
+ *
  * Without persistence (`MatchServices.persistence` absent, as in the S1/S2 screen tests) matches simply are not
  * saved and the Summary shows no "New to you" count. It also provides the "Send match log" access (slice S6d,
  * `match-log-access.ts`), null without persistence.
@@ -27,14 +30,18 @@ import { exportApp } from '../config/build-info';
 import { useFlag } from '../config/flags-provider';
 import { useLexicon } from '../lexicon/lexicon-gate';
 import { createMatchLogAccess, MatchLogContext } from '../match-log/match-log-access';
+import { FILES } from '../persistence/match-journal';
 import {
   finishMatch,
   openSavedMatch,
+  readLastFinished,
   persistTransition,
   snapshotOnBackground,
   type SavedMatch,
 } from '../persistence/saved-match';
+import { TERMS_FILE } from '../persistence/terms-seen';
 import { reduceMatch, startModel, type MatchCommand, type MatchModel } from './match-model';
+import { MatchTelemetry, type SummaryAction } from './match-telemetry';
 import { playMatchConfig } from './play-config';
 import { MatchServicesContext } from './match-services';
 
@@ -59,11 +66,16 @@ export interface MatchSession {
   readonly startNew: () => void;
   readonly dispatch: (command: MatchCommand) => void;
   readonly dismissLowStorage: () => void;
+  /** The analytics monotonic clock (ms), for the bot's timing (`bot_decision_made`); 0 without analytics. */
+  readonly now: () => number;
+  /** The Summary is on screen (`shown`), or one of its actions was tapped (`match_summary_action`). */
+  readonly noteSummary: (event: 'shown' | SummaryAction) => void;
 }
 
 const MatchSessionContext = createContext<MatchSession | null>(null);
 
 const NONE: SavedMatch = { kind: 'none' };
+const NO_CLOCK = (): number => 0;
 const CHECKING: SavedStatus = { kind: 'checking' };
 
 /** The session; null outside {@link MatchSessionProvider} (screens tested on their own). */
@@ -100,6 +112,37 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   const [restored, setRestored] = useState(0);
   const [newToYou, setNewToYou] = useState<ReadonlySet<string> | null>(null);
 
+  // Sprint 4 EV: gameplay analytics, run after commit (see the module comment).
+  const telemetry = useMemo(
+    () => (analytics === null ? null : new MatchTelemetry(analytics, index)),
+    [analytics, index],
+  );
+  const jobs = useRef<(() => void)[]>([]);
+  const later = useCallback(
+    (job: (t: MatchTelemetry) => void) => {
+      if (telemetry !== null) {
+        jobs.current.push(() => {
+          job(telemetry);
+        });
+      }
+    },
+    [telemetry],
+  );
+  useEffect(() => {
+    if (jobs.current.length === 0) return;
+    const run = jobs.current;
+    jobs.current = [];
+    for (const job of run) job();
+  });
+  const hadHistory = useCallback((): boolean => {
+    if (persistence === null) return false;
+    try {
+      return persistence.store.exists(FILES.last) || persistence.store.exists(TERMS_FILE);
+    } catch {
+      return false;
+    }
+  }, [persistence]);
+
   const show = useCallback((next: MatchModel | null) => {
     modelRef.current = next;
     setModel(next);
@@ -109,12 +152,43 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   useEffect(() => {
     if (persistence === null) return;
     const timer = setTimeout(() => {
-      setSaved(openSavedMatch(persistence, ctx));
+      const before = telemetry?.now() ?? 0;
+      const opened = openSavedMatch(persistence, ctx);
+      const restoreMs = (telemetry?.now() ?? 0) - before;
+      later((t) => {
+        t.restored(opened, restoreMs, () => readLastFinished(persistence, ctx));
+      });
+      setSaved(opened);
     }, 0);
     return () => {
       clearTimeout(timer);
     };
-  }, [persistence, ctx]);
+  }, [persistence, ctx, telemetry, later]);
+
+  // EV: consent off then on drops what the telemetry holds from the withdrawn pseudonym, at once.
+  useEffect(() => {
+    if (telemetry === null || analytics === null) return;
+    return analytics.subscribe(() => {
+      telemetry.sync();
+    });
+  }, [analytics, telemetry]);
+
+  // EV: background and foreground moves (active time, think time, `bot_match_resumed` from the background).
+  useEffect(() => {
+    if (telemetry === null) return;
+    const subscription = AppState.addEventListener('change', (next) => {
+      const current = modelRef.current;
+      telemetry.appState(
+        next,
+        current !== null && current.state.status === 'in_progress' && current.failure === null
+          ? current
+          : null,
+      );
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, [telemetry]);
 
   // Q7: a snapshot when the app goes to the background, so the next cold start resumes quickly.
   useEffect(() => {
@@ -131,6 +205,7 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   }, [persistence]);
 
   const startNew = useCallback(() => {
+    const previous = modelRef.current ?? (saved.kind === 'resumable' ? saved.model : null);
     persistence?.journal.abandon();
     setSaved(NONE);
     setNewToYou(null);
@@ -143,8 +218,13 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
     }
     setStartFailed(false);
     if (persistence !== null) setLowStorage(!persistence.journal.start(config));
-    show(startModel(created.value.state));
-  }, [persistence, services, index, ctx, show]);
+    const model = startModel(created.value.state);
+    later((t) => {
+      t.replaced(previous);
+      t.started(model, hadHistory);
+    });
+    show(model);
+  }, [persistence, services, index, ctx, show, saved, later, hadHistory]);
 
   const play = useCallback(() => {
     if (modelRef.current?.state.status === 'in_progress') return;
@@ -153,11 +233,15 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       setNewToYou(null);
       setStartFailed(false);
       setRestored((n) => n + 1);
-      show(saved.model);
+      const resumed = saved.model;
+      later((t) => {
+        t.resumedSaved(resumed);
+      });
+      show(resumed);
       return;
     }
     startNew();
-  }, [saved, show, startNew]);
+  }, [saved, show, startNew, later]);
 
   const dispatch = useCallback(
     (command: MatchCommand) => {
@@ -165,6 +249,10 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       if (current === null) return;
       const next = reduceMatch(current, command, ctx);
       if (next === current) return;
+      const at = telemetry?.now() ?? 0;
+      later((t) => {
+        t.transition(current, next, command, at);
+      });
       if (persistence !== null) {
         // Written before the move is shown (Q7, TM-01); on failure play continues from memory.
         const outcome = persistTransition(persistence.journal, current, next, ctx);
@@ -182,12 +270,22 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       }
       show(next);
     },
-    [analytics, ctx, persistence, show, surveyEnabled],
+    [analytics, ctx, persistence, show, surveyEnabled, telemetry, later],
   );
 
   const dismissLowStorage = useCallback(() => {
     setLowStorage(false);
   }, []);
+
+  const noteSummary = useCallback(
+    (event: 'shown' | SummaryAction) => {
+      if (telemetry === null) return;
+      if (event === 'shown') telemetry.summaryShown();
+      else telemetry.summaryAction(event);
+    },
+    [telemetry],
+  );
+  const now = telemetry?.now ?? NO_CLOCK;
 
   const value = useMemo<MatchSession>(
     () => ({
@@ -201,6 +299,8 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       startNew,
       dispatch,
       dismissLowStorage,
+      now,
+      noteSummary,
     }),
     [
       saved,
@@ -213,6 +313,8 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       startNew,
       dispatch,
       dismissLowStorage,
+      now,
+      noteSummary,
     ],
   );
   return (

@@ -25,6 +25,10 @@
  * answer is never asked for when it could not be kept; the counters file is kept when consent is withdrawn (a UI
  * preference, like notice-seen), so the question is asked at most twice per install.
  *
+ * Gameplay events (sprint 4 EV): the recorder is the `TelemetryHost` of `match/match-telemetry.ts` (recording state,
+ * clocks, ids, the open-match record `analytics.play`) and records `onboarding_step_completed` itself
+ * (`onboardingStep()`, steps kept in `analytics.onboarding`). Both files are purged with consent off.
+ *
  * Every file lives in the shared backup-excluded data directory (`DATA_DIR`; threat model TM-03, R1-4) under the
  * names of {@link ANALYTICS_FILE_NAMES}. Nothing here throws: storage failures are absorbed (and visible as drop
  * counts or a later new install id), so analytics can never break play.
@@ -87,6 +91,20 @@ export type SurveyAnswer = EventProperties<'playtest_survey_answered'>['answer']
 
 /** Device-clock time the export prompt was last shown (D-17 24 h cool-down); purged with consent off. */
 export const PROMPT_FILE = 'export.prompt';
+/** The open match's analytics record (`match/match-telemetry.ts`, sprint 4 EV); purged with consent off. */
+export const PLAY_FILE = 'analytics.play';
+/** First-time-user steps done (`onboarding_step_completed`, sprint 4 EV); purged with consent off. */
+export const ONBOARDING_FILE = 'analytics.onboarding';
+
+/** Steps of `onboarding_step_completed` the app has (coach marks 1–3 do not exist yet: D-26, never emitted). */
+export type OnboardingStep = EventProperties<'onboarding_step_completed'>['step'];
+/** Steps the app reports; `first_launch` is the recorder's own (see `firstLaunch`). */
+const ONBOARDING_STEPS: ReadonlySet<string> = new Set<OnboardingStep>([
+  'home_seen',
+  'play_now_tapped',
+  'first_move',
+  'first_match_completed',
+]);
 
 /** Every file the recorder owns in the data directory. */
 export const ANALYTICS_FILE_NAMES: ReadonlySet<string> = new Set([
@@ -96,6 +114,8 @@ export const ANALYTICS_FILE_NAMES: ReadonlySet<string> = new Set([
   SESSION_MARKER_FILE,
   PROMPT_FILE,
   SURVEY_FILE,
+  PLAY_FILE,
+  ONBOARDING_FILE,
 ]);
 
 const APP_STATES: ReadonlySet<string> = new Set<AppStateValue>([
@@ -216,6 +236,19 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
   private survey: SurveyState | null = null;
   /** Confirmed exports this process (snapshot `exports`). */
   private exports = 0;
+  /** Purges done by this process (`consentGeneration`). */
+  private purges = 0;
+  /** Onboarding steps done; null = no first-time flow on this install; undefined = not read yet. */
+  private onboarding: Set<string> | null | undefined = undefined;
+  /** Monotonic time of the last onboarding step of this process (`duration_ms`). */
+  private lastStepAt: number | null = null;
+  /** Steps reported before `start()` (Home's mount effect runs before the provider's). */
+  private stepsBeforeStart: OnboardingStep[] = [];
+  /**
+   * This launch is the install's first (clocks at `start()`): `first_launch` is recorded with that time just before
+   * the next step, so a boot that never reaches Home leaves no file and no event behind.
+   */
+  private firstLaunch: { readonly wall: number; readonly mono: number } | null = null;
   private readonly listeners = new Set<() => void>();
 
   constructor(
@@ -236,14 +269,22 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     });
     this.choices = readChoices(this.store);
     if (this.choices.consent) {
+      // A first launch: no consent choice and no install id on disk yet (a consent off/on keeps the choice file).
+      const firstLaunch = this.absent([CONSENT_FILE, INSTALL_ID_FILE]);
       this.installId = ensureInstallId(this.store, this.platform.randomUUID);
       const launch = decideAtLaunch(this.markerOnDisk());
       this.previousExitUnclean = launch.previousExitUnclean;
       this.setMarker(launch.state);
+      if (firstLaunch) {
+        this.onboarding = new Set();
+        this.firstLaunch = { wall: this.platform.wallMs(), mono: this.platform.monoMs() };
+      }
+      for (const step of this.stepsBeforeStart) this.onboardingStep(step);
     } else {
       // Also finishes a purge a kill interrupted.
       this.purgeFiles();
     }
+    this.stepsBeforeStart = [];
     const held = this.beforeStart;
     this.beforeStart = [];
     for (const { name, properties, at } of held) this.build(name, properties, at);
@@ -594,6 +635,108 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     }
   }
 
+  // --- Gameplay events (sprint 4 EV): the `TelemetryHost` of `match/match-telemetry.ts` ---------------------------
+
+  /** Recording now: `analytics.upload.enabled`, consent on, started. */
+  isRecording(): boolean {
+    return this.recording();
+  }
+
+  /** The monotonic clock of the lifecycle events. */
+  readonly monoNow = (): number => this.platform.monoMs();
+
+  wallNow(): number {
+    return this.platform.wallMs();
+  }
+
+  newId(): string {
+    return this.platform.randomUUID();
+  }
+
+  /** The open-match record; null when absent, unreadable, or recording is off. */
+  readPlayRecord(): string | null {
+    if (!this.recording()) return null;
+    try {
+      const read = this.store.read(PLAY_FILE, 1024);
+      return read.kind === 'ok' && read.records.length === 1 ? (read.records[0] ?? null) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  writePlayRecord(text: string): void {
+    if (!this.recording()) return;
+    this.attempt(() => {
+      this.store.replace(PLAY_FILE, [text]);
+    });
+  }
+
+  /** No match open: the record file goes (nothing is kept between matches). */
+  removePlayRecord(): void {
+    if (!this.recording()) return;
+    this.attempt(() => {
+      this.platform.fs.remove(PLAY_FILE);
+    });
+  }
+
+  /** Incremented by every purge (consent off): the telemetry drops what it holds from the withdrawn pseudonym. */
+  consentGeneration(): number {
+    return this.purges;
+  }
+
+  /**
+   * A first-time-user step happened (design §11). Recorded once per install, only on an install whose first launch
+   * was recorded (an install that played before this build, or enrolled with consent off, has no first-time flow).
+   * `duration_ms`: since the previous step of this process, 0 for the first one (catalogue).
+   */
+  onboardingStep(step: OnboardingStep): void {
+    if (this.enabled && !this.started) {
+      this.stepsBeforeStart.push(step);
+      return;
+    }
+    if (!this.recording() || !ONBOARDING_STEPS.has(step)) return;
+    const done = this.onboardingDone();
+    if (done === null || done.has(step)) return;
+    const launch = this.firstLaunch;
+    if (launch !== null) {
+      this.firstLaunch = null;
+      done.add('first_launch');
+      this.lastStepAt = launch.mono;
+      this.build(
+        'onboarding_step_completed',
+        { step: 'first_launch', duration_ms: 0 },
+        launch.wall,
+      );
+    }
+    done.add(step);
+    this.attempt(() => {
+      this.store.replace(ONBOARDING_FILE, [asciiJson({ v: 1, done: [...done] })]);
+    });
+    const at = this.platform.monoMs();
+    const duration = this.lastStepAt === null ? 0 : Math.max(0, Math.round(at - this.lastStepAt));
+    this.lastStepAt = at;
+    this.record('onboarding_step_completed', { step, duration_ms: duration });
+  }
+
+  private onboardingDone(): Set<string> | null {
+    if (this.onboarding !== undefined) return this.onboarding;
+    let done: Set<string> | null = null;
+    try {
+      const read = this.store.read(ONBOARDING_FILE, 512);
+      if (read.kind === 'ok' && read.records.length === 1) {
+        const parsed = JSON.parse(read.records[0] ?? '') as unknown;
+        const steps = (parsed as { v?: unknown; done?: unknown } | null)?.done;
+        if ((parsed as { v?: unknown }).v === 1 && Array.isArray(steps)) {
+          done = new Set(steps.filter((x): x is string => typeof x === 'string'));
+        }
+      }
+    } catch {
+      done = null;
+    }
+    this.onboarding = done;
+    return done;
+  }
+
   getSnapshot = (): AnalyticsSnapshot => this.snapshot;
 
   subscribe = (listener: () => void): (() => void) => {
@@ -651,10 +794,16 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
    * retried by the start-up sweep (`ShareSweep`).
    */
   private purgeFiles(): boolean {
+    this.purges += 1;
     const queueGone = this.queue.purge();
-    const names = [INSTALL_ID_FILE, SESSION_MARKER_FILE, PROMPT_FILE, CONSENT_FILE].flatMap(
-      (name) => (name === CONSENT_FILE ? [name + TMP_SUFFIX] : [name, name + TMP_SUFFIX]),
-    );
+    const names = [
+      INSTALL_ID_FILE,
+      SESSION_MARKER_FILE,
+      PROMPT_FILE,
+      PLAY_FILE,
+      ONBOARDING_FILE,
+      CONSENT_FILE,
+    ].flatMap((name) => (name === CONSENT_FILE ? [name + TMP_SUFFIX] : [name, name + TMP_SUFFIX]));
     for (const name of names) {
       this.attempt(() => {
         this.platform.fs.remove(name);
@@ -665,6 +814,9 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     });
     this.installId = null;
     this.marker = null;
+    this.onboarding = null;
+    this.lastStepAt = null;
+    this.firstLaunch = null;
     this.pending = [];
     this.beforeStart = [];
     this.loaded = true;

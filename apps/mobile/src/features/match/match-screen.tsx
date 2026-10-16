@@ -282,6 +282,7 @@ function MatchSession(): JSX.Element {
         canPlayAgain={playEnabled}
         onPlayAgain={restart}
         onHome={goHome}
+        onSummaryEvent={session?.noteSummary}
       />
     );
   }

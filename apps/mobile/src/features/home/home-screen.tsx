@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState, type JSX } from 'react';
+import { useCallback, useEffect, useState, type JSX } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -55,6 +55,10 @@ export function HomeScreen(): JSX.Element {
       setPrompt(analytics.sessionMatches());
     }, [analytics, noticeVisible]),
   );
+  // First-time-user steps (sprint 4 EV; recorded once per install, first launch only).
+  useEffect(() => {
+    analytics?.onboardingStep('home_seen');
+  }, [analytics]);
   /** Leaving Home marks the notice seen (§5.4) and ends the prompt's display. */
   const leave = (): void => {
     analytics?.markNoticeSeen();
@@ -72,6 +76,7 @@ export function HomeScreen(): JSX.Element {
   const bot = t('bot.beginner.name');
 
   const open = (): void => {
+    analytics?.onboardingStep('play_now_tapped');
     leave();
     session?.play();
     router.push('/match');

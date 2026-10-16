@@ -100,6 +100,27 @@ describe('BotRunner seam (P5 §4.1)', () => {
     expect(order).toEqual(['frame requested', 'decided']);
   });
 
+  it('tells the caller when the search starts: after the frame wait, before the decision (compute time)', async () => {
+    const order: string[] = [];
+    let release: () => void = () => undefined;
+    const frame = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const runner = createJsThreadBotRunner(lexicon.index, { nextFrame: () => frame });
+    const state = positions(32, 1)[0] as MatchState;
+    const pending = runner
+      .decide(botRequestFor(state, state.seatOnTurn, PLAY_BOT), () => order.push('search started'))
+      .then((r) => {
+        order.push('decided');
+        return r;
+      });
+    await Promise.resolve();
+    expect(order).toEqual([]);
+    release();
+    expect((await pending).ok).toBe(true);
+    expect(order).toEqual(['search started', 'decided']);
+  });
+
   it('returns the bot error for an observation that is not on turn', async () => {
     const runner = createJsThreadBotRunner(lexicon.index, { nextFrame: immediate });
     const state = positions(41, 1)[0] as MatchState;

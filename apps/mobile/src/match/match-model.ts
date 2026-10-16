@@ -99,6 +99,11 @@ export interface MatchModel {
   /** The engine's reason for the last rejected PLAY, until the placement changes (D-6). */
   readonly rejection: Notice | null;
   /**
+   * The engine's rejection behind `rejection`, for analytics (`word_rejected.reason`, sprint 4 EV). Meaningful only
+   * while `rejection` is set; absent on models that never had one.
+   */
+  readonly rejectionCause?: Rejection | null;
+  /**
    * One-line notice: a pending tile went back because the bot took its square (D-4), or why Exchange is not
    * available now (§5.5.6: the "why" is never hidden).
    */
@@ -111,6 +116,17 @@ export interface MatchModel {
   } | null;
   /** The bot failed or produced an action the engine refused: the match stops (spec halt criterion). */
   readonly failure: 'bot' | null;
+}
+
+/**
+ * When the bot's request was made, when its search started (after the frame wait) and when its decision arrived, on
+ * the analytics monotonic clock (ms). Presentation metadata for `bot_decision_made`: it never reaches the engine or
+ * the log.
+ */
+export interface BotTiming {
+  readonly requestedAt: number;
+  readonly startedAt: number;
+  readonly resolvedAt: number;
 }
 
 export type MatchCommand =
@@ -134,6 +150,8 @@ export type MatchCommand =
       /** `actionCount` the request was made for; any other value is a stale result. */
       readonly tag: number;
       readonly result: Result<BotDecision, BotError>;
+      /** Analytics only (`bot_decision_made`, sprint 4 EV); never read by the reducer. */
+      readonly timing?: BotTiming;
     }
   /** The runner itself failed (threw): no decision exists for `tag`. */
   | { readonly type: 'bot_failed'; readonly tag: number };
@@ -400,11 +418,10 @@ function play(model: MatchModel, ctx: EngineContext): MatchModel {
   const applied = apply(state, action, ctx);
   if (!applied.ok) {
     // The app builds only well-formed actions from its own rack, so an engine error here is a rejection.
+    const cause = applied.error.kind === 'rejection' ? applied.error : null;
     const rejection: Notice =
-      applied.error.kind === 'rejection'
-        ? rejectionNotice(applied.error)
-        : { key: 'match.reject.generic', params: {} };
-    return { ...model, rejection, notice: null };
+      cause === null ? { key: 'match.reject.generic', params: {} } : rejectionNotice(cause);
+    return { ...model, rejection, rejectionCause: cause, notice: null };
   }
   return afterApplied(model, applied.value, new Set(model.pending.map((p) => p.slotId)), ctx);
 }

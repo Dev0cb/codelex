@@ -32,7 +32,11 @@ export interface BotRequest {
 }
 
 export interface BotRunner {
-  decide(request: BotRequest): Promise<Result<BotDecision, BotError>>;
+  /**
+   * `onStart` (optional, analytics only): called right before the search starts, after any wait of the runner, so the
+   * caller can time the compute alone (`bot_decision_made.compute_ms_bucket`).
+   */
+  decide(request: BotRequest, onStart?: () => void): Promise<Result<BotDecision, BotError>>;
 }
 
 /** The request for `seat` on `state`: its observation and a fresh `bot:<seat>:<actionCount>` stream state. */
@@ -71,8 +75,9 @@ export function createJsThreadBotRunner(
 ): BotRunner {
   const nextFrame = options.nextFrame ?? nextAnimationFrame;
   return {
-    async decide(request) {
+    async decide(request, onStart) {
       await nextFrame();
+      onStart?.();
       return chooseAction(request.observation, {
         lexicon,
         rng: createRng(request.rngState),
