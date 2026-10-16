@@ -460,8 +460,16 @@ Deviations, each forced by a source or the toolchain and open to review:
    replay; the screen shows both p95. Samples go to the path the restore actually took. Iterations re-read the same
    files, so **both numbers are warm-cache** (OS page cache); a cold restore after a kill can be slower, which H1
    notes next to the number.
-7. **Not built:** suite 6 (responsiveness, DG1-f; A2 has no field for it) and the index load timing of suite 2
-   (no A2 field). Follow-ups if H1 needs them.
+7. **Not built, and S4 waits for a manual check** (review C-M1). Suite 6 (responsiveness, DG1-f) is not built and
+   the A2 schema is not changed for it. Decision: the `bots.strategist.enabled` flag (S4) stays off until a
+   **manual responsiveness check on the owner's phone is recorded in the H1 record**: during back-to-back
+   Strategist decisions (a match against Strategist, or "Run" on Bot compute) while dragging tiles and zooming,
+   UI frame rate ≥ 30 fps with < 5 % of frames missed, and tap-to-commit ≤ 300 ms. Method, also written in the H1
+   record: Android Developer options "Profile HWUI rendering" (on-screen bars) or the React Native perf monitor
+   for the frame rate, and a screen recording at 60 fps counted frame by frame for tap-to-commit. This is the P5 §6
+   switch rule's responsiveness half until DG1-f exists. **Tracked follow-up:** index load timing (read + digest +
+   decode, `mobile-app-foundation.md` §3.2) is not measured by DG1 (no A2 field); it is recorded in the H1 record
+   from a manual cold start until a follow-up adds it. Both are rows H1 and S4 of the sprint plan.
 8. **BN1 partly done here:** the position source, two-blank variant and fit live in `@codelex/golden-runner/core`
    (`src/core/bench/`); moving the Node harness onto it stays with ai-engineer. `runGoldensStepwise` (one case per
    step) was added to the core for §5.1; `runGoldens` drains it (game-engine-engineer review).
