@@ -79,19 +79,46 @@ describe('SendDataScreen (§5.9)', () => {
       'What is in the file',
       'Never included',
     ]);
-    expect(screen.getByText(/This sends one file to the CODELEX playtest team/)).toBeTruthy();
+    expect(
+      screen.getByText(
+        "This sends one file to the CODELEX playtest team through your phone's share menu. Send it by email to the address below.",
+      ),
+    ).toBeTruthy();
     const day = formatDay(Date.parse('2026-10-07T09:30:00.000Z'), 'en');
     expect(screen.getByTestId('export.summary.counts').props.children).toBe(
       `3 events · 0 matches · ${day} to ${day}`,
     );
-    expect(screen.getByText('App starts and session length')).toBeTruthy();
-    expect(screen.getByText(/Rejected attempts: reason and word length only/)).toBeTruthy();
-    expect(screen.getByText(/Your name, email address, contacts, location/)).toBeTruthy();
+    // Every family of the catalogue is listed (privacy review M2), in this order.
+    expect(
+      screen
+        .getAllByText(/./)
+        .map((node) => node.props.children as unknown)
+        .filter((text): text is string => typeof text === 'string')
+        .filter((text) =>
+          [
+            'App starts (connection type, whether the last session crashed) and session length',
+            'Match start, end and result: scores, length, opponent',
+            'Words you and the bot played: term, category, points — not what you typed',
+            'Rejected attempts: reason and word length only, never the word',
+            'Knowledge Cards you opened and for how long',
+            'Your answers to the “play again” question',
+            'Screens and buttons used: first-launch steps, after-match choices, knowledge graph browsing, bot thinking time',
+            'Technical details: app version and build, Android, app language, phone-clock times, session IDs, dropped-event counts',
+          ].includes(text),
+        ),
+    ).toHaveLength(8);
+    expect(
+      screen.getByText(
+        "Your name, email address, contacts, location, advertising ID, phone model or serial number. Your tester ID is a random number made by this app, not your phone's ID.",
+      ),
+    ).toBeTruthy();
     const id = screen.getByTestId('export.installId');
     expect(id.props.children).toBe(`Your tester ID: ${analytics.getSnapshot().installId ?? ''}`);
     expect(id.props.selectable).toBe(true);
     expect(
-      screen.getByText(/If you send it by email, the team can see your email address/),
+      screen.getByText(
+        'If you send it by email, the team sees your email address (and anything your mail app adds, such as your name) and can link it to your tester ID. Files are kept in restricted Google storage, which may be outside your country, and the emails are deleted within 7 days. A copy stays in your own Sent folder.',
+      ),
     ).toBeTruthy();
     expect(screen.getByText(/Works offline/)).toBeTruthy();
     // TM-07: no address is configured (O-4), so the line is hidden. No drop warning without drops.
@@ -292,6 +319,13 @@ describe('SendDataScreen (§5.9)', () => {
       `2 événements · 0 partie · du ${day} au ${day}`,
     );
     expect(screen.getByText('Partager le fichier…')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Écrans et boutons utilisés\u00a0: premières étapes, choix après la partie, navigation dans le graphe, temps de réflexion du bot',
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText(/stockage Google restreint, parfois hors de ton pays/)).toBeTruthy();
+    expect(screen.getByText(/pas l’identifiant de ton téléphone\.$/)).toBeTruthy();
   });
 
   it('formatDay falls back to an ISO date without Intl', () => {

@@ -30,6 +30,7 @@ const INCLUDED = [
   'export.summary.item.rejections',
   'export.summary.item.cards',
   'export.summary.item.survey',
+  'export.summary.item.screens',
   'export.summary.item.technical',
 ] as const;
 
