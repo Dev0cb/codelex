@@ -100,6 +100,8 @@ describe('gitShaOf (OQ-DG-2, app.config.cjs)', () => {
     const sha = 'a'.repeat(40);
     expect(gitShaOf({ codelexDiagnostics: { gitSha: sha } })).toBe(sha);
     expect(gitShaOf({ codelexDiagnostics: { gitSha: 'abc' } })).toBeNull();
+    // A local export from a dirty checkout (app.config.cjs S-n2) has no comparable commit.
+    expect(gitShaOf({ codelexDiagnostics: { gitSha: `${sha}-dirty` } })).toBeNull();
     expect(gitShaOf({})).toBeNull();
     expect(gitShaOf(undefined)).toBeNull();
   });

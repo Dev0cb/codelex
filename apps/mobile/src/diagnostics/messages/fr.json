@@ -4,7 +4,7 @@
   "diagnostics.keep_on": "Garde l’écran allumé et reste dans l’app. Un passage complet prend jusqu’à 10 minutes.",
   "diagnostics.build.ok": "Version release · Hermes {version}",
   "diagnostics.build.invalid": "Ce n’est pas une version release Hermes. Ses mesures ne sont pas valables.",
-  "diagnostics.build.no_commit": "Cette version n’a pas d’identifiant de commit, son rapport ne peut pas être comparé. Utilise la version preview-diagnostics.",
+  "diagnostics.build.no_commit": "Cette version n’a pas d’identifiant de commit propre, son rapport ne peut pas être comparé. Utilise une version preview-diagnostics issue d’un commit propre.",
   "diagnostics.suite.goldens": "Résultats de référence du moteur et des bots",
   "diagnostics.suite.micro": "Mesures de l’index et du moteur",
   "diagnostics.suite.bots": "Calcul des bots",

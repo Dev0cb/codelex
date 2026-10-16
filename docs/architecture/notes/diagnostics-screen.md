@@ -454,3 +454,21 @@ Deviations, each forced by a source or the toolchain and open to review:
 8. **BN1 partly done here:** the position source, two-blank variant and fit live in `@codelex/golden-runner/core`
    (`src/core/bench/`); moving the Node harness onto it stays with ai-engineer. `runGoldensStepwise` (one case per
    step) was added to the core for §5.1; `runGoldens` drains it (game-engine-engineer review).
+
+Review fixes on the DG1 PR (2026-10-16):
+
+9. **SC-6 is enforced in `app.config.cjs`** (security review S-M1; node tests in `scripts/diagnostics-gate.test.mjs`).
+   With `EXPO_PUBLIC_CODELEX_DIAGNOSTICS=1` the config throws unless `EAS_BUILD_PROFILE` is unset (a local export:
+   CI's positive control, a developer) or `preview-diagnostics`; the `preview-diagnostics` profile throws when the
+   variable is not exactly `1`. A diagnostics build is a separate app: `ios.bundleIdentifier` and `android.package`
+   are `com.codelex.app.diagnostics` and the name is "CODELEX Diagnostics". No store listing exists for that
+   identifier, so the build cannot be submitted (and `eas.json` has no `submit` entry for the profile, asserted by
+   the same test file); it installs beside the playtest build instead of over it, and the OS isolates its data.
+   This replaces the "same application id" caveat of SC-6 and the distinct-id remark of §10. SC-6's distribution
+   rules (owner's phone only, EAS build id in the H1 record) still apply.
+10. **Dirty checkouts are marked, not refused** (S-n2). A local diagnostics export from a checkout whose
+    `git status --porcelain` is not empty (or cannot be read) writes `<sha>-dirty`. Failing instead would break
+    `bundle:check` (its positive control is a local diagnostics export) for every developer with uncommitted work.
+    `-dirty` is not a 40-hex commit, so the screen treats the build as having no comparable commit
+    (`diagnostics.build.no_commit`) and "Share report…" stays disabled: a report can only come from a clean commit.
+    EAS builds use `EAS_BUILD_GIT_COMMIT_HASH` and are not checked.

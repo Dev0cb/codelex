@@ -4,7 +4,7 @@
   "diagnostics.keep_on": "Keep the screen on and stay in the app. A full run takes up to 10 minutes.",
   "diagnostics.build.ok": "Release build · Hermes {version}",
   "diagnostics.build.invalid": "Not a release Hermes build. Timings from this build are not valid.",
-  "diagnostics.build.no_commit": "This build has no commit id, so its report cannot be compared. Use the preview-diagnostics build.",
+  "diagnostics.build.no_commit": "This build has no clean commit id, so its report cannot be compared. Use a preview-diagnostics build from a clean commit.",
   "diagnostics.suite.goldens": "Engine and bot reference results",
   "diagnostics.suite.micro": "Index and engine timings",
   "diagnostics.suite.bots": "Bot compute",

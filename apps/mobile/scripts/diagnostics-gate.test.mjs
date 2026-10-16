@@ -166,25 +166,117 @@ test('app.config.cjs: app.json unchanged without the constant; the commit with i
   const { expo } = JSON.parse(readFileSync(join(appDir, 'app.json'), 'utf8'));
   assert.equal(appConfig({ config: expo }, {}), expo);
   assert.equal(appConfig({ config: expo }, { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '0' }), expo);
+  assert.equal(appConfig({ config: expo }, { EAS_BUILD_PROFILE: 'preview' }), expo);
   const sha = 'abcdef0123456789abcdef0123456789abcdef01';
+  const clean = () => '';
   const eas = appConfig(
     { config: expo },
-    { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1', EAS_BUILD_GIT_COMMIT_HASH: sha },
+    {
+      EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1',
+      EAS_BUILD_PROFILE: 'preview-diagnostics',
+      EAS_BUILD_GIT_COMMIT_HASH: sha,
+    },
   );
   assert.deepEqual(eas.extra, { ...expo.extra, codelexDiagnostics: { gitSha: sha } });
   const local = appConfig(
     { config: expo },
     { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' },
     () => `${sha.toUpperCase()}\n`,
+    clean,
   );
   assert.equal(local.extra.codelexDiagnostics.gitSha, sha);
   assert.throws(() =>
-    appConfig({ config: expo }, { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' }, () => 'nope'),
+    appConfig({ config: expo }, { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' }, () => 'nope', clean),
   );
   assert.throws(() =>
-    appConfig({ config: expo }, { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' }, () => {
-      throw new Error('no git');
-    }),
+    appConfig(
+      { config: expo },
+      { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' },
+      () => {
+        throw new Error('no git');
+      },
+      clean,
+    ),
+  );
+});
+
+test('app.config.cjs SC-6: the constant only in a local export or preview-diagnostics, and vice versa', () => {
+  const appConfig = require('../app.config.cjs');
+  const { expo } = JSON.parse(readFileSync(join(appDir, 'app.json'), 'utf8'));
+  const sha = 'abcdef0123456789abcdef0123456789abcdef01';
+  const on = { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1', EAS_BUILD_GIT_COMMIT_HASH: sha };
+  for (const profile of ['preview', 'production', 'development', '']) {
+    assert.throws(
+      () => appConfig({ config: expo }, { ...on, EAS_BUILD_PROFILE: profile }),
+      /SC-6/,
+      profile,
+    );
+  }
+  for (const flag of [undefined, '0', 'true', '']) {
+    const env = { EAS_BUILD_PROFILE: 'preview-diagnostics', EAS_BUILD_GIT_COMMIT_HASH: sha };
+    if (flag !== undefined) env.EXPO_PUBLIC_CODELEX_DIAGNOSTICS = flag;
+    assert.throws(() => appConfig({ config: expo }, env), /SC-6/, String(flag));
+  }
+  // A diagnostics build is a separate app: its own identifier on both platforms and its own name.
+  for (const env of [
+    { ...on, EAS_BUILD_PROFILE: 'preview-diagnostics' },
+    { EXPO_PUBLIC_CODELEX_DIAGNOSTICS: '1' },
+  ]) {
+    const config = appConfig(
+      { config: expo },
+      env,
+      () => sha,
+      () => '',
+    );
+    assert.equal(config.ios.bundleIdentifier, 'com.codelex.app.diagnostics');
+    assert.equal(config.android.package, 'com.codelex.app.diagnostics');
+    assert.equal(config.name, 'CODELEX Diagnostics');
+    assert.equal(config.ios.supportsTablet, expo.ios.supportsTablet);
+    assert.equal(config.android.allowBackup, false);
+  }
+  assert.equal(expo.ios.bundleIdentifier, 'com.codelex.app');
+  assert.equal(expo.android.package, 'com.codelex.app');
+  assert.equal(expo.name, 'CODELEX');
+});
+
+test('app.config.cjs S-n2: a local export from a dirty checkout is marked -dirty (EAS commits are not)', () => {
+  const { resolveGitSha } = require('../app.config.cjs');
+  const sha = 'abcdef0123456789abcdef0123456789abcdef01';
+  assert.equal(
+    resolveGitSha(
+      {},
+      () => sha,
+      () => ' M apps/mobile/app.json\n',
+    ),
+    `${sha}-dirty`,
+  );
+  assert.equal(
+    resolveGitSha(
+      {},
+      () => sha,
+      () => {
+        throw new Error('no git');
+      },
+    ),
+    `${sha}-dirty`,
+  );
+  assert.equal(
+    resolveGitSha(
+      {},
+      () => sha,
+      () => '\n',
+    ),
+    sha,
+  );
+  assert.equal(
+    resolveGitSha(
+      { EAS_BUILD_GIT_COMMIT_HASH: sha },
+      () => {
+        throw new Error('not called');
+      },
+      () => ' M x\n',
+    ),
+    sha,
   );
 });
 
