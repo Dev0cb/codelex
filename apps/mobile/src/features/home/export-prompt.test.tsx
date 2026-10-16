@@ -64,6 +64,7 @@ function recorder(fs: MemoryFs, clock: { wall: number; mono: number }): Playtest
       monoMs: () => clock.mono,
       sinceProcessStartMs: () => 1000,
       context: () => ({ app_version: '0.1.0', platform: 'android', locale: 'en-US' }),
+      sweepShareDirectory: () => undefined,
     },
     true,
   );

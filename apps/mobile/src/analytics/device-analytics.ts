@@ -9,6 +9,8 @@ import { Platform } from 'react-native';
 
 import { APP_VERSION } from '../config/build-info';
 import { createDeviceFs } from '../persistence/device-fs';
+import { createDeviceShare } from '../sharing/device-share';
+import { sweepShareDirectory } from '../sharing/share-file';
 import { normalizeLocale } from './envelope';
 import { PlaytestAnalytics, type AnalyticsPlatform } from './recorder';
 
@@ -54,6 +56,9 @@ export function createDeviceAnalyticsPlatform(): AnalyticsPlatform {
       platform,
       locale: normalizeLocale(getLocales().at(0)?.languageTag),
     }),
+    sweepShareDirectory: () => {
+      sweepShareDirectory(createDeviceShare().directory);
+    },
   };
 }
 

@@ -107,6 +107,11 @@ export interface AnalyticsPlatform {
   /** Ms since the process started: `cold_start_ms`. */
   readonly sinceProcessStartMs: () => number;
   readonly context: () => EnvelopeContext;
+  /**
+   * Deletes the share directory (`sharing/share-file.ts`, TM-04): consent withdrawal also removes a playtest file a
+   * kill left there while the share sheet was open. May throw; the start-up sweep retries.
+   */
+  readonly sweepShareDirectory: () => void;
 }
 
 /** What the UI shows (Home notice, Settings "Playtest data"). */
@@ -546,10 +551,11 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     });
   }
 
-  /** Consent off: queue, install id and marker deleted; the choice file stays. */
   /**
    * Consent off: the queue, the install id and the marker are deleted, with any half-written temp file of every
-   * analytics file (the choice file itself stays). True when none of them is left on disk.
+   * analytics file (the choice file itself stays), and the share directory is swept (a playtest file left there by a
+   * kill while the sheet was open). True when none of the analytics files is left on disk; a sweep that fails is
+   * retried by the start-up sweep (`ShareSweep`).
    */
   private purgeFiles(): boolean {
     const queueGone = this.queue.purge();
@@ -561,6 +567,9 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
         this.platform.fs.remove(name);
       });
     }
+    this.attempt(() => {
+      this.platform.sweepShareDirectory();
+    });
     this.installId = null;
     this.marker = null;
     this.pending = [];

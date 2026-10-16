@@ -26,6 +26,8 @@ interface Harness {
   readonly fs: MemoryFs;
   readonly analytics: PlaytestAnalytics;
   readonly clock: { wall: number; mono: number; sinceStart: number };
+  /** Share-directory sweeps the recorder asked for; `fail` makes the next ones throw. */
+  readonly share: { sweeps: number; fail: boolean };
 }
 
 let uuidCounter = 0;
@@ -36,6 +38,7 @@ const newUuid = (): string => {
 
 function boot(fs: MemoryFs, enabled = true, wall = T0): Harness {
   const clock = { wall, mono: 0, sinceStart: 1840 };
+  const share = { sweeps: 0, fail: false };
   const platform: AnalyticsPlatform = {
     fs,
     randomUUID: newUuid,
@@ -43,8 +46,12 @@ function boot(fs: MemoryFs, enabled = true, wall = T0): Harness {
     monoMs: () => clock.mono,
     sinceProcessStartMs: () => clock.sinceStart,
     context: () => ({ app_version: '0.1.0', platform: 'android', locale: 'fr-SN' }),
+    sweepShareDirectory: () => {
+      share.sweeps += 1;
+      if (share.fail) throw new Error('EBUSY');
+    },
   };
-  return { fs, analytics: new PlaytestAnalytics(platform, enabled), clock };
+  return { fs, analytics: new PlaytestAnalytics(platform, enabled), clock, share };
 }
 
 /** The provider's sequence at mount: launch, subscribe and feed the current state, deferred queue load. */
@@ -328,6 +335,7 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     h.analytics.markInteractive();
     h.analytics.record('app_backgrounded', { foreground_ms: 1 });
     expect(h.analytics.queuedCount()).toBe(2);
+    expect(h.share.sweeps).toBe(0);
     let notified = 0;
     const unsubscribe = h.analytics.subscribe(() => {
       notified += 1;
@@ -335,6 +343,8 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     expect(h.analytics.setConsent(false)).toBe(true);
     unsubscribe();
     expect(notified).toBe(1);
+    // A playtest file left in the share directory (a kill while the sheet was open) goes too (TM-04).
+    expect(h.share.sweeps).toBe(1);
     expect(h.analytics.getSnapshot()).toMatchObject({ consent: false, installId: null });
     expect([...fs.files.keys()]).toEqual([CONSENT_FILE]);
     // Nothing is recorded any more, including lifecycle events and the setting change itself.
@@ -344,6 +354,19 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     expect([...fs.files.keys()]).toEqual([CONSENT_FILE]);
     expect(h.analytics.queuedCount()).toBe(0);
     expect(h.analytics.setConsent(false)).toBe(true);
+  });
+
+  it('withdraws consent even when the share directory cannot be swept (retried at the next start)', () => {
+    const fs = new MemoryFs();
+    const h = launch(boot(fs));
+    h.analytics.record('app_backgrounded', { foreground_ms: 1 });
+    h.share.fail = true;
+    expect(h.analytics.setConsent(false)).toBe(true);
+    expect(h.share.sweeps).toBe(1);
+    expect([...fs.files.keys()]).toEqual([CONSENT_FILE]);
+    const next = boot(fs.reboot());
+    launch(next);
+    expect(next.share.sweeps).toBe(1);
   });
 
   it('stays off at the next start: no marker, no id, nothing recorded', () => {
