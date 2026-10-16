@@ -71,6 +71,19 @@ const fromD1: MatchLogApp = asD1;
 
 const ALLOWED_TOP = ['app', 'divergence', 'exportFormat', 'kind', 'log', 'raw'];
 const ALLOWED_LOG = ['actions', 'header', 'logVersion', 'stateHashes'];
+/**
+ * TM-04 tripwire: the exact keys of `log.header` (MatchConfig) and `log.header.config` (MatchSetup), sorted. A new
+ * field must be reviewed for TM-04 (no id, time or PII) before it is added here.
+ */
+const HEADER_KEYS = [
+  'config',
+  'definitionHash',
+  'engineRulesVersion',
+  'lexiconVersion',
+  'profileId',
+  'seed',
+];
+const SETUP_KEYS = ['format', 'layout', 'letters', 'mode', 'requireWinner', 'seats', 'teams'];
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const ISO_TIME = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
@@ -247,10 +260,37 @@ describe('on-device match log file (S6d) ≡ D1 contract', () => {
         expect(Object.keys(file).every((k) => ALLOWED_TOP.includes(k))).toBe(true);
         expect(Object.keys(file['app'] as object)).toEqual(['version', 'build', 'platform']);
         expect(Object.keys(file['log'] as object).every((k) => ALLOWED_LOG.includes(k))).toBe(true);
+        // TM-04 tripwire: a new MatchConfig or MatchSetup field fails here before it can leave in `log`.
+        const header = (file['log'] as { header: { config: object } }).header;
+        expect(Object.keys(header).sort()).toEqual(HEADER_KEYS);
+        expect(Object.keys(header.config).sort()).toEqual(SETUP_KEYS);
         expect(text).not.toMatch(UUID);
         expect(text).not.toMatch(ISO_TIME);
         expect(text).not.toMatch(/file:|codelex-data|\/data\//);
       }),
+      { numRuns: 6 },
+    );
+  });
+
+  it('property: the journal writes only `{ logVersion, header }` then `{ a, h }` records, the bytes `raw` exports', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 5000 }),
+        fc.integer({ min: 0, max: 14 }),
+        fc.boolean(),
+        (seed, n, finish) => {
+          const store = new DataStore(new MemoryFs());
+          persist(store, seed, n, { finish });
+          const read = store.read(finish ? FILES.last : FILES.log, MATCH_LOG_FILE_RAW_MAX_BYTES);
+          if (read.kind !== 'ok') throw new Error(read.kind);
+          const [head, ...rest] = read.records.map((r) => JSON.parse(r) as Record<string, unknown>);
+          expect(Object.keys(head ?? {}).sort()).toEqual(['header', 'logVersion']);
+          const header = head?.['header'] as { config: object };
+          expect(Object.keys(header).sort()).toEqual(HEADER_KEYS);
+          expect(Object.keys(header.config).sort()).toEqual(SETUP_KEYS);
+          for (const record of rest) expect(Object.keys(record).sort()).toEqual(['a', 'h']);
+        },
+      ),
       { numRuns: 6 },
     );
   });
