@@ -6,11 +6,15 @@
 import type { Action, MatchState, Rejection } from '@codelex/game-engine';
 import { beforeAll, describe, expect, it, jest } from '@jest/globals';
 
+import type { AnalyticsCall } from '../analytics/emitter';
 import { guardEvent } from '../analytics/event-guard';
 import type { LoadedLexicon } from '../lexicon/load-lexicon';
-import { startModel } from './match-model';
+import { startModel, type MatchModel } from './match-model';
 import {
   finishedProperties,
+  MatchTelemetry,
+  MAX_REJECTED_EVENTS_PER_MATCH,
+  MAX_REJECTED_EVENTS_PER_TURN,
   msBucket,
   nodesBucket,
   parsePlayRecord,
@@ -84,18 +88,16 @@ describe('parsePlayRecord', () => {
     resumes: 3,
     turns: 4,
     lastWall: 5,
+    rejectedEvents: 1,
     closed: false,
   };
   it('reads a stored record and treats anything else as a fresh one', () => {
-    expect(parsePlayRecord(JSON.stringify({ v: 1, started: 2, open }))).toEqual({
-      started: 2,
-      open,
+    expect(parsePlayRecord(JSON.stringify({ v: 1, open }))).toEqual({ open });
+    expect(parsePlayRecord(JSON.stringify({ v: 1, open: { ...open, turns: -1 } }))).toEqual({
+      open: null,
     });
-    expect(
-      parsePlayRecord(JSON.stringify({ v: 1, started: 2, open: { ...open, turns: -1 } })),
-    ).toEqual({ started: 2, open: null });
-    for (const text of [null, '', '{', 'null', '{"v":2,"started":1}', '{"v":1,"started":"1"}']) {
-      expect(parsePlayRecord(text)).toEqual({ started: 0, open: null });
+    for (const text of [null, '', '{', 'null', '{"v":2,"open":null}', '[1]']) {
+      expect(parsePlayRecord(text)).toEqual({ open: null });
     }
   });
 });
@@ -173,5 +175,90 @@ describe('finishedProperties', () => {
       properties: props,
     };
     expect(guardEvent(event).ok).toBe(true);
+  });
+});
+
+describe('MatchTelemetry (host-level rules)', () => {
+  function host() {
+    let file: string | null = null;
+    let ids = 0;
+    const fake = {
+      generation: 0,
+      events: [] as AnalyticsCall[],
+      writes: 0,
+      removes: 0,
+      file: (): string | null => file,
+      isRecording: () => true,
+      emit: (call: AnalyticsCall) => {
+        fake.events.push(call);
+      },
+      monoNow: () => 0,
+      wallNow: () => 0,
+      newId: () => {
+        ids += 1;
+        return `id-${String(ids)}`;
+      },
+      readPlayRecord: () => file,
+      writePlayRecord: (text: string) => {
+        fake.writes += 1;
+        file = text;
+      },
+      removePlayRecord: () => {
+        fake.removes += 1;
+        file = null;
+      },
+      onboardingStep: () => undefined,
+      consentGeneration: () => fake.generation,
+    };
+    return fake;
+  }
+  const rejectedModel = (model: MatchModel): MatchModel => ({
+    ...model,
+    rejection: { key: 'match.reject.generic', params: {} },
+    rejectionCause: null,
+  });
+
+  it('caps word_rejected per turn and per match, counts every attempt, and writes only when it emits', () => {
+    const fake = host();
+    const telemetry = new MatchTelemetry(fake, lexicon.index);
+    const model = startModel(newPlayState(humanStarts(lexicon, 1503), lexicon));
+    telemetry.started(model, () => false);
+    expect(fake.writes).toBe(1);
+    const perTurn = MAX_REJECTED_EVENTS_PER_TURN + 2;
+    const turns = Math.ceil(MAX_REJECTED_EVENTS_PER_MATCH / MAX_REJECTED_EVENTS_PER_TURN) + 1;
+    for (let turn = 0; turn < turns; turn += 1) {
+      // A new player turn (the per-turn cap restarts).
+      telemetry.resumedSaved(model);
+      for (let i = 0; i < perTurn; i += 1) {
+        telemetry.transition(model, rejectedModel(model), { type: 'play' }, 0);
+      }
+    }
+    const rejected = fake.events.filter((e) => e.event === 'word_rejected');
+    expect(rejected).toHaveLength(MAX_REJECTED_EVENTS_PER_MATCH);
+    expect(fake.writes).toBe(1 + MAX_REJECTED_EVENTS_PER_MATCH);
+    // The capped attempts reach the file with the next write (here: the background).
+    telemetry.appState('background', model);
+    expect(fake.writes).toBe(2 + MAX_REJECTED_EVENTS_PER_MATCH);
+    expect(parsePlayRecord(fake.file()).open).toMatchObject({
+      rejected: turns * perTurn,
+      rejectedEvents: MAX_REJECTED_EVENTS_PER_MATCH,
+    });
+  });
+
+  it('forgets the open match, its clocks and the last Summary when the consent generation changes', () => {
+    const fake = host();
+    const telemetry = new MatchTelemetry(fake, lexicon.index);
+    const model = startModel(newPlayState(humanStarts(lexicon, 1504), lexicon));
+    telemetry.started(model, () => false);
+    telemetry.transition(model, rejectedModel(model), { type: 'play' }, 0);
+    const before = parsePlayRecord(fake.file()).open?.id;
+    // Consent off then on: the recorder purged the file and moved to a new generation.
+    fake.generation += 1;
+    fake.removePlayRecord();
+    telemetry.sync();
+    telemetry.transition(model, rejectedModel(model), { type: 'play' }, 0);
+    const after = parsePlayRecord(fake.file()).open;
+    expect(after?.id).not.toBe(before);
+    expect(after).toMatchObject({ rejected: 1, rejectedEvents: 1 });
   });
 });

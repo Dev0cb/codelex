@@ -6,14 +6,16 @@
  *
  * Off the critical path: the match session queues each call and runs it after React committed the move (an effect),
  * so a move is written to the match log and shown before any analytics work starts; the only file writes here are
- * the small open-match record (start, rejection, background, resume, end), never one per move. Everything is a no-op
- * unless the recorder is recording (`analytics.upload.enabled` and consent): then nothing is emitted or written,
- * only the in-memory clocks run.
+ * the small open-match record (start, emitted rejection, background, resume, end, and the move after capped
+ * rejections), never one per move. Everything is a no-op unless the recorder is recording
+ * (`analytics.upload.enabled` and consent): then nothing is emitted or written, only the in-memory clocks run.
  *
  * Match identity: `local_match_id` is a random UUID kept in the open-match record (`analytics.play`, purged with
- * consent off), bound to the match by a CRC-32 of its seed (on-device only, never emitted), so it survives a cold
- * start. A match whose record is missing (recording turned on mid-match, record purged) adopts a new id with zero
- * counters at its next event; such a match has no `bot_match_started`.
+ * consent off, deleted when the match ends), bound to the match by a CRC-32 of its seed (on-device only, never
+ * emitted), so it survives a cold start. A match whose record is missing (recording turned on mid-match, record
+ * purged) adopts a new id with zero counters at its next event; such a match has no `bot_match_started`. Consent off
+ * then on (a new consent generation of the recorder) forgets everything held in memory too, so nothing of the
+ * withdrawn pseudonym is emitted under the new one.
  *
  * Clocks are the recorder's monotonic clock: `active_duration_ms` sums the foreground time while the match is open
  * on this process (a crash loses the interval since the last background: a lower bound); `think_ms` of the player is
@@ -59,7 +61,11 @@ export interface TelemetryHost {
   /** The open-match record file; null when absent or unreadable. */
   readPlayRecord(): string | null;
   writePlayRecord(text: string): void;
+  /** Deletes the record file (no match open). */
+  removePlayRecord(): void;
   onboardingStep(step: OnboardingStep): void;
+  /** Changes whenever consent is withdrawn (the recorder purged its files): nothing held from before may be reused. */
+  consentGeneration(): number;
 }
 
 /**
@@ -68,6 +74,8 @@ export interface TelemetryHost {
  * could otherwise fill the 5,000-event queue.
  */
 export const MAX_REJECTED_EVENTS_PER_TURN = 10;
+/** ASSUMPTION (EV, reversible): at most this many `word_rejected` per match, on top of the per-turn cap. */
+export const MAX_REJECTED_EVENTS_PER_MATCH = 30;
 
 /** The cold start's view of the saved match (`SavedMatch` of `persistence/saved-match.ts`). */
 export type ColdRestore =
@@ -84,15 +92,20 @@ interface OpenMatch {
   rejected: number;
   resumes: number;
   turns: number;
-  /** Wall clock of the last background or start: the cold-start `away_ms`. */
+  /**
+   * Wall clock of the last background (or of the start): the cold-start `away_ms`. After a crash (no background) the
+   * time played since then is counted as away: `away_ms` is then an upper bound (catalogue changelog, sprint 4 EV).
+   * Only this time is kept, as the privacy policy discloses ("the time it last went to the background").
+   */
   lastWall: number;
+  /** `word_rejected` events emitted for this match (the per-match cap). */
+  rejectedEvents: number;
   /** A failed restore was reported: no second `bot_match_abandoned` for this id. */
   closed: boolean;
 }
 
 interface PlayRecord {
-  /** Matches started on this install while recording (`is_first_match`). */
-  started: number;
+  /** The open match; the file is deleted when there is none. */
   open: OpenMatch | null;
 }
 
@@ -102,7 +115,7 @@ const ms = (value: number): number => (Number.isFinite(value) ? Math.max(0, Math
 function parseOpen(value: unknown): OpenMatch | null {
   if (typeof value !== 'object' || value === null) return null;
   const o = value as Record<string, unknown>;
-  const { id, key, activeMs, rejected, resumes, turns, lastWall, closed } = o;
+  const { id, key, activeMs, rejected, resumes, turns, lastWall, rejectedEvents, closed } = o;
   if (
     typeof id !== 'string' ||
     typeof key !== 'string' ||
@@ -111,24 +124,25 @@ function parseOpen(value: unknown): OpenMatch | null {
     !isCount(resumes) ||
     !isCount(turns) ||
     !isCount(lastWall) ||
+    !isCount(rejectedEvents) ||
     typeof closed !== 'boolean'
   ) {
     return null;
   }
-  return { id, key, activeMs, rejected, resumes, turns, lastWall, closed };
+  return { id, key, activeMs, rejected, resumes, turns, lastWall, rejectedEvents, closed };
 }
 
 /** The stored record; a missing or unreadable one is a fresh record (the event guard still checks every id). */
 export function parsePlayRecord(text: string | null): PlayRecord {
-  if (text === null) return { started: 0, open: null };
+  if (text === null) return { open: null };
   try {
     const parsed = JSON.parse(text) as unknown;
-    if (typeof parsed !== 'object' || parsed === null) return { started: 0, open: null };
-    const { v, started, open } = parsed as Record<string, unknown>;
-    if (v !== 1 || !isCount(started)) return { started: 0, open: null };
-    return { started, open: parseOpen(open) };
+    if (typeof parsed !== 'object' || parsed === null) return { open: null };
+    const { v, open } = parsed as Record<string, unknown>;
+    if (v !== 1) return { open: null };
+    return { open: parseOpen(open) };
   } catch {
-    return { started: 0, open: null };
+    return { open: null };
   }
 }
 
@@ -234,14 +248,49 @@ export class MatchTelemetry {
   /** The next bot decision recomputes one lost with the previous process (AC-11). */
   private recompute = false;
   private lastFinishedId: string | null = null;
+  /** When the Summary of `lastFinishedId` was first shown (a remount keeps it). */
   private summaryShownAt: number | null = null;
+  /** The recorder's consent generation the memory state belongs to. */
+  private generation: number;
+  /** Capped rejections not written yet: the next move writes them. */
+  private unsaved = false;
+  /** `replaced()` found an open match record just before `started()` (`is_first_match`). */
+  private replacedOpen = false;
+  /** A match was started on this process under the current consent (`is_first_match`). */
+  private startedHere = false;
 
   constructor(
     private readonly host: TelemetryHost,
     private readonly lexicon: LexiconIndex,
-  ) {}
+  ) {
+    this.generation = host.consentGeneration();
+  }
 
   readonly now = (): number => this.host.monoNow();
+
+  /**
+   * Consent may have changed (the session calls this on every recorder change; every entry point checks too). Off
+   * then on is a new pseudonym: the cached record, the last Summary and the clocks' banks are dropped, and the
+   * running intervals restart now.
+   */
+  sync(): void {
+    const generation = this.host.consentGeneration();
+    if (generation === this.generation) return;
+    this.generation = generation;
+    const at = this.now();
+    this.record = null;
+    this.lastFinishedId = null;
+    this.summaryShownAt = null;
+    this.recompute = false;
+    this.unsaved = false;
+    this.replacedOpen = false;
+    this.startedHere = false;
+    this.activeBank = 0;
+    this.turnBank = 0;
+    this.rejectedThisTurn = 0;
+    this.segmentSince = this.live && this.foreground ? at : null;
+    this.turnSince = this.playerTurn && this.foreground ? at : null;
+  }
 
   /** PLAY NOW, Play again, New match, Start a new match: the previous match (if open) is abandoned first. */
   replaced(previous: MatchModel | null): void {
@@ -249,6 +298,7 @@ export class MatchTelemetry {
     if (!this.on()) return;
     const record = this.load();
     const open = record.open;
+    this.replacedOpen = open !== null;
     if (open !== null && !open.closed) {
       this.bankInto(open);
       this.host.emit({
@@ -267,20 +317,30 @@ export class MatchTelemetry {
     }
   }
 
-  /** A new match was created. `hadHistory`: a finished match is already on this device (legacy installs). */
+  /**
+   * A new match was created (right after `replaced`). `hadHistory`: a finished match is already on this device. The
+   * first match: no finished match on the device, no open match record before it (an open record is cleared only by
+   * the match's end, which leaves history, or by its replacement) and no match started earlier on this process under
+   * the current consent. Nothing is kept on the device between matches for this.
+   */
   started(model: MatchModel, hadHistory: () => boolean): void {
     const at = this.now();
+    this.sync();
     this.activeBank = 0;
     this.lastFinishedId = null;
+    this.summaryShownAt = null;
     this.recompute = false;
+    this.unsaved = false;
     this.goLive(model, at);
+    const replacedOpen = this.replacedOpen;
+    this.replacedOpen = false;
     if (!this.on()) return;
     const record = this.load();
     const { state } = model;
     const personality = personalityOf(PLAY_BOT);
     const open = this.fresh(keyOf(state));
-    const isFirst = record.started === 0 && !hadHistory();
-    record.started += 1;
+    const isFirst = !replacedOpen && !this.startedHere && record.open === null && !hadHistory();
+    this.startedHere = true;
     record.open = open;
     this.save();
     if (personality === null) return;
@@ -300,16 +360,24 @@ export class MatchTelemetry {
     });
   }
 
-  /** The saved match was read at start (cold start, after the first render). */
-  restored(saved: ColdRestore, restoreMs: number): void {
+  /**
+   * The saved match was read at start (cold start, after the first render). `lastFinished`: the last finished match
+   * on the device (`last.log`), read only when a record is left over with nothing to resume.
+   */
+  restored(saved: ColdRestore, restoreMs: number, lastFinished: () => MatchModel | null): void {
     if (!this.on()) return;
     const record = this.load();
     if (saved.kind === 'none') {
-      // Nothing to resume (or a match finished by `openSavedMatch` itself): a leftover record is stale.
-      if (record.open !== null) {
-        record.open = null;
-        this.save();
-      }
+      const open = record.open;
+      if (open === null) return;
+      // A kill right after the final move (saved, and rotated by now, before its analytics ran): its end is reported
+      // now, from the last finished match, once. Any other leftover record is stale.
+      const last = open.closed ? null : lastFinished();
+      const props =
+        last !== null && keyOf(last.state) === open.key ? finishedProperties(last, open) : null;
+      record.open = null;
+      this.save();
+      if (props !== null) this.host.emit({ event: 'bot_match_finished', properties: props });
       return;
     }
     const wall = this.host.wallNow();
@@ -317,6 +385,7 @@ export class MatchTelemetry {
       const key = keyOf(saved.model.state);
       const adopted = record.open?.key !== key;
       const open = this.ensureOpen(key);
+      const away = adopted ? 0 : ms(wall - open.lastWall);
       open.resumes += 1;
       open.turns = saved.model.state.turnNumber;
       this.save();
@@ -325,7 +394,7 @@ export class MatchTelemetry {
         properties: {
           local_match_id: open.id,
           resume_source: 'cold_start',
-          away_ms: adopted ? 0 : ms(wall - open.lastWall),
+          away_ms: away,
           restore_ms: ms(restoreMs),
           restore_path: saved.path,
         },
@@ -361,8 +430,10 @@ export class MatchTelemetry {
 
   /** The player resumed the saved match (PLAY NOW on the resume card). */
   resumedSaved(model: MatchModel): void {
+    this.sync();
     this.activeBank = 0;
     this.lastFinishedId = null;
+    this.summaryShownAt = null;
     this.recompute = model.state.status === 'in_progress' && model.state.seatOnTurn === BOT_SEAT;
     this.goLive(model, this.now());
   }
@@ -372,6 +443,7 @@ export class MatchTelemetry {
    * the move was rendered.
    */
   transition(previous: MatchModel, next: MatchModel, command: MatchCommand, at: number): void {
+    this.sync();
     const drawnAt = this.now();
     if (next.actions.length > previous.actions.length) {
       this.applied(previous, next, command, at, drawnAt);
@@ -382,6 +454,7 @@ export class MatchTelemetry {
 
   /** `AppState` moved (the session subscribes). `liveModel`: the session's open match, if any. */
   appState(next: string, liveModel: MatchModel | null): void {
+    this.sync();
     const at = this.now();
     if (next === 'background' && this.foreground) {
       this.foreground = false;
@@ -392,6 +465,7 @@ export class MatchTelemetry {
       this.bankInto(open);
       open.lastWall = this.host.wallNow();
       open.turns = liveModel.state.turnNumber;
+      this.unsaved = false;
       this.save();
     } else if (next === 'active' && !this.foreground) {
       this.foreground = true;
@@ -402,6 +476,7 @@ export class MatchTelemetry {
       if (!this.on() || liveModel === null || !this.live) return;
       const open = this.ensureOpen(keyOf(liveModel.state));
       open.resumes += 1;
+      this.unsaved = false;
       this.save();
       this.host.emit({
         event: 'bot_match_resumed',
@@ -416,13 +491,15 @@ export class MatchTelemetry {
     }
   }
 
-  /** The Summary of the match that just finished is on screen. */
+  /** The Summary of the match that just finished is on screen; a remount keeps the first time. */
   summaryShown(): void {
-    this.summaryShownAt = this.now();
+    this.sync();
+    this.summaryShownAt ??= this.now();
   }
 
   /** An action tapped on the Summary. */
   summaryAction(action: SummaryAction): void {
+    this.sync();
     const id = this.lastFinishedId;
     if (id === null || !this.on()) return;
     const shown = this.summaryShownAt;
@@ -457,7 +534,8 @@ export class MatchTelemetry {
     let botMs = 0;
     if (command.type === 'bot_decided' && command.result.ok) {
       const timing = command.timing;
-      botMs = timing === undefined ? 0 : ms(timing.resolvedAt - timing.requestedAt);
+      // Compute: from the start of the search (after the frame wait and the work queued before it) to its result.
+      botMs = timing === undefined ? 0 : ms(timing.resolvedAt - timing.startedAt);
       const total = timing === undefined ? 0 : ms(drawnAt - timing.requestedAt);
       this.decision(open.id, previous.state, command.result.value, botMs, total);
     }
@@ -473,14 +551,24 @@ export class MatchTelemetry {
       );
       if (props !== null) this.host.emit({ event: 'bot_word_played', properties: props });
     }
-    this.host.onboardingStep('first_move');
-    if (!finished) return;
+    const added = next.actions.slice(previous.actions.length);
+    if (added.some((a) => a.seat === HUMAN_SEAT)) this.host.onboardingStep('first_move');
+    if (!finished) {
+      // Capped rejections of the turn just played are written with this move (no write per capped tap).
+      if (this.unsaved) {
+        this.unsaved = false;
+        this.save();
+      }
+      return;
+    }
     this.bankInto(open);
     const props = finishedProperties(next, open);
     const record = this.load();
     record.open = null;
+    this.unsaved = false;
     this.save();
     this.lastFinishedId = open.id;
+    this.summaryShownAt = null;
     if (props !== null) this.host.emit({ event: 'bot_match_finished', properties: props });
     this.host.onboardingStep('first_match_completed');
   }
@@ -559,9 +647,18 @@ export class MatchTelemetry {
     if (!this.on()) return;
     const open = this.ensureOpen(keyOf(next.state));
     open.rejected += 1;
-    this.save();
     this.rejectedThisTurn += 1;
-    if (this.rejectedThisTurn > MAX_REJECTED_EVENTS_PER_TURN) return;
+    if (
+      this.rejectedThisTurn > MAX_REJECTED_EVENTS_PER_TURN ||
+      open.rejectedEvents >= MAX_REJECTED_EVENTS_PER_MATCH
+    ) {
+      // Counted in memory; written with the next move, background or end.
+      this.unsaved = true;
+      return;
+    }
+    open.rejectedEvents += 1;
+    this.unsaved = false;
+    this.save();
     const main = livePreview(next)?.words.find((w) => w.main);
     const length = main?.form.length ?? next.pending.length;
     this.host.emit({
@@ -622,6 +719,7 @@ export class MatchTelemetry {
   }
 
   private on(): boolean {
+    this.sync();
     if (this.host.isRecording()) return true;
     // Consent off purges the record file: forget the copy in memory too.
     this.record = null;
@@ -641,11 +739,13 @@ export class MatchTelemetry {
     }
   }
 
+  /** Writes the record, or deletes the file when no match is open (nothing is kept between matches). */
   private save(): void {
     const record = this.record;
     if (record === null) return;
     try {
-      this.host.writePlayRecord(JSON.stringify({ v: 1, ...record }));
+      if (record.open === null) this.host.removePlayRecord();
+      else this.host.writePlayRecord(JSON.stringify({ v: 1, open: record.open }));
     } catch {
       // Low storage: the memory copy wins for this process.
     }
@@ -660,6 +760,7 @@ export class MatchTelemetry {
       resumes: 0,
       turns: 0,
       lastWall: this.host.wallNow(),
+      rejectedEvents: 0,
       closed: false,
     };
   }

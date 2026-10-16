@@ -34,6 +34,7 @@ import { FILES } from '../persistence/match-journal';
 import {
   finishMatch,
   openSavedMatch,
+  readLastFinished,
   persistTransition,
   snapshotOnBackground,
   type SavedMatch,
@@ -155,7 +156,7 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       const opened = openSavedMatch(persistence, ctx);
       const restoreMs = (telemetry?.now() ?? 0) - before;
       later((t) => {
-        t.restored(opened, restoreMs);
+        t.restored(opened, restoreMs, () => readLastFinished(persistence, ctx));
       });
       setSaved(opened);
     }, 0);
@@ -163,6 +164,14 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
       clearTimeout(timer);
     };
   }, [persistence, ctx, telemetry, later]);
+
+  // EV: consent off then on drops what the telemetry holds from the withdrawn pseudonym, at once.
+  useEffect(() => {
+    if (telemetry === null || analytics === null) return;
+    return analytics.subscribe(() => {
+      telemetry.sync();
+    });
+  }, [analytics, telemetry]);
 
   // EV: background and foreground moves (active time, think time, `bot_match_resumed` from the background).
   useEffect(() => {

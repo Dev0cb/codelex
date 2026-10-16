@@ -15,7 +15,15 @@ import { MATCH_LOG_GUARD_FILE } from '../match-log/match-log-file';
 import type { MatchModel } from '../match/match-model';
 import { HUMAN_SEAT } from '../match/play-config';
 import { DataStore, TMP_SUFFIX, type FsPrimitives } from './data-store';
-import { FILES, MatchJournal, readSnapshot, readStoredLog, SNAPSHOT_EVERY } from './match-journal';
+import {
+  FILES,
+  LOG_MAX_BYTES,
+  MatchJournal,
+  readSnapshot,
+  readStoredLog,
+  SNAPSHOT_EVERY,
+  storedLog,
+} from './match-journal';
 import { restoreMatch, type Divergence, type RestorePath } from './resume';
 import { TERMS_FILE, TermsSeen } from './terms-seen';
 
@@ -160,6 +168,25 @@ export function openSavedMatch(persistence: Persistence, ctx: EngineContext): Sa
     store.remove(GUARD_FILE);
   });
   return saved;
+}
+
+/**
+ * The last finished match (`last.log`), replayed; null when there is none or it cannot be read. Analytics only: a
+ * match whose end was saved but not yet reported when the process died (`match/match-telemetry.ts`). Never throws.
+ */
+export function readLastFinished(persistence: Persistence, ctx: EngineContext): MatchModel | null {
+  try {
+    const restored = restoreMatch(
+      storedLog(persistence.store.read(FILES.last, LOG_MAX_BYTES)),
+      null,
+      ctx,
+    );
+    return restored.kind === 'restored' && restored.model.state.status === 'finished'
+      ? restored.model
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export type PersistOutcome = 'unchanged' | 'saved' | 'failed';

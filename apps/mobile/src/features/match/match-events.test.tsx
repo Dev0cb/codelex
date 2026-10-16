@@ -15,7 +15,7 @@ import { BOT_VERSION, type BotDecision } from '@codelex/bots';
 import { apply, type Action, type MatchState, type SeedHex } from '@codelex/game-engine';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
 import type { JSX } from 'react';
 import { AccessibilityInfo, AppState, type AppStateStatus } from 'react-native';
@@ -40,6 +40,7 @@ import {
   loadBundledLexicon,
   newPlayState,
   scriptedAction,
+  seedWhereFirst,
 } from '../../match/test-support';
 import { MatchServicesContext, type MatchServices } from '../../match/use-match';
 import { DataStore } from '../../persistence/data-store';
@@ -122,16 +123,24 @@ function enrolled(fs: MemoryFs, clock: Clock, enabled = true): PlaytestAnalytics
   return recorder(fs, clock, enabled);
 }
 
-/** The bot: real decisions, recorded; each one costs {@link COMPUTE_MS} on the clock; optionally held. */
-function botRunner(clock: Clock, gated = false) {
+/**
+ * The bot: real decisions, recorded; each one costs {@link COMPUTE_MS} on the clock; optionally held. `frameMs`: what
+ * the wait for the next frame costs on the clock before the search starts (not compute time).
+ */
+function botRunner(clock: Clock, gated = false, frameMs = 0) {
   const decisions: BotDecision[] = [];
   const waiting: (() => void)[] = [];
-  const inner = createJsThreadBotRunner(lexicon.index, { nextFrame: () => Promise.resolve() });
+  const inner = createJsThreadBotRunner(lexicon.index, {
+    nextFrame: () => {
+      clock.mono += frameMs;
+      return Promise.resolve();
+    },
+  });
   const runner: BotRunner = {
-    async decide(request) {
+    async decide(request, onStart) {
       if (gated) await new Promise<void>((resolve) => waiting.push(resolve));
       // After the next frame, as the device runner computes (the previous move is drawn by then).
-      const result = await inner.decide(request);
+      const result = await inner.decide(request, onStart);
       clock.mono += COMPUTE_MS;
       if (result.ok) decisions.push(result.value);
       return result;
@@ -153,13 +162,22 @@ interface Setup {
   readonly runner: BotRunner;
   readonly disk?: MemoryFs;
   readonly enabled?: boolean;
+  /** The bot's presentation delay (D-29); 0 by default. */
+  readonly thinkDelayMs?: number;
 }
 
-async function renderApp({ analytics, seed, runner, disk, enabled = true }: Setup) {
+async function renderApp({
+  analytics,
+  seed,
+  runner,
+  disk,
+  enabled = true,
+  thinkDelayMs = 0,
+}: Setup) {
   const services: MatchServices = {
     newSeed: () => seed,
     createBotRunner: () => runner,
-    thinkDelayMs: () => 0,
+    thinkDelayMs: () => thinkDelayMs,
     shuffleRandom: () => 0,
     ...(disk === undefined ? {} : { persistence: () => createPersistence(disk) }),
   };
@@ -213,6 +231,13 @@ function queued(analytics: PlaytestAnalytics): AnalyticsEvent[] {
   if (!prepared.ok) return [];
   const { events } = JSON.parse(prepared.file.text) as { events: AnalyticsEvent[] };
   return events.filter((e) => e.session_id === sessions.get(analytics));
+}
+
+/** Every event the install's queue holds, whichever process queued it. */
+function allQueued(analytics: PlaytestAnalytics): AnalyticsEvent[] {
+  const prepared = analytics.prepareExport('1');
+  if (!prepared.ok) return [];
+  return (JSON.parse(prepared.file.text) as { events: AnalyticsEvent[] }).events;
 }
 
 function propsOf<N extends EventName>(analytics: PlaytestAnalytics, name: N): EventProperties<N>[] {
@@ -650,6 +675,12 @@ describe('bot_match_resumed', () => {
     clock.wall += 60_000;
     await moveAppTo('active');
     clock.mono += 2000;
+    // A second trip to the background in the same match.
+    await moveAppTo('background');
+    clock.mono += 30_000;
+    clock.wall += 30_000;
+    await moveAppTo('active');
+    clock.mono += 1000;
     await resignThroughUi();
     await screen.findByTestId('summary.home');
     const id = propsOf(analytics, 'bot_match_started')[0]?.local_match_id;
@@ -661,12 +692,84 @@ describe('bot_match_resumed', () => {
         restore_ms: 0,
         restore_path: 'in_memory',
       },
+      {
+        local_match_id: id,
+        resume_source: 'background',
+        away_ms: 30_000,
+        restore_ms: 0,
+        restore_path: 'in_memory',
+      },
     ]);
     expect(propsOf(analytics, 'bot_match_finished')[0]).toMatchObject({
       local_match_id: id,
-      active_duration_ms: 5000,
-      resume_count: 1,
+      active_duration_ms: 6000,
+      resume_count: 2,
     });
+
+    // The Summary is mounted again (a second /match on the stack): its time counts from the first time it was shown.
+    clock.mono += 1000;
+    await act(async () => {
+      router.push('/match');
+      await Promise.resolve();
+    });
+    await waitFor(() => {
+      expect(screen.getAllByTestId('summary.home').length).toBeGreaterThan(0);
+    });
+    clock.mono += 3000;
+    const home = screen.getAllByTestId('summary.home').at(-1);
+    if (home === undefined) throw new Error('no Summary');
+    await fireEvent.press(home);
+    await screen.findByTestId('home.playNow');
+    expect(propsOf(analytics, 'match_summary_action')).toEqual([
+      { local_match_id: id, action: 'home', ms_on_summary: 4000 },
+    ]);
+  }, 120_000);
+
+  it('after a crash, counts the cold-start away time from the last background or start (an upper bound)', async () => {
+    const clock = { wall: T0, mono: 0 };
+    const disk = new MemoryFs();
+    const fs = new MemoryFs();
+    const seed = humanStarts(lexicon, 1521);
+    const process1 = enrolled(fs, clock);
+    const bot = botRunner(clock);
+    const first = await renderApp({ analytics: process1, seed, runner: bot.runner, disk });
+    await pressPlayNow();
+    clock.wall += 5 * 60_000;
+    let replica = (await playerMove(clock, newPlayState(seed, lexicon))).after;
+    replica = (await botMove(bot, replica)).after;
+    await waitForPlayerTurn();
+    clock.wall += 60_000;
+    // A rejected PLAY (one tile away from every word) writes the record; only a background moves its time.
+    const [tile] = screen.getAllByLabelText(/^Rack, tile 1 of \d+: /);
+    if (tile === undefined) throw new Error('no rack');
+    await fireEvent.press(tile);
+    await fireEvent.press(screen.getByLabelText(/, row 1 column 1, empty$/));
+    await fireEvent.press(screen.getByTestId('match.action.play'));
+    expect(propsOf(process1, 'word_rejected')).toHaveLength(1);
+    const id = propsOf(process1, 'bot_match_started')[0]?.local_match_id;
+    // The process crashes (no background); the player opens the app 10 minutes later.
+    await first.unmount();
+    clock.wall += 10 * 60_000;
+    clock.mono = 0;
+    const process2 = recorder(fs.reboot(), clock);
+    await renderApp({
+      analytics: process2,
+      seed,
+      runner: botRunner(clock).runner,
+      disk: disk.reboot(),
+    });
+    await screen.findByTestId('home.resume');
+    // Away since the start (no background before the crash): the 6 minutes played count as away.
+    expect(propsOf(process2, 'bot_match_resumed')).toEqual([
+      expect.objectContaining({
+        local_match_id: id,
+        resume_source: 'cold_start',
+        away_ms: 16 * 60_000,
+      }),
+    ]);
+    // The record holds the start time, not a time per move.
+    expect(new TextDecoder().decode(fs.files.get(PLAY_FILE))).toContain(`"lastWall":${String(T0)}`);
+    expect(replica.turnNumber).toBe(2);
   }, 120_000);
 
   it('reports a cold start: same id, away time, restore path, recomputed bot decision', async () => {
@@ -783,6 +886,61 @@ describe('bot_match_resumed', () => {
     expect(gameplay(process3).map((e) => e.event)).toEqual(['bot_match_started']);
   }, 180_000);
 
+  it('reports a match finished just before a kill at the next cold start, once', async () => {
+    const clock = { wall: T0, mono: 0 };
+    const disk = new MemoryFs();
+    const fs = new MemoryFs();
+    const seed = humanStarts(lexicon, 1511);
+    const process1 = enrolled(fs, clock);
+    const first = await renderApp({
+      analytics: process1,
+      seed,
+      runner: botRunner(clock).runner,
+      disk,
+    });
+    await pressPlayNow();
+    await waitForPlayerTurn();
+    const id = propsOf(process1, 'bot_match_started')[0]?.local_match_id;
+    // The analytics files as the kill leaves them: the final move was saved, its analytics never ran.
+    const atKill = fs.reboot();
+    await resignThroughUi();
+    await screen.findByTestId('summary.home');
+    await first.unmount();
+
+    const process2 = recorder(atKill, clock);
+    const disk2 = disk.reboot();
+    const second = await renderApp({
+      analytics: process2,
+      seed,
+      runner: botRunner(clock).runner,
+      disk: disk2,
+    });
+    await waitFor(() => {
+      expect(propsOf(process2, 'bot_match_finished')).toHaveLength(1);
+    });
+    expect(gameplay(process2).map((e) => e.event)).toEqual(['bot_match_finished']);
+    expect(propsOf(process2, 'bot_match_finished')[0]).toMatchObject({
+      local_match_id: id,
+      result: 'loss',
+      end_reason: 'resign',
+      turns: 0,
+      resume_count: 0,
+    });
+    // The match record is gone with the match.
+    expect(atKill.files.has(PLAY_FILE)).toBe(false);
+    await second.unmount();
+
+    const process3 = recorder(atKill.reboot(), clock);
+    await renderApp({
+      analytics: process3,
+      seed,
+      runner: botRunner(clock).runner,
+      disk: disk2.reboot(),
+    });
+    await screen.findByTestId('home.playNow');
+    expect(gameplay(process3)).toEqual([]);
+  }, 120_000);
+
   it('reports a version mismatch with a new id when no record exists', async () => {
     const clock = { wall: T0, mono: 0 };
     const seed = humanStarts(lexicon, 1461);
@@ -827,9 +985,39 @@ describe('onboarding_step_completed', () => {
       { step: 'first_move', duration_ms: THINK_MS },
       { step: 'first_match_completed', duration_ms: COMPUTE_MS + 500 },
     ]);
+    // Hand-written from the lexicon: MAPS, plural of "map" (programming), with the term bonus.
+    expect(propsOf(analytics, 'bot_word_played')[0]).toEqual({
+      local_match_id: propsOf(analytics, 'bot_match_started')[0]?.local_match_id,
+      actor: 'player',
+      term_id: 'map',
+      form_kind: 'plural',
+      category: 'programming',
+      difficulty: 'intermediate',
+      points: 18,
+      bonus_flags: ['term'],
+      think_ms: THINK_MS,
+      turn: 0,
+    });
     // The first event of the install is first_launch.
     expect(queued(analytics)[0]?.event).toBe('onboarding_step_completed');
     expect(fs.files.has(ONBOARDING_FILE)).toBe(true);
+  }, 120_000);
+
+  it('records first_move on the player first applied action, not on the bot opening move', async () => {
+    const clock = { wall: T0, mono: 0 };
+    const analytics = recorder(new MemoryFs(), clock);
+    const bot = botRunner(clock);
+    const seed = seedWhereFirst(BOT_SEAT, lexicon, 1601);
+    await renderApp({ analytics, seed, runner: bot.runner });
+    await pressPlayNow();
+    expect(propsOf(analytics, 'bot_match_started')[0]?.first_player).toBe('bot');
+    let replica = newPlayState(seed, lexicon);
+    replica = (await botMove(bot, replica)).after;
+    await waitForPlayerTurn();
+    const steps = () => propsOf(analytics, 'onboarding_step_completed').map((p) => p.step);
+    expect(steps()).toEqual(['first_launch', 'home_seen', 'play_now_tapped']);
+    await playerMove(clock, replica);
+    expect(steps()).toEqual(['first_launch', 'home_seen', 'play_now_tapped', 'first_move']);
   }, 120_000);
 
   it('has no first-time flow on an install that enrolled before', async () => {
@@ -877,10 +1065,139 @@ describe('nothing without recording', () => {
     analytics.start();
     expect(analytics.setConsent(false)).toBe(true);
     await playAndResign(analytics, true, clock);
-    expect(analytics.setConsent(true)).toBe(true);
+    await act(async () => {
+      expect(analytics.setConsent(true)).toBe(true);
+      await Promise.resolve();
+    });
     expect(gameplay(analytics)).toEqual([]);
     expect(fs.files.has(PLAY_FILE)).toBe(false);
     expect(fs.files.has(ONBOARDING_FILE)).toBe(false);
+  }, 120_000);
+});
+
+describe('consent withdrawn and given again mid-match', () => {
+  it('carries nothing of the withdrawn pseudonym into the new one', async () => {
+    const clock = { wall: T0, mono: 0 };
+    const fs = new MemoryFs();
+    const analytics = enrolled(fs, clock);
+    const bot = botRunner(clock);
+    const seed = humanStarts(lexicon, 1501);
+    await renderApp({ analytics, seed, runner: bot.runner });
+    await pressPlayNow();
+    let replica = newPlayState(seed, lexicon);
+    replica = (await playerMove(clock, replica)).after;
+    replica = (await botMove(bot, replica)).after;
+    await waitForPlayerTurn();
+    await moveAppTo('background');
+    await moveAppTo('active');
+    clock.mono += 3000;
+    const old = propsOf(analytics, 'bot_match_started')[0]?.local_match_id ?? 'none';
+    // Off then on with no move in between (Settings, same process).
+    await act(async () => {
+      expect(analytics.setConsent(false)).toBe(true);
+      expect(analytics.setConsent(true)).toBe(true);
+      await Promise.resolve();
+    });
+    clock.mono += 500;
+    await resignThroughUi();
+    await fireEvent.press(await screen.findByTestId('summary.playAgain'));
+    await screen.findByTestId('match.status');
+
+    const events = allQueued(analytics);
+    expect(JSON.stringify(events)).not.toContain(old);
+    const of = <N extends EventName>(name: N) =>
+      events.filter((e) => e.event === name).map((e) => e.properties as EventProperties<N>);
+    const [finished, ...more] = of('bot_match_finished');
+    expect(more).toEqual([]);
+    expect(finished).toMatchObject({
+      local_match_id: expect.stringMatching(UUID),
+      end_reason: 'resign',
+      turns: replica.turnNumber,
+      rejected_attempts: 0,
+      resume_count: 0,
+      active_duration_ms: 500,
+    });
+    const id = finished?.local_match_id;
+    expect(of('match_summary_action')).toEqual([
+      { local_match_id: id, action: 'play_again', ms_on_summary: 0 },
+    ]);
+    // The next match is the first one recorded under the new install id (no match history without persistence).
+    const [started] = of('bot_match_started');
+    expect(started?.is_first_match).toBe(true);
+    expect([old, id]).not.toContain(started?.local_match_id);
+    const record = new TextDecoder().decode(fs.files.get(PLAY_FILE));
+    expect(record).toContain(started?.local_match_id);
+    expect(record).not.toContain(old);
+  }, 120_000);
+});
+
+describe('bot timing (bot_decision_made buckets)', () => {
+  it('times the search from its start: the frame wait and the player move telemetry are not compute', async () => {
+    const clock = { wall: T0, mono: 0 };
+    // Every analytics write costs 400 ms on the clock: the player's move telemetry runs after the bot request.
+    const fs = new MemoryFs();
+    const write = fs.write.bind(fs);
+    const append = fs.append.bind(fs);
+    fs.write = (name, bytes) => {
+      clock.mono += 400;
+      write(name, bytes);
+    };
+    fs.append = (name, bytes) => {
+      clock.mono += 400;
+      append(name, bytes);
+    };
+    const analytics = enrolled(fs, clock);
+    const bot = botRunner(clock, false, 500);
+    const seed = humanStarts(lexicon, 1471);
+    await renderApp({ analytics, seed, runner: bot.runner });
+    await pressPlayNow();
+    const replica = (await playerMove(clock, newPlayState(seed, lexicon))).after;
+    await botMove(bot, replica);
+    const [decision] = propsOf(analytics, 'bot_decision_made');
+    expect(decision?.compute_ms_bucket).toBe('500_1000');
+    // The wait the player sees includes all of it.
+    expect(['lt_250', '250_500', '500_1000']).not.toContain(decision?.total_ms_bucket);
+  }, 120_000);
+
+  it('includes the think delay in total_ms, not in compute_ms', async () => {
+    const THINK_DELAY_MS = 1600;
+    // This test's clock follows real time (the think delay is a real timer); the search itself adds nothing.
+    const origin = Date.now();
+    const clock = {
+      wall: T0,
+      offset: 0,
+      get mono(): number {
+        return this.offset + (Date.now() - origin);
+      },
+      set mono(value: number) {
+        this.offset = value - (Date.now() - origin);
+      },
+    };
+    const decisions: BotDecision[] = [];
+    const inner = createJsThreadBotRunner(lexicon.index, { nextFrame: () => Promise.resolve() });
+    const runner: BotRunner = {
+      async decide(request, onStart) {
+        const result = await inner.decide(request, onStart);
+        if (result.ok) decisions.push(result.value);
+        return result;
+      },
+    };
+    const analytics = enrolled(new MemoryFs(), clock);
+    const seed = humanStarts(lexicon, 1471);
+    await renderApp({ analytics, seed, runner, thinkDelayMs: THINK_DELAY_MS });
+    await pressPlayNow();
+    await playerMove(clock, newPlayState(seed, lexicon));
+    await waitFor(
+      () => {
+        expect(propsOf(analytics, 'bot_decision_made')).toHaveLength(1);
+      },
+      { timeout: 10_000 },
+    );
+    const [decision] = propsOf(analytics, 'bot_decision_made');
+    // The search is far shorter than the delay; the player waited for the delay (bucket 1500-2000 ms).
+    expect(['lt_250', '250_500', '500_1000']).toContain(decision?.compute_ms_bucket);
+    expect(decision?.total_ms_bucket).toBe('1500_2000');
+    expect(decisions).toHaveLength(1);
   }, 120_000);
 });
 

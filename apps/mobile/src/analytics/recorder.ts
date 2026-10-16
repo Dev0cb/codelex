@@ -236,6 +236,8 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
   private survey: SurveyState | null = null;
   /** Confirmed exports this process (snapshot `exports`). */
   private exports = 0;
+  /** Purges done by this process (`consentGeneration`). */
+  private purges = 0;
   /** Onboarding steps done; null = no first-time flow on this install; undefined = not read yet. */
   private onboarding: Set<string> | null | undefined = undefined;
   /** Monotonic time of the last onboarding step of this process (`duration_ms`). */
@@ -669,6 +671,19 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
     });
   }
 
+  /** No match open: the record file goes (nothing is kept between matches). */
+  removePlayRecord(): void {
+    if (!this.recording()) return;
+    this.attempt(() => {
+      this.platform.fs.remove(PLAY_FILE);
+    });
+  }
+
+  /** Incremented by every purge (consent off): the telemetry drops what it holds from the withdrawn pseudonym. */
+  consentGeneration(): number {
+    return this.purges;
+  }
+
   /**
    * A first-time-user step happened (design §11). Recorded once per install, only on an install whose first launch
    * was recorded (an install that played before this build, or enrolled with consent off, has no first-time flow).
@@ -779,6 +794,7 @@ export class PlaytestAnalytics implements AnalyticsEmitter {
    * retried by the start-up sweep (`ShareSweep`).
    */
   private purgeFiles(): boolean {
+    this.purges += 1;
     const queueGone = this.queue.purge();
     const names = [
       INSTALL_ID_FILE,
