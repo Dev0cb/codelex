@@ -7,9 +7,10 @@
  * Prints the text readout to stdout (or writes it with --text). Exit codes: 0 ok, 1 a file was rejected (unless
  * --allow-invalid), 2 usage or roster error.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, statSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
+import { PLAYTEST_EXPORT_MAX_BYTES } from "../../apps/mobile/src/export/playtest-data.ts";
 import { computeReadout } from "./exit-kpi.mjs";
 import { renderText } from "./render.mjs";
 
@@ -40,7 +41,11 @@ export function main(argv) {
   }
   let readout;
   try {
-    const files = args.files.map((p) => ({ text: readFileSync(p, "utf8") }));
+    // Fail fast: a file above the decoder's size cap is reported as TOO_LARGE without being read.
+    const files = args.files.map((p) => {
+      const bytes = statSync(p).size;
+      return bytes > PLAYTEST_EXPORT_MAX_BYTES ? { text: "", tooLargeBytes: bytes } : { text: readFileSync(p, "utf8") };
+    });
     const rosterText = args.roster === undefined ? undefined : readFileSync(args.roster, "utf8");
     readout = computeReadout({ files, rosterText });
   } catch (e) {

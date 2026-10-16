@@ -15,7 +15,7 @@
  * - Crash: `app_opened.previous_exit_unclean = true` on a cold start (S6a session marker). Nothing else. A session
  *   containing a crash is crashed, and a relaunch within 30 min continues it.
  */
-import { decodePlaytestExport } from "../../apps/mobile/src/export/playtest-data.ts";
+import { decodePlaytestExport, PLAYTEST_EXPORT_MAX_BYTES } from "../../apps/mobile/src/export/playtest-data.ts";
 
 export const READOUT_SCHEMA = "codelex.exit_kpi_readout";
 export const READOUT_VERSION = 1;
@@ -186,7 +186,7 @@ export function reconstructSessions(events) {
 // --- readout --------------------------------------------------------------------------------------------------------
 
 /**
- * @param {{ files: { text: string }[], rosterText?: string }} input  `files` in argument order
+ * @param {{ files: { text: string, tooLargeBytes?: number }[], rosterText?: string }} input  `files` in argument order
  * @returns the readout object (JSON-serialisable, deterministic, no raw install or tester ids)
  */
 export function computeReadout({ files, rosterText }) {
@@ -206,7 +206,11 @@ export function computeReadout({ files, rosterText }) {
   // 1. Decode.
   const decoded = [];
   files.forEach((f, i) => {
-    const r = decodePlaytestExport(f.text);
+    // The CLI sets `tooLargeBytes` after a size check, so an oversized file is never read into memory.
+    const r =
+      f.tooLargeBytes === undefined
+        ? decodePlaytestExport(f.text)
+        : { ok: false, error: { code: "TOO_LARGE", bytes: f.tooLargeBytes, maxBytes: PLAYTEST_EXPORT_MAX_BYTES } };
     if (!r.ok) {
       quality.filesInvalid.push({
         index: i + 1,

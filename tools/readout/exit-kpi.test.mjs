@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
+import { PLAYTEST_EXPORT_MAX_BYTES } from "../../apps/mobile/src/export/playtest-data.ts";
 import { main, parseArgs } from "./cli.mjs";
 import { computeReadout, parseRoster, quantile, reconstructSessions, summarise, wilson } from "./exit-kpi.mjs";
 import { Device, exportFile, makeRng, stage0Dataset, uuidV4 } from "./fixtures.mjs";
@@ -378,6 +379,35 @@ test("malformed files are rejected with a clear error and the CLI refuses unless
     }
     assert.match(log.join(""), /file #2: INVALID \(<root>: invalid_json\)/);
     assert.match(log.join(""), /1 file\(s\) rejected/);
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
+
+test("CLI checks the file size before reading: a file above the decoder cap is rejected as TOO_LARGE without being read", () => {
+  const dir = mkdtempSync(join(tmpdir(), "readout-"));
+  try {
+    const big = join(dir, "big.json");
+    writeFileSync(big, " ".repeat(PLAYTEST_EXPORT_MAX_BYTES + 1));
+    const ok = join(dir, "ok.json");
+    const d = new Device({ rng: rng() });
+    d.open(false).match(MIN).background();
+    writeFileSync(ok, exportFile(d, { exportedAt: day(1) }));
+    const log = [];
+    const origOut = process.stdout.write;
+    const origErr = console.error;
+    process.stdout.write = (chunk) => (log.push(String(chunk)), true);
+    console.error = (...a) => log.push(a.join(" "));
+    try {
+      assert.equal(main(["--allow-invalid", ok, big]), 0);
+      assert.equal(main([ok, big]), 1);
+    } finally {
+      process.stdout.write = origOut;
+      console.error = origErr;
+    }
+    assert.match(log.join(""), /file #2: TOO_LARGE/);
+    const r = computeReadout({ files: [{ text: "", tooLargeBytes: PLAYTEST_EXPORT_MAX_BYTES + 1 }] });
+    assert.deepEqual(r.dataQuality.filesInvalid, [{ index: 1, code: "TOO_LARGE", issues: [] }]);
   } finally {
     rmSync(dir, { recursive: true });
   }
