@@ -175,33 +175,50 @@ without the other).
     applied bot decision; `word_rejected` per rejected PLAY; `bot_match_finished` when the engine ends the match;
     `bot_match_abandoned` `replaced_by_new` when a new match replaces an open one, `version_mismatch` /
     `state_corrupt` when the cold-start restore fails (once per `local_match_id`, after `bot_match_resumed` with
-    `restore_path` = `failed`); `bot_match_resumed` on a return from the background with a match open (`in_memory`)
+    `restore_path` = `failed`); a match whose final move was saved but whose analytics did not run (process killed
+    in between) gets its `bot_match_finished` at the next cold start, rebuilt from the last finished match on the
+    device, once; `bot_match_resumed` on a return from the background with a match open (`in_memory`)
     and when the saved match is restored at a cold start (`snapshot` / `full_replay`); `match_summary_action` on Play
     again, Home and "Discover" (Change opponent does not exist before S4); `onboarding_step_completed` from the
     recorder and Home (below).
   - Definitions chosen (ASSUMPTIONS, reversible, for `data-analyst` sign-off): `turns` = the engine's `turnNumber`
     (PLACE_WORD, EXCHANGE and PASS of both seats; RESIGN is not a turn); `words_played`, `exchanges`, `passes` count
     both seats (per seat: `bot_word_played.actor`); `rejected_attempts` counts every rejected PLAY while
-    `word_rejected` is capped at 10 per turn (PLAY stays enabled on a rejected placement, D-5);
+    `word_rejected` is capped at 10 per turn and 30 per match (PLAY stays enabled on a rejected placement, D-5);
     `word_rejected.word_length` = length of the attempted main word from the engine's lexicon-free preview, else the
     number of tiles placed; `turn` on `bot_word_played` / `word_rejected` = `turnNumber` before the move;
     `think_ms` = foreground time from the start of the player's turn (previous move rendered) to PLAY, and the bot's
     compute time for its words; `active_duration_ms` = foreground time while the match is open and in progress on
-    this process (a crash loses the interval since the last background: a lower bound); `compute_ms_bucket` = bot
-    request to decision on the JS thread (includes the single-frame yield of P5 option A); `automaton` = what
+    this process (a crash loses the interval since the last background: a lower bound); `compute_ms_bucket` = start
+    of the bot's search (after the runner's frame wait, so neither the frame yield of P5 option A nor the previous
+    move's analytics work counts) to its decision; `total_ms_bucket` = bot request (its turn rendered) to its move
+    rendered, think delay included; cold-start `away_ms` = device wall clock since the match last went to the
+    background (or started): after a crash, with no background before it, the time played since then counts as away,
+    so it is an upper bound (the record keeps only that time, as the privacy policy discloses); `ms_on_summary` = from the first time the Summary of that match was shown
+    (a remount of the Summary does not restart it); `automaton` = what
     `@codelex/bots` selects for the bundled index (BOT-8); `fallback` = the bot chose no word (exact for Beginner,
-    the only playtest bot; `BotDecision` must expose BOT-6 before Strategist ships in S4); `is_first_match` = first
-    match recorded under this install id and no finished match on the device.
+    the only playtest bot; `BotDecision` must expose BOT-6 before Strategist ships in S4); `is_first_match` = no
+    finished match on the device, no open match record before it, and no match started earlier on this process
+    under the current install id (nothing is kept on the device between matches for it).
+  - Consent withdrawn then given again in the same process: everything the app held for the open match (its
+    `local_match_id`, counters, clocks, the last Summary) is dropped with the old install id; the open match adopts a
+    new `local_match_id` with zero counters at its next event, like a match on which recording was turned on
+    mid-match (no `bot_match_started`).
   - No sampling: the per-match volume budget above (about 80 events per match) stands.
   - `onboarding_step_completed`: `first_launch` (the recorder's start on an install with neither a consent choice nor
     an install id; its `occurred_at` is that start, and it is written just before the next step, so a boot that never
-    reaches Home leaves nothing), `home_seen` (Home mounted), `play_now_tapped` (PLAY NOW), `first_move` (first applied action),
+    reaches Home leaves nothing), `home_seen` (Home mounted), `play_now_tapped` (PLAY NOW), `first_move` (the player's first applied action; the bot's opening move does not
+    count),
     `first_match_completed` (first match end); each once per install, only on an install whose first launch was
     recorded. `coach_mark_1` to `coach_mark_3` are **not applicable in Phase 1**: the coach marks do not exist
     (D-26, no copy may ship before drag-to-place), so they are never emitted.
+  - Write budget: the match record is written at start, on each emitted `word_rejected` (so at most 30 times per
+    match for rejections), on background, resume and end; a capped rejection only counts in memory and is written
+    with the next move, background or end. No write per move otherwise.
   - New on-device files (backup-excluded data directory, purged with consent off, never exported):
-    `analytics.play` (the open match's random `local_match_id`, its counters and a CRC-32 of its seed to bind it to
-    the saved match) and `analytics.onboarding` (steps done). No new data category leaves the device.
+    `analytics.play` (the open match's random `local_match_id`, its counters, a CRC-32 of its seed to bind it to the
+    saved match and the phone-clock time it last went to the background; deleted when the match ends) and
+    `analytics.onboarding` (steps done). No new data category leaves the device.
 
 - 2026-10-07 (sprint 4 D1, `mobile-engineer` with `data-analyst`; no build has emitted these events yet, so no
   version bump):
