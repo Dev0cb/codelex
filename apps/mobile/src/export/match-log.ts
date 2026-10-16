@@ -26,6 +26,7 @@ import { parseActionLog, type ActionLog } from '@codelex/game-engine';
 import * as z from 'zod/mini';
 
 // App modules outside the portable set keep the app's extensionless imports (this file is app-only anyway).
+import { base64 } from '../match-log/base64';
 import { LOG_MAX_BYTES } from '../persistence/match-journal';
 import type { Divergence } from '../persistence/resume';
 import {
@@ -36,6 +37,9 @@ import {
   type ExportApp,
   type ExportError,
 } from './common.ts';
+
+/** The `raw` encoding, shared with the on-device builder (`match-log/match-log-file.ts`). */
+export { base64 };
 
 export const MATCH_LOG_KIND = 'codelex.match_log';
 export const MATCH_LOG_FILE_NAME = 'codelex-match-log.json';
@@ -130,21 +134,4 @@ export function encodeRawMatchLog(app: ExportApp, bytes: Uint8Array): Result<str
 /** Receiving side (TM-08 import): size cap, JSON, strict schema. */
 export function decodeMatchLog(text: string): Result<MatchLogExport, ExportError> {
   return decodeExport(MatchLogExportSchema, text, MATCH_LOG_EXPORT_MAX_BYTES);
-}
-
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-/** Standard base64 with padding (RFC 4648 §4), without relying on `btoa` or `Buffer`. */
-export function base64(bytes: Uint8Array): string {
-  let out = '';
-  for (let i = 0; i < bytes.length; i += 3) {
-    const a = bytes[i] ?? 0;
-    const b = bytes[i + 1] ?? 0;
-    const c = bytes[i + 2] ?? 0;
-    const n = (a << 16) | (b << 8) | c;
-    out += ALPHABET.charAt((n >> 18) & 63) + ALPHABET.charAt((n >> 12) & 63);
-    out += i + 1 < bytes.length ? ALPHABET.charAt((n >> 6) & 63) : '=';
-    out += i + 2 < bytes.length ? ALPHABET.charAt(n & 63) : '=';
-  }
-  return out;
 }

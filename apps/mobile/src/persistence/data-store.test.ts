@@ -98,3 +98,16 @@ describe('DataStore.read', () => {
     expect(store.read('b', 64)).toEqual({ kind: 'missing' });
   });
 });
+
+describe('DataStore.readBytes (S6d raw match log, TM-02 cap)', () => {
+  it('returns the bytes as they are, checks the cap before reading, and reports a missing file', () => {
+    const fs = new MemoryFs();
+    const store = new DataStore(fs);
+    expect(store.readBytes('x', 8)).toEqual({ kind: 'missing' });
+    fs.files.set('x', Uint8Array.from([1, 2, 3]));
+    expect(store.readBytes('x', 3)).toEqual({ kind: 'ok', bytes: Uint8Array.from([1, 2, 3]) });
+    fs.reads.length = 0;
+    expect(store.readBytes('x', 2)).toEqual({ kind: 'too_large' });
+    expect(fs.reads).toEqual([]);
+  });
+});
