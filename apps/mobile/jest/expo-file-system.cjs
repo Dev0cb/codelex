@@ -1,6 +1,7 @@
 // Node stand-in for expo-file-system's `File`, `Directory` and `Paths` under Jest, on the real file system:
 // `bytes()` reads the bundled lexicon; the sync calls back the match persistence (src/persistence/device-fs.ts).
-// `Paths.document` is a fresh temporary directory per test module, so test files never share saved matches.
+// `Paths.document` and `Paths.cache` are fresh temporary directories per test module, so test files never share
+// saved matches or share files.
 const {
   appendFileSync,
   existsSync,
@@ -79,13 +80,22 @@ class Directory {
       entry.isDirectory() ? new Directory(this.uri, entry.name) : new File(this.uri, entry.name),
     );
   }
+
+  delete() {
+    rmSync(this.uri, { recursive: true });
+  }
 }
 
 let documentDir;
+let cacheDir;
 const Paths = {
   get document() {
     documentDir ??= mkdtempSync(join(tmpdir(), 'codelex-jest-'));
     return new Directory(documentDir);
+  },
+  get cache() {
+    cacheDir ??= mkdtempSync(join(tmpdir(), 'codelex-jest-cache-'));
+    return new Directory(cacheDir);
   },
 };
 

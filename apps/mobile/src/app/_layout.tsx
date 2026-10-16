@@ -10,6 +10,7 @@ import { createBundledLexiconSource } from '../lexicon/bundled-lexicon-source';
 import { LexiconGate } from '../lexicon/lexicon-gate';
 import { MatchSessionProvider } from '../match/match-session';
 import { MotionPreferenceProvider } from '../settings/motion-preference';
+import { ShareSweep } from '../sharing/share-provider';
 
 const styles = StyleSheet.create({ root: { flex: 1 } });
 
@@ -20,7 +21,8 @@ const bundledLexicon = createBundledLexiconSource();
  * Root layout: gesture root (board drag later), the playtest recorder (outermost, so the session marker is written
  * at launch, before anything that could crash at boot; slice S6a), the Settings motion choice, i18n, then the lexicon
  * gate: no route mounts until the lexicon index is loaded and verified (never partial play), then the match session
- * (one saved match, slice S3) and a header-less stack. `InteractiveMark` ends the cold start for `app_opened`.
+ * (one saved match, slice S3) and a header-less stack. `InteractiveMark` ends the cold start for `app_opened`;
+ * `ShareSweep` deletes the share directory a killed process may have left (TM-04, slice S6c) after the first commit.
  */
 export function RootLayout(): JSX.Element {
   return (
@@ -35,6 +37,7 @@ export function RootLayout(): JSX.Element {
               </MatchSessionProvider>
             </LexiconGate>
             <StatusBar style="auto" />
+            <ShareSweep />
           </I18nProvider>
         </MotionPreferenceProvider>
       </AnalyticsProvider>
