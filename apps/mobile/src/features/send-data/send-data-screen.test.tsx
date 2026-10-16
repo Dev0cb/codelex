@@ -8,13 +8,14 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import type { Locale } from '@codelex/i18n';
 import { AnalyticsProvider, CreateAnalyticsContext } from '../../analytics/analytics-provider';
-import { EventQueue } from '../../analytics/event-queue';
+import { EventQueue, QUEUE_FILE } from '../../analytics/event-queue';
 import { decodePlaytestExport } from '../../export/playtest-data';
-import { createTestAnalytics } from '../../analytics/test-analytics';
+import { createTestAnalytics, TEST_NOW } from '../../analytics/test-analytics';
 import type { PlaytestAnalytics } from '../../analytics/recorder';
 import { FlagsProvider } from '../../config/flags-provider';
 import { I18nProvider } from '../../i18n/i18n-provider';
 import { DataStore } from '../../persistence/data-store';
+import { asciiJson } from '../../persistence/match-journal';
 import { MemoryFs } from '../../persistence/memory-fs';
 import { ShareContext } from '../../sharing/share-provider';
 import { createTestShare, type TestShare } from '../../sharing/test-share';
@@ -57,6 +58,36 @@ async function renderScreen(
     </I18nProvider>,
   );
   return { fs, analytics, share };
+}
+
+/**
+ * The disk of a recording install whose queue holds `n` `app_backgrounded` events, written in one go: one event is
+ * recorded (so it went through the recorder's checks and carries this install's ids), then cloned `n` times with fresh
+ * event ids and sequence numbers into a single queue-file write. Recording them one by one costs ≈ 2 s for a full
+ * queue. Returns the disk as the next process finds it: its load enforces the cap and counts what it drops, like a
+ * kill between an append and the cap's meta write.
+ */
+function seedQueue(n: number): MemoryFs {
+  const fs = new MemoryFs();
+  const analytics = createTestAnalytics(fs, true);
+  analytics.start();
+  analytics.onAppState('active');
+  analytics.load();
+  analytics.record('app_backgrounded', { foreground_ms: 0 });
+  const [template] = new EventQueue(new DataStore(fs.reboot()), () => TEST_NOW).events();
+  if (template === undefined) throw new Error('seed event not recorded');
+  const records = Array.from({ length: n }, (_, i) =>
+    asciiJson({
+      s: i,
+      e: {
+        ...template,
+        event_id: `22222222-2222-4222-8222-${i.toString(16).padStart(12, '0')}`,
+        properties: { foreground_ms: i },
+      },
+    }),
+  );
+  new DataStore(fs).replace(QUEUE_FILE, records);
+  return fs.reboot();
 }
 
 const queuedNames = (fs: MemoryFs): string[] =>
@@ -194,7 +225,7 @@ describe('SendDataScreen (§5.9)', () => {
   });
 
   it('shares a full queue in several files and warns about drops at the cap', async () => {
-    const { share } = await renderScreen(5001);
+    const { share } = await renderScreen(0, 'en', seedQueue(5001));
     expect(screen.getByTestId('export.dropped').props.children).toMatch(
       /^1 older event was dropped because the buffer is full \(limit 5,?000\)\.$/,
     );
