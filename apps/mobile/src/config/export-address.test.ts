@@ -14,10 +14,11 @@ const BACKUP = 'playtest-2@codelex.example';
 const ALLOW = [TEAM, BACKUP];
 
 describe('resolveExportAddress (TM-07)', () => {
-  it('hides the line while no address is bundled (design O-4)', () => {
-    expect(BUNDLED_EXPORT_ADDRESS).toBeNull();
-    expect(resolveExportAddress(undefined)).toBeNull();
-    expect(resolveExportAddress('attacker@evil.example')).toBeNull();
+  it('shows the bundled playtest mailbox, and nothing a remote value names outside the allowlist (design O-4)', () => {
+    expect(BUNDLED_EXPORT_ADDRESS).toBe('titanfst00@gmail.com');
+    expect(resolveExportAddress(undefined)).toBe('titanfst00@gmail.com');
+    expect(resolveExportAddress('attacker@evil.example')).toBe('titanfst00@gmail.com');
+    expect(resolveExportAddress(null)).toBeNull();
   });
 
   it('bundles an address only if it is in the allowlist (fails the build otherwise)', () => {

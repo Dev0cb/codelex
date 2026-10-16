@@ -2,8 +2,10 @@
 
 - Epic: E-1.5 (feeds the Phase 1 exit readout) · Sprint task: T2 (`docs/sprints/2026-10-03-phase1-bots-app-foundation.md`)
 - Owner: product-strategist · Co-owners: privacy-compliance (consent), mobile-engineer (distribution), data-analyst
-  (readout) · Status: Draft for review · Last update: 2026-10-07 (sprint 4 SP2: S6a–S6d slice names, AC-19 remote
-  config as a Stage 1 gate, crash-free sources without a crash SDK, H1 device class; parent spec "Amendment SP2")
+  (readout) · Status: Draft for review · Last update: 2026-10-16 (privacy-compliance: consent form v1.1 matching
+  privacy policy v1.2, Google storage instead of "EU", owner decision of 2026-10-16 in §2). Previous: 2026-10-07
+  (sprint 4 SP2: S6a–S6d slice names, AC-19 remote config as a Stage 1 gate, crash-free sources without a crash SDK,
+  H1 device class; parent spec "Amendment SP2")
 - Parent spec: `docs/specs/E-1.5-play-vs-bot/classic-match-vs-bot.md` (its Decisions section is binding here: no
   backend, tester-triggered export, no crash SDK in all of Phase 1 (Q-15), adult cohort, written consent at
   enrollment). Nothing in this plan
@@ -59,8 +61,9 @@ Phase 2). No incentive may depend on how much someone plays (would bias session 
 
 ### 1.3 Roster (kept minimal)
 
-Stored separately from event data, EU-hosted, access: playtest lead only. Retention: playtest end + 12 months
-(DATA_MAP). Fields:
+Stored separately from event data, in the owner's consumer Google account (Google Forms responses and Google Drive;
+multi-region, including the United States; not EU-hosted), access: playtest lead only. Retention: playtest end + 12
+months (DATA_MAP). Fields:
 
 | Field                                                                                                | Why needed                            | Already in DATA_MAP? |
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------- |
@@ -79,105 +82,181 @@ written into the roster; it only reaches us inside a tester's export email (see 
 four new fields are low-sensitivity and fit the existing "eligibility, consent records, contact" purpose;
 `privacy-compliance` updates `docs/compliance/DATA_MAP.md` before enrollment opens.
 
-Enrollment form: a simple EU-hosted form (ASSUMPTION: the company workspace form tool, data region EU), showing the
-consent text (§2) before the fields, one mandatory consent checkbox, no pre-ticked boxes.
+Enrollment form: a Google Form on the owner's consumer Google account (owner fact, 2026-10-07; multi-region including
+the United States, no EU data region), linking privacy policy v1.2 and showing consent text v1.1 (§2) before the
+fields, one mandatory consent checkbox, no pre-ticked boxes. Platform tier in the form is Android standard / Android
+entry-level only (the playtest is Android only; the iOS rows of this plan are kept for a later iOS stage).
 
 ## 2. Consent text (EN / FR)
 
-> **Status: DRAFT — `privacy-compliance` review required; `LEGAL_REVIEW_REQUIRED` items are marked inline.**
-> Placeholders in `[brackets]` are filled by the product owner. Version: `playtest-consent-v1`.
+> **Status: v1.1, published with privacy policy `playtest-privacy-v1.2` (2026-10-16). `LEGAL_REVIEW_REQUIRED` items
+> are marked inline and still block Stage 1 (any tester other than the owner).** Version: `playtest-consent-v1.1`.
+> Labels in quotes are the app's exact strings (`packages/i18n/src/catalogs/en.json`, `fr.json`).
+
+**Owner decision (2026-10-16, product owner Malick BA):** "I am the only tester and the only reader of the privacy
+policy for now, so update it where needed." No tester other than the owner enrolled under consent v1, so no
+re-information or re-consent is needed. Every future tester reads privacy policy v1.2 and this consent form v1.1
+**before enrolling**; consent v1 must not be shown to anyone.
+
+**History.** `playtest-consent-v1` (sprint 3 task T2, superseded 2026-10-16, never shown to a tester other than the owner)
+named Apple TestFlight and Google Play, said "Data is stored in the EU" (FR: « Les données sont stockées dans
+l'UE ») and "[EU mail and storage provider]", and listed fewer event fields than the app records. Those statements
+were wrong for this playtest (Android only, EAS install link, Google consumer account, multi-region including the
+US). Full v1 text: git history of this file.
 
 ### 2.1 EN
 
-**CODELEX internal playtest — information and consent**
+**CODELEX playtest — information and consent** (`playtest-consent-v1.1`)
 
-**Who we are.** [Legal entity name, address], the controller of your data. Contact: [privacy contact email].
+**Who we are.** Malick BA, an individual, is the controller of your data. Contact: titanfst00@gmail.com. Full privacy
+policy (version playtest-privacy-v1.2): <https://dev0cb.github.io/codelex/privacy/>.
 
-**What the playtest is.** You test an early version of the CODELEX game on your own phone for about two weeks.
-Taking part is voluntary. You must be 18 or older. If you work with us, saying no or stopping has no consequence for
-your job or evaluation. `LEGAL_REVIEW_REQUIRED` (employee consent).
+**What the playtest is.** You test an early version of the CODELEX game on your own Android phone for about two
+weeks. Taking part is voluntary. You must be 18 or older. If you work with us, saying no or stopping has no
+consequence for your job or evaluation. `LEGAL_REVIEW_REQUIRED` (employee consent).
 
 **What we collect.**
 
-1. At sign-up: your name, email address, confirmation that you are 18+, country, preferred language, phone type
-   (iPhone / Android / entry-level Android), whether you work in software, and whether you want a debrief call.
-2. Through Apple TestFlight or Google Play: your email to send you the app; Apple and Google show us
-   aggregated crash and usage statistics, and TestFlight may show which tester had a crash.
-3. In the app, only if the "Playtest data" setting is on (it is on by default; you can switch it off at any time):
-   game events stored on your phone — matches started and finished, scores, words played, time spent in the app,
-   answers to the "Would you play again?" question, and app starts after a crash. They are linked to a random
-   identifier created on your phone, not to your name. No location, contacts, advertising ID or free text.
-4. Nothing leaves your phone automatically. When you tap "Send playtest data", your phone's share menu opens and you
-   choose to email the file to [playtest mailbox]. Because the email shows your address, the file can then be
-   linked to you.
-5. If you join a debrief call: the interviewer's notes, without your name. We do not record audio or video.
+1. At sign-up (a Google Form): your name, email address, confirmation that you are 18+, country, preferred language,
+   phone type (Android standard / Android entry-level), whether you work in software, whether you want a debrief
+   call, and the version and date of this consent.
+2. Getting the app: we email you a private install link. The app file is hosted by Expo (EAS, United States), whose
+   servers see your IP address and device and browser data under Expo's own privacy policy. We receive no install or
+   crash statistics.
+3. On your phone only, never sent to us: your saved matches (in progress and last finished), the list of terms you
+   played, your settings.
+4. In the app, only while "Record playtest stats" is on (Settings, section "Playtest data"; on by default; you can
+   switch it off at any time): game events stored on your phone and linked to "Your tester ID", a random number made
+   by the app (not your name, not your phone's ID). They cover: app opens (connection type, start time, whether the
+   previous session ended unexpectedly) and time spent in the app; first-launch steps; matches started, finished,
+   dropped and resumed (opponent, who started, scores, result, how it ended, durations and counts); the words you and
+   the bot played (term, category, difficulty, points, thinking time); rejected attempts (reason and word length only,
+   never the letters); the bot's thinking time and effort in coarse ranges; the buttons you tap after a match;
+   Knowledge Cards and graph browsing; whether the "Would you play CODELEX again?" question was shown and your answer
+   or that you closed it; how many events were sent or dropped. Each event also carries the time on your phone's
+   clock, a session id, the app version, Android, and your phone's language and region code (for example `fr-SN`).
+   The file you send adds your tester ID, the export time, the app build and counts of dropped and waiting events.
+   No name, email, contacts, location, advertising ID, phone model or text you type.
+5. Survey reminder: three small counts on your phone (each 3 or less, no ID, no time, no answer) so the question is
+   asked at most twice. They stay on your phone after you switch recording off, until you uninstall the app, and are
+   never sent.
+6. Nothing leaves your phone automatically. When you tap "Send playtest data", then "Share file…", your phone's share
+   menu opens and you choose to email the file to titanfst00@gmail.com. Because the email shows your address, the
+   file can then be linked to you.
+7. "Send match log" (for bug reports): one file with the moves, seed, versions and check values of one match. No
+   tester ID, no time stamp, no device details. It works even when "Record playtest stats" is off. You email it
+   yourself; we see your address.
+8. If you join a debrief call: the interviewer's notes, without your name. We do not record audio or video.
 
-**Why.** Only to decide whether the game is fun and stable enough to continue development. Never for advertising,
-never sold, never used to evaluate employees.
+**Why.** Only to decide whether the game is fun and stable enough to continue development, and to fix bugs you
+report. Never for advertising, never sold, never used to evaluate employees.
 
-**Where and how long.** Data is stored in the EU. If you live in Senegal, your data is transferred to the EU
-(`LEGAL_REVIEW_REQUIRED`: legal basis for the transfer and prior declaration to the CDP under Law 2008-12).
-On your phone: up to 30 days, or until you confirm you sent it. Emails: deleted within 7 days after the file is moved
-to restricted storage. Event files and debrief notes: deleted 6 months after the playtest ends; only anonymous
-totals are kept. Sign-up details: kept 12 months after the playtest ends as a record of your consent.
-`LEGAL_REVIEW_REQUIRED` (retention periods). Access: at most 3 named analysts; the playtest lead for sign-up details.
+**Where.** Not in the EU. Everything we receive is kept in Malick BA's personal (consumer) Google account (Google
+Forms, Gmail, Google Drive). Google may store it in several countries, including the United States. Expo is in the
+United States. So your data may be transferred outside your country, for example from Senegal or France to the
+United States. `LEGAL_REVIEW_REQUIRED` (legal ground for the transfer, prior declaration to the CDP under Law
+2008-12, Google's role under consumer terms).
 
-**Who processes it.** Apple (TestFlight), Google (Play), [EU mail and storage provider].
+**How long.** On your phone: playtest events until you confirm you sent them, at most 30 days; survey counts until
+you uninstall the app. Emails: the attachments are moved to restricted Google Drive storage within 7 days, then the
+emails are deleted; the copy in your own Sent folder is outside our control. Received files and debrief notes:
+deleted 6 months after the playtest ends; only anonymous totals are kept. Sign-up details: kept 12 months after the
+playtest ends as a record of your consent. `LEGAL_REVIEW_REQUIRED` (retention periods). Access: at most 3 named
+analysts; the playtest lead for sign-up details.
 
-**Your choices and rights.** Turn off "Playtest data" in Settings: nothing more is recorded and the data on your
-phone is deleted. To withdraw completely, email [privacy contact] — we remove you from the test, and if you give us
-the identifier shown in Settings we delete the data you already sent. You can ask to access, correct or delete your
-data at any time, and complain to the CNIL (France) or the CDP (Senegal).
+**Service providers.** Google (Forms, Gmail, Drive) and Expo (EAS). Your own email provider when you send a file.
 
-☐ I am 18 or older, I have read this information and I agree to take part in the CODELEX playtest.
+**Your choices and rights.** In Settings, switch off "Record playtest stats" ("Turn off and delete"): nothing more is
+recorded, and the unsent events and your tester ID are deleted from your phone (note your tester ID first). To
+withdraw completely, email titanfst00@gmail.com: we remove you from the test, and if you give us your tester ID we
+delete the playtest data you already sent (for match logs, write from the address you sent them from). You can ask
+to access, correct or delete your data at any time, and complain to the CNIL (France), the CDP (Senegal) or the
+authority where you live.
+
+☐ I am 18 or older, I have read this information and the privacy policy (v1.2), and I agree to take part in the
+CODELEX playtest.
 
 ### 2.2 FR
 
-**Playtest interne CODELEX — information et consentement**
+**Playtest CODELEX — information et consentement** (`playtest-consent-v1.1`)
 
-**Qui sommes-nous.** [Raison sociale, adresse], responsable du traitement. Contact : [email de contact vie privée].
+**Qui sommes-nous.** Malick BA, personne physique, est responsable du traitement de tes données. Contact :
+titanfst00@gmail.com. Politique de confidentialité complète (version playtest-privacy-v1.2) :
+<https://dev0cb.github.io/codelex/privacy/fr/>.
 
-**Le playtest.** Tu testes une première version du jeu CODELEX sur ton propre téléphone pendant environ deux
+**Le playtest.** Tu testes une première version du jeu CODELEX sur ton propre téléphone Android pendant environ deux
 semaines. La participation est volontaire. Tu dois avoir 18 ans ou plus. Si tu travailles avec nous, refuser ou
 arrêter n'a aucune conséquence sur ton emploi ni ton évaluation. `LEGAL_REVIEW_REQUIRED` (consentement des salariés).
 
 **Ce que nous collectons.**
 
-1. À l'inscription : nom, adresse email, confirmation d'avoir 18 ans ou plus, pays, langue préférée, type de
-   téléphone (iPhone / Android / Android d'entrée de gamme), si tu travailles dans le logiciel, et si tu souhaites
-   un entretien de retour.
-2. Via Apple TestFlight ou Google Play : ton email pour t'envoyer l'application ; Apple et Google nous montrent des
-   statistiques agrégées de plantages et d'utilisation, et TestFlight peut indiquer quel testeur a eu un plantage.
-3. Dans l'application, uniquement si le réglage « Données du playtest » est activé (activé par défaut, désactivable
-   à tout moment) : des événements de jeu enregistrés sur ton téléphone — parties commencées et terminées, scores,
-   mots joués, temps passé dans l'application, réponses à la question « Rejouerais-tu ? », redémarrages après un
-   plantage. Ils sont liés à un identifiant aléatoire créé sur ton téléphone, pas à ton nom. Aucune localisation,
-   aucun contact, aucun identifiant publicitaire, aucun texte libre.
-4. Rien ne quitte ton téléphone automatiquement. Quand tu touches « Envoyer les données du playtest », le menu de
-   partage s'ouvre et tu choisis d'envoyer le fichier par email à [boîte du playtest]. L'email montrant ton adresse,
-   le fichier peut alors être relié à toi.
-5. Si tu participes à un entretien : les notes de l'animateur, sans ton nom. Aucun enregistrement audio ou vidéo.
+1. À l'inscription (un formulaire Google Forms) : nom, adresse e-mail, confirmation d'avoir 18 ans ou plus, pays,
+   langue préférée, type de téléphone (Android standard / Android d'entrée de gamme), si tu travailles dans le
+   logiciel, si tu souhaites un entretien de debrief, et la version et la date de ce consentement.
+2. Obtenir l'app : nous t'envoyons par e-mail un lien d'installation privé. Le fichier de l'app est hébergé par Expo
+   (EAS, États-Unis), dont les serveurs voient ton adresse IP et des données sur ton appareil et ton navigateur, selon
+   la politique de confidentialité d'Expo. Nous ne recevons aucune statistique d'installation ou de plantage.
+3. Uniquement sur ton téléphone, jamais envoyés : tes parties enregistrées (en cours et dernière terminée), la liste
+   des termes joués, tes réglages.
+4. Dans l'app, uniquement tant que « Enregistrer les statistiques de test » est activé (Réglages, section « Données
+   de test » ; activé par défaut ; désactivable à tout moment) : des événements de jeu enregistrés sur ton téléphone
+   et liés à « Ton identifiant testeur », un numéro aléatoire créé par l'app (ni ton nom, ni l'identifiant de ton
+   téléphone). Ils couvrent : les ouvertures de l'app (type de connexion, durée du démarrage, si la session
+   précédente s'est terminée de façon inattendue) et le temps passé dans l'app ; les premières étapes ; les parties
+   commencées, terminées, abandonnées et reprises (adversaire, qui a commencé, scores, résultat, façon de finir,
+   durées et nombres) ; les mots joués par toi et par le bot (terme, catégorie, difficulté, points, temps de
+   réflexion) ; les essais refusés (raison et longueur du mot seulement, jamais les lettres) ; le temps et l'effort de
+   réflexion du bot par tranches larges ; les boutons touchés après une partie ; les fiches et la navigation dans le
+   graphe ; si la question « Rejouerais-tu à CODELEX ? » a été affichée, et ta réponse ou le fait que tu l'as fermée ;
+   le nombre d'événements envoyés ou perdus. Chaque événement porte aussi l'heure de l'horloge de ton téléphone, un
+   identifiant de session, la version de l'app, Android, et le code de langue et de région de ton téléphone (par
+   exemple `fr-SN`). Le fichier envoyé ajoute ton identifiant testeur, l'heure de l'export, le build de l'app et le
+   nombre d'événements perdus ou en attente. Ni nom, ni e-mail, ni contacts, ni position, ni identifiant publicitaire,
+   ni modèle de téléphone, ni texte saisi.
+5. Rappel du sondage : trois petits compteurs sur ton téléphone (chacun de 3 au plus, sans identifiant, sans heure,
+   sans réponse) pour que la question ne soit posée que deux fois au plus. Ils restent sur ton téléphone après la
+   désactivation de l'enregistrement, jusqu'à la désinstallation de l'app, et ne sont jamais envoyés.
+6. Rien ne quitte ton téléphone automatiquement. Quand tu touches « Envoyer les données de test », puis « Partager le
+   fichier… », le menu de partage s'ouvre et tu choisis d'envoyer le fichier par e-mail à titanfst00@gmail.com.
+   Comme l'e-mail montre ton adresse, le fichier peut alors être relié à toi.
+7. « Envoyer le journal de partie » (pour signaler un bug) : un fichier avec les coups, la graine, les versions et les
+   valeurs de contrôle d'une partie. Ni identifiant testeur, ni horodatage, ni détail sur l'appareil. Cela fonctionne
+   même si « Enregistrer les statistiques de test » est désactivé. Tu l'envoies toi-même par e-mail ; nous voyons ton
+   adresse.
+8. Si tu participes à un entretien : les notes de la personne qui le mène, sans ton nom. Aucun enregistrement audio ou
+   vidéo.
 
-**Pourquoi.** Uniquement pour décider si le jeu est assez amusant et stable pour poursuivre son développement.
-Jamais pour de la publicité, jamais vendu, jamais utilisé pour évaluer des salariés.
+**Pourquoi.** Uniquement pour décider si le jeu est assez fun et stable pour poursuivre son développement, et pour
+corriger les bugs que tu signales. Jamais pour de la publicité, jamais vendu, jamais utilisé pour évaluer des
+salariés.
 
-**Où et combien de temps.** Les données sont stockées dans l'UE. Si tu vis au Sénégal, tes données sont
-transférées vers l'UE (`LEGAL_REVIEW_REQUIRED` : base légale du transfert et déclaration préalable à la CDP, loi
-2008-12). Sur ton téléphone : 30 jours maximum, ou jusqu'à ce que tu confirmes l'envoi. Emails : supprimés sous 7
-jours après le transfert du fichier vers un stockage restreint. Fichiers d'événements et notes d'entretien :
-supprimés 6 mois après la fin du playtest ; seuls des totaux anonymes sont conservés. Données d'inscription :
-conservées 12 mois après la fin du playtest comme preuve du consentement. `LEGAL_REVIEW_REQUIRED` (durées). Accès :
-3 analystes nommés au maximum ; le responsable du playtest pour l'inscription.
+**Où.** Pas dans l'UE. Tout ce que nous recevons est conservé dans le compte Google personnel (grand public) de Malick
+BA (Google Forms, Gmail, Google Drive). Google peut le stocker dans plusieurs pays, dont les États-Unis. Expo est aux
+États-Unis. Tes données peuvent donc être transférées hors de ton pays, par exemple du Sénégal ou de France vers les
+États-Unis. `LEGAL_REVIEW_REQUIRED` (base légale du transfert, déclaration préalable à la CDP selon la loi 2008-12,
+rôle de Google sous ses conditions grand public).
 
-**Sous-traitants.** Apple (TestFlight), Google (Play), [fournisseur email et stockage UE].
+**Combien de temps.** Sur ton téléphone : événements de test jusqu'à ce que tu confirmes leur envoi, 30 jours au
+plus ; compteurs du sondage jusqu'à la désinstallation de l'app. E-mails : les pièces jointes sont déplacées vers un
+stockage Google Drive restreint sous 7 jours, puis les e-mails sont supprimés ; la copie dans tes messages envoyés
+est hors de notre contrôle. Fichiers reçus et notes d'entretien : supprimés 6 mois après la fin du playtest ; seuls
+des totaux anonymes sont conservés. Données d'inscription : conservées 12 mois après la fin du playtest comme preuve
+du consentement. `LEGAL_REVIEW_REQUIRED` (durées). Accès : 3 analystes nommés au maximum ; la personne responsable du
+playtest pour l'inscription.
 
-**Tes choix et tes droits.** Désactive « Données du playtest » dans les Réglages : plus rien n'est enregistré et
-les données présentes sur ton téléphone sont effacées. Pour te retirer complètement, écris à [contact vie privée] :
-nous te retirons du test et, si tu nous donnes l'identifiant affiché dans les Réglages, nous supprimons les données
-déjà envoyées. Tu peux demander l'accès, la rectification ou l'effacement de tes données à tout moment, et saisir la
-CNIL (France) ou la CDP (Sénégal).
+**Prestataires.** Google (Forms, Gmail, Drive) et Expo (EAS). Ton propre fournisseur de messagerie quand tu envoies un
+fichier.
 
-☐ J'ai 18 ans ou plus, j'ai lu ces informations et j'accepte de participer au playtest CODELEX.
+**Tes choix et tes droits.** Dans les Réglages, désactive « Enregistrer les statistiques de test » (« Désactiver et
+supprimer ») : plus rien n'est enregistré, et les événements non envoyés et ton identifiant testeur sont supprimés de
+ton téléphone (note d'abord ton identifiant testeur). Pour te retirer complètement, écris à titanfst00@gmail.com :
+nous te retirons du test et, si tu nous donnes ton identifiant testeur, nous supprimons les données de test déjà
+envoyées (pour les journaux de partie, écris depuis l'adresse utilisée pour les envoyer). Tu peux demander l'accès,
+la rectification ou l'effacement de tes données à tout moment, et saisir la CNIL (France), la CDP (Sénégal) ou
+l'autorité de ton pays.
+
+☐ J'ai 18 ans ou plus, j'ai lu ces informations et la politique de confidentialité (v1.2), et j'accepte de participer
+au playtest CODELEX.
 
 ASSUMPTION: "tu" in FR, consistent with the in-app tone (parent spec); counsel may require "vous" for a legal text.
 
@@ -185,15 +264,15 @@ ASSUMPTION: "tu" in FR, consistent with the in-app tone (parent spec); counsel m
 
 ### 3.1 Accounts and ownership (needs a human)
 
-| Item                                                                 | Owner (human)                      | Operator (agent)                   | Lead time                                                    | Notes                                                              |
-| -------------------------------------------------------------------- | ---------------------------------- | ---------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------ |
-| Apple Developer Program, organisation account                        | product owner (Account Holder)     | mobile-engineer (App Manager role) | ASSUMPTION: 1–3 weeks (D-U-N-S number + Apple verification)  | Org account so the app is not published under a person's name      |
-| Google Play Console, organisation account                            | product owner                      | mobile-engineer                    | ASSUMPTION: days to 2 weeks (D-U-N-S, identity verification) | One-time fee; the **package name is permanent** once uploaded      |
-| Bundle ID / package name                                             | product owner decides              | mobile-engineer                    | —                                                            | ASSUMPTION: `com.codelex.app`; irreversible on Play, confirm first |
-| Expo / EAS organisation                                              | product owner                      | mobile-engineer, devops-sre        | 1 day                                                        | Signing credentials stored in EAS, never in git                    |
-| Privacy policy URL (playtest version)                                | product owner + privacy-compliance | tech-writer                        | after legal review                                           | Required by TestFlight external testing (Beta App Review)          |
-| Playtest mailbox alias (EU-hosted, MFA, ≤ 3 analysts, no forwarding) | product owner                      | data-analyst                       | 1 day                                                        | Parent spec Q-1                                                    |
-| Enrollment form + roster storage (EU)                                | playtest lead                      | product-strategist                 | 1 day                                                        | §1.3                                                               |
+| Item                                                                                                                                      | Owner (human)                      | Operator (agent)                   | Lead time                                                    | Notes                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Apple Developer Program, organisation account                                                                                             | product owner (Account Holder)     | mobile-engineer (App Manager role) | ASSUMPTION: 1–3 weeks (D-U-N-S number + Apple verification)  | Org account so the app is not published under a person's name      |
+| Google Play Console, organisation account                                                                                                 | product owner                      | mobile-engineer                    | ASSUMPTION: days to 2 weeks (D-U-N-S, identity verification) | One-time fee; the **package name is permanent** once uploaded      |
+| Bundle ID / package name                                                                                                                  | product owner decides              | mobile-engineer                    | —                                                            | ASSUMPTION: `com.codelex.app`; irreversible on Play, confirm first |
+| Expo / EAS organisation                                                                                                                   | product owner                      | mobile-engineer, devops-sre        | 1 day                                                        | Signing credentials stored in EAS, never in git                    |
+| Privacy policy URL (playtest version)                                                                                                     | product owner + privacy-compliance | tech-writer                        | after legal review                                           | Required by TestFlight external testing (Beta App Review)          |
+| Playtest mailbox (Gmail `titanfst00@gmail.com`, owner's consumer Google account, multi-region incl. US; MFA, ≤ 3 analysts, no forwarding) | product owner                      | data-analyst                       | 1 day                                                        | Parent spec Q-1; done (owner fact 2026-10-07)                      |
+| Enrollment form (Google Forms) + roster storage (Google Drive), same account, multi-region incl. US                                       | playtest lead                      | product-strategist                 | 1 day                                                        | §1.3                                                               |
 
 ### 3.2 iOS — TestFlight checklist
 
@@ -329,25 +408,25 @@ Q-16), Stage 0 gate passed, `LEGAL_REVIEW_REQUIRED` items closed, store groups r
 means a low-end reference-class phone: an H1 result labelled "owner device" does not meet this gate on its own
 (parent spec Q-17). Everything below can start now (2026-10-03), so lead time should never be on the critical path.
 
-| When                     | Item                                                                                             | Owner                              | Done when                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------------ | ---------------------------------- | ------------------------------------------------ |
-| Now (week of 2026-10-03) | Start Apple and Google org enrollments (D-U-N-S); decide bundle ID / package name                | product owner                      | accounts verified                                |
-| Now                      | Send consent text, DATA_MAP additions and the three `LEGAL_REVIEW_REQUIRED` items to counsel     | privacy-compliance                 | counsel answer recorded in parent spec Decisions |
-| T−5 weeks (or now)       | Name channel contacts (Dakar community organiser, school contact); EAS org created               | product owner, mobile-engineer     | contacts agreed                                  |
-| T−4 weeks                | Catalogue additions (`app_backgrounded`, `previous_exit_unclean`) accepted into ANALYTICS_EVENTS | data-analyst                       | merged before S6a                                |
-| T−4 weeks                | Enrollment form live with consent v1 (after counsel); recruitment opens                          | product-strategist                 | form live                                        |
-| T−3 weeks                | Privacy policy URL published; mailbox alias and EU storage ready                                 | tech-writer, data-analyst          | URLs tested                                      |
-| T−2 weeks                | Quota check #1; device loans ordered if low-end Android < 13 enrolled                            | product-strategist, qa-engineer    | quotas on track                                  |
-| T−2 weeks                | TestFlight groups and Play internal tester list loaded from roster                               | mobile-engineer                    | invites drafted, not sent                        |
-| T−10 days                | Stage 0 starts (team dogfood, 3–5 days, internal group/track)                                    | mobile-engineer                    | Stage 0 gate (parent spec)                       |
-| T−7 days                 | Roster closed (waitlist kept); debrief slots scheduled for T+8 to T+14                           | product-strategist                 | ≥ 40 enrolled                                    |
-| T−3 days                 | Stage 1 build submitted to Beta App Review; Play internal release prepared                       | mobile-engineer                    | review passed                                    |
-| T                        | Invites sent; kickoff message EN/FR (how to play, how to send data, how to withdraw)             | product-strategist                 | ≥ 30 installs by T+3                             |
-| T+7                      | Export reminder; completeness check (< 80 % → Q-1 follow-up); optional build 2                   | data-analyst                       |                                                  |
-| T+8 to T+14              | Debriefs                                                                                         | product-strategist, ux-ui-designer | notes filed                                      |
-| T+14                     | Final export reminder; Stage 1 ends                                                              | data-analyst                       |                                                  |
-| T+21                     | Readout (§4) and go/no-go                                                                        | data-analyst, product-strategist   | readout merged                                   |
-| T+14 + 6 months          | Delete raw event files and debrief notes; T+14 + 12 months: delete roster                        | data-analyst, playtest lead        | deletion logged                                  |
+| When                     | Item                                                                                                        | Owner                              | Done when                                        |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------ |
+| Now (week of 2026-10-03) | Start Apple and Google org enrollments (D-U-N-S); decide bundle ID / package name                           | product owner                      | accounts verified                                |
+| Now                      | Send consent text, DATA_MAP additions and the three `LEGAL_REVIEW_REQUIRED` items to counsel                | privacy-compliance                 | counsel answer recorded in parent spec Decisions |
+| T−5 weeks (or now)       | Name channel contacts (Dakar community organiser, school contact); EAS org created                          | product owner, mobile-engineer     | contacts agreed                                  |
+| T−4 weeks                | Catalogue additions (`app_backgrounded`, `previous_exit_unclean`) accepted into ANALYTICS_EVENTS            | data-analyst                       | merged before S6a                                |
+| T−4 weeks                | Enrollment form live with consent v1.1 and policy v1.2 (after counsel); recruitment opens                   | product-strategist                 | form live                                        |
+| T−3 weeks                | Privacy policy URL published (v1.2 published 2026-10-16); mailbox and restricted Google Drive storage ready | tech-writer, data-analyst          | URLs tested                                      |
+| T−2 weeks                | Quota check #1; device loans ordered if low-end Android < 13 enrolled                                       | product-strategist, qa-engineer    | quotas on track                                  |
+| T−2 weeks                | TestFlight groups and Play internal tester list loaded from roster                                          | mobile-engineer                    | invites drafted, not sent                        |
+| T−10 days                | Stage 0 starts (team dogfood, 3–5 days, internal group/track)                                               | mobile-engineer                    | Stage 0 gate (parent spec)                       |
+| T−7 days                 | Roster closed (waitlist kept); debrief slots scheduled for T+8 to T+14                                      | product-strategist                 | ≥ 40 enrolled                                    |
+| T−3 days                 | Stage 1 build submitted to Beta App Review; Play internal release prepared                                  | mobile-engineer                    | review passed                                    |
+| T                        | Invites sent; kickoff message EN/FR (how to play, how to send data, how to withdraw)                        | product-strategist                 | ≥ 30 installs by T+3                             |
+| T+7                      | Export reminder; completeness check (< 80 % → Q-1 follow-up); optional build 2                              | data-analyst                       |                                                  |
+| T+8 to T+14              | Debriefs                                                                                                    | product-strategist, ux-ui-designer | notes filed                                      |
+| T+14                     | Final export reminder; Stage 1 ends                                                                         | data-analyst                       |                                                  |
+| T+21                     | Readout (§4) and go/no-go                                                                                   | data-analyst, product-strategist   | readout merged                                   |
+| T+14 + 6 months          | Delete raw event files and debrief notes; T+14 + 12 months: delete roster                                   | data-analyst, playtest lead        | deletion logged                                  |
 
 If gates slip, only the "T−" rows that touch testers (invites, kickoff) move; legal, accounts and tooling stay early.
 Recruited testers get a short "we are a bit later than planned" note if T moves by more than 2 weeks.

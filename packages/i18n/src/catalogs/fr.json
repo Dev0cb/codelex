@@ -51,7 +51,7 @@
   "export.summary.item.cards": "Fiches ouvertes et temps passé",
   "export.summary.item.survey": "Tes réponses à la question « rejouer ? »",
   "export.summary.item.screens": "Écrans et boutons utilisés : premières étapes, choix après la partie, navigation dans le graphe, temps de réflexion du bot",
-  "export.summary.item.technical": "Détails techniques : version et build de l’app, Android, langue de l’app, heures de l’horloge du téléphone, identifiants de session, nombre d’événements perdus",
+  "export.summary.item.technical": "Détails techniques : version et build de l’app, Android, langue et région du téléphone, heures de l’horloge du téléphone, identifiants de session, nombre d’événements perdus",
   "export.excluded.title": "Jamais inclus",
   "export.excluded.body": "Ton nom, ton adresse e-mail, tes contacts, ta position, ton identifiant publicitaire, le modèle ou le numéro de série de ton téléphone. Ton identifiant testeur est un numéro aléatoire créé par l’app, pas l’identifiant de ton téléphone.",
   "export.id_line": "Ton identifiant testeur : {id}",
