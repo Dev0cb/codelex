@@ -445,17 +445,18 @@ test("dry run on the synthetic Stage 0 export: numbers hand-computed from the fi
   assert.deepEqual(r.medianSession.withLowerBound, { n: 15, median: 11 * MIN, q1: 9.5 * MIN, q3: 13 * MIN });
   assert.equal(r.medianSession.lowerBoundSessions, 1);
   assert.equal(r.medianSession.sessionsUnder10s, 1);
-  assert.equal(r.medianSession.sessionsOfNonActiveTestersExcluded, 2); // t05: 3 and 2 min
+  assert.equal(r.medianSession.sessionsOfNonActiveTestersExcluded, 1); // t05's 3 min session
+  assert.equal(r.medianSession.incompleteSessionsExcluded, 1); // t05's open tail (non-active, but incomplete comes first)
   const w = r.wouldPlayAgain;
   assert.deepEqual([w.n, w.yes, w.maybe, w.no, w.dismissedOnly, w.withoutAnswer], [3, 2, 1, 0, 1, 1]);
-  // Decided sessions: android t01 5 + t03 2 + 2 + t05 2 = 11; ios t02 4 + t04 (5 min, boot crash, 6 s) 3 = 7.
-  // Crashed: t02's crash and t04's boot crash. Overall 16 of 18.
+  // Decided sessions: android t01 5 + t03 2 + 2 + t05 1 (its second session is open at export) = 10;
+  // ios t02 4 + t04 (5 min, boot crash, 6 s) 3 = 7. Crashed: t02's crash and t04's boot crash. Overall 15 of 17.
   const cf = r.crashFree;
   assert.deepEqual([cf.byPlatform.ios.sessions, cf.byPlatform.ios.crashed], [7, 2]);
-  assert.deepEqual([cf.byPlatform.android.sessions, cf.byPlatform.android.crashed], [11, 0]);
-  assert.deepEqual([cf.overall.k, cf.overall.n], [16, 18]);
-  assert.ok(Math.abs(cf.overall.value - 16 / 18) < 1e-12);
-  assert.equal(cf.sessionsWithUnknownOutcome, 0);
+  assert.deepEqual([cf.byPlatform.android.sessions, cf.byPlatform.android.crashed], [10, 0]);
+  assert.deepEqual([cf.overall.k, cf.overall.n], [15, 17]);
+  assert.ok(Math.abs(cf.overall.value - 15 / 17) < 1e-12);
+  assert.equal(cf.sessionsWithUnknownOutcome, 1);
   assert.equal(cf.zeroLengthCrashedSessions, 1);
   assert.equal(r.dataQuality.duplicateEvents, 6);
   assert.equal(r.dataQuality.dropped.expired, 2);

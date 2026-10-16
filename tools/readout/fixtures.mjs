@@ -169,7 +169,8 @@ export function exportFile(device, { from = 0, to, exportedAt, dropped, remainin
  *   by their last 6 events (an export re-sent before the "Sent" confirmation).
  * - t03 android: answers yes, then turns consent off/on (new install id, survey not asked again); roster maps both.
  * - t04 ios: dismisses the survey, one 6 s session, a boot crash (cold start, previous_exit_unclean, nothing open).
- * - t05 android: opens the app for a few minutes, never finishes a match (not active), no survey.
+ * - t05 android: opens the app for a few minutes, never finishes a match (not active), no survey; the export is made
+ *   in the foreground, so the last session is still open (incomplete, outcome unknown).
  */
 export function stage0Dataset(seed = 20261012) {
   const rng = makeRng(seed);
@@ -231,7 +232,7 @@ export function stage0Dataset(seed = 20261012) {
   // t05
   const d5 = new Device({ rng, platform: "android", startMs: T0 + 9_000_000 });
   d5.interval(3 * MIN, false);
-  d5.wait(20 * 3_600_000).interval(2 * MIN, false);
+  d5.wait(20 * 3_600_000).open(false).wait(2 * MIN); // the export is made here, in the foreground: an open tail
   files.push({ name: "t05-android-export.json", text: exportFile(d5, { exportedAt: day(3) }) });
   roster.push(`t05,${d5.installId}`);
 
