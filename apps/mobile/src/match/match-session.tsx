@@ -21,6 +21,7 @@ import {
 } from 'react';
 import { AppState } from 'react-native';
 
+import { usePlaytestAnalytics } from '../analytics/analytics-provider';
 import { useLexicon } from '../lexicon/lexicon-gate';
 import {
   finishMatch,
@@ -69,6 +70,7 @@ export function useMatchSession(): MatchSession | null {
 export function MatchSessionProvider({ children }: { readonly children: ReactNode }): JSX.Element {
   const { index } = useLexicon();
   const services = useContext(MatchServicesContext);
+  const analytics = usePlaytestAnalytics();
   const ctx = useMemo<EngineContext>(() => ({ lexicon: index }), [index]);
   const persistence = useMemo(() => services.persistence?.() ?? null, [services]);
 
@@ -154,9 +156,13 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
           setNewToYou(finishMatch(persistence, next));
         }
       }
+      // D-17: the export prompt counts matches completed this session (slice S6c).
+      if (current.state.status !== 'finished' && next.state.status === 'finished') {
+        analytics?.noteMatchCompleted();
+      }
       show(next);
     },
-    [ctx, persistence, show],
+    [analytics, ctx, persistence, show],
   );
 
   const dismissLowStorage = useCallback(() => {

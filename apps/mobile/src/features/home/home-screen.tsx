@@ -1,5 +1,5 @@
-import { useRouter } from 'expo-router';
-import { useState, type JSX } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState, type JSX } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,6 +13,7 @@ import { useTokens } from '../../theme/use-tokens';
 import { Button } from '../../ui/button';
 import { ConfirmSheet } from '../match/match-sheets';
 import { AnalyticsNotice } from './analytics-notice';
+import { ExportPromptCard } from './export-prompt-card';
 
 /** System mono until a bundled mono face is decided (D-28): the resume card's scores. */
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
@@ -27,7 +28,8 @@ const GEAR_GLYPH = '\u2699\ufe0e';
  * - Saved match unusable (§5.10.2): the cannot-resume card replaces the resume card; "Start a new match" deletes it.
  * - `play_vs_bot.enabled` off: an inert paused card instead of starting a match: no button, no spinner.
  * - Settings gear in the top bar (slice S6a). With `analytics.upload.enabled` on, the first-run analytics notice
- *   (§5.4, D-8) sits under PLAY NOW until it is dismissed or Home is left by any action here.
+ *   (§5.4, D-8) sits under PLAY NOW until it is dismissed or Home is left by any action here. Otherwise, when Home
+ *   gains focus and the D-17 conditions hold, the end-of-session export prompt card takes that place (slice S6c).
  * Modes that are not playable are not rendered (Q-11). The opponent chip comes with S4.
  */
 export function HomeScreen(): JSX.Element {
@@ -39,9 +41,20 @@ export function HomeScreen(): JSX.Element {
   const [confirming, setConfirming] = useState(false);
   const analytics = usePlaytestAnalytics();
   const { noticeVisible } = useAnalyticsSnapshot();
-  /** Leaving Home marks the notice seen (§5.4). */
+  /** The end-of-session export prompt on display (matches this session), D-17; null when hidden. */
+  const [prompt, setPrompt] = useState<number | null>(null);
+  // Asked each time Home gains focus (e.g. back from a Summary); never while the first-run notice is up.
+  useFocusEffect(
+    useCallback(() => {
+      if (analytics === null || noticeVisible || !analytics.exportPromptDue()) return;
+      analytics.markExportPromptShown();
+      setPrompt(analytics.sessionMatches());
+    }, [analytics, noticeVisible]),
+  );
+  /** Leaving Home marks the notice seen (§5.4) and ends the prompt's display. */
   const leave = (): void => {
     analytics?.markNoticeSeen();
+    setPrompt(null);
   };
 
   const live = session?.model ?? null;
@@ -195,6 +208,18 @@ export function HomeScreen(): JSX.Element {
       >
         {action}
         {noticeVisible && <AnalyticsNotice onSettings={openSettings} onDismiss={leave} />}
+        {!noticeVisible && prompt !== null && (
+          <ExportPromptCard
+            matches={prompt}
+            onSend={() => {
+              leave();
+              router.push('/send-data');
+            }}
+            onLater={() => {
+              setPrompt(null);
+            }}
+          />
+        )}
       </View>
       <ConfirmSheet
         visible={confirming}

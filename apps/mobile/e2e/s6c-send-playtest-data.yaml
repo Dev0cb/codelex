@@ -1,0 +1,52 @@
+# E-1.5 slice S6c (AC-17 export): play one match (Resign), open Settings → Send playtest data, check the summary,
+# open the OS share sheet, dismiss it with Back (nothing sent), answer "Not yet" (events kept), share again and
+# answer "Yes, I sent it" (events cleared, confirmation line). The OS share sheet differs per OS and version, so the
+# flow only dismisses it; the file content, the temp-file cleanup, multi-file sharing, failure states and the
+# end-of-session prompt are covered by the Jest tests (src/features/send-data, src/sharing, src/features/home).
+# Needs a preview build with EXPO_PUBLIC_CODELEX_FLAGS=play_vs_bot.enabled=1,analytics.upload.enabled=1 and APP_ID
+# set to its bundle id / package.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'home.playNow'
+- assertVisible:
+    id: 'match.status'
+- tapOn:
+    id: 'match.menu.open'
+- tapOn:
+    id: 'match.menu.resign'
+- tapOn:
+    id: 'match.resign.confirm'
+- assertVisible:
+    id: 'summary.result'
+- tapOn:
+    id: 'summary.home'
+- tapOn:
+    id: 'home.settings'
+- tapOn:
+    id: 'settings.sendData'
+- assertVisible:
+    id: 'export.summary.counts'
+- assertVisible:
+    id: 'export.installId'
+- tapOn:
+    id: 'export.share'
+- waitForAnimationToEnd:
+    timeout: 3000
+- back
+- assertVisible: 'Did you send the file?'
+- tapOn:
+    id: 'export.confirm.cancel'
+- assertNotVisible:
+    id: 'export.done'
+- tapOn:
+    id: 'export.share'
+- waitForAnimationToEnd:
+    timeout: 3000
+- back
+- tapOn:
+    id: 'export.confirm.confirm'
+- assertVisible:
+    id: 'export.done'

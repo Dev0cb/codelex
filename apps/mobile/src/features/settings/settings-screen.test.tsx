@@ -169,6 +169,37 @@ describe('SettingsScreen (E-1.5 §5.8)', () => {
     expect(screen.getByText('Suivre le système')).toBeTruthy();
   });
 
+  it('opens Send playtest data from a row with the waiting count, only while recording (S6c)', async () => {
+    const { router } = jest.requireMock<{ router: { push: jest.Mock } }>('expo-router');
+    const fs = new MemoryFs();
+    const { analytics } = await renderSettings(fs, true);
+    analytics.record('app_backgrounded', { foreground_ms: 1 });
+    analytics.record('app_backgrounded', { foreground_ms: 2 });
+    // Re-read on the next snapshot change (here: a confirmed export would bump it); a re-render shows the count.
+    await screen.rerender(
+      <I18nProvider locale="en">
+        <FlagsProvider flags={{ 'analytics.upload.enabled': true }}>
+          <CreateAnalyticsContext value={() => analytics}>
+            <AnalyticsProvider>
+              <MotionPreferenceProvider fs={fs}>
+                <SettingsScreen versions={VERSIONS} />
+              </MotionPreferenceProvider>
+            </AnalyticsProvider>
+          </CreateAnalyticsContext>
+        </FlagsProvider>
+      </I18nProvider>,
+    );
+    const row = screen.getByTestId('settings.sendData');
+    expect(row.props.accessibilityRole).toBe('button');
+    expect(row.props.accessibilityLabel).toBe('Send playtest data, 2 events waiting');
+    expect(screen.getByTestId('settings.sendData.pending').props.children).toBe('2 events waiting');
+    await fireEvent.press(row);
+    expect(router.push).toHaveBeenCalledWith('/send-data');
+    await fireEvent(screen.getByTestId('settings.analytics.toggle'), 'valueChange', false);
+    await fireEvent.press(screen.getByTestId('settings.analytics.off.confirm'));
+    expect(screen.queryByTestId('settings.sendData')).toBeNull();
+  });
+
   it('goes back with the back button', async () => {
     const { router } = jest.requireMock<{ router: { back: jest.Mock } }>('expo-router');
     await renderSettings(new MemoryFs(), false);

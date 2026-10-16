@@ -1,10 +1,14 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { renderRouter, screen } from 'expo-router/testing-library';
+import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import Home from './app/index';
 import Match from './app/match';
+import SendData from './app/send-data';
 import RootLayout from './app/_layout';
 import * as nativeIntent from './app/+native-intent';
+import { SHARE_DIR } from './sharing/share-file';
 
 jest.mock('expo-localization', () => ({ useLocales: () => [{ languageTag: 'en-US' }] }));
 // The layout loads the real bundled `.clxi` (prepare:lexicon) through Node stand-ins of the native modules.
@@ -27,6 +31,30 @@ describe('app routes', () => {
       { initialUrl: '/match' },
     );
     expect(await screen.findByTestId('home.paused')).toBeTruthy();
+  });
+
+  it('keeps Send playtest data closed while analytics.upload.enabled is off (deep link included)', async () => {
+    await renderRouter(
+      { _layout: RootLayout, index: Home, 'send-data': SendData },
+      { initialUrl: '/send-data' },
+    );
+    expect(await screen.findByTestId('home.paused')).toBeTruthy();
+    expect(screen.queryByText('Send playtest data')).toBeNull();
+  });
+
+  it('sweeps the whole share directory a previous process left behind (TM-04, DS-7)', async () => {
+    const { Paths } = jest.requireActual<{ Paths: { cache: { uri: string } } }>(
+      '../jest/expo-file-system.cjs',
+    );
+    const dir = join(Paths.cache.uri, SHARE_DIR);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'codelex-playtest-data.json'), '{}');
+    writeFileSync(join(dir, 'any-other-name.json'), '{}');
+    await renderRouter({ _layout: RootLayout, index: Home }, { initialUrl: '/' });
+    await screen.findByText('Play the language of technology.');
+    await waitFor(() => {
+      expect(existsSync(dir)).toBe(false);
+    });
   });
 
   it('routes the initial system URL through the deep-link guard before parsing it', async () => {

@@ -20,12 +20,13 @@ import {
   type MotionPreference,
 } from '../../settings/motion-preference';
 import { useTokens } from '../../theme/use-tokens';
+import { TopBar } from '../../ui/top-bar';
 import { ConfirmSheet } from '../match/match-sheets';
 
 /** System mono (D-28): the tester ID. */
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
-/** Drawn left-pointing; mirrored when the layout is right-to-left. */
-const BACK_GLYPH = '←';
+/** Row chevron, drawn right-pointing; mirrored when the layout is right-to-left. */
+const CHEVRON_GLYPH = '›';
 
 const MOTION_LABEL = {
   system: 'settings.motion.system',
@@ -43,8 +44,9 @@ export interface BuildVersions {
  * Settings (E-1.5 design §5.8; slice S6a). Sections:
  * - **Playtest data**, only with `analytics.upload.enabled` on (spec "Flags & rollout" SP2): the consent toggle
  *   (AC-17, Q-7) and, while recording, the install-scoped tester ID as selectable text. Turning the toggle off asks
- *   first (`settings.analytics.off.*`, with the count of unsent events), then purges. "Send playtest data" (S6c) and
- *   "Send match log" (S6d) are not rendered until their slices ship (no disabled placeholders).
+ *   first (`settings.analytics.off.*`, with the count of unsent events), then purges. While recording, "Send playtest data · N
+ *   waiting ›" opens the export screen (§5.9, slice S6c). "Send match log" (S6d) is not rendered until its slice
+ *   ships (no disabled placeholders).
  * - **Play**: Animations (Follow system / Reduced / Full, D-22). The other §5.8 Play rows (sound, vibration,
  *   auto-zoom, handedness) control features not built yet and are not rendered.
  * - **About this build**: `settings.about.versions` as plain text (the 7-tap Diagnostics entry is DG1's), and the
@@ -64,6 +66,8 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
     readonly installId: string | null;
   } | null>(null);
   const [saveError, setSaveError] = useState(false);
+  // Read at render: the snapshot changes (re-render) after every confirmed export (`exports`).
+  const pending = t('settings.send_data.pending', { count: analytics?.queuedCount() ?? 0 });
 
   const save = (ok: boolean): void => {
     setSaveError(!ok);
@@ -89,29 +93,13 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: color.bgBase }]}>
-      <View style={[styles.topBar, { paddingHorizontal: space[3], gap: space[2] }]}>
-        <Pressable
-          testID="settings.back"
-          accessibilityRole="button"
-          accessibilityLabel={t('common.back')}
-          onPress={() => {
-            router.back();
-          }}
-          style={[styles.centre, { minWidth: layout.touchMin, minHeight: layout.touchMin }]}
-        >
-          <Text
-            style={[
-              type.title,
-              { color: color.textPrimary, transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] },
-            ]}
-          >
-            {BACK_GLYPH}
-          </Text>
-        </Pressable>
-        <Text accessibilityRole="header" style={[type.heading, { color: color.textPrimary }]}>
-          {t('settings.title')}
-        </Text>
-      </View>
+      <TopBar
+        testID="settings"
+        title={t('settings.title')}
+        onBack={() => {
+          router.back();
+        }}
+      />
       <ScrollView contentContainerStyle={{ padding: layout.marginScreen, gap: space[6] }}>
         {saveError && (
           <Text
@@ -161,6 +149,40 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
                     {t('settings.install_id.help')}
                   </Text>
                 </View>
+              )}
+              {snapshot.consent && (
+                <Pressable
+                  testID="settings.sendData"
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('settings.send_data')}, ${pending}`}
+                  onPress={() => {
+                    router.push('/send-data');
+                  }}
+                  style={[styles.toggleRow, row]}
+                >
+                  <Text style={[type.body, styles.grow, { color: color.textPrimary }]}>
+                    {t('settings.send_data')}
+                  </Text>
+                  <Text
+                    testID="settings.sendData.pending"
+                    style={[type.caption, { color: color.textMuted }]}
+                  >
+                    {pending}
+                  </Text>
+                  <Text
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    style={[
+                      type.title,
+                      {
+                        color: color.textMuted,
+                        transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],
+                      },
+                    ]}
+                  >
+                    {CHEVRON_GLYPH}
+                  </Text>
+                </Pressable>
               )}
             </>,
           )}
@@ -261,7 +283,6 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  topBar: { flexDirection: 'row', alignItems: 'center' },
   centre: { alignItems: 'center', justifyContent: 'center' },
   toggleRow: { flexDirection: 'row', alignItems: 'center' },
   grow: { flex: 1 },
