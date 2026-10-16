@@ -133,39 +133,68 @@ export function useDiagnosticsRun(deps: DiagnosticsDeps): DiagnosticsRun {
     if (running.current) stop.current ??= 'cancelled';
   }, []);
 
-  const start = useCallback((suites: readonly SuiteId[]) => {
-    if (running.current) return;
-    running.current = true;
-    stop.current = null;
-    const current = depsRef.current;
-    const out: { -readonly [K in keyof SuiteResults]: SuiteResults[K] } = {};
-    setState((s) => ({ ...s, phase: 'running', suite: suites[0] ?? null, progress: null }));
-    void runJobs(jobsFor(suites, current, out), {
-      yieldToUi: current.yieldToUi,
-      settle: current.settle,
-      cancelled: () => stop.current !== null,
-      onSuiteStart: (suite) => {
-        setState((s) => ({ ...s, suite, progress: null }));
-      },
-      onProgress: (suite, progress) => {
-        setState((s) => ({ ...s, suite, progress }));
-      },
-    }).then((outcome) => {
-      running.current = false;
-      setState((s) => {
-        if (outcome.kind === 'completed') {
-          return { phase: 'done', suite: null, progress: null, results: { ...s.results, ...out } };
-        }
-        const phase = outcome.kind === 'failed' ? 'failed' : (stop.current ?? 'cancelled');
-        return { ...s, phase, suite: null, progress: null };
-      });
-    });
+  // A run outlives the screen (closing the modal cancels it at the next case boundary): no state after unmount.
+  const mounted = useRef(true);
+  const update = useCallback((next: (s: DiagnosticsState) => DiagnosticsState) => {
+    if (mounted.current) setState(next);
   }, []);
 
-  // Background timings are meaningless (note §5.1): leaving the foreground cancels the run.
+  const start = useCallback(
+    (suites: readonly SuiteId[]) => {
+      if (running.current) return;
+      running.current = true;
+      stop.current = null;
+      const current = depsRef.current;
+      const out: { -readonly [K in keyof SuiteResults]: SuiteResults[K] } = {};
+      update((s) => ({ ...s, phase: 'running', suite: suites[0] ?? null, progress: null }));
+      const ended = (phase: Phase): void => {
+        running.current = false;
+        update((s) => ({ ...s, phase, suite: null, progress: null }));
+      };
+      // The jobs are built inside the chain, so a throw while building one also ends the run as failed.
+      Promise.resolve()
+        .then(() =>
+          runJobs(jobsFor(suites, current, out), {
+            yieldToUi: current.yieldToUi,
+            settle: current.settle,
+            cancelled: () => stop.current !== null,
+            onSuiteStart: (suite) => {
+              update((s) => ({ ...s, suite, progress: null }));
+            },
+            onProgress: (suite, progress) => {
+              update((s) => ({ ...s, suite, progress }));
+            },
+          }),
+        )
+        .then(
+          (outcome) => {
+            if (outcome.kind !== 'completed') {
+              ended(outcome.kind === 'failed' ? 'failed' : (stop.current ?? 'cancelled'));
+              return;
+            }
+            running.current = false;
+            update((s) => ({
+              phase: 'done',
+              suite: null,
+              progress: null,
+              results: { ...s.results, ...out },
+            }));
+          },
+          // A rejection outside a case (the settle delay, a yield, a result, a dispose): nothing is kept.
+          () => {
+            ended('failed');
+          },
+        );
+    },
+    [update],
+  );
+
+  // Background timings are meaningless (note §5.1): going to the background cancels the run. Only 'background':
+  // iOS reports 'inactive' for Notification Centre, Control Centre or a system alert, while the app stays in the
+  // foreground and keeps running, so the run is still valid.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (next) => {
-      if (next !== 'active' && running.current) stop.current ??= 'interrupted';
+      if (next === 'background' && running.current) stop.current ??= 'interrupted';
     });
     return () => {
       subscription.remove();
@@ -173,12 +202,13 @@ export function useDiagnosticsRun(deps: DiagnosticsDeps): DiagnosticsRun {
   }, []);
 
   // Closing the modal (unmount) cancels too; the jobs delete the scratch directory as the run unwinds.
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
       if (running.current) stop.current ??= 'cancelled';
-    },
-    [],
-  );
+    };
+  }, []);
 
   return { state, start, cancel };
 }
