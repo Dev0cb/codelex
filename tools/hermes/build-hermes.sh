@@ -4,8 +4,9 @@
 #   build-hermes.sh --check-pin               pin tag == react-native sdks/.hermesv1version; tag still -> pinned commit
 #   build-hermes.sh <out-dir>                 check the pin, shallow-clone, verify HEAD, build `hermes`, install <out-dir>/hermes
 #   build-hermes.sh --check-version <hermes>  bytecode version of <hermes> == the pinned hermesc's (§D2.5)
+#   build-hermes.sh --install-toolchain       apt-install the build toolchain (CI, cold cache)
 #
-# Needs (apt): git cmake ninja-build g++ libicu-dev python3; and `pnpm install` (react-native, hermes-compiler).
+# Needs (apt): the TOOLCHAIN below; and `pnpm install` (react-native, hermes-compiler).
 # The hash of THIS FILE is part of the CI cache key: any change here is a cold build. Keep build inputs in this file.
 set -euo pipefail
 
@@ -14,12 +15,20 @@ repo="$(cd "$here/../.." && pwd)"
 pin="$here/hermes-pin.json"
 REPIN="Re-pin the Hermes VM per ADR-0016 section D6 and the SDK upgrade checklist, docs/architecture/notes/mobile-app-foundation.md section 2.1 (read sdks/.hermesv1version, resolve the tag to its commit, update tools/hermes/hermes-pin.json)"
 repo_url="https://github.com/facebook/hermes.git"
+# Build toolchain. It lives here (not in the workflow) so that a change to it changes the CI cache key.
+TOOLCHAIN=(cmake ninja-build g++ libicu-dev python3 git)
 
+# On stderr so the message survives $(...) capture; Actions reads workflow commands from stderr too.
 fail() {
-  echo "::error::$1"
-  echo "$1" >&2
+  echo "::error::$1" >&2
   exit 1
 }
+
+if [[ "${1:-}" == "--install-toolchain" ]]; then
+  sudo apt-get update
+  sudo apt-get install --yes --no-install-recommends "${TOOLCHAIN[@]}"
+  exit 0
+fi
 
 tag="$(node -p "require(process.argv[1]).tag" "$pin")"
 commit="$(node -p "require(process.argv[1]).commit" "$pin")"
@@ -44,8 +53,9 @@ check_pin() {
   [[ -f "$(dirname "$rn_pkg")/sdks/.hermesv1version" ]] || fail "react-native sdks/.hermesv1version is missing (the SDK changed how it names the VM tag). $REPIN"
   rn_tag="$(tr -d '[:space:]' < "$(dirname "$rn_pkg")/sdks/.hermesv1version")"
   [[ "$rn_tag" == "$tag" ]] || fail "Hermes pin mismatch: tools/hermes/hermes-pin.json has '$tag' but react-native resolves to '$rn_tag'. $REPIN"
-  # Tags can move; the commit is the pin. An annotated tag lists a peeled ^{} line last.
-  remote="$(git ls-remote --tags "$repo_url" "refs/tags/$tag" "refs/tags/$tag^{}" | awk '{print $1}' | tail -n 1)"
+  # Tags can move; the commit is the pin. Exact ref match only; an annotated tag's peeled ^{} line comes last and wins.
+  remote="$(git ls-remote --tags "$repo_url" "refs/tags/$tag" "refs/tags/$tag^{}" \
+    | awk -v t="refs/tags/$tag" '$2==t||$2==t"^{}"{s=$1} END{print s}')"
   [[ "$remote" == "$commit" ]] || fail "tag $tag resolves to '${remote:-nothing}' on $repo_url but the pin says $commit. $REPIN"
   echo "pin ok: $tag -> $commit (equals react-native sdks/.hermesv1version)"
 }
@@ -74,7 +84,7 @@ check_version() {
 case "${1:-}" in
   --check-pin) check_pin; exit 0 ;;
   --check-version) [[ -n "${2:-}" ]] || fail "usage: $0 --check-version <hermes>"; check_version "$2"; exit 0 ;;
-  "" | -*) fail "usage: $0 --check-pin | <out-dir> | --check-version <hermes>" ;;
+  "" | -*) fail "usage: $0 --check-pin | <out-dir> | --check-version <hermes> | --install-toolchain" ;;
 esac
 
 out="$1"
