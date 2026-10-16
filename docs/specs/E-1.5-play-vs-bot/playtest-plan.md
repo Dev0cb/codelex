@@ -251,6 +251,12 @@ Copy this section into `docs/specs/E-1.5-play-vs-bot/playtest-readout.md` at the
 | Crash-free sessions | 1 − (sessions followed by an unclean-exit flag ÷ sessions), per platform; compared with TestFlight / Play Console figures                                                                    |
 | Export completeness | installs that sent ≥ 1 export ÷ active installs in the stores; < 80 % after week 1 triggers parent spec Q-1 follow-up                                                                        |
 
+"Per install" caveat (S6b review m3): the survey counters (`survey.state`) survive a consent withdrawal, but turning
+consent off then on gives the tester a new install id (`user_id`). The same tester can therefore appear under two ids,
+with the survey answered under the first and not asked again under the second. The KR readout de-duplicates "would
+play again" through the debrief roster (tester ↔ install ids, from the ids testers read out of Settings) where it can,
+and reports the number of testers it could not map.
+
 Dependency for `data-analyst` and `mobile-engineer`: `app_backgrounded { foreground_ms }` and
 `app_opened.previous_exit_unclean` (bool) were added to `docs/standards/ANALYTICS_EVENTS.md` in sprint 3 SP1,
 together with `bot_match_finished.score_margin` and `bag_count_at_end`. Data-analyst sign-off: given in sprint 4 D1
