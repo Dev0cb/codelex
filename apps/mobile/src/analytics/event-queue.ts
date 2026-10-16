@@ -131,6 +131,23 @@ function parseEntry(text: string): Entry | null {
   return { seq, occurredMs, text };
 }
 
+/** The export screen's summary (design §5.9). Times are `occurred_at` (device clock), ms since epoch. */
+export interface QueueSummary {
+  readonly events: number;
+  readonly matches: number;
+  readonly oldestMs: number | null;
+  readonly newestMs: number | null;
+}
+
+const MATCH_FINISHED = '"event":"bot_match_finished"';
+
+/** A record's event, parsed and checked (`event-guard.ts`); null when it fails. */
+function guardEntry(entry: Entry): AnalyticsEvent | null {
+  const record = parseJson(entry.text);
+  const parsed = guardEvent(isObject(record) ? record['e'] : undefined);
+  return parsed.ok ? parsed.event : null;
+}
+
 export class EventQueue {
   private loaded = false;
   /** Every live entry (seq ≥ `first`), oldest first. */
@@ -178,14 +195,22 @@ export class EventQueue {
    * the file with the meta already counting them, so the next read counts them once more (rare, over-reports).
    */
   events(): readonly AnalyticsEvent[] {
+    return this.exportable().events;
+  }
+
+  /**
+   * {@link events} with each event's sequence number (same index): the export screen keeps the last one of the file
+   * and clears through it ({@link clearThrough}), so events appended or dropped while the share sheet is open never
+   * shift what "Sent" clears (slice S6c).
+   */
+  exportable(): { readonly events: readonly AnalyticsEvent[]; readonly seqs: readonly number[] } {
     this.load();
     const valid: AnalyticsEvent[] = [];
     const kept: Entry[] = [];
     for (const entry of this.entries) {
-      const record = parseJson(entry.text);
-      const parsed = guardEvent(isObject(record) ? record['e'] : undefined);
-      if (parsed.ok) {
-        valid.push(parsed.event);
+      const parsed = guardEntry(entry);
+      if (parsed !== null) {
+        valid.push(parsed);
         kept.push(entry);
       }
     }
@@ -197,7 +222,34 @@ export class EventQueue {
       this.writeMeta();
       this.rewrite();
     }
-    return valid;
+    return { events: valid, seqs: kept.map((e) => e.seq) };
+  }
+
+  /**
+   * What the export screen shows on open (design §5.9 "Many events": counts only, the file is built on tap): no JSON
+   * parse, no schema check. `matches` counts finished matches by the event name in the record text (compact JSON
+   * written by `asciiJson`; no property can hold that text, every string is an enum or an id).
+   */
+  summary(): QueueSummary {
+    this.load();
+    let matches = 0;
+    for (const entry of this.entries) if (entry.text.includes(MATCH_FINISHED)) matches += 1;
+    return {
+      events: this.entries.length,
+      matches,
+      oldestMs: this.entries[0]?.occurredMs ?? null,
+      newestMs: this.entries.at(-1)?.occurredMs ?? null,
+    };
+  }
+
+  /** The oldest event that passes the guard ("See an example event"); null on an empty queue. Changes nothing. */
+  sample(): AnalyticsEvent | null {
+    this.load();
+    for (const entry of this.entries) {
+      const parsed = guardEntry(entry);
+      if (parsed !== null) return parsed;
+    }
+    return null;
   }
 
   /**
@@ -243,6 +295,35 @@ export class EventQueue {
     this.load();
     const n = Math.max(0, Math.min(count, this.entries.length));
     return this.drop(n, NO_DROPS);
+  }
+
+  /**
+   * "Yes, I sent it" for a file whose newest event has sequence number `lastSeq` (slice S6c): every live event up to
+   * it is cleared, and the drop counts lose exactly what the file reported (`reported`, its `dropped` block), so a
+   * drop counted while the share sheet was open is still reported in the next file. Same disk contract as
+   * {@link clearSent}: true once the meta is on disk; on false, {@link flush} retries.
+   */
+  clearThrough(lastSeq: number, reported: DroppedCounts): boolean {
+    this.load();
+    let n = 0;
+    while (n < this.entries.length && (this.entries[n]?.seq ?? Infinity) <= lastSeq) n += 1;
+    const less = (a: number, b: number): number => Math.max(0, a - b);
+    return this.drop(n, {
+      queueCap: less(this.counts.queueCap, reported.queueCap),
+      expired: less(this.counts.expired, reported.expired),
+      invalid: less(this.counts.invalid, reported.invalid),
+    });
+  }
+
+  /**
+   * "Try again" after a clear that could not be saved: writes the meta if an earlier write failed, then rewrites the
+   * file if events are held in memory only. True when the disk holds exactly the queue.
+   */
+  flush(): boolean {
+    this.load();
+    const metaOk = this.flushMeta();
+    if (this.dirty) this.rewrite();
+    return metaOk && !this.dirty;
   }
 
   /**

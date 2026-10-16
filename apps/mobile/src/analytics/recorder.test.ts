@@ -11,7 +11,12 @@ import { CONSENT_FILE } from './consent';
 import { EventQueue, QUEUE_FILE, QUEUE_MAX_AGE_MS, QUEUE_META_FILE } from './event-queue';
 import type { AnalyticsEvent, EventProperties } from './events';
 import { INSTALL_ID_FILE, isUuidV4 } from './install-id';
-import { ANALYTICS_FILE_NAMES, PlaytestAnalytics, type AnalyticsPlatform } from './recorder';
+import {
+  ANALYTICS_FILE_NAMES,
+  PlaytestAnalytics,
+  PROMPT_FILE,
+  type AnalyticsPlatform,
+} from './recorder';
 import { SESSION_MARKER_FILE } from './session-marker';
 import { eventId } from './test-support';
 
@@ -67,6 +72,14 @@ describe('PlaytestAnalytics: dark launch (analytics.upload.enabled off)', () => 
     expect(h.analytics.setConsent(false)).toBe(false);
     h.analytics.markNoticeSeen();
     expect(h.analytics.dropped()).toEqual({ queueCap: 0, expired: 0, invalid: 0 });
+    // S6c surfaces are inert too.
+    h.analytics.noteMatchCompleted();
+    h.analytics.markExportPromptShown();
+    expect(h.analytics.exportPromptDue()).toBe(false);
+    expect(h.analytics.exportSummary()).toBeNull();
+    expect(h.analytics.exportSample()).toBeNull();
+    expect(h.analytics.prepareExport('1')).toEqual({ ok: false, reason: 'off' });
+    expect(h.analytics.retryClear()).toBe(true);
     expect(fs.boundaries).toBe(0);
     expect(fs.reads).toEqual([]);
     expect(h.analytics.getSnapshot()).toEqual({
@@ -74,6 +87,7 @@ describe('PlaytestAnalytics: dark launch (analytics.upload.enabled off)', () => 
       consent: false,
       noticeVisible: false,
       installId: null,
+      exports: 0,
     });
     expect(h.analytics.queuedCount()).toBe(0);
   });
@@ -443,8 +457,207 @@ describe('PlaytestAnalytics: consent (AC-17, design §5.8)', () => {
     h.analytics.markNoticeSeen();
     for (let n = 0; n < 3; n += 1) h.analytics.record('app_backgrounded', { foreground_ms: n });
     h.analytics.record('app_backgrounded', { foreground_ms: -1 }); // invalid: writes the meta file
-    const owned = [CONSENT_FILE, INSTALL_ID_FILE, QUEUE_FILE, QUEUE_META_FILE, SESSION_MARKER_FILE];
+    h.analytics.markExportPromptShown();
+    const owned = [
+      CONSENT_FILE,
+      INSTALL_ID_FILE,
+      QUEUE_FILE,
+      QUEUE_META_FILE,
+      SESSION_MARKER_FILE,
+      PROMPT_FILE,
+    ];
     expect([...fs.files.keys()].sort()).toEqual([...owned].sort());
     expect([...ANALYTICS_FILE_NAMES].sort()).toEqual([...owned].sort());
+  });
+});
+
+describe('PlaytestAnalytics: Send playtest data (slice S6c, design §5.9)', () => {
+  const MIN = 60 * 1000;
+
+  /** A recording install with `n` `app_backgrounded` events (plus the cold `app_opened`). */
+  function withEvents(n: number): Harness {
+    const h = launch(boot(new MemoryFs()));
+    h.analytics.markInteractive();
+    for (let i = 0; i < n; i += 1) h.analytics.record('app_backgrounded', { foreground_ms: i });
+    return h;
+  }
+
+  const prepared = (h: Harness) => {
+    const result = h.analytics.prepareExport('42');
+    if (!result.ok) throw new Error(result.reason);
+    return result;
+  };
+
+  it('summarises the queue on open without building the file', () => {
+    const h = withEvents(3);
+    const writes = h.fs.writes.length;
+    expect(h.analytics.exportSummary()).toEqual({
+      events: 4,
+      matches: 0,
+      oldestMs: T0,
+      newestMs: T0,
+      dropped: { queueCap: 0, expired: 0, invalid: 0 },
+    });
+    expect(h.analytics.exportSample()?.event).toBe('app_opened');
+    expect(h.fs.writes.length).toBe(writes);
+  });
+
+  it('builds an exportFormat 1 file with the install id, build and drop counts, and writes nothing', () => {
+    const h = withEvents(2);
+    h.analytics.record('app_backgrounded', { foreground_ms: -1 }); // counted invalid
+    h.clock.wall = T0 + 5000;
+    const writes = h.fs.writes.length;
+    const { file, ticket } = prepared(h);
+    expect(h.fs.writes.length).toBe(writes);
+    const parsed = JSON.parse(file.text) as Record<string, unknown>;
+    expect(parsed).toMatchObject({
+      exportFormat: 1,
+      kind: 'codelex.playtest_data',
+      app: { version: '0.1.0', build: '42', platform: 'android' },
+      installId: h.analytics.getSnapshot().installId,
+      exportedAt: new Date(T0 + 5000).toISOString(),
+      dropped: { queueCap: 0, expired: 0, invalid: 1 },
+      remaining: 0,
+    });
+    expect((parsed['events'] as unknown[]).length).toBe(3);
+    expect(file).toMatchObject({ included: 3, remaining: 0 });
+    expect(ticket).toMatchObject({ eventsSent: 3, oldestMs: T0, exportedAtMs: T0 + 5000 });
+  });
+
+  it('refuses an empty queue and an invalid file (a bad build number)', () => {
+    const h = launch(boot(new MemoryFs()));
+    expect(h.analytics.prepareExport('42')).toEqual({ ok: false, reason: 'empty' });
+    h.analytics.markInteractive();
+    expect(h.analytics.prepareExport('b42')).toEqual({ ok: false, reason: 'invalid' });
+  });
+
+  it('"Yes, I sent it" clears exactly the file and records analytics_buffer_flushed', () => {
+    const h = withEvents(2);
+    const { ticket } = prepared(h);
+    // Recorded while the share sheet was open: stays queued.
+    h.analytics.record('app_backgrounded', { foreground_ms: 99 });
+    h.clock.wall = T0 + 60_000;
+    let notified = 0;
+    h.analytics.subscribe(() => {
+      notified += 1;
+    });
+    expect(h.analytics.confirmSent(ticket)).toBe(true);
+    expect(notified).toBe(1);
+    expect(h.analytics.getSnapshot().exports).toBe(1);
+    const left = queued(h.fs);
+    expect(left.map((e) => e.event)).toEqual(['app_backgrounded', 'analytics_buffer_flushed']);
+    expect(propsOf(left[0])).toEqual({ foreground_ms: 99 });
+    expect(propsOf(left[1])).toEqual({
+      events_sent: 3,
+      events_dropped_since_last: 0,
+      oldest_event_age_ms: 0,
+    });
+    expect(h.analytics.queuedCount()).toBe(2);
+  });
+
+  it('reports the age of the oldest event and the drops the file carried', () => {
+    const h = withEvents(1);
+    h.analytics.record('app_backgrounded', { foreground_ms: -1 });
+    h.clock.wall = T0 + 90_000;
+    const { ticket } = prepared(h);
+    h.analytics.confirmSent(ticket);
+    expect(propsOf(queued(h.fs).at(-1))).toEqual({
+      events_sent: 2,
+      events_dropped_since_last: 1,
+      oldest_event_age_ms: 90_000,
+    });
+    expect(h.analytics.dropped()).toEqual({ queueCap: 0, expired: 0, invalid: 0 });
+  });
+
+  it('shares a full queue in several files under 1 MB, with remaining, round after round', () => {
+    const h = withEvents(4999);
+    expect(h.analytics.queuedCount()).toBe(5000);
+    let rounds = 0;
+    let sent = 0;
+    for (;;) {
+      const result = h.analytics.prepareExport('42');
+      if (!result.ok) break;
+      const { file, ticket } = result;
+      expect(file.text.length).toBeLessThanOrEqual(1_000_000);
+      sent += file.included;
+      rounds += 1;
+      expect(h.analytics.confirmSent(ticket)).toBe(true);
+      // Only the analytics_buffer_flushed events of the confirmed rounds are left at the end.
+      if (file.remaining === 0) break;
+      expect(h.analytics.queuedCount()).toBe(file.remaining + rounds);
+    }
+    expect(rounds).toBeGreaterThanOrEqual(2);
+    expect(sent).toBeGreaterThanOrEqual(5000);
+    expect(queued(h.fs).every((e) => e.event === 'analytics_buffer_flushed')).toBe(true);
+  });
+
+  it('reports a clear that hit a full disk; retryClear saves it later', () => {
+    const h = withEvents(2);
+    const { ticket } = prepared(h);
+    h.fs.fullAfter = 0;
+    expect(h.analytics.confirmSent(ticket)).toBe(false);
+    expect(h.analytics.retryClear()).toBe(false);
+    h.fs.fullAfter = null;
+    expect(h.analytics.retryClear()).toBe(true);
+    expect(queued(h.fs).map((e) => e.event)).toEqual(['analytics_buffer_flushed']);
+  });
+
+  it('confirming after consent was withdrawn clears nothing more and records nothing', () => {
+    const h = withEvents(2);
+    const { ticket } = prepared(h);
+    h.analytics.setConsent(false);
+    expect(h.analytics.confirmSent(ticket)).toBe(true);
+    expect([...h.fs.files.keys()]).toEqual([CONSENT_FILE]);
+    expect(h.analytics.retryClear()).toBe(true);
+  });
+
+  it('ignores a ticket of a previous pseudonym', () => {
+    const h = withEvents(2);
+    const { ticket } = prepared(h);
+    h.analytics.setConsent(false);
+    h.analytics.setConsent(true);
+    h.analytics.record('app_backgrounded', { foreground_ms: 7 });
+    expect(h.analytics.confirmSent(ticket)).toBe(true);
+    expect(h.analytics.queuedCount()).toBe(1);
+  });
+
+  it('end-of-session prompt: due after two matches with unsent events, once per session, 24 h cool-down', () => {
+    const fs = new MemoryFs();
+    const h = withEvents(1);
+    expect(h.analytics.exportPromptDue()).toBe(false);
+    h.analytics.noteMatchCompleted();
+    expect(h.analytics.exportPromptDue()).toBe(false);
+    h.clock.mono = 8 * MIN;
+    expect(h.analytics.exportPromptDue()).toBe(true);
+    h.analytics.noteMatchCompleted();
+    expect(h.analytics.sessionMatches()).toBe(2);
+    h.analytics.markExportPromptShown();
+    expect(h.analytics.exportPromptDue()).toBe(false);
+    // A new process (new session) within 24 h: still held back by the cool-down on disk.
+    for (const [name, bytes] of h.fs.files) fs.files.set(name, bytes);
+    const next = launch(boot(fs.reboot(), true, T0 + 60 * MIN));
+    next.analytics.noteMatchCompleted();
+    next.analytics.noteMatchCompleted();
+    expect(next.analytics.exportPromptDue()).toBe(false);
+    next.clock.wall = T0 + 25 * 60 * MIN;
+    expect(next.analytics.exportPromptDue()).toBe(true);
+  });
+
+  it('reads an unreadable prompt file as never shown', () => {
+    const h = withEvents(1);
+    new DataStore(h.fs).replace(PROMPT_FILE, ['{"v":2}']);
+    h.analytics.noteMatchCompleted();
+    h.analytics.noteMatchCompleted();
+    expect(h.analytics.exportPromptDue()).toBe(true);
+    h.fs.files.set(PROMPT_FILE, Uint8Array.of(0xff));
+    expect(h.analytics.exportPromptDue()).toBe(true);
+  });
+
+  it('purges the prompt file with consent off', () => {
+    const h = withEvents(1);
+    h.analytics.markExportPromptShown();
+    expect(h.fs.files.has(PROMPT_FILE)).toBe(true);
+    h.analytics.setConsent(false);
+    expect([...h.fs.files.keys()]).toEqual([CONSENT_FILE]);
   });
 });
