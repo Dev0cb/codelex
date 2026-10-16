@@ -4,6 +4,8 @@
  * every file decodes with `decodeMatchLog`, and the exported log replays to its stored hash (AC-20). Allowlist: only
  * `current.log` or `last.log` is read, never another file of `codelex-data`, and the file holds only allowlisted keys.
  */
+// `@jest/globals` first: the hoisted `jest.mock` factory of the engine below runs when the engine is imported.
+import { beforeAll, describe, expect, it, jest } from '@jest/globals';
 import {
   parseActionLog,
   replay,
@@ -12,7 +14,7 @@ import {
   type MatchConfig,
   type StateHash,
 } from '@codelex/game-engine';
-import { beforeAll, describe, expect, it, jest } from '@jest/globals';
+import type * as Engine from '@codelex/game-engine';
 import fc from 'fast-check';
 
 import { CONSENT_FILE } from '../analytics/consent';
@@ -32,11 +34,18 @@ import { playMatchConfig } from '../match/play-config';
 import { loadBundledLexicon, scriptMatch, seedOf } from '../match/test-support';
 import { DataStore } from '../persistence/data-store';
 import { FILES, MatchJournal } from '../persistence/match-journal';
-import { MemoryFs } from '../persistence/memory-fs';
+import { MemoryFs, ProcessKilled } from '../persistence/memory-fs';
 import type { Divergence } from '../persistence/resume';
+import {
+  createPersistence,
+  GUARD_FILE,
+  MAX_UNCLEAN_RESUMES,
+  openSavedMatch,
+} from '../persistence/saved-match';
 import {
   buildMatchLogFile,
   findMatchLog,
+  MATCH_LOG_GUARD_FILE,
   MATCH_LOG_FILE_FORMAT,
   MATCH_LOG_FILE_KIND,
   MATCH_LOG_FILE_MAX_BYTES,
@@ -48,6 +57,12 @@ import {
 jest.mock('expo-asset', () => jest.requireActual('../../jest/expo-asset.cjs'));
 jest.mock('expo-crypto', () => jest.requireActual('../../jest/expo-crypto.cjs'));
 jest.mock('expo-file-system', () => jest.requireActual('../../jest/expo-file-system.cjs'));
+// The engine's real `replay`, spied, so a test can make it crash the app or check that it never runs (TM-04).
+jest.mock('@codelex/game-engine', () => {
+  const actual = jest.requireActual<typeof Engine>('@codelex/game-engine');
+  return { ...actual, replay: jest.fn(actual.replay) };
+});
+const replayMock = jest.mocked(replay);
 
 const APP: MatchLogApp = { version: '0.1.0', build: '42', platform: 'android' };
 // Type-level equivalence with the D1 envelope `app`, both ways.
@@ -284,5 +299,94 @@ describe('on-device match log file (S6d) ≡ D1 contract', () => {
       ok: false,
       error: { code: 'INVALID' },
     });
+  });
+});
+
+describe('Send match log never replays a log that may crash the app (TM-04, TM-02 D-1)', () => {
+  it('a crash-guarded log (resume crashed twice) still exports, without divergence, and is never replayed', () => {
+    const fs = new MemoryFs();
+    const persistence = createPersistence(fs);
+    const { log } = persist(persistence.store, 4120, 8, { tamperAt: 3 });
+    persistence.store.replace(GUARD_FILE, [String(MAX_UNCLEAN_RESUMES)]);
+    replayMock.mockClear();
+    const saved = openSavedMatch(persistence, ctx);
+    expect(saved).toEqual({ kind: 'state_corrupt', divergence: null });
+    if (saved.kind !== 'state_corrupt') throw new Error('expected the corrupt card');
+    const built = buildMatchLogFile(persistence.store, 'current', APP, ctx, { corrupt: saved });
+    expect(built).toEqual({ ok: true, value: d1Text(log, null) });
+    expect(replayMock).not.toHaveBeenCalled();
+    expect(fs.files.has(MATCH_LOG_GUARD_FILE)).toBe(false);
+  });
+
+  it("a state_corrupt log takes the resume's divergence as is, without a second replay", () => {
+    const persistence = createPersistence(new MemoryFs());
+    // The last hash is wrong: the resume checks the final hash, then locates the divergence itself.
+    const { log } = persist(persistence.store, 4121, 8, { tamperAt: 7 });
+    const saved = openSavedMatch(persistence, ctx);
+    if (saved.kind !== 'state_corrupt' || saved.divergence === null) {
+      throw new Error('expected a divergence from the resume');
+    }
+    expect(saved.divergence.index).toBe(7);
+    replayMock.mockClear();
+    const built = buildMatchLogFile(persistence.store, 'current', APP, ctx, { corrupt: saved });
+    expect(built).toEqual({ ok: true, value: d1Text(log, saved.divergence) });
+    expect(replayMock).not.toHaveBeenCalled();
+    // The resume's verdict is about current.log only: the last finished match is still checked.
+    persist(persistence.store, 4122, 4, { finish: true });
+    replayMock.mockClear();
+    expect(buildMatchLogFile(persistence.store, 'last', APP, ctx, { corrupt: saved }).ok).toBe(
+      true,
+    );
+    expect(replayMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('a log whose replay crashed the app exports without divergence on every next attempt, never replayed', () => {
+    const fs = new MemoryFs();
+    const { log } = persist(new DataStore(fs), 4123, 8, { tamperAt: 3 });
+    replayMock.mockClear();
+    replayMock.mockImplementationOnce(() => {
+      // The process dies inside the replay (native crash, out of memory, or killed while hung).
+      fs.killed = true;
+      throw new ProcessKilled();
+    });
+    buildMatchLogFile(new DataStore(fs), 'current', APP, ctx);
+    expect(replayMock).toHaveBeenCalledTimes(1);
+    const next = fs.reboot();
+    expect(next.files.has(MATCH_LOG_GUARD_FILE)).toBe(true);
+    replayMock.mockClear();
+    const store = new DataStore(next);
+    expect(build(store, 'current')).toBe(d1Text(log, null));
+    expect(build(store, 'current')).toBe(d1Text(log, null));
+    expect(decodeMatchLog(build(store, 'current')).ok).toBe(true);
+    expect(replayMock).not.toHaveBeenCalled();
+    // Another log (a new match) is replayed again: the guard names the log it protects.
+    const other = persist(store, 4124, 6, { tamperAt: 2 });
+    replayMock.mockClear();
+    const file = JSON.parse(build(store, 'current')) as Record<string, unknown>;
+    expect(replayMock).toHaveBeenCalledTimes(1);
+    expect(file).toHaveProperty('divergence.index', 2);
+    expect(file['log']).toEqual(JSON.parse(serializeActionLog(other.log)));
+    expect(next.files.has(MATCH_LOG_GUARD_FILE)).toBe(false);
+  });
+
+  it('a log whose replay throws still exports, without divergence, and the guard is cleared', () => {
+    const fs = new MemoryFs();
+    const store = new DataStore(fs);
+    const { log } = persist(store, 4125, 8, { tamperAt: 3 });
+    replayMock.mockImplementationOnce(() => {
+      throw new RangeError('Maximum call stack size exceeded');
+    });
+    expect(build(store, 'current')).toBe(d1Text(log, null));
+    expect(fs.files.has(MATCH_LOG_GUARD_FILE)).toBe(false);
+  });
+
+  it('does not replay when the guard cannot be written (full disk), and still exports', () => {
+    const fs = new MemoryFs();
+    const store = new DataStore(fs);
+    const { log } = persist(store, 4126, 5, { tamperAt: 1 });
+    fs.fullAfter = 0;
+    replayMock.mockClear();
+    expect(build(store, 'current')).toBe(d1Text(log, null));
+    expect(replayMock).not.toHaveBeenCalled();
   });
 });

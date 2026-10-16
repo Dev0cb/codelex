@@ -3,8 +3,9 @@
  * the corrupt match is exported (as `raw` when the app cannot read it) before "Start a new match" deletes it; the
  * version-mismatch card has no such button; with the flag off the card offers "Start a new match" only.
  */
-import type { SeedHex } from '@codelex/game-engine';
 import { beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { replay, type SeedHex } from '@codelex/game-engine';
+import type * as Engine from '@codelex/game-engine';
 import { act, fireEvent, screen } from '@testing-library/react-native';
 import { Stack } from 'expo-router';
 import { renderRouter } from 'expo-router/testing-library';
@@ -20,12 +21,18 @@ import type { LoadedLexicon } from '../../lexicon/load-lexicon';
 import { createJsThreadBotRunner } from '../../match/bot-runner';
 import { MatchSessionProvider } from '../../match/match-session';
 import { playMatchConfig } from '../../match/play-config';
-import { humanStarts, loadBundledLexicon } from '../../match/test-support';
+import { humanStarts, loadBundledLexicon, scriptMatch } from '../../match/test-support';
 import { MatchServicesContext, type MatchServices } from '../../match/use-match';
+import { MATCH_LOG_GUARD_FILE } from '../../match-log/match-log-file';
 import { DataStore } from '../../persistence/data-store';
 import { FILES } from '../../persistence/match-journal';
 import { MemoryFs } from '../../persistence/memory-fs';
-import { createPersistence } from '../../persistence/saved-match';
+import {
+  createPersistence,
+  GUARD_FILE,
+  MAX_UNCLEAN_RESUMES,
+  persistTransition,
+} from '../../persistence/saved-match';
 import { ShareContext } from '../../sharing/share-provider';
 import { createTestShare, type TestShare } from '../../sharing/test-share';
 import { HomeScreen } from './home-screen';
@@ -33,6 +40,12 @@ import { HomeScreen } from './home-screen';
 jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
 jest.mock('expo-crypto', () => jest.requireActual('../../../jest/expo-crypto.cjs'));
 jest.mock('expo-file-system', () => jest.requireActual('../../../jest/expo-file-system.cjs'));
+// The engine's real `replay`, spied: the export of a crash-guarded match must never run it (TM-04).
+jest.mock('@codelex/game-engine', () => {
+  const actual = jest.requireActual<typeof Engine>('@codelex/game-engine');
+  return { ...actual, replay: jest.fn(actual.replay) };
+});
+const replayMock = jest.mocked(replay);
 
 const lexiconSource = createBundledLexiconSource();
 let lexicon: LoadedLexicon;
@@ -113,6 +126,38 @@ describe('Send match log on the corrupt-state card (§5.10.2, S6d)', () => {
     // The card stays until the player acts; the match is still there.
     expect(screen.getByTestId('home.cannotResume')).toBeTruthy();
     expect(disk.files.has(FILES.log)).toBe(true);
+  }, 60_000);
+
+  it('exports a crash-guarded match (resume crashed twice) without replaying it (TM-04, TM-02 D-1)', async () => {
+    const seed = humanStarts(lexicon, 5204);
+    const disk = new MemoryFs();
+    const persistence = createPersistence(disk);
+    const { start, steps } = scriptMatch(seed, lexicon, 6);
+    persistence.journal.start(playMatchConfig(seed, lexicon.index));
+    let before = start;
+    for (const step of steps) {
+      persistTransition(persistence.journal, before, step.after, { lexicon: lexicon.index });
+      before = step.after;
+    }
+    // The last two resumes of this log never returned.
+    persistence.store.replace(GUARD_FILE, [String(MAX_UNCLEAN_RESUMES)]);
+    replayMock.mockClear();
+    const share = await renderHome(seed, disk, true);
+    expect(await screen.findByText("We couldn't restore this match.")).toBeTruthy();
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('home.sendMatchLog'));
+    });
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('matchlog.share'));
+      await Promise.resolve();
+    });
+    expect(share.opened).toHaveLength(1);
+    const text = share.opened[0]?.files.get('codelex-match-log.json') ?? '';
+    const decoded = decodeMatchLog(text);
+    if (!decoded.ok) throw new Error(JSON.stringify(decoded.error));
+    expect(Object.keys(decoded.value).sort()).toEqual(['app', 'exportFormat', 'kind', 'log']);
+    expect(replayMock).not.toHaveBeenCalled();
+    expect(disk.files.has(MATCH_LOG_GUARD_FILE)).toBe(false);
   }, 60_000);
 
   it('offers Start a new match only while the flag is off', async () => {

@@ -76,13 +76,17 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   const analytics = usePlaytestAnalytics();
   const ctx = useMemo<EngineContext>(() => ({ lexicon: index }), [index]);
   const persistence = useMemo(() => services.persistence?.() ?? null, [services]);
-  // "Send match log" (slice S6d) reads the saved matches through this allowlist only (TM-04).
-  const matchLog = useMemo(
-    () => (persistence === null ? null : createMatchLogAccess(persistence.store, ctx, exportApp())),
-    [persistence, ctx],
-  );
-
   const [saved, setSaved] = useState<SavedStatus>(persistence === null ? NONE : CHECKING);
+  // "Send match log" (slice S6d) reads the saved matches through this allowlist only (TM-04). On the corrupt card
+  // it reuses the resume's verdict, so the log whose replay may have crashed the app is never replayed again.
+  const corrupt = saved.kind === 'state_corrupt' ? saved : null;
+  const matchLog = useMemo(
+    () =>
+      persistence === null
+        ? null
+        : createMatchLogAccess(persistence.store, ctx, exportApp(), corrupt),
+    [persistence, ctx, corrupt],
+  );
   const [model, setModel] = useState<MatchModel | null>(null);
   const modelRef = useRef<MatchModel | null>(null);
   const [startFailed, setStartFailed] = useState(false);

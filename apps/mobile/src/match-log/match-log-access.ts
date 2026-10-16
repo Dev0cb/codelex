@@ -12,6 +12,7 @@ import {
   buildMatchLogFile,
   findMatchLog,
   type MatchLogApp,
+  type MatchLogBuildOptions,
   type MatchLogFileError,
   type MatchLogScope,
 } from './match-log-file';
@@ -25,11 +26,14 @@ export interface MatchLogAccess {
 
 /**
  * @param app The exporting build, or null when the platform is neither iOS nor Android (then nothing is built).
+ * @param corrupt The resume's verdict when it found `current.log` unusable (the corrupt card, including the D-1 crash
+ *   counter firing): that log is then exported with this divergence and never replayed (TM-04).
  */
 export function createMatchLogAccess(
   store: DataStore,
   ctx: EngineContext,
   app: MatchLogApp | null,
+  corrupt: MatchLogBuildOptions['corrupt'] = null,
 ): MatchLogAccess {
   return {
     find() {
@@ -41,7 +45,7 @@ export function createMatchLogAccess(
     },
     build(scope) {
       if (app === null) return { ok: false, error: { code: 'INVALID' } };
-      return buildMatchLogFile(store, scope, app, ctx);
+      return buildMatchLogFile(store, scope, app, ctx, { corrupt });
     },
   };
 }
