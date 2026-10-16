@@ -19,6 +19,7 @@ export interface UseMatch {
 }
 
 const noop = (): void => undefined;
+const zero = (): number => 0;
 
 /**
  * The match screen's view of the session (`match-session.tsx`). The engine is the only source of outcomes; this
@@ -33,6 +34,7 @@ export function useMatch(): UseMatch {
   const runner = useMemo(() => services.createBotRunner(index), [services, index]);
   const model = session?.model ?? null;
   const dispatch = session?.dispatch ?? noop;
+  const now = session?.now ?? zero;
 
   const state = model?.state;
   const failed = model?.failure !== null;
@@ -42,11 +44,17 @@ export function useMatch(): UseMatch {
     let active = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const tag = state.actionCount;
+    const requestedAt = now();
     const delay = new Promise<void>((resolve) => {
       timer = setTimeout(resolve, services.thinkDelayMs());
     });
     const decision = runner.decide(botRequestFor(state, BOT_SEAT, PLAY_BOT)).then(
-      (result) => ({ type: 'bot_decided' as const, tag, result }),
+      (result) => ({
+        type: 'bot_decided' as const,
+        tag,
+        result,
+        timing: { requestedAt, resolvedAt: now() },
+      }),
       () => ({ type: 'bot_failed' as const, tag }),
     );
     void Promise.all([decision, delay]).then(([command]) => {
@@ -56,7 +64,7 @@ export function useMatch(): UseMatch {
       active = false;
       clearTimeout(timer);
     };
-  }, [state, failed, runner, services, dispatch]);
+  }, [state, failed, runner, services, dispatch, now]);
 
   return {
     model,
