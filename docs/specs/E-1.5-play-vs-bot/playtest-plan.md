@@ -257,6 +257,11 @@ with the survey answered under the first and not asked again under the second. T
 play again" through the debrief roster (tester ↔ install ids, from the ids testers read out of Settings) where it can,
 and reports the number of testers it could not map.
 
+Readout script (sprint 4 KR): `node tools/readout/cli.mjs [--roster roster.csv] export.json...` computes median session,
+would-play-again and crash-free from the exports exactly as defined above (usage, roster CSV format, assumptions in
+`tools/readout/README.md`; dry run on a synthetic export in `exit-kpi-readout-dry-run.md`). ASSUMPTION pending owner
+confirmation (OQ-SP2-4): an OS kill of a backgrounded app is not a crash; only `previous_exit_unclean` counts.
+
 Dependency for `data-analyst` and `mobile-engineer`: `app_backgrounded { foreground_ms }` and
 `app_opened.previous_exit_unclean` (bool) were added to `docs/standards/ANALYTICS_EVENTS.md` in sprint 3 SP1,
 together with `bot_match_finished.score_margin` and `bag_count_at_end`. Data-analyst sign-off: given in sprint 4 D1
