@@ -21,6 +21,7 @@
     "@codelex/bots": "workspace:*",
     "@codelex/design-system": "workspace:*",
     "@codelex/game-engine": "workspace:*",
+    "@codelex/golden-runner": "workspace:*",
     "@codelex/i18n": "workspace:*",
     "@codelex/lexicon": "workspace:*",
     "@shopify/react-native-skia": "2.6.2",
