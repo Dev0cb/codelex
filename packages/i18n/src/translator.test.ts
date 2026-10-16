@@ -55,6 +55,10 @@ describe('shipped catalogs', () => {
       level: 'Expert',
       category: 'DevOps',
       detail: 'PODS · 62 pts · You',
+      address: 'playtest@codelex.example',
+      events: 412,
+      matches: 9,
+      id: '8f3a1c2e-0b1d-4c2a-8e6f-1a2b3c4d5e6f',
     };
     for (const locale of LOCALES) {
       const { t } = createTranslator(locale, { onError });
