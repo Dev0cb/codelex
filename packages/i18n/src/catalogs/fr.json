@@ -257,5 +257,7 @@
   "matchlog.scope.current": "ta partie en cours",
   "matchlog.scope.last": "ta dernière partie terminée",
   "matchlog.empty": "Aucune partie à exporter pour l'instant.",
-  "matchlog.share": "Partager le journal…"
+  "matchlog.share": "Partager le journal…",
+  "settings.send_match_log": "Envoyer le journal de partie",
+  "settings.send_match_log.desc": "Pour signaler un bug. Contient les coups, aucune donnée personnelle."
 }

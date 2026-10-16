@@ -38,6 +38,11 @@ export type ReadRecords =
   | { readonly kind: 'corrupt'; readonly prefix: readonly string[] }
   | { readonly kind: 'ok'; readonly records: readonly string[]; readonly droppedTail: boolean };
 
+export type ReadBytes =
+  | { readonly kind: 'missing' }
+  | { readonly kind: 'too_large' }
+  | { readonly kind: 'ok'; readonly bytes: Uint8Array };
+
 const concat = (parts: readonly Uint8Array[]): Uint8Array => {
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
   let at = 0;
@@ -83,6 +88,19 @@ export class DataStore {
     return decoded.ok
       ? { kind: 'ok', records: decoded.records, droppedTail: decoded.droppedTail }
       : { kind: 'corrupt', prefix: decoded.records };
+  }
+
+  /**
+   * The bytes of `name` as they are on disk, size cap checked before reading (TM-02). Only "Send match log" uses it,
+   * for a record file the app cannot decode (TM-04 `raw`).
+   */
+  readBytes(name: string, maxBytes: number): ReadBytes {
+    const size = this.fs.size(name);
+    if (size === null) return { kind: 'missing' };
+    if (size > maxBytes) return { kind: 'too_large' };
+    const bytes = this.fs.read(name);
+    if (bytes === null) return { kind: 'missing' };
+    return bytes.length > maxBytes ? { kind: 'too_large' } : { kind: 'ok', bytes };
   }
 
   list(): readonly string[] {

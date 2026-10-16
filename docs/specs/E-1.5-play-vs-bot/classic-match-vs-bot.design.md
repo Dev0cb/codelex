@@ -1305,6 +1305,12 @@ tester's country, not "EU storage"; what a mail app adds; the Sent-folder copy) 
 `export.summary.item.screens` (onboarding, post-match, graph and bot-timing events), listed before the technical row.
 `export.remaining` counts what the confirmed file left out (its `remaining`), not the live queue.
 
+Keys added by `mobile-engineer` in slice S6d (2026-10-16), pending translation review: `settings.send_match_log` and
+`settings.send_match_log.desc`, as written in the table below (the `matchlog.*` keys were already in the catalogs).
+The match-log sheet reuses `common.cancel`, `common.close`, `common.retry`, `export.recipient` (TM-07 line, hidden
+while no address is configured) and `export.error.file` / `export.error.share` for its failure states; the corrupt
+card's button uses `settings.send_match_log`. No other key is added.
+
 | Key | EN | FR |
 |---|---|---|
 | export.confirm.more | {count, plural, one {# more event will go in the next file.} other {# more events will go in the next file.}} | {count, plural, one {# autre événement partira dans le fichier suivant.} other {# autres événements partiront dans le fichier suivant.}} |
