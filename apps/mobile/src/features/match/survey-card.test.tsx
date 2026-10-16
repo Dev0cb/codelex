@@ -84,6 +84,17 @@ function Providers({
   );
 }
 
+/**
+ * One tap as Pressability takes an accessibility click (`onClick` → `onPress`), synchronously and without its own
+ * act(), so several taps can land before the card re-renders (a double tap, Yes and No in the same frame).
+ */
+function tap(element: ReturnType<typeof screen.getByTestId>): void {
+  const onClick: unknown = element.props.onClick;
+  if (typeof onClick !== 'function') throw new Error('not a pressable');
+  const event = { nativeEvent: {}, target: 1, currentTarget: 1 };
+  (onClick as (e: typeof event) => void)(event);
+}
+
 beforeEach(() => {
   jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
   jest.spyOn(AccessibilityInfo, 'isScreenReaderEnabled').mockResolvedValue(false);
@@ -178,6 +189,44 @@ describe('SurveyCard (AC-18)', () => {
         matches_completed: 3,
       },
     ]);
+  });
+
+  it('records one answer only: a double tap, or Yes and No in the same frame', async () => {
+    const answered = (fs: MemoryFs): readonly AnalyticsEvent[] =>
+      surveyEvents(fs).filter((e) => e.event === 'playtest_survey_answered');
+    // A double tap: both presses land before the card re-renders.
+    const doubleTap = new MemoryFs();
+    const first = await render(
+      <Providers analytics={install(doubleTap, 1)} flags={ON}>
+        <SurveyCard />
+      </Providers>,
+    );
+    const yes = screen.getByTestId('summary.survey.yes');
+    await act(() => {
+      tap(yes);
+      tap(yes);
+    });
+    expect(answered(doubleTap).map((e) => e.properties)).toEqual([
+      expect.objectContaining({ answer: 'yes' }),
+    ]);
+    await first.unmount();
+    // Yes then No (and ✕) in the same frame: the first one wins.
+    const sameFrame = new MemoryFs();
+    await render(
+      <Providers analytics={install(sameFrame, 1)} flags={ON}>
+        <SurveyCard />
+      </Providers>,
+    );
+    const [yesButton, noButton, dismiss] = ['yes', 'no', 'dismiss'].map((id) =>
+      screen.getByTestId(`summary.survey.${id}`),
+    );
+    await act(() => {
+      for (const button of [yesButton, noButton, dismiss]) if (button !== undefined) tap(button);
+    });
+    expect(answered(sameFrame).map((e) => e.properties)).toEqual([
+      expect.objectContaining({ answer: 'yes' }),
+    ]);
+    expect(screen.getByTestId('summary.survey.thanks')).toBeTruthy();
   });
 
   it('records each answer value of the catalogue', async () => {

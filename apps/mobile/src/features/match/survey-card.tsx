@@ -1,5 +1,5 @@
 import type { MessageKey } from '@codelex/i18n';
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { usePlaytestAnalytics } from '../../analytics/analytics-provider';
@@ -42,6 +42,8 @@ export function SurveyCard(): JSX.Element | null {
   // Read once per Summary: the same match never shows the card twice.
   const [matches] = useState(() => (enabled && analytics !== null ? analytics.surveyDue() : null));
   const [phase, setPhase] = useState<Phase>('asking');
+  // One answer per showing: a double tap, or two answers in the same frame, lands before the re-render hides them.
+  const answered = useRef(false);
 
   useEffect(() => {
     // Idempotent: a second call for the same completion records nothing (Strict Mode effects run twice).
@@ -63,6 +65,8 @@ export function SurveyCard(): JSX.Element | null {
   if (matches === null || analytics === null || phase === 'gone') return null;
 
   const answer = (value: SurveyAnswer): void => {
+    if (answered.current) return;
+    answered.current = true;
     analytics.answerSurvey(value, matches);
     setPhase(value === 'dismissed' ? 'gone' : 'thanks');
   };
