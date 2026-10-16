@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState, type JSX, type ReactNode } from 'react';
+import { createElement, useState, type JSX, type ReactNode } from 'react';
 import {
   I18nManager,
   Platform,
@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAnalyticsSnapshot, usePlaytestAnalytics } from '../../analytics/analytics-provider';
+import type { DiagnosticsEntry } from '../../diagnostics/entry';
 import { useI18n } from '../../i18n/i18n-provider';
 import { useSendMatchLog } from '../match-log/send-match-log';
 import {
@@ -28,6 +29,11 @@ import { ConfirmSheet } from '../match/match-sheets';
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
 /** Row chevron, drawn right-pointing; mirrored when the layout is right-to-left. */
 const CHEVRON_GLYPH = '›';
+
+/** Shape of `src/diagnostics/entry` for the gate below (a type only: erased from every bundle). */
+interface EntryModule {
+  readonly DiagnosticsEntry: typeof DiagnosticsEntry;
+}
 
 const MOTION_LABEL = {
   system: 'settings.motion.system',
@@ -51,7 +57,8 @@ export interface BuildVersions {
  *   report): it opens the TM-05 confirm sheet, then the OS share sheet. The section shows when either flag is on.
  * - **Play**: Animations (Follow system / Reduced / Full, D-22). The other §5.8 Play rows (sound, vibration,
  *   auto-zoom, handedness) control features not built yet and are not rendered.
- * - **About this build**: `settings.about.versions` as plain text (the 7-tap Diagnostics entry is DG1's), and the
+ * - **About this build**: `settings.about.versions` as plain text, or, in preview-diagnostics builds only, wrapped in
+ *   the 7-tap Diagnostics entry (DG1, `DiagnosticsEntry` above); and the
  *   language note.
  * No animation of its own; the confirm sheet fades under reduced motion (`Sheet`). Text scales to 200 %: rows wrap.
  */
@@ -258,12 +265,35 @@ export function SettingsScreen({ versions }: { readonly versions: BuildVersions 
           t('settings.section.about'),
           'settings.about',
           <View style={row}>
-            <Text
-              testID="settings.about.versions"
-              style={[type.body, styles.mono, { color: color.textPrimary }]}
-            >
-              {t('settings.about.versions', { ...versions })}
-            </Text>
+            {/*
+              Build-time gate of the preview-only Diagnostics screen (DG1; diagnostics note §3). Metro folds this in
+              release transforms: without EXPO_PUBLIC_CODELEX_DIAGNOSTICS=1 (EAS profile `preview-diagnostics`
+              only) the branch and its `require` are removed before dependency collection, so production bundles
+              contain no diagnostics code and are byte-for-byte the same bytecode (bundle:check and its positive
+              control prove it). Keep the literal comparison here, inline: Metro does not fold across modules or
+              through calls, and a module-level constant would survive as bytes. The only import of
+              src/diagnostics/. `require` is the note's §3.2 fallback: Jest cannot evaluate `import()`.
+            */}
+            {process.env.EXPO_PUBLIC_CODELEX_DIAGNOSTICS === '1' ? (
+              createElement(
+                // eslint-disable-next-line @typescript-eslint/no-require-imports -- DG1 note §3.2 fallback (above).
+                (require('../../diagnostics/entry') as EntryModule).DiagnosticsEntry,
+                null,
+                <Text
+                  testID="settings.about.versions"
+                  style={[type.body, styles.mono, { color: color.textPrimary }]}
+                >
+                  {t('settings.about.versions', { ...versions })}
+                </Text>,
+              )
+            ) : (
+              <Text
+                testID="settings.about.versions"
+                style={[type.body, styles.mono, { color: color.textPrimary }]}
+              >
+                {t('settings.about.versions', { ...versions })}
+              </Text>
+            )}
             <Text style={[type.caption, { color: color.textMuted }]}>
               {t('settings.language.note')}
             </Text>

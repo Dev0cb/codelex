@@ -21,6 +21,6 @@
     "lint": { "dependsOn": ["^build", "prepare:lexicon"] },
     "typecheck": { "dependsOn": ["^build", "prepare:lexicon"] },
     "test": { "dependsOn": ["^build", "prepare:lexicon"], "outputs": [] },
-    "bundle:check": { "dependsOn": ["build"], "outputs": [] }
+    "bundle:check": { "dependsOn": ["build"], "outputs": [], "env": ["EXPO_PUBLIC_*"] }
   }
 }
