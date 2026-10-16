@@ -24,21 +24,30 @@ export interface MatchLogAccess {
   build(scope: MatchLogScope): Result<string, MatchLogFileError>;
 }
 
+/** What the match session knows about the saved matches without reading them. */
+export interface MatchLogSessionView {
+  /**
+   * The resume's verdict when it found `current.log` unusable (the corrupt card, including the D-1 crash counter
+   * firing): that log is then exported with this divergence and never replayed (TM-04).
+   */
+  readonly corrupt?: MatchLogBuildOptions['corrupt'];
+  /** Actions of the match in `current.log`, known from memory (live or resumable match), else null (§12.3). */
+  readonly currentActions?: () => number | null;
+}
+
 /**
  * @param app The exporting build, or null when the platform is neither iOS nor Android (then nothing is built).
- * @param corrupt The resume's verdict when it found `current.log` unusable (the corrupt card, including the D-1 crash
- *   counter firing): that log is then exported with this divergence and never replayed (TM-04).
  */
 export function createMatchLogAccess(
   store: DataStore,
   ctx: EngineContext,
   app: MatchLogApp | null,
-  corrupt: MatchLogBuildOptions['corrupt'] = null,
+  { corrupt = null, currentActions = () => null }: MatchLogSessionView = {},
 ): MatchLogAccess {
   return {
     find() {
       try {
-        return findMatchLog(store);
+        return findMatchLog(store, currentActions());
       } catch {
         return null;
       }

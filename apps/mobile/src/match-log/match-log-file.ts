@@ -80,10 +80,22 @@ const SCOPE_FILE: Readonly<Record<MatchLogScope, string>> = {
   last: FILES.last,
 };
 
-/** The match "Send match log" would export: the in-progress match, else the last finished one, else null. */
-export function findMatchLog(store: DataStore): MatchLogScope | null {
-  if (store.exists(FILES.log)) return 'current';
-  if (store.exists(FILES.last)) return 'last';
+/**
+ * The match "Send match log" would export: the in-progress match, else the last finished one, else null. An
+ * in-progress match with no action yet (a new match just started, e.g. after Play again) has nothing to report, so
+ * the last finished match wins over it when there is one (threat model §12.3).
+ *
+ * @param currentActions The number of actions of the match in `current.log` when the app knows it from memory (the
+ *   live or resumable match), else null (corrupt card, still checking): then `current.log` wins. No file is read
+ *   here (TM-02 E-1: only Share reads the match file).
+ */
+export function findMatchLog(
+  store: DataStore,
+  currentActions: number | null = null,
+): MatchLogScope | null {
+  const last = (): boolean => store.exists(FILES.last);
+  if (store.exists(FILES.log)) return currentActions === 0 && last() ? 'last' : 'current';
+  if (last()) return 'last';
   return null;
 }
 

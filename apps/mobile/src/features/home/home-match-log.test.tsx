@@ -29,12 +29,14 @@ import { FILES } from '../../persistence/match-journal';
 import { MemoryFs } from '../../persistence/memory-fs';
 import {
   createPersistence,
+  finishMatch,
   GUARD_FILE,
   MAX_UNCLEAN_RESUMES,
   persistTransition,
 } from '../../persistence/saved-match';
 import { ShareContext } from '../../sharing/share-provider';
 import { createTestShare, type TestShare } from '../../sharing/test-share';
+import { SettingsScreen } from '../settings/settings-screen';
 import { HomeScreen } from './home-screen';
 
 jest.mock('expo-asset', () => jest.requireActual('../../../jest/expo-asset.cjs'));
@@ -85,8 +87,27 @@ async function renderHome(seed: SeedHex, disk: MemoryFs, flag: boolean): Promise
       </GestureHandlerRootView>
     );
   }
-  await renderRouter({ _layout: Layout, index: HomeScreen }, { initialUrl: '/' });
+  function Settings(): JSX.Element {
+    return <SettingsScreen versions={{ app: '0.1.0', rules: 1, lexicon: '2f2cc6fca8fac92b' }} />;
+  }
+  await renderRouter(
+    { _layout: Layout, index: HomeScreen, settings: Settings },
+    { initialUrl: '/' },
+  );
   return share;
+}
+
+/** Plays `n` scripted actions of `seed` through the app's persistence (as the match screen does). */
+function persistMatch(disk: MemoryFs, seed: SeedHex, n: number, finish = false): void {
+  const persistence = createPersistence(disk);
+  const { start, steps } = scriptMatch(seed, lexicon, n);
+  persistence.journal.start(playMatchConfig(seed, lexicon.index));
+  let before = start;
+  for (const step of steps) {
+    persistTransition(persistence.journal, before, step.after, { lexicon: lexicon.index });
+    before = step.after;
+  }
+  if (finish) finishMatch(persistence, before);
 }
 
 /** A log whose first record no longer matches its checksum: the corrupt card. */
@@ -131,16 +152,9 @@ describe('Send match log on the corrupt-state card (§5.10.2, S6d)', () => {
   it('exports a crash-guarded match (resume crashed twice) without replaying it (TM-04, TM-02 D-1)', async () => {
     const seed = humanStarts(lexicon, 5204);
     const disk = new MemoryFs();
-    const persistence = createPersistence(disk);
-    const { start, steps } = scriptMatch(seed, lexicon, 6);
-    persistence.journal.start(playMatchConfig(seed, lexicon.index));
-    let before = start;
-    for (const step of steps) {
-      persistTransition(persistence.journal, before, step.after, { lexicon: lexicon.index });
-      before = step.after;
-    }
+    persistMatch(disk, seed, 6);
     // The last two resumes of this log never returned.
-    persistence.store.replace(GUARD_FILE, [String(MAX_UNCLEAN_RESUMES)]);
+    new DataStore(disk).replace(GUARD_FILE, [String(MAX_UNCLEAN_RESUMES)]);
     replayMock.mockClear();
     const share = await renderHome(seed, disk, true);
     expect(await screen.findByText("We couldn't restore this match.")).toBeTruthy();
@@ -158,6 +172,38 @@ describe('Send match log on the corrupt-state card (§5.10.2, S6d)', () => {
     expect(Object.keys(decoded.value).sort()).toEqual(['app', 'exportFormat', 'kind', 'log']);
     expect(replayMock).not.toHaveBeenCalled();
     expect(disk.files.has(MATCH_LOG_GUARD_FILE)).toBe(false);
+  }, 60_000);
+
+  it('Settings exports the last finished match while the saved match has no move yet (§12.3)', async () => {
+    const finished = humanStarts(lexicon, 5205);
+    const seed = humanStarts(lexicon, 5300);
+    expect(seed).not.toBe(finished);
+    const disk = new MemoryFs();
+    persistMatch(disk, finished, 6, true);
+    // Play again, then the app was closed before the first move: current.log holds the header only.
+    persistMatch(disk, seed, 0);
+    expect(disk.files.has(FILES.log) && disk.files.has(FILES.last)).toBe(true);
+    const share = await renderHome(seed, disk, true);
+    // The resume card: the saved match (no move yet) was read.
+    expect(await screen.findByTestId('home.newMatch')).toBeTruthy();
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('home.settings'));
+    });
+    await act(async () => {
+      await fireEvent.press(await screen.findByTestId('settings.sendMatchLog'));
+    });
+    expect(screen.getByTestId('matchlog.confirm.body').props.children).toBe(
+      'The file holds the moves, seed and versions of your last finished match. No personal data in the file.',
+    );
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('matchlog.share'));
+      await Promise.resolve();
+    });
+    const text = share.opened[0]?.files.get('codelex-match-log.json') ?? '';
+    const decoded = decodeMatchLog(text);
+    if (!decoded.ok || !('log' in decoded.value)) throw new Error('expected a readable log');
+    expect(decoded.value.log.header.seed).toBe(finished);
+    expect(decoded.value.log.actions.length).toBeGreaterThan(0);
   }, 60_000);
 
   it('offers Start a new match only while the flag is off', async () => {

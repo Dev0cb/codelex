@@ -77,18 +77,22 @@ export function MatchSessionProvider({ children }: { readonly children: ReactNod
   const ctx = useMemo<EngineContext>(() => ({ lexicon: index }), [index]);
   const persistence = useMemo(() => services.persistence?.() ?? null, [services]);
   const [saved, setSaved] = useState<SavedStatus>(persistence === null ? NONE : CHECKING);
-  // "Send match log" (slice S6d) reads the saved matches through this allowlist only (TM-04). On the corrupt card
-  // it reuses the resume's verdict, so the log whose replay may have crashed the app is never replayed again.
-  const corrupt = saved.kind === 'state_corrupt' ? saved : null;
-  const matchLog = useMemo(
-    () =>
-      persistence === null
-        ? null
-        : createMatchLogAccess(persistence.store, ctx, exportApp(), corrupt),
-    [persistence, ctx, corrupt],
-  );
   const [model, setModel] = useState<MatchModel | null>(null);
   const modelRef = useRef<MatchModel | null>(null);
+  // "Send match log" (slice S6d) reads the saved matches through this allowlist only (TM-04). On the corrupt card
+  // it reuses the resume's verdict, so the log whose replay may have crashed the app is never replayed again. The
+  // live or resumable match tells, without a read, whether `current.log` has any action yet (§12.3).
+  // Only 0 versus some actions matters, so the access is not rebuilt on every move.
+  const known =
+    model?.actions.length ?? (saved.kind === 'resumable' ? saved.model.actions.length : null);
+  const currentActions = known === null ? null : Math.min(known, 1);
+  const matchLog = useMemo(() => {
+    if (persistence === null) return null;
+    return createMatchLogAccess(persistence.store, ctx, exportApp(), {
+      corrupt: saved.kind === 'state_corrupt' ? saved : null,
+      currentActions: () => currentActions,
+    });
+  }, [persistence, ctx, saved, currentActions]);
   const [startFailed, setStartFailed] = useState(false);
   const [lowStorage, setLowStorage] = useState(false);
   const [restored, setRestored] = useState(0);

@@ -164,6 +164,23 @@ describe('on-device match log file (S6d) ≡ D1 contract', () => {
     expect(fs.reads).toEqual([]);
   });
 
+  it('scope: a just-started match (0 actions) does not hide the last finished one (§12.3)', () => {
+    const fs = new MemoryFs();
+    const store = new DataStore(fs);
+    // Header only, nothing to report: the app knows the count from the live or resumable match.
+    persist(store, 4127, 0);
+    expect(findMatchLog(store, 0)).toBe('current');
+    persist(store, 4128, 5, { finish: true });
+    persist(store, 4129, 0);
+    expect(store.exists(FILES.log)).toBe(true);
+    expect(findMatchLog(store, 0)).toBe('last');
+    // A match with moves, or one the app knows nothing about (corrupt card, still checking), is the current one.
+    expect(findMatchLog(store, 1)).toBe('current');
+    expect(findMatchLog(store, null)).toBe('current');
+    expect(findMatchLog(store)).toBe('current');
+    expect(fs.reads).toEqual([]);
+  });
+
   it('exports the in-progress match as D1 does, and it replays to its stored hash (AC-20)', () => {
     const store = new DataStore(new MemoryFs());
     const { log } = persist(store, 4103, 9);
