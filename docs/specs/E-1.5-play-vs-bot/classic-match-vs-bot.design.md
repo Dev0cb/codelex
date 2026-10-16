@@ -1288,6 +1288,23 @@ Keys added by `mobile-engineer` in slice S6a, pending translation review: `commo
 `common.copy`/`common.copied` (the tester ID is selectable text; a Copy button needs a clipboard module, not a
 dependency today), sound/haptics/auto-zoom/handedness rows (features not built), and the S6c/S6d export keys.
 
+Keys added by `mobile-engineer` in slice S6c (2026-10-16), pending translation review: `settings.send_data`,
+`settings.send_data.pending` and every `export.*` key of the table below, as written, plus three not in the table,
+for the multi-file and failure states the slice needs: `export.confirm.more` (in the "Did you send the file?" sheet
+when events are left for the next file), `export.remaining` (after "Sent" when events still wait) and
+`export.clear_error` ("Sent" confirmed but the clear could not be saved; Try again). Deviations: the "Sent"
+confirmation is an inline polite live-region line, not a toast (no toast component; nothing to animate), and
+`analytics_buffer_flushed` carries only its catalogue properties (`docs/standards/ANALYTICS_EVENTS.md`): the
+`transport` = `share` property of §5.9 and §11 is not in the catalogue, so it is not emitted. The suggested address
+line follows TM-07 (build constant; hidden while `BUNDLED_EXPORT_ADDRESS` is unset, O-4); its Copy button waits for
+the same clipboard decision as the tester ID (selectable text meanwhile).
+
+| Key | EN | FR |
+|---|---|---|
+| export.confirm.more | {count, plural, one {# more event will go in the next file.} other {# more events will go in the next file.}} | {count, plural, one {# autre événement partira dans le fichier suivant.} other {# autres événements partiront dans le fichier suivant.}} |
+| export.remaining | {count, plural, one {# event is still waiting. Share the next file.} other {# events are still waiting. Share the next file.}} | {count, plural, one {# événement attend encore. Partage le fichier suivant.} other {# événements attendent encore. Partage le fichier suivant.}} |
+| export.clear_error | Couldn't clear the sent events from your phone. They stay until you try again. | Impossible d'effacer les événements envoyés de ton téléphone. Ils restent jusqu'à ce que tu réessaies. |
+
 | Key | EN | FR |
 |---|---|---|
 | settings.title | Settings | Réglages |
