@@ -1,0 +1,2312 @@
+{
+  "benches": {
+    "botThink": {
+      "bots": [
+        {
+          "automaton": "gaddag",
+          "botId": "beginner",
+          "botVersion": 2,
+          "candidates": {
+            "max": 223,
+            "p50": 5,
+            "p95": 38,
+            "p99": 108
+          },
+          "capBound": 0,
+          "nodes": {
+            "max": 14924,
+            "p50": 902,
+            "p95": 2870,
+            "p99": 11293
+          },
+          "timing": {
+            "max": 135989,
+            "p50": 9850,
+            "p95": 23928,
+            "p99": 86770,
+            "samples": 200,
+            "unit": "us"
+          }
+        },
+        {
+          "automaton": "gaddag",
+          "botId": "strategist",
+          "botVersion": 2,
+          "candidates": {
+            "max": 323,
+            "p50": 9,
+            "p95": 62,
+            "p99": 157
+          },
+          "capBound": 0,
+          "nodes": {
+            "max": 14924,
+            "p50": 902,
+            "p95": 2870,
+            "p99": 11293
+          },
+          "timing": {
+            "max": 204151,
+            "p50": 12349,
+            "p95": 35449,
+            "p99": 123634,
+            "samples": 200,
+            "unit": "us"
+          }
+        },
+        {
+          "automaton": "gaddag",
+          "botId": "beginner-two-blanks",
+          "botVersion": 2,
+          "candidates": {
+            "max": 300,
+            "p50": 193,
+            "p95": 300,
+            "p99": 300
+          },
+          "capBound": 0,
+          "nodes": {
+            "max": 63139,
+            "p50": 21748,
+            "p95": 47576,
+            "p99": 60824
+          },
+          "timing": {
+            "max": 453504,
+            "p50": 161041,
+            "p95": 347197,
+            "p99": 433264,
+            "samples": 200,
+            "unit": "us"
+          }
+        },
+        {
+          "automaton": "gaddag",
+          "botId": "strategist-two-blanks",
+          "botVersion": 2,
+          "candidates": {
+            "max": 500,
+            "p50": 296,
+            "p95": 500,
+            "p99": 500
+          },
+          "capBound": 36,
+          "nodes": {
+            "max": 63139,
+            "p50": 21748,
+            "p95": 47576,
+            "p99": 60824
+          },
+          "timing": {
+            "max": 578962,
+            "p50": 224652,
+            "p95": 450054,
+            "p99": 555180,
+            "samples": 200,
+            "unit": "us"
+          }
+        }
+      ],
+      "status": "measured"
+    },
+    "constants": {
+      "automaton": "gaddag",
+      "cCand": {
+        "unit": "ns",
+        "value": 303344
+      },
+      "cNode": {
+        "unit": "ns",
+        "value": 6248
+      },
+      "positions": 200,
+      "status": "measured",
+      "tFixed": {
+        "unit": "us",
+        "value": 3873
+      }
+    },
+    "decisionEquality": {
+      "bots": [
+        {
+          "botId": "random-legal",
+          "equal": 20,
+          "mismatchedPositionIds": [],
+          "positions": 20
+        },
+        {
+          "botId": "beginner",
+          "equal": 20,
+          "mismatchedPositionIds": [],
+          "positions": 20
+        },
+        {
+          "botId": "greedy",
+          "equal": 20,
+          "mismatchedPositionIds": [],
+          "positions": 20
+        },
+        {
+          "botId": "strategist",
+          "equal": 20,
+          "mismatchedPositionIds": [],
+          "positions": 20
+        }
+      ],
+      "status": "measured"
+    },
+    "drift": {
+      "botId": "strategist",
+      "matches": [
+        {
+          "computeP50": 20956,
+          "computeP95": 159082,
+          "decisions": 26
+        },
+        {
+          "computeP50": 18894,
+          "computeP95": 153644,
+          "decisions": 26
+        },
+        {
+          "computeP50": 18735,
+          "computeP95": 135894,
+          "decisions": 26
+        },
+        {
+          "computeP50": 17639,
+          "computeP95": 136827,
+          "decisions": 26
+        },
+        {
+          "computeP50": 17228,
+          "computeP95": 137592,
+          "decisions": 26
+        },
+        {
+          "computeP50": 17296,
+          "computeP95": 137948,
+          "decisions": 26
+        },
+        {
+          "computeP50": 17494,
+          "computeP95": 136337,
+          "decisions": 26
+        },
+        {
+          "computeP50": 17124,
+          "computeP95": 136403,
+          "decisions": 26
+        },
+        {
+          "computeP50": 18785,
+          "computeP95": 139709,
+          "decisions": 26
+        },
+        {
+          "computeP50": 17373,
+          "computeP95": 136590,
+          "decisions": 26
+        }
+      ],
+      "status": "measured",
+      "unit": "us"
+    },
+    "engineApply": {
+      "status": "measured",
+      "timing": {
+        "max": 15450,
+        "p50": 138,
+        "p95": 228,
+        "p99": 657,
+        "samples": 900,
+        "unit": "us"
+      }
+    },
+    "lexiconHas": {
+      "status": "measured",
+      "timing": {
+        "max": 19419,
+        "p50": 6750,
+        "p95": 10904,
+        "p99": 14013,
+        "samples": 200,
+        "unit": "ns"
+      }
+    },
+    "resume": {
+      "status": "measured",
+      "timing": {
+        "max": 55628,
+        "p50": 43552,
+        "p95": 53710,
+        "p99": 55085,
+        "samples": 120,
+        "unit": "us"
+      }
+    }
+  },
+  "build": {
+    "appVersion": "0.1.0",
+    "gitSha": "b736c52334b5eb6d0822e9166a1d016ad5685458",
+    "profile": "preview"
+  },
+  "device": {
+    "deviceClass": "owner-device",
+    "model": "TECNO TECNO KJ5",
+    "osVersion": "Android 13 (API 33)",
+    "platform": "android",
+    "ramClass": "4gb"
+  },
+  "diagnosticsFormat": 1,
+  "runner": {
+    "corpus": {
+      "botVersion": 2,
+      "digest": "d8b07eb4a617dc6e5978da5c4a751254a1b38e333ea9a17dd620d444030fdc14",
+      "engineRulesVersions": [1]
+    },
+    "runnerFormat": 1,
+    "runtime": {
+      "bytecodeVersion": 98,
+      "kind": "hermes-app",
+      "version": "250829098.0.17"
+    },
+    "suites": [
+      {
+        "cases": [
+          {
+            "id": "0000000000000000/bag",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [0, 0, 1, 1, 1, 1, 1, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [70, 90, 81, 67, 37, 73, 89, 65]
+                }
+              ],
+              "next": [
+                269275870, 2116113390, 1373333181, 205058767, 1741533037,
+                3064314973, 572461789, 1167382265
+              ],
+              "shuffle": [8, 6, 2, 7, 3, 1, 4, 5, 9, 0],
+              "state": [2575324457, 4175709398, 1393037444, 4079762517]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000000000000/first-player",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [1, 0, 0, 1, 1, 1, 1, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [43, 0, 56, 67, 1, 69, 31, 57]
+                }
+              ],
+              "next": [
+                1703746843, 705170500, 1655515556, 3657206767, 3412167901,
+                2799693069, 2142632931, 4020600357
+              ],
+              "shuffle": [2, 5, 0, 9, 6, 1, 8, 4, 7, 3],
+              "state": [3644561595, 883150178, 3812195831, 2877393092]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000000000000/bot:1",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [1, 1, 1, 0, 1, 1, 0, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [39, 19, 75, 32, 69, 93, 34, 99]
+                }
+              ],
+              "next": [
+                239440739, 3044862919, 1494418675, 1836735632, 2947126269,
+                3603929193, 3434560934, 3693078299
+              ],
+              "shuffle": [0, 8, 6, 2, 5, 7, 4, 3, 1, 9],
+              "state": [3342208925, 74606974, 1163572409, 498731189]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00c0de1e00000001/bag",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [1, 1, 1, 1, 0, 0, 1, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [49, 33, 25, 59, 10, 48, 97, 1]
+                },
+                {
+                  "hi": 3221225472,
+                  "lo": 0,
+                  "values": [
+                    1204966949, 1544239233, 1025015925, 1571986059, 690393948,
+                    1329916797, 519333301, 2893210056
+                  ]
+                }
+              ],
+              "next": [
+                1204966949, 1544239233, 1025015925, 1571986059, 3784047710,
+                690393948, 1329916797, 519333301
+              ],
+              "shuffle": [6, 7, 4, 1, 3, 2, 8, 5, 0, 9],
+              "state": [1397353060, 410318920, 20514157, 3512332132]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00c0de1e00000001/first-player",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [1, 1, 0, 0, 1, 0, 1, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [25, 51, 4, 70, 63, 92, 93, 97]
+                }
+              ],
+              "next": [
+                1518695225, 2646206451, 3237895804, 3630301370, 4226537663,
+                485773392, 1911679593, 4080278597
+              ],
+              "shuffle": [6, 8, 7, 1, 2, 9, 3, 4, 0, 5],
+              "state": [3517117781, 3770290511, 1076023772, 2112090834]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00c0de1e00000001/bot:1",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [0, 0, 1, 0, 0, 0, 0, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [34, 52, 89, 86, 54, 84, 54, 61]
+                }
+              ],
+              "next": [
+                1018783734, 1025915952, 1801117189, 1447024686, 4062369154,
+                895569284, 906752154, 2752915561
+              ],
+              "shuffle": [0, 8, 1, 6, 7, 9, 2, 5, 3, 4],
+              "state": [2761667861, 3908149719, 180844203, 902012407]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "ffffffffffffffff/bag",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [0, 0, 1, 1, 1, 1, 0, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [86, 96, 23, 43, 9, 39, 4, 51]
+                }
+              ],
+              "next": [
+                1062028686, 1527420496, 1040650223, 2947950443, 3809001709,
+                1021097739, 832521904, 2458892651
+              ],
+              "shuffle": [5, 3, 2, 0, 9, 1, 8, 7, 4, 6],
+              "state": [956237307, 3641958733, 1477726101, 2962891767]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "ffffffffffffffff/first-player",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [0, 0, 0, 0, 0, 1, 0, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [80, 72, 78, 38, 62, 39, 38, 55]
+                }
+              ],
+              "next": [
+                328411080, 1727784672, 3332172578, 3083133038, 3221297362,
+                3949116539, 4269193738, 371456155
+              ],
+              "shuffle": [3, 9, 1, 7, 5, 4, 8, 2, 6, 0],
+              "state": [2897575195, 53744107, 2299293875, 1685563986]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "ffffffffffffffff/bot:1",
+            "observed": {
+              "int": [
+                {
+                  "hi": 2,
+                  "lo": 0,
+                  "values": [0, 1, 1, 0, 0, 1, 1, 1]
+                },
+                {
+                  "hi": 100,
+                  "lo": 0,
+                  "values": [18, 33, 45, 90, 20, 57, 67, 67]
+                }
+              ],
+              "next": [
+                3887499118, 696203633, 792116245, 2252109190, 2229644420,
+                3958030757, 2965712367, 1287389767
+              ],
+              "shuffle": [0, 4, 1, 3, 7, 6, 9, 5, 2, 8],
+              "state": [1178362921, 2570198750, 40694983, 4242833216]
+            },
+            "status": "pass"
+          }
+        ],
+        "id": "rng",
+        "summary": {
+          "error": 0,
+          "fail": 0,
+          "pass": 9
+        }
+      },
+      {
+        "cases": [
+          {
+            "id": "empty",
+            "observed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "status": "pass"
+          },
+          {
+            "id": "abc",
+            "observed": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            "status": "pass"
+          },
+          {
+            "id": "448-bit",
+            "observed": "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
+            "status": "pass"
+          },
+          {
+            "id": "896-bit",
+            "observed": "cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1",
+            "status": "pass"
+          },
+          {
+            "id": "one million a",
+            "observed": "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0",
+            "status": "pass"
+          }
+        ],
+        "id": "sha256",
+        "summary": {
+          "error": 0,
+          "fail": 0,
+          "pass": 5
+        }
+      },
+      {
+        "cases": [
+          {
+            "id": "cases/adr-0013-a3",
+            "observed": {
+              "hash16": "29cb9747b6a72241",
+              "jcs": "{\"a\":[3,\"?AE\"],\"b\":0,\"z\":{\"k\":-7}}",
+              "sha256": "29cb9747b6a7224168208f209044e3d24573275df767bf9d09003cf5ef3ef7cb"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/empty-object",
+            "observed": {
+              "hash16": "44136fa355b3678a",
+              "jcs": "{}",
+              "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/empty-array",
+            "observed": {
+              "hash16": "4f53cda18c2baa0c",
+              "jcs": "[]",
+              "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/empty-string",
+            "observed": {
+              "hash16": "12ae32cb1ec02d01",
+              "jcs": "\"\"",
+              "sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/zero",
+            "observed": {
+              "hash16": "5feceb66ffc86f38",
+              "jcs": "0",
+              "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/max-safe-integer",
+            "observed": {
+              "hash16": "f40b423c2dd95ff2",
+              "jcs": "9007199254740991",
+              "sha256": "f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/min-safe-integer",
+            "observed": {
+              "hash16": "4c933a456bb8f2e9",
+              "jcs": "-9007199254740991",
+              "sha256": "4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/integer-written-with-exponent",
+            "observed": {
+              "hash16": "ad57366865126e55",
+              "jcs": "100",
+              "sha256": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/escapes-only-quote-and-backslash",
+            "observed": {
+              "hash16": "0429a267bb551c9c",
+              "jcs": "\"say \\\"hi\\\" \\\\ / ~ ' `\"",
+              "sha256": "0429a267bb551c9c61e61042e1c5708ad678947e5d34e6b2c985c115c842ce87"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/printable-ascii-range",
+            "observed": {
+              "hash16": "35a3c3265b699ae6",
+              "jcs": "\" !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\"",
+              "sha256": "35a3c3265b699ae6723a5d862a3f478168f9582861286e72ee38386c4c560717"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/keys-by-code-unit-not-integer-order",
+            "observed": {
+              "hash16": "de575698d671cfcf",
+              "jcs": "{\"\":8,\" \":7,\"1\":2,\"10\":1,\"2\":0,\"B\":4,\"_\":5,\"a\":3,\"~\":6}",
+              "sha256": "de575698d671cfcf8bc3ed229a6de9ee89ebd409583ec107e41817d5f07b5582"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/whitespace-is-dropped",
+            "observed": {
+              "hash16": "97b9c92b16fec7ba",
+              "jcs": "{\"a\":{\"x\":[],\"y\":\"\"},\"b\":[1,2]}",
+              "sha256": "97b9c92b16fec7ba816e6e3f3cc2f60c9a0c702c266f16e8a68a41a82c606793"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/nested-arrays-keep-order-objects-sorted",
+            "observed": {
+              "hash16": "025a130f09966a72",
+              "jcs": "[[3,2,1],[{\"a\":2,\"b\":1},{\"c\":{},\"d\":[]}],-1]",
+              "sha256": "025a130f09966a72f12dae5a7b076dc16a2d65386af89d62ce4a322e21b97045"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/state-like-document",
+            "observed": {
+              "hash16": "0ba2d00ccaf3425d",
+              "jcs": "{\"bag\":\"EEAIOU?\",\"board\":[\"...............\",\"......API......\"],\"engineRulesVersion\":1,\"racks\":[\"?AEINST\",\"DEHLORU\"],\"rng\":{\"bag\":[1397353060,410318920,20514157,3512332132]},\"seats\":[{\"best\":30,\"chain\":1,\"prev\":\"API\",\"score\":42,\"status\":\"active\"},{\"best\":0,\"chain\":0,\"prev\":\"\",\"score\":-5,\"status\":\"resigned\"}],\"seed\":\"00c0de1e00000001\",\"turn\":7}",
+              "sha256": "0ba2d00ccaf3425dcc3b0951ae3f39c69eba13f75b298626c3db5e86073e8c94"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/proto-key-is-an-ordinary-key",
+            "observed": {
+              "hash16": "fe1006d7e5fde461",
+              "jcs": "{\"_\":0,\"__proto__\":{\"a\":2,\"b\":1},\"a\":[]}",
+              "sha256": "fe1006d7e5fde461196c2a7acd3e111b07d4179757e5735cfe9fb092943bd729"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "cases/raw-key-sort-around-escaped-characters",
+            "observed": {
+              "hash16": "7c9174ce1023751b",
+              "jcs": "{\"!\":3,\"\\\"\":2,\"#\":1,\"[\":6,\"\\\\\":5,\"]\":4}",
+              "sha256": "7c9174ce1023751bf2104beacf0c53abd5bd1b029cba1de7e8b7bf53601bd9b7"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "rejections/boolean-true",
+            "observed": "TypeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/boolean-false",
+            "observed": "TypeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/null",
+            "observed": "TypeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/null-member",
+            "observed": "TypeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/boolean-in-array",
+            "observed": "TypeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/fraction",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/fraction-member",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/negative-zero",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/above-max-safe-integer",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/below-min-safe-integer",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/huge-number",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/non-ascii-string",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/non-bmp-string",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/lone-high-surrogate",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/lone-low-surrogate",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/control-nul",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/control-tab",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/control-newline",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/delete-0x7f",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/non-ascii-key",
+            "observed": "RangeError",
+            "status": "pass"
+          },
+          {
+            "id": "rejections/control-key",
+            "observed": "RangeError",
+            "status": "pass"
+          }
+        ],
+        "id": "jcs",
+        "summary": {
+          "error": 0,
+          "fail": 0,
+          "pass": 37
+        }
+      },
+      {
+        "cases": [
+          {
+            "id": "GC-CL-01",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 20,
+              "words": [
+                {
+                  "base": 20,
+                  "form": "CLOUD",
+                  "letterSum": 10,
+                  "main": 1,
+                  "termBonus": 0,
+                  "wordMult": 2
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-02",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 32,
+              "words": [
+                {
+                  "base": 28,
+                  "form": "PYTHON",
+                  "letterSum": 14,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 2
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-03",
+            "observed": {
+              "chain": 0,
+              "fullStack": 50,
+              "total": 110,
+              "words": [
+                {
+                  "base": 44,
+                  "form": "ZERODAY",
+                  "letterSum": 22,
+                  "main": 1,
+                  "termBonus": 16,
+                  "wordMult": 2
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-04",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 12,
+              "words": [
+                {
+                  "base": 8,
+                  "form": "GO",
+                  "letterSum": 4,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 2
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-05",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 18,
+              "words": [
+                {
+                  "base": 10,
+                  "form": "ETL",
+                  "letterSum": 10,
+                  "main": 1,
+                  "termBonus": 8,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-06",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 12,
+              "words": [
+                {
+                  "base": 4,
+                  "form": "ETL",
+                  "letterSum": 4,
+                  "main": 1,
+                  "termBonus": 8,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-07",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 15,
+              "words": [
+                {
+                  "base": 8,
+                  "form": "API",
+                  "letterSum": 8,
+                  "main": 1,
+                  "termBonus": 0,
+                  "wordMult": 1
+                },
+                {
+                  "base": 3,
+                  "form": "CI",
+                  "letterSum": 3,
+                  "main": 0,
+                  "termBonus": 4,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-08",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 29,
+              "words": [
+                {
+                  "base": 21,
+                  "form": "CLOUDFLARE",
+                  "letterSum": 21,
+                  "main": 1,
+                  "termBonus": 8,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-09a",
+            "observed": {
+              "chain": 5,
+              "chainKAfter": 1,
+              "fullStack": 0,
+              "total": 25,
+              "words": [
+                {
+                  "base": 16,
+                  "form": "BUCKET",
+                  "letterSum": 16,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-09b",
+            "observed": {
+              "chain": 0,
+              "chainKAfter": 0,
+              "fullStack": 0,
+              "total": 20,
+              "words": [
+                {
+                  "base": 16,
+                  "form": "BUCKET",
+                  "letterSum": 16,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-10",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 48,
+              "words": [
+                {
+                  "base": 48,
+                  "form": "CHATBOT",
+                  "letterSum": 12,
+                  "main": 1,
+                  "termBonus": 0,
+                  "wordMult": 4
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-11a",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 37,
+              "words": [
+                {
+                  "base": 33,
+                  "form": "JSON",
+                  "letterSum": 11,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 3
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-11b",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 13,
+              "words": [
+                {
+                  "base": 9,
+                  "form": "JSON",
+                  "letterSum": 3,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 3
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-12",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 13,
+              "words": [
+                {
+                  "base": 5,
+                  "form": "CI",
+                  "letterSum": 5,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 1
+                },
+                {
+                  "base": 4,
+                  "form": "AI",
+                  "letterSum": 4,
+                  "main": 0,
+                  "termBonus": 0,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-13a",
+            "observed": {
+              "chain": 0,
+              "fullStack": 50,
+              "total": 89,
+              "words": [
+                {
+                  "base": 23,
+                  "form": "KUBERNETES",
+                  "letterSum": 23,
+                  "main": 1,
+                  "termBonus": 16,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-13b",
+            "observed": {
+              "chain": 0,
+              "fullStack": 50,
+              "total": 84,
+              "words": [
+                {
+                  "base": 18,
+                  "form": "KUBERNETES",
+                  "letterSum": 18,
+                  "main": 1,
+                  "termBonus": 16,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-14",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 8,
+              "words": [
+                {
+                  "base": 4,
+                  "form": "GO",
+                  "letterSum": 4,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-15",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 2,
+              "words": [
+                {
+                  "base": 2,
+                  "form": "AI",
+                  "letterSum": 1,
+                  "main": 1,
+                  "termBonus": 0,
+                  "wordMult": 2
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-INF-01",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 22,
+              "words": [
+                {
+                  "base": 14,
+                  "form": "PODS",
+                  "letterSum": 7,
+                  "main": 1,
+                  "termBonus": 8,
+                  "wordMult": 2
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-INF-02",
+            "observed": {
+              "chain": 0,
+              "fullStack": 0,
+              "total": 30,
+              "words": [
+                {
+                  "base": 11,
+                  "form": "SQL",
+                  "letterSum": 11,
+                  "main": 1,
+                  "termBonus": 4,
+                  "wordMult": 1
+                },
+                {
+                  "base": 7,
+                  "form": "PODS",
+                  "letterSum": 7,
+                  "main": 0,
+                  "termBonus": 8,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-INF-03a",
+            "observed": {
+              "chain": 0,
+              "chainKAfter": 0,
+              "fullStack": 0,
+              "total": 15,
+              "words": [
+                {
+                  "base": 7,
+                  "form": "PODS",
+                  "letterSum": 7,
+                  "main": 1,
+                  "termBonus": 8,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-INF-03b",
+            "observed": {
+              "chain": 5,
+              "chainKAfter": 1,
+              "fullStack": 0,
+              "total": 20,
+              "words": [
+                {
+                  "base": 7,
+                  "form": "PODS",
+                  "letterSum": 7,
+                  "main": 1,
+                  "termBonus": 8,
+                  "wordMult": 1
+                }
+              ]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-E1",
+            "observed": {
+              "adjustments": [19, -19],
+              "end": {
+                "reason": "going_out",
+                "seat": 0
+              },
+              "places": [1, 2],
+              "teamScores": [219, 191]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-E2",
+            "observed": {
+              "adjustments": [6, -6],
+              "end": {
+                "reason": "going_out",
+                "seat": 0
+              },
+              "places": [1, 2],
+              "teamScores": [186, 184]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-E3",
+            "observed": {
+              "adjustments": [-4, -8],
+              "end": {
+                "reason": "scoreless_turns"
+              },
+              "places": [1, 1],
+              "teamScores": [146, 146]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-E4",
+            "observed": {
+              "adjustments": [-2, -5, 15, -8],
+              "end": {
+                "reason": "going_out",
+                "seat": 2
+              },
+              "places": [1, 2],
+              "teamScores": [313, 277]
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-CL-E5",
+            "observed": {
+              "adjustments": [0, 0],
+              "end": {
+                "reason": "resign",
+                "seat": 0
+              },
+              "places": [2, 1],
+              "teamScores": [120, 80]
+            },
+            "status": "pass"
+          }
+        ],
+        "id": "scoring/v1",
+        "summary": {
+          "error": 0,
+          "fail": 0,
+          "pass": 27
+        }
+      },
+      {
+        "cases": [
+          {
+            "id": "GC-DET-01/log",
+            "observed": {
+              "actions": 90,
+              "seed": "00c0de1e00000001",
+              "sha256": "afaed6ec5a9e7df50c674afd99c06abe0ae00dd67194b2674589014f318217ad",
+              "terms": 18279
+            },
+            "status": "pass"
+          },
+          {
+            "id": "GC-DET-01/state-hashes/000-029",
+            "observed": [
+              "5732dd666d9d439e",
+              "7188a200d4592681",
+              "bb86a8d7b277cc67",
+              "65533b368b3a32fe",
+              "8aef9dd77e072234",
+              "bc31d5c3a414db62",
+              "3165392680bac766",
+              "1d93cc3dfb7a2b39",
+              "4ee2add603e8f8e0",
+              "c4f854b848da8352",
+              "4b85cb5fcb46e402",
+              "74681beb8e0409ff",
+              "620470f53b9f5d2d",
+              "a5408b89da0b6aed",
+              "22fa0684906db55b",
+              "4dd989fb53d8e275",
+              "7a569e1dc300dc6a",
+              "5844d1553e2e240d",
+              "adb65ee5da99848c",
+              "75ff2b8509e344e7",
+              "35dd1701c08af78f",
+              "b5e5f242e7456fa4",
+              "a7301d7a0a8b3f23",
+              "b5a35f0fb7d868fc",
+              "646597b8183d73db",
+              "cfb564e1f6ea24f9",
+              "7e2c32505de26cff",
+              "5cd18d37513ac05f",
+              "be10fefaba96559f",
+              "510e3b52dc88dcdc"
+            ],
+            "status": "pass"
+          },
+          {
+            "id": "GC-DET-01/state-hashes/030-059",
+            "observed": [
+              "b6ddcff7514f3ab9",
+              "596f931a32b97978",
+              "0e52996b168154c9",
+              "f1d514386f4106cc",
+              "27b54449e43ffefb",
+              "479128178e156975",
+              "e879c3be3dde46ab",
+              "dcebb63cf91e7b1e",
+              "780ecd7f9ab39481",
+              "83155ffd0b142302",
+              "86faed1b9b4d9e99",
+              "f01bb7c648264223",
+              "0e63a2cb7b4b6d41",
+              "a536aa0e648e129d",
+              "b10a7e726b15be08",
+              "1a7fc5913f0bf0ba",
+              "26e7e10f8e9007c0",
+              "ccb35df0a514c245",
+              "79fbccccbd5ea0c8",
+              "fabe3b230aa0144d",
+              "120ca33c1ce26e9e",
+              "610acac32693b190",
+              "1f255d70581785c0",
+              "84d31146497de863",
+              "cf62537c7988ca47",
+              "a94095c608b87345",
+              "c66ca3bad3004083",
+              "272bfa21bc8dd4d1",
+              "188d70bcc561efbd",
+              "25da6338645ca04e"
+            ],
+            "status": "pass"
+          },
+          {
+            "id": "GC-DET-01/state-hashes/060-089",
+            "observed": [
+              "7fa90ebd6fc4ca35",
+              "58f066380b7f2a94",
+              "95dd4677471ac6bc",
+              "9a0340c4c2e3713f",
+              "e4b09f545a41a27d",
+              "ee1c1b845dd9617a",
+              "6b080d7113791c0b",
+              "f6875c0bdb63d3d5",
+              "2ccb8808f33e9b96",
+              "b33e539ef8ec421d",
+              "834418605a1ccafa",
+              "238a2d50763bfff7",
+              "69d38f0f1eebc5b5",
+              "001819fa2d025c11",
+              "405ea8631018f3cb",
+              "0f62a2057bc459f7",
+              "746b0c81f9c2be8b",
+              "ecedb478fd7d1fd0",
+              "f996981e60df06ad",
+              "5dde2ead30ac8e38",
+              "fb2e49c87e456d2f",
+              "fc70f15c24f02867",
+              "351e59dce54518dd",
+              "d55e5824c364c7ae",
+              "d7d3e7cb9818c126",
+              "4e24d86fc6025dc2",
+              "caa7a3f09a22448e",
+              "31eb1bf8e70919f3",
+              "ee424c4d28c16060",
+              "59b0b2f2d2ca6c60"
+            ],
+            "status": "pass"
+          },
+          {
+            "id": "GC-DET-01/final",
+            "observed": {
+              "finalStateHash": "59b0b2f2d2ca6c60",
+              "firstSeat": 1,
+              "result": {
+                "adjustments": [7, -7],
+                "decidedBy": "score",
+                "end": {
+                  "reason": "going_out",
+                  "seat": 0
+                },
+                "places": [1, 2],
+                "teamScores": [777, 634]
+              }
+            },
+            "status": "pass"
+          }
+        ],
+        "id": "replays/v1",
+        "summary": {
+          "error": 0,
+          "fail": 0,
+          "pass": 5
+        }
+      },
+      {
+        "cases": [
+          {
+            "id": "fixture",
+            "observed": {
+              "automaton": "gaddag",
+              "botVersion": 2,
+              "engineRulesVersion": 1,
+              "lexiconVersion": "000007d000000000"
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000a2918652/0/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0407A0507C0607T0707N",
+              "nodesUsed": 758
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000a2918652/0/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 56,
+              "key": "P0507A0607V0707Y0807C",
+              "nodesUsed": 758
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000a2918652/0/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 104,
+              "key": "P0407A0507V0607Y0707C",
+              "nodesUsed": 758
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000a2918652/0/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 64,
+              "key": "P0407A0507V0607Y0707C",
+              "nodesUsed": 758
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000040c90003/2/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0708S0808A",
+              "nodesUsed": 1454
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000040c90003/2/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 6,
+              "key": "P0708S0808Y0908P1008A1108M",
+              "nodesUsed": 1454
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000040c90003/2/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 16,
+              "key": "P0708Y0808S0908M1008N",
+              "nodesUsed": 1454
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000040c90003/2/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 11,
+              "key": "P0708Y0808A",
+              "nodesUsed": 1454
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000df0079b4/4/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1005A1105R",
+              "nodesUsed": 1710
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000df0079b4/4/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 15,
+              "key": "P1005X1105N",
+              "nodesUsed": 1710
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000df0079b4/4/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 39,
+              "key": "P0108R",
+              "nodesUsed": 1710
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000df0079b4/4/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 30,
+              "key": "P1005X1105R",
+              "nodesUsed": 1710
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000007d37f365/6/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0813I0913S",
+              "nodesUsed": 1870
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000007d37f365/6/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 15,
+              "key": "P1113I1114J",
+              "nodesUsed": 1870
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000007d37f365/6/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 41,
+              "key": "P1112I1113O1114L",
+              "nodesUsed": 1870
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000007d37f365/6/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 26,
+              "key": "P1113I1114J",
+              "nodesUsed": 1870
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000001b6f6d16/8/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1404T1405A",
+              "nodesUsed": 21424
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000001b6f6d16/8/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 163,
+              "key": "P1403s1404A1405T1407H",
+              "nodesUsed": 21424
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000001b6f6d16/8/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 340,
+              "key": "P1307A1407T",
+              "nodesUsed": 21424
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000001b6f6d16/8/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 238,
+              "key": "P0110D0210o0310H",
+              "nodesUsed": 21424
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000b9a6e6c7/10/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1406S",
+              "nodesUsed": 2401
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000b9a6e6c7/10/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 16,
+              "key": "P0407A",
+              "nodesUsed": 2401
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000b9a6e6c7/10/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 50,
+              "key": "P0908E0909S",
+              "nodesUsed": 2401
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000b9a6e6c7/10/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 27,
+              "key": "P1402E1403I1404A",
+              "nodesUsed": 2401
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000057de6078/12/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0404X0405C",
+              "nodesUsed": 534
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000057de6078/12/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 3,
+              "key": "P0404X0405C",
+              "nodesUsed": 534
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000057de6078/12/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 3,
+              "key": "P0404X0405C",
+              "nodesUsed": 534
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000057de6078/12/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 2,
+              "key": "P0404X0405C",
+              "nodesUsed": 534
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000f615da29/14/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1205R",
+              "nodesUsed": 2651
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000f615da29/14/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 12,
+              "key": "P0214E0514B",
+              "nodesUsed": 2651
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000f615da29/14/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 24,
+              "key": "P0013B0113E",
+              "nodesUsed": 2651
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000f615da29/14/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 16,
+              "key": "P0708I0808R",
+              "nodesUsed": 2651
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000944d53da/16/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1012o1112O",
+              "nodesUsed": 22929
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000944d53da/16/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 54,
+              "key": "P0404g0405R",
+              "nodesUsed": 22929
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000944d53da/16/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 121,
+              "key": "P0403R0404g0405P0406S",
+              "nodesUsed": 22929
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000944d53da/16/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 84,
+              "key": "P0404i0405S0406R",
+              "nodesUsed": 22929
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000003284cd8b/18/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1006T1007N",
+              "nodesUsed": 1452
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000003284cd8b/18/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 7,
+              "key": "P1006T1007O",
+              "nodesUsed": 1452
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000003284cd8b/18/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 28,
+              "key": "P1006T1007T1008N",
+              "nodesUsed": 1452
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000003284cd8b/18/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 18,
+              "key": "P1006T1007U",
+              "nodesUsed": 1452
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000006ef3c0ed/0/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0704A0705O0706N0707F",
+              "nodesUsed": 940
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000006ef3c0ed/0/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 48,
+              "key": "P0706A0707F",
+              "nodesUsed": 940
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000006ef3c0ed/0/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 102,
+              "key": "P0407A0507O0607N0707F",
+              "nodesUsed": 940
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000006ef3c0ed/0/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 66,
+              "key": "P0607A0707F",
+              "nodesUsed": 940
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000000d2b3a9e/2/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0706O0806R0906R",
+              "nodesUsed": 1052
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000000d2b3a9e/2/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 13,
+              "key": "P0706R0806O0906O",
+              "nodesUsed": 1052
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000000d2b3a9e/2/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 39,
+              "key": "P0107O0207N",
+              "nodesUsed": 1052
+            },
+            "status": "pass"
+          },
+          {
+            "id": "000000000d2b3a9e/2/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 24,
+              "key": "P0706R0806O",
+              "nodesUsed": 1052
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000ab62b44f/4/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1009B1010E",
+              "nodesUsed": 1544
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000ab62b44f/4/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 5,
+              "key": "P1308S1408B",
+              "nodesUsed": 1544
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000ab62b44f/4/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 16,
+              "key": "P1306B1406E",
+              "nodesUsed": 1544
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000ab62b44f/4/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 9,
+              "key": "P1308E1309S1310B",
+              "nodesUsed": 1544
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000499a2e00/6/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0806O",
+              "nodesUsed": 1462
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000499a2e00/6/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 7,
+              "key": "P1006T1106O",
+              "nodesUsed": 1462
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000499a2e00/6/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 12,
+              "key": "P0209T0309M0409A",
+              "nodesUsed": 1462
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000499a2e00/6/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 8,
+              "key": "P0309M0409A",
+              "nodesUsed": 1462
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000e7d1a7b1/8/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0603T0604T0605N",
+              "nodesUsed": 1233
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000e7d1a7b1/8/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 13,
+              "key": "P0603N0604F0605T",
+              "nodesUsed": 1233
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000e7d1a7b1/8/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 40,
+              "key": "P0603R0604F0605T",
+              "nodesUsed": 1233
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000e7d1a7b1/8/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 18,
+              "key": "P1010T1011T",
+              "nodesUsed": 1233
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000086092162/10/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1200E1201T",
+              "nodesUsed": 1966
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000086092162/10/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 15,
+              "key": "P1200L1201N",
+              "nodesUsed": 1966
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000086092162/10/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 31,
+              "key": "P1200E1201T",
+              "nodesUsed": 1966
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000086092162/10/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 21,
+              "key": "P1202N1302N",
+              "nodesUsed": 1966
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000024409b13/12/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P1314H",
+              "nodesUsed": 1140
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000024409b13/12/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 5,
+              "key": "P1114Z",
+              "nodesUsed": 1140
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000024409b13/12/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 7,
+              "key": "P1114J",
+              "nodesUsed": 1140
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000024409b13/12/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 5,
+              "key": "P1314Z",
+              "nodesUsed": 1140
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000c27814c4/14/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0210T0310M",
+              "nodesUsed": 726
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000c27814c4/14/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 6,
+              "key": "P1010M1110R",
+              "nodesUsed": 726
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000c27814c4/14/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 15,
+              "key": "P0900R1000F1100T",
+              "nodesUsed": 726
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000c27814c4/14/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 12,
+              "key": "P0900T1000M1100R",
+              "nodesUsed": 726
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000060af8e75/16/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0903B1003I1103G",
+              "nodesUsed": 3066
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000060af8e75/16/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 8,
+              "key": "P0404G0504R0604O",
+              "nodesUsed": 3066
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000060af8e75/16/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 40,
+              "key": "P0903B1003I1103G",
+              "nodesUsed": 3066
+            },
+            "status": "pass"
+          },
+          {
+            "id": "0000000060af8e75/16/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 25,
+              "key": "P0903B1003I1103G",
+              "nodesUsed": 3066
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000fee70826/18/random-legal",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 1,
+              "key": "P0405R",
+              "nodesUsed": 2016
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000fee70826/18/beginner",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 5,
+              "key": "P0410R",
+              "nodesUsed": 2016
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000fee70826/18/greedy",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 14,
+              "key": "P1204T1304S",
+              "nodesUsed": 2016
+            },
+            "status": "pass"
+          },
+          {
+            "id": "00000000fee70826/18/strategist",
+            "observed": {
+              "budgetExhausted": 0,
+              "candidatesEvaluated": 8,
+              "key": "P1204T1304S",
+              "nodesUsed": 2016
+            },
+            "status": "pass"
+          }
+        ],
+        "id": "bots/decisions-b2-r1",
+        "summary": {
+          "error": 0,
+          "fail": 0,
+          "pass": 81
+        }
+      }
+    ],
+    "timings": {
+      "bots/decisions-b2-r1": {
+        "totalMs": 8380
+      },
+      "jcs": {
+        "totalMs": 18
+      },
+      "replays/v1": {
+        "totalMs": 880
+      },
+      "rng": {
+        "totalMs": 9
+      },
+      "scoring/v1": {
+        "totalMs": 55
+      },
+      "sha256": {
+        "totalMs": 1341
+      }
+    },
+    "verdict": "pass"
+  }
+}
